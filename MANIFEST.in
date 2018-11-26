@@ -1,0 +1,5 @@
+include README.rst
+
+recursive-include protopipe/pipeline/*.py
+
+global-exclude *.pyc
