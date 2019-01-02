@@ -15,7 +15,7 @@ from protopipe.pipeline.utils import load_config
 
 from protopipe.mva import (RegressorDiagnostic, ClassifierDiagnostic,
                            BoostedDecisionTreeDiagnostic)
-from protopipe.mva.utils import load_obj, get_evt_model_output
+from protopipe.mva.utils import load_obj, get_evt_model_output, plot_roc_curve
 
 
 def main():
@@ -44,6 +44,8 @@ def main():
     # Model
     method_name = cfg['Method']['name']
     target_name = cfg['Method']['target_name']
+    if model_type in 'classifier':
+        use_proba = cfg['Method']['use_proba']
 
     # Diagnostic
     nbins = cfg['Diagnostic']['energy']['nbins']
@@ -55,22 +57,26 @@ def main():
     )
 
     for idx, cam_id in enumerate(cam_ids):
+        print('### Model diagnostic for {}'.format(cam_id))
+
         # Load data
         data_scikit = load_obj(
-            path.join(indir, 'data_scikit_{}_{}_{}.pkl.gz'.format(model_type, args.mode, cam_id))
+            path.join(indir, 'data_scikit_{}_{}_{}_{}.pkl.gz'.format(model_type, method_name, args.mode, cam_id))
         )
         data_train = pd.read_pickle(
-            path.join(indir, 'data_train_{}_{}_{}.pkl.gz'.format(model_type, args.mode, cam_id))
+            path.join(indir, 'data_train_{}_{}_{}_{}.pkl.gz'.format(model_type, method_name, args.mode, cam_id))
         )
         data_test = pd.read_pickle(
-            path.join(indir, 'data_test_{}_{}_{}.pkl.gz'.format(model_type, args.mode, cam_id))
+            path.join(indir, 'data_test_{}_{}_{}_{}.pkl.gz'.format(model_type, method_name, args.mode, cam_id))
         )
 
         # Load model
         outname = '{}_{}_{}_{}.pkl.gz'.format(model_type, args.mode, cam_id, method_name)
         model = joblib.load(path.join(indir, outname))
 
-        outdir = os.path.join(indir, 'diagnostic_{}_{}_{}'.format(model_type, args.mode, cam_id))
+        outdir = os.path.join(indir, 'diagnostic_{}_{}_{}_{}'.format(
+            model_type, method_name, args.mode, cam_id)
+        )
         if not os.path.exists(outdir):
             os.makedirs(outdir)
 
@@ -84,12 +90,20 @@ def main():
                 output_name='reco_energy'
             )
         elif model_type in 'classifier':
+
+            if use_proba is True:
+                ouput_model_name = 'gammaness'
+            else:
+                ouput_model_name = 'score'
+
             diagnostic = ClassifierDiagnostic(
                 model=model,
                 feature_name_list=cfg['FeatureList'],
                 target_name=target_name,
                 data_train=data_train,
-                data_test=data_test
+                data_test=data_test,
+                model_output_name=ouput_model_name,
+                is_output_proba=use_proba
             )
 
         # Image-level diagnostic - feature importance
@@ -125,9 +139,6 @@ def main():
             plt.title(cam_id)
             fig.tight_layout()
             fig.savefig(path.join(outdir, 'features.pdf'))
-
-            #from IPython import embed
-            #embed()
 
             # Compute averaged energy
             print('Process test sample...')
@@ -266,83 +277,120 @@ def main():
             fig.tight_layout()
             fig.savefig(path.join(outdir, 'features.pdf'))
 
-            # Image-level diagnostic - method
-            plt.figure(figsize=(5,5))
-            ax = plt.gca()
-            opt = {'color': 'darkgreen', 'ls': '-', 'lw': 2}
-            BoostedDecisionTreeDiagnostic.plot_error_rate(ax, model, data_scikit, **opt)
-            plt.title(cam_id)
-            plt.tight_layout()
-            plt.savefig(os.path.join(outdir, 'bdt_diagnostic_error_rate.pdf'))
+            if method_name in 'AdaBoostClassifier':
+                # Image-level diagnostic - method
+                plt.figure(figsize=(5,5))
+                ax = plt.gca()
+                opt = {'color': 'darkgreen', 'ls': '-', 'lw': 2}
+                BoostedDecisionTreeDiagnostic.plot_error_rate(ax, model, data_scikit, **opt)
+                plt.title(cam_id)
+                plt.tight_layout()
+                plt.savefig(os.path.join(outdir, 'bdt_diagnostic_error_rate.pdf'))
 
-            plt.figure(figsize=(5,5))
-            ax = plt.gca()
-            BoostedDecisionTreeDiagnostic.plot_tree_error_rate(ax, model, **opt)
-            plt.title(cam_id)
-            plt.tight_layout()
-            plt.savefig(os.path.join(outdir, 'bdt_diagnostic_tree_error_rate.pdf'))
+                plt.figure(figsize=(5,5))
+                ax = plt.gca()
+                BoostedDecisionTreeDiagnostic.plot_tree_error_rate(ax, model, **opt)
+                plt.title(cam_id)
+                plt.tight_layout()
+                plt.savefig(os.path.join(outdir, 'bdt_diagnostic_tree_error_rate.pdf'))
 
-            # Image-level diagnostic - score
-            fig, ax = diagnostic.plot_image_score_distribution(nbin=50)
+            # Image-level diagnostic - model output
+            fig, ax = diagnostic.plot_image_model_output_distribution(nbin=50)
+            ax[0].set_xlim([0, 1])
             plt.title(cam_id)
             fig.tight_layout()
-            fig.savefig(os.path.join(outdir, 'image_score_distribution.pdf'))
+            fig.savefig(os.path.join(outdir, 'image_{}_distribution.pdf'.format(ouput_model_name)))
 
             # Image-level diagnostic - ROC curve
             plt.figure(figsize=(5,5))
             ax = plt.gca()
-            diagnostic.plot_roc_curve(ax, **dict(color='darkorange', lw=2))
+            plot_roc_curve(
+                ax,
+                diagnostic.data_train[diagnostic.model_output_name_img],
+                diagnostic.data_train['label'],
+                **dict(color='darkgreen', lw=2, label='Training sample')
+            )
+            plot_roc_curve(
+                ax,
+                data_test[diagnostic.model_output_name_img],
+                diagnostic.data_test['label'],
+                **dict(color='darkorange', lw=2, label='Test sample')
+            )
+            ax.set_xlabel('False Positive Rate')
+            ax.set_ylabel('True Positive Rate')
             ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
             ax.legend(loc='lower right')
             plt.title(cam_id)
             plt.tight_layout()
             plt.savefig(os.path.join(outdir, 'image_roc_curve.pdf'))
 
-            # Compute average score - event-wise
+            # Compute average output - event-wise
             print('Process training sample...')
             data_train_evt = get_evt_model_output(
                 data_train, weight_name='sum_signal_cam',
-                keep_cols=['label', 'reco_energy'], model_output_name='score_img',
-                model_output_name_evt='score'
+                keep_cols=['label', 'reco_energy'], model_output_name=ouput_model_name + '_img',
+                model_output_name_evt=ouput_model_name
             )
             print('Process test sample...')
             data_test_evt = get_evt_model_output(
                 data_test, weight_name='sum_signal_cam',
-                keep_cols=['label', 'reco_energy'], model_output_name='score_img',
-                model_output_name_evt='score'
+                keep_cols=['label', 'reco_energy'], model_output_name=ouput_model_name + '_img',
+                model_output_name_evt=ouput_model_name
             )
 
-            # Event-level diagnostic - score distribution
-            fig, ax = diagnostic.plot_evt_score_distribution(data_train=data_train_evt,
-                                                             data_test=data_test_evt,
-                                                             nbin=50)
+            # Event-level diagnostic - output distribution
+            fig, ax = diagnostic.plot_evt_model_output_distribution(data_train=data_train_evt,
+                                                                    data_test=data_test_evt,
+                                                                    nbin=50)
+            ax[0].set_xlim([0, 1])
             plt.title(cam_id)
             fig.tight_layout()
-            fig.savefig(os.path.join(outdir, 'evt_score_distribution.pdf'))
+            fig.savefig(os.path.join(outdir, 'evt_{}_distribution.pdf'.format(ouput_model_name)))
 
-            # Event-level diagnostic - score distribution variation
+            # Event-level diagnostic - model output distribution variation
             cut_list = ['reco_energy >= {:.2f} and reco_energy <= {:.2f}'.format(
                 energy_edges[i],
                 energy_edges[i+1]
             ) for i in range(len(energy_edges) - 1)]
 
-            fig, ax = diagnostic.plot_evt_score_distribution_variation(
+            fig, axes = diagnostic.plot_evt_model_output_distribution_variation(
                 data_train_evt,
                 data_test_evt,
                 cut_list,
                 nbin=50,
-                ncols=2
+                ncols=2,
+                hist_kwargs_list=[
+                    {'edgecolor': 'blue', 'color': 'blue',
+                     'label': 'Gamma training sample',
+                     'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
+                    {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma test sample',
+                     'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2},
+                    {'edgecolor': 'red', 'color': 'red',
+                     'label': 'Proton training sample',
+                     'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
+                    {'edgecolor': 'red', 'color': 'red', 'label': 'Proton test sample',
+                     'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2}
+                ],
+                error_kw_list=[
+                    dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=0.2),
+                    dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=1),
+                    dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=0.2),
+                    dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=1)
+                ]
             )
-            for x in ax:
-                x.set_xlim([-0.5, 0.5])
+            for ax in axes:
+                 ax.set_xlim([0, 1])
             fig.tight_layout()
-            fig.savefig(path.join(outdir, 'evt_score_distribution_energy.pdf'))
+            fig.savefig(path.join(outdir, 'evt_{}_distribution_energy.pdf'.format(ouput_model_name)))
 
             # Event-level diagnostic - ROC curve variation
             plt.figure(figsize=(5,5))
             ax = plt.gca()
             diagnostic.plot_evt_roc_curve_variation(ax, data_test_evt, cut_list)
             ax.set_title(cam_id)
+            ax.set_xlabel('False Positive Rate')
+            ax.set_ylabel('True Positive Rate')
+            ax.legend(loc="lower right", fontsize='x-small')
             plt.tight_layout()
             plt.savefig(os.path.join(outdir, 'evt_roc_curve_variation.pdf'))
 

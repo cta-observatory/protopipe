@@ -5,10 +5,11 @@ import pandas as pd
 import numpy as np
 import argparse
 from os import path
-from sklearn.ensemble import AdaBoostRegressor, AdaBoostClassifier
+from sklearn.ensemble import AdaBoostRegressor, AdaBoostClassifier, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.externals import joblib
 from sklearn.metrics import classification_report
+from sklearn.calibration import CalibratedClassifierCV
 
 from protopipe.pipeline.utils import load_config
 
@@ -81,12 +82,24 @@ def main():
         sig_cuts = make_cut_list(cfg['SigFiducialCuts'])
         bkg_cuts = make_cut_list(cfg['BkgFiducialCuts'])
 
-        init_model = AdaBoostClassifier(DecisionTreeClassifier(max_depth=None))
+        # Model
+        if method_name in 'AdaBoostClassifier':
+            init_model = AdaBoostClassifier(DecisionTreeClassifier(max_depth=4))
+        elif method_name in 'RandomForestClassifier':
+            init_model = RandomForestClassifier(
+                n_estimators=500, max_depth=None, min_samples_split=0.05,
+                max_features='sqrt', bootstrap=True, random_state=None, criterion='gini'
+            )
+        use_same_number_of_sig_and_bkg_for_training = cfg['Split'][
+            'use_same_number_of_sig_and_bkg_for_training']
+
+
+    print('### Using {} for model construction'.format(method_name))
 
     models = dict()
     for idx, cam_id in enumerate(cam_ids):
 
-        print('Building model for {}'.format(cam_id))
+        print('### Building model for {}'.format(cam_id))
         
         if model_type in 'regressor':
             # Load data
@@ -99,9 +112,6 @@ def main():
                 target_name=target_name,
                 feature_name_list=feature_list
             )
-
-            #from IPython import embed
-            #embed()
             
             # Split data
             factory.split_data(data_sig=data, train_fraction=train_fraction)
@@ -117,8 +127,11 @@ def main():
             data_bkg = pd.read_hdf(filename_bkg, table_name[idx], mode='r')
 
             # Add label
-            data_sig = prepare_data(ds=data_sig, label=1, cuts=sig_cuts)[0:args.max_events]
-            data_bkg = prepare_data(ds=data_bkg, label=0, cuts=bkg_cuts)[0:args.max_events]
+            data_sig = prepare_data(ds=data_sig, label=1, cuts=sig_cuts)
+            data_bkg = prepare_data(ds=data_bkg, label=0, cuts=bkg_cuts)
+
+            data_sig = data_sig[0:args.max_events]
+            data_bkg = data_bkg[0:args.max_events]
 
             # Init model factory
             factory = TrainModel(
@@ -128,7 +141,13 @@ def main():
             )
 
             # Split data
-            factory.split_data(data_sig=data_sig, data_bkg=data_bkg, train_fraction=train_fraction)
+            factory.split_data(
+                data_sig=data_sig,
+                data_bkg=data_bkg,
+                train_fraction=train_fraction,
+                force_same_nsig_nbkg=use_same_number_of_sig_and_bkg_for_training
+            )
+
             print('Training sample: sig {} and bkg {}'.format(
                 len(factory.data_train.query('label==1')),
                 len(factory.data_train.query('label==0'))
@@ -146,10 +165,30 @@ def main():
             cv=cv
         )
 
-        # print report
         if model_type in 'classifier':
-            print(classification_report(factory.data_scikit['y_test'],
-                                        best_model.predict(factory.data_scikit['X_test'])))
+            # print report
+            if model_type in 'classifier':
+                print(classification_report(
+                    factory.data_scikit['y_test'],
+                    best_model.predict(factory.data_scikit['X_test']))
+                )
+
+            # Calibrate model if necessary on test data
+            if cfg['Method']['calibrate_output'] is True:
+                print('==> Calibrate classifier...')
+
+                best_model = CalibratedClassifierCV(
+                    best_model,
+                    method='sigmoid',
+                    cv='prefit'
+                )
+
+                best_model.fit(
+                    factory.data_scikit['X_test'],
+                    factory.data_scikit['y_test']
+                )
+
+
         # save model
         models[cam_id] = best_model
         outname = '{}_{}_{}_{}.pkl.gz'.format(model_type, args.mode, cam_id, method_name)
@@ -158,14 +197,14 @@ def main():
         # save data
         save_obj(
             factory.data_scikit,
-            path.join(outdir, 'data_scikit_{}_{}_{}.pkl.gz'.format(model_type, args.mode, cam_id))
+            path.join(outdir, 'data_scikit_{}_{}_{}_{}.pkl.gz'.format(model_type, method_name, args.mode, cam_id))
         )
         factory.data_train.to_pickle(
-            path.join(outdir, 'data_train_{}_{}_{}.pkl.gz'.format(model_type, args.mode, cam_id))
+            path.join(outdir, 'data_train_{}_{}_{}_{}.pkl.gz'.format(model_type, method_name, args.mode, cam_id))
 
         )
         factory.data_test.to_pickle(
-            path.join(outdir, 'data_test_{}_{}_{}.pkl.gz'.format(model_type, args.mode, cam_id))
+            path.join(outdir, 'data_test_{}_{}_{}_{}.pkl.gz'.format(model_type, method_name, args.mode, cam_id))
         )
 
 
