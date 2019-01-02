@@ -129,7 +129,10 @@ def main():
 
     # Weight events
     print('- Weighting events...')
-    cut_optimiser.weight_events(model_dict)
+    cut_optimiser.weight_events(
+        model_dict=model_dict,
+        colname_mc_energy=cfg['column_definition']['mc_energy']
+    )
 
     # Find best cutoff to reach best sensitivity
     print('- Estimating cutoffs...')
@@ -139,7 +142,7 @@ def main():
     print('- Saving results to disk...')
     cut_optimiser.write_results(
         outdir, '{}.fits'.format(cfg['general']['output_table_name']),
-        format='fits'
+       format='fits'
     )
 
     # Cuts diagnostic

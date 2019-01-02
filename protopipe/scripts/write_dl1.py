@@ -62,14 +62,17 @@ def main():
     signal_handler = SignalHandler()
     signal.signal(signal.SIGINT, signal_handler)
 
+    # Regressor method
+    regressor_method = cfg['EnergyRegressor']['method_name']
+
     # wrapper for the scikit-learn regressor
     if args.estimate_energy is True:
         #regressor_files = args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
         regressor_files = args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
         reg_file = regressor_files.format(
             **{"mode": args.mode,
-               "wave_args": "mixed",  # ToDo, control
-               "regressor": "AdaBoostRegressor",
+               "wave_args": 'mixed',  # ToDo, control
+               "regressor": regressor_method,
                "cam_id": "{cam_id}"}
         )
 

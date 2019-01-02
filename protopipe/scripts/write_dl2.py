@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
 from sys import exit
+import numpy as np
 from glob import glob
 import signal
 from astropy.coordinates.angle_utilities import angular_separation
-import yaml
 import tables as tb
 
 # ctapipe
 from ctapipe.io import EventSourceFactory
 from ctapipe.utils.CutFlow import CutFlow
-from ctapipe.reco.energy_regressor import *
+from ctapipe.reco.energy_regressor import EnergyRegressor
+from ctapipe.reco.event_classifier import EventClassifier
 
 # Utilities
 from protopipe.pipeline import EventPreparer
@@ -23,12 +24,15 @@ from protopipe.pipeline.utils import (make_argparser,
 
 def main():
 
+    # Big hack for wavelets
+    import sys
+    sys.path.append('./')
+
     # Argument parser
     parser = make_argparser()
     parser.add_argument('--regressor_dir', default='./', help='regressors directory')
     parser.add_argument('--classifier_dir', default='./', help='regressors directory')
-    parser.add_argument('--force_tailcut_for_extended_cleaning', type=str2bool,
-                        default=False,
+    parser.add_argument('--force_tailcut_for_extended_cleaning', type=str2bool, default=False,
                         help="For tailcut cleaning for energy/score estimation")
     args = parser.parse_args()
 
@@ -47,6 +51,9 @@ def main():
     force_mode = args.mode
     if cfg['General']['force_tailcut_for_extended_cleaning'] is True:
         force_mode = 'tail'
+
+    print('force_mode={}'.format(force_mode))
+    print('mode={}'.format(args.mode))
 
     if args.infile_list:
         filenamelist = []
@@ -69,20 +76,27 @@ def main():
         event_cutflow=evt_cutflow,
         image_cutflow=img_cutflow)
 
+    # Regressor and classifier methods
+    regressor_method = cfg['EnergyRegressor']['method_name']
+    classifier_method = cfg['GammaHadronClassifier']['method_name']
+    use_proba_for_classifier = cfg['GammaHadronClassifier']['use_proba']
+
+    # Classifiers
     classifier_files = args.classifier_dir + "/classifier_{mode}_{cam_id}_{classifier}.pkl.gz"
     clf_file = classifier_files.format(
         **{"mode": force_mode,
            "wave_args": "mixed",
-           "classifier": "AdaBoostClassifier",
+           "classifier": classifier_method,
            "cam_id": "{cam_id}"}
     )
-    classifier = EnergyRegressor.load(clf_file, cam_id_list=args.cam_ids)
+    classifier = EventClassifier.load(clf_file, cam_id_list=args.cam_ids)
 
+    # Regressors
     regressor_files = args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
     reg_file = regressor_files.format(
         **{"mode": force_mode,
            "wave_args": "mixed",
-           "regressor": "AdaBoostRegressor",
+           "regressor": regressor_method,
            "cam_id": "{cam_id}"})
 
     regressor = EnergyRegressor.load(reg_file, cam_id_list=args.cam_ids)
@@ -188,6 +202,7 @@ def main():
 
                 # Estimate particle score
                 score_tel = np.zeros(len(hillas_dict.keys()))
+                gammaness_tel = np.zeros(len(hillas_dict.keys()))
                 weight_tel = np.zeros(len(hillas_dict.keys()))
 
                 for idx, tel_id in enumerate(hillas_dict.keys()):
@@ -202,10 +217,17 @@ def main():
                         moments.kurtosis,
                         h_max.value
                     ])
-                    score_tel[idx] = model.decision_function([features_img])
+                    if use_proba_for_classifier is False:
+                        score_tel[idx] = model.decision_function([features_img])
+                    else:
+                        gammaness_tel[idx] = model.predict_proba([features_img])[:,1]
+                    # Should test other weighting strategy (e.g. power of weight)
                     weight_tel[idx] = moments.intensity
 
-                score = np.sum(weight_tel * score_tel) / sum(weight_tel)
+                if use_proba_for_classifier is True:
+                    gammaness = np.sum(weight_tel * gammaness_tel) / sum(weight_tel)
+                else:
+                    score = np.sum(weight_tel * score_tel) / sum(weight_tel)
 
                 shower = event.mc
                 mc_core_x = shower.core_x
@@ -231,7 +253,10 @@ def main():
                 reco_event["reco_core_y"] = reco_core_y.to('m').value
                 reco_event["mc_core_x"] = mc_core_x.to('m').value
                 reco_event["mc_core_y"] = mc_core_y.to('m').value
-                reco_event["score"] = score
+                if use_proba_for_classifier is True:
+                    reco_event["gammaness"] = gammaness
+                else:
+                    reco_event["score"] = score
                 reco_event["success"] = True
                 reco_event["ErrEstPos"] = np.nan
                 reco_event["ErrEstDir"] = np.nan
