@@ -91,19 +91,19 @@ def make_argparser():
     return parser
 
 
-def prod3b_tel_ids(cam_id, site="south"):
-    if cam_id in [None, ""]:
+def prod3b_tel_ids(array, site="south"):
+    if array in [None, ""]:
         return None
 
     if site.lower() in ["north", "la palma", "lapalma", "spain", "canaries"]:
-        if cam_id in 'subarray_LSTs':
+        if array in 'subarray_LSTs':
             tel_ids = np.arange(1, 4 + 1)
-        if cam_id in 'subarray_MSTs':
+        elif array in 'subarray_MSTs':
             tel_ids = np.arange(5, 19 + 1)
-        elif cam_id in 'full_array':
+        elif array in 'full_array':
             tel_ids = np.arange(1, 19 + 1)
         else:
-            raise ValueError("cam_id {} not supported".format(cam_id))
+            raise ValueError("array {} not supported".format(array))
     else:
         raise ValueError("site '{}' not known -- try again".format(site))
 

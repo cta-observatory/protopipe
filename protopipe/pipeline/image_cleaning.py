@@ -15,14 +15,15 @@ except ImportError as e:
 
 __all__ = ['ImageCleaner']
 
+
 class ImageCleaner(object):
     """Class applying image cleaning. It can handle wavelet or tail-cuts-based methods.
 
     Parameters
     ----------
-    config: `dict`
+    config: dict
         Configuration file with sections corresponding to wave or tail
-    mode: `str`
+    mode: str
         Model corresponding to `wave` or `tail`
     """
 
@@ -97,8 +98,8 @@ class ImageCleaner(object):
 
         Parameter
         ---------
-        img: `np.array`
-            Cleaned image
+        img: array
+            Calibrated image
         geom: `~ctapipe.XXX`
             Camera geometry
 
