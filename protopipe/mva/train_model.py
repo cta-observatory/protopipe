@@ -11,11 +11,11 @@ class TrainModel(object):
 
     Parameters
     ----------
-    case: `str`
+    case: str
         Possibilities are regressor or classifier
-    feature_name_list: `list`
+    feature_name_list: list
         List of features
-    target_name: `str`
+    target_name: str, optional
         Regression target
     """
 
@@ -29,9 +29,21 @@ class TrainModel(object):
         self.data_train = None
         self.data_scikit = None
 
-    def split_data(self, data_sig, train_fraction, data_bkg=None):
+    def split_data(self, data_sig, train_fraction, data_bkg=None, force_same_nsig_nbkg=False):
         """
         Load and split data to build train/test samples.
+
+        Parameters
+        ----------
+        data_sig: `~pandas.DataFrame`
+            Data frame
+        train_fraction: float
+            Fraction of events to build the training sample
+        data_bkg: `~pandas.DataFrame`
+            Data frame
+        force_same_nsig_nbkg: bool
+            If true, the same number of signal and bkg events will be used
+            to build a classifier
         """
 
         if self.case in 'regressor':
@@ -62,15 +74,27 @@ class TrainModel(object):
                     target_name=self.target_name
                 )
 
-            X_train = X_train_sig.append(X_train_bkg)
-            y_train = y_train_sig.append(y_train_bkg)
-            X_test = X_test_sig.append(X_test_bkg)
-            y_test = y_test_sig.append(y_test_bkg)
+            max_events = -1
 
-            self.data_train = data_train_sig.append(data_train_bkg)
-            self.data_test = data_test_sig.append(data_test_bkg)
+            if force_same_nsig_nbkg is True:
+                if len(X_train_bkg) <= len(X_train_sig):
+                    max_events = len(X_train_bkg)
+                else:
+                    max_events = len(X_train_sig)
+            X_train = X_train_sig[0:max_events].append(X_train_bkg[0:max_events])
+            y_train = y_train_sig[0:max_events].append(y_train_bkg[0:max_events])
+            self.data_train = data_train_sig[0:max_events].append(data_train_bkg[0:max_events])
 
-            weight = np.ones(len(self.data_train))
+            if force_same_nsig_nbkg is True:
+                if len(X_test_bkg) <= len(X_test_sig):
+                    max_events = len(X_test_bkg)
+                else:
+                    max_events = len(X_test_sig)
+            X_test = X_test_sig[0:max_events].append(X_test_bkg[0:max_events])
+            y_test = y_test_sig[0:max_events].append(y_test_bkg[0:max_events])
+            self.data_test = data_test_sig[0:max_events].append(data_test_bkg[0:max_events])
+
+            weight = np.ones(len(X_train))
             weight_train = weight / sum(weight)
 
         self.data_scikit = {'X_train': X_train.values,
@@ -85,14 +109,18 @@ class TrainModel(object):
 
         Parameters
         ----------
-        init_model: `~XXX`
+        init_model: `~sklearn.base.BaseEstimator`
             Model to optimise
-        tuned_parameters: `dict`
+        tuned_parameters: dict
             Contains parameter names and ranges to optimise on
-        scoring: `str`
+        scoring: str
             Estimator
-        cv: `int`
+        cv: int
             number of split for x-validation
+        Returns
+        -------
+        best_estimator: `~sklearn.base.BaseEstimator`
+            Best model
         """
         model = GridSearchCV(init_model, tuned_parameters, scoring=scoring, cv=cv)
         model.fit(self.data_scikit['X_train'], self.data_scikit['y_train'],
@@ -107,6 +135,7 @@ class TrainModel(object):
         for mean, std, params in zip(means, stds, model.cv_results_['params']):
             print(' - {:.3f}+/-{:.3f} for {}'.format(mean, std * 2, params))
 
-        return model.best_estimator_
+        best_estimator = model.best_estimator_
+        return best_estimator
 
 

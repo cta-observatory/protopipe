@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import gzip
+from sklearn.metrics import auc, roc_curve
 
 
 def save_obj(obj, name ):
@@ -17,6 +18,7 @@ def load_obj(name ):
 
 
 def prepare_data(ds, cuts, label=None):
+    """Add variables in data frame"""
     ds['log10_charge'] = np.log10(ds['sum_signal_cam'])
     ds['log10_impact'] = np.log10(ds['impact_dist'])
     ds['log10_mc_energy'] = np.log10(ds['mc_energy'])
@@ -71,7 +73,19 @@ def get_evt_model_output(data, weight_name=None, keep_cols=['reco_energy'],
     Parameters
     ----------
     data: `~pandas.DataFrame`
+        Data frame
     weight_name: `str`
+        Variable name in data frame to weight events with
+    keep_cols: `list`, optional
+        List of variables to keep in resulting data frame
+    model_output_name: `str`, optional
+        Name of model output (image level)
+    model_output_name: `str`, optional
+        Name of averaged model output (event level)
+    Returns
+    --------
+    data: `~pandas.DataFrame`
+        Data frame
     """
 
     keep_cols += [model_output_name]
@@ -98,8 +112,7 @@ def get_evt_model_output(data, weight_name=None, keep_cols=['reco_energy'],
                 average = np.sum(weight * evt_df[model_output_name]) / sum(weight)
                 new_data.at[(iobs, ievt), model_output_name_evt] = np.full(len(evt_df), average)
             except:  # Can happen if one badly split the data
-                print('Truncated event ==> rejected!')
-                average = np.inf
+                average = evt_df[[model_output_name]]
                 new_data.at[(iobs, ievt), model_output_name_evt] = average
 
     # Remove columns
@@ -109,6 +122,15 @@ def get_evt_model_output(data, weight_name=None, keep_cols=['reco_energy'],
     new_data = new_data[~new_data.index.duplicated(keep='first')]
 
     return new_data
+
+
+def plot_roc_curve(ax, model_output, y, **kwargs):
+    """Plot ROC curve for a given set of model outputs and labels"""
+    fpr, tpr, _ = roc_curve(y_score=model_output, y_true=y)
+    roc_auc = auc(fpr, tpr)
+    label = '{} (area={:.2f})'.format(kwargs.pop('label'), roc_auc)  # Remove label
+    ax.plot(fpr, tpr, label=label, **kwargs)
+    return ax
 
 
 def plot_hist(ax, data, nbin, limit, norm=False, yerr=False, hist_kwargs={}, error_kw={}):
