@@ -64,6 +64,10 @@ class CutsApplicator(object):
         data['pass_best_cutoff'] = np.zeros(len(data), dtype=bool)
         data['pass_angular_cut'] = np.zeros(len(data), dtype=bool)
 
+        colname_reco_energy = self.config['column_definition']['reco_energy']
+        colname_clf_output = self.config['column_definition']['classification_output']['name']
+        colname_angular_dist = self.config['column_definition']['angular_distance_to_the_src']
+
         # Loop over energy bins and apply cutoff for each slice
         table = self.table[np.where(self.table['keep'].data)[0]]
         for info in table:
@@ -73,25 +77,25 @@ class CutsApplicator(object):
             # ))
 
             # Best cutoff
-            data.loc[(data['reco_energy'] >= info['emin']) &
-                     (data['reco_energy'] < info['emax']) &
-                     (data['score'] >= info['best_cutoff']), ['pass_best_cutoff']] = True
+            data.loc[(data[colname_reco_energy] >= info['emin']) &
+                     (data[colname_reco_energy] < info['emax']) &
+                     (data[colname_clf_output] >= info['best_cutoff']), ['pass_best_cutoff']] = True
             # Angular cut
-            data.loc[(data['reco_energy'] >= info['emin']) &
-                     (data['reco_energy'] < info['emax']) &
-                     (data['xi'] <= info['angular_cut']), ['pass_angular_cut']] = True
+            data.loc[(data[colname_reco_energy] >= info['emin']) &
+                     (data[colname_reco_energy] < info['emax']) &
+                     (data[colname_angular_dist] <= info['angular_cut']), ['pass_angular_cut']] = True
 
         # Handle events which are not in energy range
         # Best cutoff
-        data.loc[(data['reco_energy'] < table['emin'][0]) &
-                 (data['score'] >= table['best_cutoff'][0]), ['pass_best_cutoff']] = True
-        data.loc[(data['reco_energy'] >= table['emin'][-1]) &
-                 (data['score'] >= table['best_cutoff'][-1]), ['pass_best_cutoff']] = True
+        data.loc[(data[colname_reco_energy] < table['emin'][0]) &
+                 (data[colname_clf_output] >= table['best_cutoff'][0]), ['pass_best_cutoff']] = True
+        data.loc[(data[colname_reco_energy] >= table['emin'][-1]) &
+                 (data[colname_clf_output] >= table['best_cutoff'][-1]), ['pass_best_cutoff']] = True
         # Angular cut
-        data.loc[(data['reco_energy'] < table['emin'][0]) &
-                 (data['xi'] <= table['angular_cut'][0]), ['pass_angular_cut']] = True
-        data.loc[(data['reco_energy'] >= table['emin'][-1]) &
-                 (data['xi'] <= table['angular_cut'][-1]), ['pass_angular_cut']] = True
+        data.loc[(data[colname_reco_energy] < table['emin'][0]) &
+                 (data[colname_angular_dist] <= table['angular_cut'][0]), ['pass_angular_cut']] = True
+        data.loc[(data[colname_reco_energy] >= table['emin'][-1]) &
+                 (data[colname_angular_dist] <= table['angular_cut'][-1]), ['pass_angular_cut']] = True
 
         return data
 
@@ -117,6 +121,8 @@ class CutsDiagnostic(object):
             os.path.join(indir, '{}.fits'.format(config['general']['output_table_name'])),
             format='fits'
         )
+
+        self.clf_output_bounds = self.config['column_definition']['classification_output']['range']
 
     def plot_optimisation_summary(self):
         """Plot efficiencies and angular cut as a function of energy bins"""
@@ -165,8 +171,8 @@ class CutsDiagnostic(object):
             ax_rate = self.plot_rates_vs_score(ax_rate, data, info,
                                                self.config['analysis']['obs_time']['unit'])
 
-            ax_eff.set_xlim([-0.5, 0.5])
-            ax_rate.set_xlim([-0.5, 0.5])
+            ax_eff.set_xlim(self.clf_output_bounds)
+            ax_rate.set_xlim(self.clf_output_bounds)
 
             plt.tight_layout()
             plt.savefig(
@@ -197,16 +203,19 @@ class CutsDiagnostic(object):
     @classmethod
     def plot_rates_vs_score(cls, ax, data, info, time_unit):
         """Plot rates as a function of score"""
+        scale = info['min_flux']
+
         opt = {'edgecolor': 'blue', 'color': 'blue', 'label': 'Excess in ON region',
-               'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2}
-        error_kw = dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=0.2)
-        ax = plot_hist(ax=ax, data=data['cumul_excess'] / (info['obs_time'] * u.Unit(time_unit).to('s')),
+               'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 1}
+        error_kw = dict(ecolor='blue', lw=1, capsize=1, capthick=1, alpha=1)
+        ax = plot_hist(ax=ax, data=(data['cumul_excess'] * scale) /
+                                   (info['obs_time'] * u.Unit(time_unit).to('s')),
                        edges=data['score_edges'], norm=False,
                        yerr=False, error_kw=error_kw, hist_kwargs=opt)
 
         opt = {'edgecolor': 'red', 'color': 'red', 'label': 'Bkg in ON region',
-               'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2}
-        error_kw = dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=0.2)
+               'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 1}
+        error_kw = dict(ecolor='red', lw=1, capsize=1, capthick=1, alpha=1)
         ax = plot_hist(ax=ax, data=data['cumul_noff'] * info['alpha'] / (info['obs_time'] * u.Unit(time_unit).to('s')),
                        edges=data['score_edges'], norm=False,
                        yerr=False, error_kw=error_kw, hist_kwargs=opt)
@@ -216,7 +225,8 @@ class CutsDiagnostic(object):
 
         max_rate_p = (data['cumul_noff'] * info['alpha'] / (info['obs_time'] * u.Unit(time_unit).to('s'))).max()
         max_rate_g = (data['cumul_excess'] / (info['obs_time'] * u.Unit(time_unit).to('s'))).max()
-        max_rate = max_rate_g * info['min_flux'] if (max_rate_g * info['min_flux']) >= max_rate_p else max_rate_p
+        scaled_rate = max_rate_g * scale
+        max_rate = scaled_rate if scaled_rate >= max_rate_p else max_rate_p
 
         ax.set_ylim([0., max_rate * 1.15])
         ax.set_ylabel('Rates [HZ]')
@@ -225,11 +235,11 @@ class CutsDiagnostic(object):
         ax.legend(loc='upper right', framealpha=1)
 
         ax.text(
-            0.05, 0.05, CutsDiagnostic.get_text(info),
+            0.52, 0.35, CutsDiagnostic.get_text(info),
             horizontalalignment='left',
             verticalalignment='bottom',
             multialignment='left',
-            bbox=dict(facecolor='white', alpha=1),
+            bbox=dict(facecolor='white', alpha=0.5),
             transform=ax.transAxes
         )
         return ax
@@ -273,19 +283,20 @@ class CutsOptimisation(object):
         self.evt_dict = evt_dict
         self.verbose_level = verbose_level
 
-    def weight_events(self, model_dict):
+    def weight_events(self, model_dict, colname_mc_energy):
         """
         Add a weight column to the files, in order to scale simulated data to reality.
 
         Parameters
         ----------
-        model_dict: `dict`
+        model_dict: dict
             Dictionary of models
+        colname_mc_energy: str
+            Column name for the true energy
         """
-        # Weight the
         for particle in self.evt_dict.keys():
             self.evt_dict[particle]['weight'] = self.compute_weight(
-                energy=self.evt_dict[particle]['mc_energy'].values * u.TeV,
+                energy=self.evt_dict[particle][colname_mc_energy].values * u.TeV,
                 particle=particle,
                 model=model_dict[particle]
             )
@@ -343,6 +354,9 @@ class CutsOptimisation(object):
             Angular cuts
         """
         self.results_dict = dict()
+        colname_reco_energy = self.config['column_definition']['reco_energy']
+        clf_output_bounds = self.config['column_definition']['classification_output']['range']
+        colname_angular_dist = self.config['column_definition']['angular_distance_to_the_src']
 
         # Loop on energy
         for ibin in range(len(energy_values) - 1):
@@ -350,9 +364,9 @@ class CutsOptimisation(object):
             emax = energy_values[ibin + 1]
             print(' ==> {}) Working in E=[{:.3f},{:.3f}]'.format(ibin, emin, emax))
 
-            energy_query = 'reco_energy > {} and reco_energy <= {}'.format(
-                emin.value, emax.value
-            )
+            query_emin = '{} > {}'.format(colname_reco_energy, emin.value)
+            query_emax = '{} <= {}'.format(colname_reco_energy, emax.value)
+            energy_query = '{} and {}'.format(query_emin, query_emax)
             g = self.evt_dict['gamma'].query(energy_query).copy()
             p = self.evt_dict['proton'].query(energy_query).copy()
             e = self.evt_dict['electron'].query(energy_query).copy()
@@ -380,7 +394,7 @@ class CutsOptimisation(object):
                     print('- Theta={:.2f}'.format(th_cut))
 
                 # Select gamma-rays in ON region
-                th_query = 'xi <= {}'.format(th_cut.value)
+                th_query = '{} <= {}'.format(colname_angular_dist, th_cut.value)
                 sel_g = g.query(th_query).copy()
 
                 # Correct number of background due to acceptance
@@ -399,16 +413,19 @@ class CutsOptimisation(object):
 
                 # Get binned data as a function of score
                 binned_data = self.get_binned_data(
-                    sel_g, p, e, nbins=10000, score_range=[-2,2]
+                    sel_g, p, e, nbins=2000, score_range=clf_output_bounds
+                )
+
+                # Get re-binned data as a function of score for diagnostic plots
+                re_binned_data = self.get_binned_data(
+                    sel_g, p, e, nbins=200, score_range=clf_output_bounds
                 )
 
                 # Get optimisation results
                 results_th_cut_dict[CutsOptimisation._get_angular_key(th_cut.value)] = {
                     'th_cut': th_cut,
                     'result': self.find_best_cutoff_for_one_bin(binned_data=binned_data),
-                    'diagnostic_data': self.get_binned_data(
-                        sel_g, p, e, nbins=1000, score_range=[-2,2]
-                    )
+                    'diagnostic_data': re_binned_data
                 }
 
             # Select best theta cut (lowest flux). In case of equality, select the
@@ -573,17 +590,18 @@ class CutsOptimisation(object):
 
     def get_binned_data(self, g, p, e, nbins=100, score_range=[-1,1]):
         """Returns binned data as a dictionnary"""
-        res = dict()
+        colname_clf_output = self.config['column_definition']['classification_output']['name']
 
+        res = dict()
         # Histogram of events
         res['hist_sig'], edges = np.histogram(
-            a=g['score'].values, bins=nbins, range=score_range, weights=g['weight_corrected'].values
+            a=g[colname_clf_output].values, bins=nbins, range=score_range, weights=g['weight_corrected'].values
         )
         res['hist_p'], edges = np.histogram(
-            a=p['score'].values, bins=nbins, range=score_range, weights=p['weight_corrected'].values
+            a=p[colname_clf_output].values, bins=nbins, range=score_range, weights=p['weight_corrected'].values
         )
         res['hist_e'], edges = np.histogram(
-            a=e['score'].values, bins=nbins, range=score_range, weights=e['weight_corrected'].values
+            a=e[colname_clf_output].values, bins=nbins, range=score_range, weights=e['weight_corrected'].values
         )
         res['hist_bkg'] = res['hist_p'] + res['hist_e']
         res['score'] = (edges[:-1] + edges[1:]) / 2.

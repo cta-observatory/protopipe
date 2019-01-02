@@ -170,17 +170,32 @@ class IrfMaker(object):
     def build_irf(self):
         bkg_rate = self.make_bkg_rate()
         psf = self.make_point_spread_function()
-        area = self.make_effective_area()
+        area = self.make_effective_area(
+            apply_score_cut=True, apply_angular_cut=True, hdu_name='SPECRESP'
+        )  # Effective area with cuts applied
         edisp = self.make_energy_dispersion()
+
+        # Add usefull effective areas for debugging
+        area_no_cuts = self.make_effective_area(
+            apply_score_cut=False, apply_angular_cut=False, hdu_name='SPECRESP (NO CUTS)'
+        )  # Effective area with cuts applied
+        area_no_score_cut = self.make_effective_area(
+            apply_score_cut=False, apply_angular_cut=True, hdu_name='SPECRESP (WITH ANGULAR CUT)'
+        )  # Effective area with cuts applied
+        area_no_angular_cut = self.make_effective_area(
+            apply_score_cut=True, apply_angular_cut=False, hdu_name='SPECRESP (WITH SCORE CUT)'
+        )  # Effective area with cuts applied
 
         # Primary header
         n = np.arange(100.0)
         primary_hdu = fits.PrimaryHDU(n)
 
         # Fill HDU list
-        hdulist = fits.HDUList([primary_hdu, area, psf, edisp, bkg_rate])
+        hdulist = fits.HDUList(
+            [primary_hdu, area, psf, edisp, bkg_rate, area_no_cuts,
+             area_no_score_cut, area_no_angular_cut]
+        )
 
-        output_file = 'irf.fits.gz'
         hdulist.writeto(os.path.join(self.outdir, 'irf.fits.gz'), overwrite=True)
 
     def make_bkg_rate(self):
@@ -261,11 +276,21 @@ class IrfMaker(object):
             'POINT SPREAD FUNCTION', t, ['ENERG_LO', 'ENERG_HI', 'PSF68']
         )
 
-    def make_effective_area(self):
+    def make_effective_area(self, apply_score_cut=True, apply_angular_cut=True, hdu_name='SPECRESP'):
         nbin = len(self.etrue) - 1
         energ_lo = np.zeros(nbin)
         energ_hi = np.zeros(nbin)
         area = np.zeros(nbin)
+
+        # Get simulation infos
+        cfg_particule = self.config['particle_information']['gamma']
+        simu_index = cfg_particule['gen_gamma']
+        index = 1. - simu_index  # for futur integration
+        nsimu_tot = float(cfg_particule['n_files']) * float(
+            cfg_particule['n_events_per_file'])
+        emin_simu = cfg_particule['e_min']
+        emax_simu = cfg_particule['e_max']
+        area_simu = (np.pi * cfg_particule['gen_radius'] ** 2) * u.Unit('m2')
 
         for ibin in range(nbin):
 
@@ -275,22 +300,18 @@ class IrfMaker(object):
             # References
             data_g = self.evt_dict['gamma']
 
+            # Conditions to select gamma-rays
+            condition = (data_g['mc_energy'] >= emin) & (data_g['mc_energy'] < emax)
+            if apply_score_cut is True:
+                condition &= (data_g['pass_best_cutoff'])
+            if apply_angular_cut is True:
+                condition &= (data_g['pass_angular_cut'])
+
             # Compute number of events passing cuts selection
-            sel = len(data_g.loc[(data_g['mc_energy'] >= emin) &
-                                 (data_g['mc_energy'] < emax) &
-                                 (data_g['pass_best_cutoff']) &
-                                 (data_g['pass_angular_cut']), ['weight']])
+            sel = len(data_g.loc[condition, ['weight']])
 
             # Compute number of number of events in simulation
-            cfg_particule = self.config['particle_information']['gamma']
-            simu_index = cfg_particule['gen_gamma']
-            index = 1. - simu_index  # for futur integration
-            nsimu_tot = float(cfg_particule['n_files']) * float(cfg_particule['n_events_per_file'])
-            emin_simu = cfg_particule['e_min']
-            emax_simu = cfg_particule['e_max']
-            area_simu = (np.pi * cfg_particule['gen_radius'] ** 2) * u.Unit('m2')
-            simu_evts = float(nsimu_tot) * (emax.value ** index - emin.value ** index) / (
-                        emax_simu ** index - emin_simu ** index)
+            simu_evts = float(nsimu_tot) * (emax.value ** index - emin.value ** index) / (emax_simu ** index - emin_simu ** index)
 
             area[ibin] = (sel / simu_evts) * area_simu.value
             energ_lo[ibin] = emin.value
@@ -299,15 +320,16 @@ class IrfMaker(object):
         t = Table()
         t['ENERG_LO'] = Column(energ_lo, unit='TeV', description='energy min', format='E')
         t['ENERG_HI'] = Column(energ_hi, unit='TeV', description='energy max', format='E')
-        t['SPECRESP'] = Column(area, unit='m2', description='Effective area', format='E')
+        t[hdu_name] = Column(area, unit='m2', description='Effective area', format='E')
 
         return IrfMaker._make_hdu(
-            'SPECRESP', t, ['ENERG_LO', 'ENERG_HI', 'SPECRESP']
+            hdu_name, t, ['ENERG_LO', 'ENERG_HI', hdu_name]
         )
 
     def make_energy_dispersion(self):
-        migra = np.linspace(0.2, 5, 150)
-        counts = np.zeros([len(migra) - 1, len(self.etrue) - 1])
+        migra = np.linspace(0., 3., 300 + 1)
+        etrue = np.logspace(np.log10(0.01), np.log10(10000), 60 + 1)
+        counts = np.zeros([len(migra) - 1, len(etrue) - 1])
 
         # Select events
         data_g = self.evt_dict['gamma']
@@ -317,9 +339,9 @@ class IrfMaker(object):
             migra_min = migra[imigra]
             migra_max = migra[imigra + 1]
 
-            for ietrue in range(len(self.etrue) - 1):
-                emin = self.etrue[ietrue]
-                emax = self.etrue[ietrue + 1]
+            for ietrue in range(len(etrue) - 1):
+                emin = etrue[ietrue]
+                emax = etrue[ietrue + 1]
 
                 sel = len(data_g[(data_g['mc_energy'] >= emin) &
                                  (data_g['mc_energy'] < emax) &
@@ -327,12 +349,9 @@ class IrfMaker(object):
                                  ((data_g['reco_energy'] / data_g['mc_energy']) < migra_max)])
                 counts[imigra][ietrue] = sel
 
-                #from IPython import embed
-                #embed()
-
         table_energy = Table()
-        table_energy['ETRUE_LO'] = Column(self.etrue[:-1], unit='TeV', description='energy min', format=str(len(self.etrue) - 1) + 'E')
-        table_energy['ETRUE_HI'] = Column(self.etrue[1:], unit='TeV', description='energy max', format=str(len(self.etrue) - 1) + 'E')
+        table_energy['ETRUE_LO'] = Column(etrue[:-1], unit='TeV', description='energy min', format=str(len(etrue) - 1) + 'E')
+        table_energy['ETRUE_HI'] = Column(etrue[1:], unit='TeV', description='energy max', format=str(len(etrue) - 1) + 'E')
 
         table_migra = Table()
         table_migra['MIGRA_LO'] = Column(migra[:-1], unit='', description='migra min', format=str(len(migra) - 1) + 'E')
@@ -404,6 +423,3 @@ class IrfMaker(object):
         hdu.header.set("EXTNAME", "ENERGY DISPERSION",
                              "name of this binary table extension ")
         return hdu
-
-    def write_irf(self):
-        pass
