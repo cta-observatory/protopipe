@@ -14,14 +14,20 @@ of astrophysics.
 
 The pipeline provides scripts to:
  * process simtelarray files and write DL1 or DL2 tables
- * build regression or classification models along with diagnostic plots
+ * build regression or classification along with diagnostic plots
  * estimate the best cutoffs which gives the minimal sensitivy
    reachable in a given amount of time
  * produce instrument response functions (IRF), including sensitivity
 
 In order to process a significant amount of events the use of the GRID is rapidly
 mandatory. Some utility scripts to submits jobs on the GRID are provided on
-GRID.
+the `GRID repository <https://drf-gitlab.cea.fr/CTA-Irfu/grid>`_.
+
+HowTo
+=====
+Two scripts are needed
+
+
 
 Documentation
 =============
@@ -33,13 +39,3 @@ Documentation
    mva/index
    perf/index
    scripts/index
-   
-What should be improved?
-========================
- * Saving calibrated images as a DL1 format (here, only image parameters are saved)
- * The EventPreparer is a bit messy, it should returns containers
- * Features for regression and classification are hard-coded in the two scripts
- `write_dl1.py` and `write_dl2.py`
- * Data format
-
-   
