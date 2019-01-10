@@ -15,7 +15,8 @@ from protopipe.pipeline.utils import load_config
 
 from protopipe.mva import (RegressorDiagnostic, ClassifierDiagnostic,
                            BoostedDecisionTreeDiagnostic)
-from protopipe.mva.utils import load_obj, get_evt_model_output, plot_roc_curve
+from protopipe.mva.utils import (load_obj, get_evt_subarray_model_output,
+                                 plot_roc_curve, plot_hist)
 
 
 def main():
@@ -56,6 +57,9 @@ def main():
         True
     )
 
+    # Will be further used to get model output of events
+    diagnostic = dict()
+
     for idx, cam_id in enumerate(cam_ids):
         print('### Model diagnostic for {}'.format(cam_id))
 
@@ -81,7 +85,7 @@ def main():
             os.makedirs(outdir)
 
         if model_type in 'regressor':
-            diagnostic = RegressorDiagnostic(
+            diagnostic[cam_id] = RegressorDiagnostic(
                 model=model,
                 feature_name_list=cfg['FeatureList'],
                 target_name=target_name,
@@ -96,7 +100,7 @@ def main():
             else:
                 ouput_model_name = 'score'
 
-            diagnostic = ClassifierDiagnostic(
+            diagnostic[cam_id] = ClassifierDiagnostic(
                 model=model,
                 feature_name_list=cfg['FeatureList'],
                 target_name=target_name,
@@ -109,7 +113,7 @@ def main():
         # Image-level diagnostic - feature importance
         plt.figure(figsize=(5, 5))
         ax = plt.gca()
-        ax = diagnostic.plot_feature_importance(ax, **{'alpha': 0.7, 'edgecolor': 'black',
+        ax = diagnostic[cam_id].plot_feature_importance(ax, **{'alpha': 0.7, 'edgecolor': 'black',
                                                        'linewidth': 2,
                                                        'color': 'darkgreen'})
         ax.set_ylabel('Feature importance')
@@ -121,8 +125,8 @@ def main():
         # Diagnostic for regressor
         if model_type in 'regressor':
 
-            # Image-level diagnostic - features
-            fig, axes = diagnostic.plot_features(
+            # Image-level diagnostic[cam_id] - features
+            fig, axes = diagnostic[cam_id].plot_features(
                 data_list=[data_train, data_test],
                 nbin=30,
                 hist_kwargs_list=[
@@ -142,7 +146,7 @@ def main():
 
             # Compute averaged energy
             print('Process test sample...')
-            data_test_evt = get_evt_model_output(
+            data_test_evt = get_evt_subarray_model_output(
                 data_test, weight_name='sum_signal_cam',
                 keep_cols=['mc_energy'], model_output_name='reco_energy_img',
                 model_output_name_evt='reco_energy'
@@ -178,7 +182,7 @@ def main():
                 opt_hist = {'edgecolor': 'black', 'color': 'darkgreen',
                             'label': 'data', 'alpha': 0.7, 'fill': True}
                 opt_fit = {'c': 'red', 'lw': 2, 'label': 'Best fit'}
-                ax, fit_param, cov = diagnostic.plot_resolution_distribution(
+                ax, fit_param, cov = diagnostic[cam_id].plot_resolution_distribution(
                     ax=ax,
                     y_true=emc,
                     y_reco=er,
@@ -251,7 +255,7 @@ def main():
         elif model_type in 'classifier':
 
             # Image-level diagnostic - features
-            fig, axes = diagnostic.plot_features(
+            fig, axes = diagnostic[cam_id].plot_features(
                 data_list=[data_train.query('label==1'), data_test.query('label==1'),
                            data_train.query('label==0'), data_test.query('label==0')],
                 nbin=30,
@@ -295,25 +299,25 @@ def main():
                 plt.savefig(os.path.join(outdir, 'bdt_diagnostic_tree_error_rate.pdf'))
 
             # Image-level diagnostic - model output
-            fig, ax = diagnostic.plot_image_model_output_distribution(nbin=50)
+            fig, ax = diagnostic[cam_id].plot_image_model_output_distribution(nbin=50)
             ax[0].set_xlim([0, 1])
             plt.title(cam_id)
             fig.tight_layout()
-            fig.savefig(os.path.join(outdir, 'image_{}_distribution.pdf'.format(ouput_model_name)))
+            fig.savefig(os.path.join(outdir, 'image_distribution.pdf'))
 
-            # Image-level diagnostic - ROC curve
+            # Image-level diagnostic - ROC curve on train and test samples
             plt.figure(figsize=(5,5))
             ax = plt.gca()
             plot_roc_curve(
                 ax,
-                diagnostic.data_train[diagnostic.model_output_name_img],
-                diagnostic.data_train['label'],
+                diagnostic[cam_id].data_train[diagnostic[cam_id].model_output_name],
+                diagnostic[cam_id].data_train['label'],
                 **dict(color='darkgreen', lw=2, label='Training sample')
             )
             plot_roc_curve(
                 ax,
-                data_test[diagnostic.model_output_name_img],
-                diagnostic.data_test['label'],
+                data_test[diagnostic[cam_id].model_output_name],
+                diagnostic[cam_id].data_test['label'],
                 **dict(color='darkorange', lw=2, label='Test sample')
             )
             ax.set_xlabel('False Positive Rate')
@@ -324,75 +328,97 @@ def main():
             plt.tight_layout()
             plt.savefig(os.path.join(outdir, 'image_roc_curve.pdf'))
 
-            # Compute average output - event-wise
-            print('Process training sample...')
-            data_train_evt = get_evt_model_output(
-                data_train, weight_name='sum_signal_cam',
-                keep_cols=['label', 'reco_energy'], model_output_name=ouput_model_name + '_img',
-                model_output_name_evt=ouput_model_name
-            )
-            print('Process test sample...')
-            data_test_evt = get_evt_model_output(
-                data_test, weight_name='sum_signal_cam',
-                keep_cols=['label', 'reco_energy'], model_output_name=ouput_model_name + '_img',
-                model_output_name_evt=ouput_model_name
-            )
-
-            # Event-level diagnostic - output distribution
-            fig, ax = diagnostic.plot_evt_model_output_distribution(data_train=data_train_evt,
-                                                                    data_test=data_test_evt,
-                                                                    nbin=50)
-            ax[0].set_xlim([0, 1])
-            plt.title(cam_id)
-            fig.tight_layout()
-            fig.savefig(os.path.join(outdir, 'evt_{}_distribution.pdf'.format(ouput_model_name)))
-
-            # Event-level diagnostic - model output distribution variation
+            # Parameters for energy variation
             cut_list = ['reco_energy >= {:.2f} and reco_energy <= {:.2f}'.format(
                 energy_edges[i],
                 energy_edges[i+1]
             ) for i in range(len(energy_edges) - 1)]
 
-            fig, axes = diagnostic.plot_evt_model_output_distribution_variation(
-                data_train_evt,
-                data_test_evt,
-                cut_list,
-                nbin=50,
-                ncols=2,
-                hist_kwargs_list=[
-                    {'edgecolor': 'blue', 'color': 'blue',
-                     'label': 'Gamma training sample',
-                     'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
-                    {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma test sample',
-                     'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2},
-                    {'edgecolor': 'red', 'color': 'red',
-                     'label': 'Proton training sample',
-                     'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
-                    {'edgecolor': 'red', 'color': 'red', 'label': 'Proton test sample',
-                     'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2}
-                ],
-                error_kw_list=[
-                    dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=0.2),
-                    dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=1),
-                    dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=0.2),
-                    dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=1)
-                ]
-            )
-            for ax in axes:
-                 ax.set_xlim([0, 1])
-            fig.tight_layout()
-            fig.savefig(path.join(outdir, 'evt_{}_distribution_energy.pdf'.format(ouput_model_name)))
+            hist_kwargs_list = [
+                {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma training sample',
+                 'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
+                {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma test sample',
+                 'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2},
+                {'edgecolor': 'red', 'color': 'red', 'label': 'Proton training sample',
+                 'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
+                {'edgecolor': 'red', 'color': 'red', 'label': 'Proton test sample',
+                 'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2}
+            ]
 
-            # Event-level diagnostic - ROC curve variation
+            error_kw_list = [
+                dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=0.2),
+                dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=1),
+                dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=0.2),
+                dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=1)
+            ]
+
+            # Image-level diagnostic - model output distribution variation
+            n_feature = len(cut_list)
+            ncols = 2
+            nrows = int(n_feature / ncols) if n_feature % ncols == 0 else int((n_feature + 1) / ncols)
+            fig, axes = plt.subplots(
+                nrows=nrows, ncols=ncols, figsize=(5 * ncols, 3 * nrows)
+            )
+            if nrows == 1 and ncols == 1:
+                axes = [axes]
+            else:
+                axes = axes.flatten()
+
+            data_list = [data_train.query('label==1'), data_test.query('label==1'),
+                         data_train.query('label==0'), data_test.query('label==0')]
+
+            for i, colname in enumerate(cut_list):
+                ax = axes[i]
+
+                # Range for binning
+                the_range = [0, 1]
+
+                for j, data in enumerate(data_list):
+                    if len(data) == 0:
+                        continue
+
+                    ax = plot_hist(
+                        ax=ax, data=data.query(cut_list[i])[ouput_model_name],
+                        nbin=30, limit=the_range,
+                        norm=True, yerr=True,
+                        hist_kwargs=hist_kwargs_list[j],
+                        error_kw=error_kw_list[j]
+                    )
+
+                ax.set_xlim(the_range)
+                ax.set_xlabel(ouput_model_name)
+                ax.set_ylabel('Arbitrary units')
+                ax.legend(loc='best', fontsize='x-small')
+                ax.set_title(cut_list[i])
+                ax.grid()
+            fig.tight_layout()
+            fig.savefig(path.join(outdir, 'image_distribution_variation.pdf'))
+
+            # Image-level diagnostic - ROC curve variation on test sample
             plt.figure(figsize=(5,5))
             ax = plt.gca()
-            diagnostic.plot_evt_roc_curve_variation(ax, data_test_evt, cut_list)
+
+            color = 1.
+            step_color = 1. / (len(cut_list))
+            for i, cut in enumerate(cut_list):
+                c = color - (i + 1) * step_color
+
+                data = data_test.query(cut)
+                if len(data) == 0:
+                    continue
+
+                opt = dict(color=str(c), lw=2,
+                           label='{}'.format(cut.replace('reco_energy', 'E')))
+                plot_roc_curve(ax, data[ouput_model_name], data['label'], **opt)
+            ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
             ax.set_title(cam_id)
             ax.set_xlabel('False Positive Rate')
             ax.set_ylabel('True Positive Rate')
             ax.legend(loc="lower right", fontsize='x-small')
             plt.tight_layout()
-            plt.savefig(os.path.join(outdir, 'evt_roc_curve_variation.pdf'))
+            plt.savefig(os.path.join(outdir, 'image_roc_curve_variation.pdf'))
+
+
 
 
 if __name__ == '__main__':

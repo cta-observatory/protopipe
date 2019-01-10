@@ -88,7 +88,8 @@ def main():
         elif method_name in 'RandomForestClassifier':
             init_model = RandomForestClassifier(
                 n_estimators=500, max_depth=None, min_samples_split=0.05,
-                max_features='sqrt', bootstrap=True, random_state=None, criterion='gini'
+                max_features='sqrt', bootstrap=True, random_state=None, criterion='gini',
+                class_weight='balanced_subsample'  # Reweight events for each tree
             )
         use_same_number_of_sig_and_bkg_for_training = cfg['Split'][
             'use_same_number_of_sig_and_bkg_for_training']

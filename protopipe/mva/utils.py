@@ -64,11 +64,14 @@ def split_train_test(ds, train_fraction, feature_name_list, target_name):
     return X_train, X_test, y_train, y_test, data_train, data_test
 
 
-def get_evt_model_output(data, weight_name=None, keep_cols=['reco_energy'],
-                         model_output_name='score_img', model_output_name_evt='score'):
+def get_evt_subarray_model_output(data,
+                                  weight_name=None,
+                                  keep_cols=['reco_energy'],
+                                  model_output_name='score_img',
+                                  model_output_name_evt='score'):
     """
-    Returns DataStore with keepcols + score/target columns of model at the level-event.
-    Assume that model_output will be completed with
+    Returns DataStore with keepcols + score/target columns of model at the
+    level-subarray-event.
 
     Parameters
     ----------
@@ -116,12 +119,91 @@ def get_evt_model_output(data, weight_name=None, keep_cols=['reco_energy'],
                 new_data.at[(iobs, ievt), model_output_name_evt] = average
 
     # Remove columns
-    new_data = new_data.drop(columns=[model_output_name, weight_name])
+    new_data = new_data.drop(columns=[model_output_name])
 
     # Remove duplicates
     new_data = new_data[~new_data.index.duplicated(keep='first')]
 
     return new_data
+
+
+def get_evt_model_output(data_dict,
+                         weight_name=None,
+                         reco_energy_label='reco_energy',
+                         model_output_name='score_img',
+                         model_output_name_evt='score'):
+    """
+    Returns DataStore with reco energy + score/target columns of model at the level-event.
+
+    Parameters
+    ----------
+    data: `~pandas.DataFrame`
+        Data frame with at least (obs_id, evt_id), image score/proba and label
+    weight_name: `str`
+        Variable name in data frame to weight events with
+    reco_energy_label: `list`, optional
+        List of variables to keep in resulting data frame
+    model_output_name: `str`, optional
+        Name of model output (image level)
+    model_output_name: `str`, optional
+        Name of averaged model output (event level)
+
+    Returns
+    --------
+    data: `~pandas.DataFrame`
+        Data frame
+
+    Warnings
+    --------
+    Need optimisation, too much loops.
+    """
+
+    # Get list of observations
+    obs_ids = np.array([])
+    for cam_id in data_dict:
+        obs_ids = np.hstack((obs_ids, data_dict[cam_id].index.get_level_values(0)))
+    obs_ids = np.unique(obs_ids)
+
+    obs_id_list = []
+    evt_id_list = []
+    model_output_list = []
+    reco_energy_list = []
+    label_list = []
+
+    # Loop on observation Id
+    for obs_id in obs_ids:
+
+        # Get joint list of events
+        evt_ids = np.array([])
+        for cam_id in data_dict:
+            evt_ids = np.hstack((evt_ids, data_dict[cam_id].loc[(obs_id,)].index.get_level_values(0)))
+        evt_ids = np.unique(evt_ids)
+
+        for evt_id in evt_ids:
+            output = np.array([])
+            weight = np.array([])
+            for cam_id in data_dict:
+                try:  # Stack camera information
+                    data = data_dict[cam_id].xs(obs_id).xs(evt_id)
+                    output = np.hstack((output, data[model_output_name]))
+                    weight = np.hstack((weight, data[weight_name]))
+                    reco_energy = np.hstack((np.array([]), data[reco_energy_label]))[0]  # single entry is enough
+                    label = np.hstack((np.array([]), data['label']))[0]  # single entry is enough
+                except:
+                    pass  # No information for this type of camera
+            obs_id_list.append(obs_id)
+            evt_id_list.append(evt_id)
+            model_output_list.append(np.sum((output * weight)) / np.sum(weight))
+            reco_energy_list.append(reco_energy)
+            label_list.append(label)
+
+    data = {'obs_id': obs_id_list,
+            'event_id': evt_id_list,
+            model_output_name_evt: model_output_list,
+            reco_energy_label: reco_energy_list,
+            'label': label_list}
+
+    return pd.DataFrame(data=data)
 
 
 def plot_roc_curve(ax, model_output, y, **kwargs):

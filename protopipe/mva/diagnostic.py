@@ -193,17 +193,16 @@ class ClassifierDiagnostic(ModelDiagnostic):
         self.data_train = data_train
         self.data_test = data_test
         self.model_output_name = model_output_name
-        self.model_output_name_img = model_output_name + '_img'
         self.is_output_proba = is_output_proba
 
         # Compute and add model output
         self.data_train = self.add_image_model_output(
             self.data_train,
-            col_name=self.model_output_name_img
+            col_name=self.model_output_name
         )
         self.data_test = self.add_image_model_output(
             self.data_test,
-            col_name=self.model_output_name_img
+            col_name=self.model_output_name
         )
 
     def add_image_model_output(self, data, col_name):
@@ -216,6 +215,7 @@ class ClassifierDiagnostic(ModelDiagnostic):
 
     def plot_image_model_output_distribution(
             self,
+            cut=None,
             nbin=30,
             hist_kwargs_list=[
                 {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma training sample',
@@ -234,37 +234,14 @@ class ClassifierDiagnostic(ModelDiagnostic):
                 dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=1)
                 ]
     ):
-        """Plot morel output distribution. Need more output column"""
-        return plot_distributions(
-            [self.model_output_name_img],
-            [self.data_train.query('label==1'), self.data_test.query('label==1'),
-             self.data_train.query('label==0'), self.data_test.query('label==0')],
-            nbin,
-            hist_kwargs_list,
-            error_kw_list,
-            1
-        )
+        """Plot output distribution. Need more output column"""
+        if cut is not None:
+            data_test = self.data_test.query(cut)
+            data_train = self.data_train.query(cut)
+        else:
+            data_test = self.data_test
+            data_train = self.data_train
 
-    def plot_evt_model_output_distribution(self,
-                                    data_train,
-                                    data_test,
-                                    nbin=30,
-                                    hist_kwargs_list=[
-                {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma training sample',
-                'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
-                {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma test sample',
-                'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2},
-                {'edgecolor': 'red', 'color': 'red', 'label': 'Proton training sample',
-                'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
-                {'edgecolor': 'red', 'color': 'red', 'label': 'Proton test sample',
-                'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2}
-            ],
-                                    error_kw_list=[
-                dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=0.2),
-                dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=1),
-                dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=0.2),
-                dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=1)
-    ]):
         return plot_distributions(
             [self.model_output_name],
             [data_train.query('label==1'), data_test.query('label==1'),
@@ -275,117 +252,147 @@ class ClassifierDiagnostic(ModelDiagnostic):
             1
         )
 
-    def plot_evt_model_output_distribution_variation(self, data_train, data_test, cut_list,
-                                                     nbin=30, ncols=2, hist_kwargs_list={},
-                                                     error_kw_list={}):
-        """
-        Plot model output distribution for several data set for a list of cut
-
-        Parameters
-        ----------
-        data_train: `~pandas.DataFrame`
-            Data frame for training sample
-        data_test:`~pandas.DataFrame`
-            Data frame for test sample
-        cut_list: list
-            List of cuts
-        nbin: int
-            Number of bins
-        ncols: int
-            Number of column to display variation
-        hist_kwargs_list: list
-            list of kwargs
-        error_kw_list:
-            list of error_dict
-
-        Returns
-        -------
-        fig: `matplotlib.figure.Figure`
-            Figure object
-        axes: list
-            List of `~matplotlib.axes.Axes`
-        """
-        import matplotlib.pyplot as plt
-        n_feature = len(cut_list)
-        nrows = int(n_feature / ncols) if n_feature % ncols == 0 else int(
-            (n_feature + 1) / ncols)
-        fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5 * ncols, 3 * nrows))
-        if nrows == 1 and ncols == 1:
-            axes = [axes]
-        else:
-            axes = axes.flatten()
-
-        data_list = [data_train.query('label==1'), data_test.query('label==1'),
-                     data_train.query('label==0'), data_test.query('label==0')]
-
-        for i, colname in enumerate(cut_list):
-            ax = axes[i]
-
-            # Range for binning
-            range_min = np.array([data.query(cut_list[i])[self.model_output_name].min() for data in data_list])
-            range_min = range_min[np.where(np.isfinite(range_min))[0]]
-            range_min = min(range_min)
-
-            range_max = np.array([data.query(cut_list[i])[self.model_output_name].max() for data in data_list])
-            range_max = range_max[np.where(np.isfinite(range_max))[0]]
-            range_max = min(range_max)
-
-            # myrange = [range_min, range_max]
-            myrange = [0,1]
-
-            for j, data in enumerate(data_list):
-                if len(data) == 0:
-                    continue
-
-                ax = plot_hist(
-                    ax=ax, data=data.query(cut_list[i])[self.model_output_name],
-                    nbin=nbin, limit=myrange,
-                    norm=True, yerr=True,
-                    hist_kwargs=hist_kwargs_list[j],
-                    error_kw=error_kw_list[j]
-                )
-
-            ax.set_xlim(myrange)
-            ax.set_xlabel(self.model_output_name)
-            ax.set_ylabel('Arbitrary units')
-            ax.legend(loc='best', fontsize='x-small')
-            ax.set_title(cut_list[i])
-            ax.grid()
-        plt.tight_layout()
-
-        return fig, axes
-
-    def plot_evt_roc_curve_variation(self, ax, data_test, cut_list):
-        """
-
-        Parameters
-        ----------
-        ax: `~matplotlib.axes.Axes`
-            Axis
-        data_test: `~pd.DataFrame`
-            Test data
-        cut_list: `list`
-            Cut list
-
-        Returns
-        -------
-        ax:  `~matplotlib.axes.Axes`
-            Axis
-        """
-        color = 1.
-        step_color = 1. / (len(cut_list))
-        for i, cut in enumerate(cut_list):
-            c = color - (i + 1) * step_color
-
-            data = data_test.query(cut)
-            if len(data) == 0:
-                continue
-
-            opt = dict(color=str(c), lw=2, label='{}'.format(cut.replace('reco_energy', 'E')))
-            plot_roc_curve(ax, data[self.model_output_name], data['label'], **opt)
-        ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-
-        return ax
+    # def plot_evt_model_output_distribution(self,
+    #                                 data_train,
+    #                                 data_test,
+    #                                 nbin=30,
+    #                                 hist_kwargs_list=[
+    #             {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma training sample',
+    #             'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
+    #             {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma test sample',
+    #             'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2},
+    #             {'edgecolor': 'red', 'color': 'red', 'label': 'Proton training sample',
+    #             'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
+    #             {'edgecolor': 'red', 'color': 'red', 'label': 'Proton test sample',
+    #             'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2}
+    #         ],
+    #                                 error_kw_list=[
+    #             dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=0.2),
+    #             dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=1),
+    #             dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=0.2),
+    #             dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=1)
+    # ]):
+    #     return plot_distributions(
+    #         [self.model_output_name],
+    #         [data_train.query('label==1'), data_test.query('label==1'),
+    #          data_train.query('label==0'), data_test.query('label==0')],
+    #         nbin,
+    #         hist_kwargs_list,
+    #         error_kw_list,
+    #         1
+    #     )
+    #
+    # def plot_evt_model_output_distribution_variation(self, data_train, data_test, cut_list,
+    #                                                  nbin=30, ncols=2, hist_kwargs_list={},
+    #                                                  error_kw_list={}):
+    #     """
+    #     Plot model output distribution for several data set for a list of cut
+    #
+    #     Parameters
+    #     ----------
+    #     data_train: `~pandas.DataFrame`
+    #         Data frame for training sample
+    #     data_test:`~pandas.DataFrame`
+    #         Data frame for test sample
+    #     cut_list: list
+    #         List of cuts
+    #     nbin: int
+    #         Number of bins
+    #     ncols: int
+    #         Number of column to display variation
+    #     hist_kwargs_list: list
+    #         list of kwargs
+    #     error_kw_list:
+    #         list of error_dict
+    #
+    #     Returns
+    #     -------
+    #     fig: `matplotlib.figure.Figure`
+    #         Figure object
+    #     axes: list
+    #         List of `~matplotlib.axes.Axes`
+    #     """
+    #     import matplotlib.pyplot as plt
+    #     n_feature = len(cut_list)
+    #     nrows = int(n_feature / ncols) if n_feature % ncols == 0 else int(
+    #         (n_feature + 1) / ncols)
+    #     fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5 * ncols, 3 * nrows))
+    #     if nrows == 1 and ncols == 1:
+    #         axes = [axes]
+    #     else:
+    #         axes = axes.flatten()
+    #
+    #     data_list = [data_train.query('label==1'), data_test.query('label==1'),
+    #                  data_train.query('label==0'), data_test.query('label==0')]
+    #
+    #     for i, colname in enumerate(cut_list):
+    #         ax = axes[i]
+    #
+    #         # Range for binning
+    #         range_min = np.array([data.query(cut_list[i])[self.model_output_name].min() for data in data_list])
+    #         range_min = range_min[np.where(np.isfinite(range_min))[0]]
+    #         range_min = min(range_min)
+    #
+    #         range_max = np.array([data.query(cut_list[i])[self.model_output_name].max() for data in data_list])
+    #         range_max = range_max[np.where(np.isfinite(range_max))[0]]
+    #         range_max = min(range_max)
+    #
+    #         # myrange = [range_min, range_max]
+    #         myrange = [0,1]
+    #
+    #         for j, data in enumerate(data_list):
+    #             if len(data) == 0:
+    #                 continue
+    #
+    #             ax = plot_hist(
+    #                 ax=ax, data=data.query(cut_list[i])[self.model_output_name],
+    #                 nbin=nbin, limit=myrange,
+    #                 norm=True, yerr=True,
+    #                 hist_kwargs=hist_kwargs_list[j],
+    #                 error_kw=error_kw_list[j]
+    #             )
+    #
+    #         ax.set_xlim(myrange)
+    #         ax.set_xlabel(self.model_output_name)
+    #         ax.set_ylabel('Arbitrary units')
+    #         ax.legend(loc='best', fontsize='x-small')
+    #         ax.set_title(cut_list[i])
+    #         ax.grid()
+    #     plt.tight_layout()
+    #
+    #     return fig, axes
+    #
+    # def plot_evt_roc_curve_variation(self, ax, data_test, cut_list):
+    #     """
+    #
+    #     Parameters
+    #     ----------
+    #     ax: `~matplotlib.axes.Axes`
+    #         Axis
+    #     data_test: `~pd.DataFrame`
+    #         Test data
+    #     cut_list: `list`
+    #         Cut list
+    #
+    #     Returns
+    #     -------
+    #     ax:  `~matplotlib.axes.Axes`
+    #         Axis
+    #     """
+    #     color = 1.
+    #     step_color = 1. / (len(cut_list))
+    #     for i, cut in enumerate(cut_list):
+    #         c = color - (i + 1) * step_color
+    #
+    #         data = data_test.query(cut)
+    #         if len(data) == 0:
+    #             continue
+    #
+    #         opt = dict(color=str(c), lw=2, label='{}'.format(cut.replace('reco_energy', 'E')))
+    #         plot_roc_curve(ax, data[self.model_output_name], data['label'], **opt)
+    #     ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    #
+    #     return ax
 
 
 class BoostedDecisionTreeDiagnostic(object):
@@ -429,3 +436,11 @@ class BoostedDecisionTreeDiagnostic(object):
         ax.grid()
         plt.tight_layout()
         return ax
+
+# class RandomForestDiagnostic(object):
+#     """
+#     Class producing diagnostic plot for the RF method
+#     """
+#
+#     @classmethod
+#     def plot_error_rate
