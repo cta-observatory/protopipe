@@ -11,7 +11,7 @@ Introduction
 classification problems. It is based on machine learning methods available in
 scikit-learn_. Internally, the tables are dealt with the Pandas_ Python module.
 
-For each type of camera a regressor/classifier bould be trained For both type of models
+For each type of camera a regressor/classifier should be trained For both type of models
 an average of the image estimates is later computed to determine a global
 output for the event (energy or score/gammaness).
 
@@ -24,8 +24,16 @@ the models.
 The RegressorDiagnostic and ClassifierDiagnostic classes should be used to generate
 several diagnostic plots for regression and classification models, respectively.
 
-How to build an energy estimator
-================================
+To know more about is done in CTA (e.g. for the EvtDisplay and MARS analyses,
+please read )
+
+How to build models
+===================
+For both cases, building a regressor or a classifier, the script
+`protopipe.scripts.build_model.py` is used.
+
+Energy estimator
+----------------
 To build a regressor you need a table with at least the MC energy (the target)
 and some event caracteristics (the features) to reconstruct the energy. The
 script called `protopipe.scripts.build_model.py` takes as arguments a configuration
@@ -55,7 +63,7 @@ Here is an example of a configuration file with some comments to build a model:
     Method:
      name: 'AdaBoostRegressor'  # Scikit-learn model name
      target_name: 'mc_energy'  # Name of the regression target
-     tuned_parameters:  # List of parameters to optimise the hyperparameters
+     tuned_parameters:  # List of hyperparameters to be optimised
       learning_rate: [0.1, 0.2, 0.3]
       n_estimators: [100, 200]
       base_estimator__max_depth: [null]  # null is equivalent to None
@@ -74,23 +82,118 @@ Here is an example of a configuration file with some comments to build a model:
      - 'xi <= 0.5'
 
     Diagnostic:  #  For diagnostic plots
-     # Energy binning (used for reco and true energy)
-     energy:
+     energy:  # Energy binning (used for reco and true energy)
       nbins: 10
       min: 0.01
       max: 100
 
-Explain the principle (charge vs impact), RF/BDT, etc.
+To estimate the energy of a gamma-ray, one want to use the relation between
+the charge measured in one camera and the impact distance of the event measured
+from the telescope (distance from the shower axis to the telescope). Up to now,
+simple features have been used to feed regressors to estimate the
+energy, e.g., the charge, the width and the length of the images, the impact
+parameter and the height of the shower maximum.
 
-How to build a g/h classifier
-=============================
+Up to now, we used a Boosted Decision Tree (BDT) algorithm to reconstruct the
+energy. Note that the tunning of the Random Forest (RF) algorithm was found
+a bit problematic (20 % energy resolution at all energies). The important thing
+to get the a good energy estimator is to build trees with high depth.
+The minimal number of events in one split was fixed to 2.
 
+g/h classifier
+--------------
+To build a g/h classifier you need gamma-ray and proton tables with some
+features discriminate between gamma and hadrons. Electrons are handled later
+as a contamination (one could also train a classifier with gamma against
+a background sample composed of weighted hadrons and weighted electrons).
+The script `protopipe.scripts.build_model.py` takes as arguments a configuration
+file:
+
+.. code-block:: yaml
+
+    General:
+     model_type: 'classifier'  # regressor or classifier
+     data_dir: 'absolute_data_path'  # Directory with the data
+     data_sig_file: 'dl1_tail_gamma_merged.h5'  # Name of the signal file ({} will be completed with the mode (tail,wave))
+     data_bkg_file: 'dl1_tail_proton_merged.h5'  # Name of the bkg file ({} will be completed with the mode (tail,wave))
+     outdir: 'absolute_output_path'  # Output directory
+     cam_id_list: ['LSTCam', 'NectarCam']  # List of camera
+     table_name_template: 'feature_events_'  # Template name of table in DF5 (will be completed with cam_ids)
+
+    Split:
+     train_fraction: 0.8  # Fraction of events use to train the regressor
+     use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+
+    Method:
+     name: 'RandomForestClassifier'  # AdaBoostClassifier or RandomForestClassifier
+     target_name: 'label'  # Name of the labels
+     tuned_parameters:  # List of hyperparameters to be optimised
+      n_estimators: [200]
+      max_depth: [null]
+      min_samples_split: [2]
+     scoring: 'roc_auc'  # Metrics to choose the best regressor
+     cv: 2  # k in k-cross-validation
+     use_proba: True  # If not, output is score
+     calibrate_output: False  # If true calibrate probability (not tested)
+
+    FeatureList:  # List of feature to build the g/h classifier
+     - 'log10_reco_energy'
+     - 'width'
+     - 'length'
+     - 'skewness'
+     - 'kurtosis'
+     - 'h_max'
+
+    SigFiducialCuts:  # Fidicual cuts that will be applied on signal data
+     - 'offset <= 0.5'
+
+    BkgFiducialCuts:  # Fidicual cuts that will be applied on bkg data
+     - 'offset <= 1.'
+
+    Diagnostic:  #  For diagnostic plots
+     energy:  # Energy binning (used for reco and true energy)
+      nbins: 10
+      min: 0.01
+      max: 100
+
+We want to exploit parameters showing statistical differences in the shower
+developments between gamma-ray induced showers and hadron induced shower.
+Up to now, we used the second moments of the images (width and length) as well
+as the higer orders of the images (skewness and kurtosis which do not show a very high
+separation power). We also use stereoscopic parameters such as the heigh of
+the shower maximum and the reconstructed energy. The energy as a high separation
+power since the distribution of the discriminant parameters vary a lot with
+the energy of the particles.
+
+Since in the end we want to average the score of the particles between different
+cameras, we need the classifier to have an output normalised between 0 and 1.
+Ideally, we would like also to get a `probabilistic classifier`_ (e.g. score of
+0.8 gives a chance probability of 80 % that we are dealing with a signal event).
+in order to average one pear with one pear (not an apple), but it's not so easy
+since a lot a of cuts are done afterwards (angular cut, energy cut) which then
+make the calibration caduc.
+
+Anyway, we gave up on the BDT method since the output is not easy to normalise
+between 0 and 1 (there are also fluctuations of the samples that can totally
+crash the normalisation) and we trained a RF as people do the MARS analysis in
+CTA (not necessarly in MAGIC). Once again, the important hyperparameters
+to get the a robust classifier is to build trees with high depth and a small
+number of events to get a split (2). Please be aware that this method totally
+over-train on the training sample (ROC auc=1) and thus there is no agreement
+of the distributions of the test and training samples which I do not found
+elegant... But if it's functional, why not?
 
 What could be improved?
 =======================
 * Improve split of training/test data. For now the split of the data is done
   according to the run number, e.g. training data will be N% of the first runs
-  (sorted by run numbers) and test data will be the remaining runs
+  (sorted by run numbers) and test data will be the remaining runs. Really easy
+  to improve with scikit-learn. But I wanted to keep the information about evt_id and
+  the obs_id in order to combine tha data and produce diagnostic plot at the
+  level of event (not implemented yet), which is more complex that what scikit
+  does.
+* Implement event-level diagnostic.
+* To train the energy estimator, the Boosted Decision Tree method is hard-coded.
 
 
 Reference/API
@@ -102,3 +205,4 @@ Reference/API
 .. _scikit-learn: https://scikit-learn.org/
 .. _GridSearchCV: https://scikit-learn.org/stable/modules/grid_search.html
 .. _Pandas: https://pandas.pydata.org/
+.. _probabilistic classifier: https://scikit-learn.org/stable/modules/calibration.html

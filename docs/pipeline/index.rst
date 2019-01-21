@@ -45,12 +45,19 @@ models). In addition you need to specify the type of cleaning to processing
 the images (`tail` or `wave`). For the wavelet method you also need to define
 the repository to save temporary results with the `wave_temp_dir` arguments.
 
-`protopipe.scripts.write_dl1.py` is used to build tables of image parameters
-that will be further used to build energy estimators and classifiers per type
-of camera. In case you want to estimate the energy of the particles,
+How to produce DL1+ data
+------------------------
+
+`protopipe.scripts.write_dl1.py` is used to build tables of image and stereo
+parameters that will be further used to build energy estimators and
+classifiers per type of camera.
+In case you want to estimate the energy of the particles,
 to build g/h classifiers, typically, you need to specify the boolean
 `estimate_energy` parameter as well as the directory where the model is
 saved via the `regressor_dir` option.
+
+How to produce DL2 data
+-----------------------
 
 `protopipe.scripts.write_dl2.py` is used to produce DL2 tables with the event
 caracteristics such as the direction, the energy and the score/gammaness.

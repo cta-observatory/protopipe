@@ -23,12 +23,6 @@ In order to process a significant amount of events the use of the GRID is rapidl
 mandatory. Some utility scripts to submits jobs on the GRID are provided on
 the `GRID repository <https://drf-gitlab.cea.fr/CTA-Irfu/grid>`_.
 
-HowTo
-=====
-Two scripts are needed
-
-
-
 Documentation
 =============
 
