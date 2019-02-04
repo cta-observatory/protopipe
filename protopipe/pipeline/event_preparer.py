@@ -84,6 +84,7 @@ class EventPreparer():
             ("noCuts", None),
             ("min pixel", lambda s: np.count_nonzero(s) < npix_bounds[0]),
             ("min charge", lambda x: x < charge_bounds[0]),
+            #("poor moments", lambda m: m.width <= 0 or m.length <= 0 or np.isnan(m.width) or np.isnan(m.length) <= 0),
             ("poor moments", lambda m: m.width <= 0 or m.length <= 0),
             ("bad ellipticity", lambda m: (m.width/m.length) < ellipticity_bounds[0] or (m.width/m.length) > ellipticity_bounds[-1]),
             #("close to the edge", lambda m, cam_id: m.r.value > (nominal_distance_bounds[-1] * 1.12949101073069946))  # in meter

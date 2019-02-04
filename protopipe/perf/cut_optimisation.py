@@ -173,6 +173,9 @@ class CutsDiagnostic(object):
 
             ax_eff.set_xlim(self.clf_output_bounds)
             ax_rate.set_xlim(self.clf_output_bounds)
+            print('JLK HAAAAACCCCKKKKKKK!!!!')
+            ax_eff.set_xlim(-0.5, 0.5)
+            ax_rate.set_xlim(-0.5, 0.5)
 
             plt.tight_layout()
             plt.savefig(
@@ -225,6 +228,7 @@ class CutsDiagnostic(object):
 
         max_rate_p = (data['cumul_noff'] * info['alpha'] / (info['obs_time'] * u.Unit(time_unit).to('s'))).max()
         max_rate_g = (data['cumul_excess'] / (info['obs_time'] * u.Unit(time_unit).to('s'))).max()
+
         scaled_rate = max_rate_g * scale
         max_rate = scaled_rate if scaled_rate >= max_rate_p else max_rate_p
 
@@ -357,6 +361,7 @@ class CutsOptimisation(object):
         colname_reco_energy = self.config['column_definition']['reco_energy']
         clf_output_bounds = self.config['column_definition']['classification_output']['range']
         colname_angular_dist = self.config['column_definition']['angular_distance_to_the_src']
+        thsq_opt_type = self.config['analysis']['thsq_opt']['type']
 
         # Loop on energy
         for ibin in range(len(energy_values) - 1):
@@ -364,9 +369,11 @@ class CutsOptimisation(object):
             emax = energy_values[ibin + 1]
             print(' ==> {}) Working in E=[{:.3f},{:.3f}]'.format(ibin, emin, emax))
 
+            # Apply cuts (energy and additional if there is)
             query_emin = '{} > {}'.format(colname_reco_energy, emin.value)
             query_emax = '{} <= {}'.format(colname_reco_energy, emax.value)
             energy_query = '{} and {}'.format(query_emin, query_emax)
+
             g = self.evt_dict['gamma'].query(energy_query).copy()
             p = self.evt_dict['proton'].query(energy_query).copy()
             e = self.evt_dict['electron'].query(energy_query).copy()
@@ -388,8 +395,12 @@ class CutsOptimisation(object):
             # To store intermediate results
             results_th_cut_dict = dict()
 
+            theta_to_loop_on = angular_values
+            if thsq_opt_type in 'r68':
+                theta_to_loop_on = [angular_values[ibin]]
+
             # Loop on angular cut
-            for th_cut in angular_values:
+            for th_cut in theta_to_loop_on:
                 if self.verbose_level > 0:
                     print('- Theta={:.2f}'.format(th_cut))
 
@@ -467,6 +478,11 @@ class CutsOptimisation(object):
                 'results': results_th_cut_dict[key_list[lower_flux_idx]]['result'],
                 'diagnostic_data': results_th_cut_dict[key_list[lower_flux_idx]]['diagnostic_data']}
 
+            print('     Ang. cut: {:.2f}, score cut: {}'.format(
+                self.results_dict[key]['th_cut'],
+                self.results_dict[key]['results']['best_cutoff']
+            ))
+
     def find_best_cutoff_for_one_bin(self, binned_data):
         """
         Find the best cut off for one bin os the phase space
@@ -518,7 +534,7 @@ class CutsOptimisation(object):
 
             if minimal_excess[iflux] < self.config['analysis']['min_excess']:
                 minimal_syst[iflux] = True
-                # Rescale flux accoring to minimal acceptable excess
+                # Rescale flux accodring to minimal acceptable excess
                 minimal_fluxes[iflux] = self.config['analysis']['min_excess'] / excess
                 minimal_excess[iflux] = self.config['analysis']['min_excess']
                 if self.verbose_level > 1:

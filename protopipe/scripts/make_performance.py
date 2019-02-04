@@ -39,12 +39,11 @@ def main():
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    # Load data
-    particles = ['gamma', 'electron', 'proton']
-
     indir = cfg['general']['indir']
     template_input_file = cfg['general']['template_input_file']
 
+    # Load data
+    particles = ['gamma', 'electron', 'proton']
     evt_dict = dict()  # Contain DL2 file for each type of particle
     for particle in particles:
         # template looks like dl2_{}_{}_merged.h5
@@ -58,6 +57,13 @@ def main():
             cfg['particle_information'][particle]['offset_cut'])
         )
         # print('==> After offset cut: {} {}'.format(len(evt_dict[particle]), particle))
+
+    # Apply additional cut to data
+    cut_on_data = cfg['analysis']['cut_on_data']
+    for particle in ['electron', 'proton']:
+        evt_dict[particle] = evt_dict[particle].query('offset <= {}'.format(
+            cfg['particle_information'][particle]['offset_cut'])
+        ).copy()
 
     # Add required data in configuration file for future computation
     for particle in particles:
@@ -117,6 +123,9 @@ def main():
 
             thsq_values.append(psf)
         thsq_values = np.array(thsq_values) * u.deg
+        # Set 0.05 as a lower value
+        idx = np.where(thsq_values.value < 0.05)
+        thsq_values[idx] = 0.05 * u.deg
         print('Using theta cut: {}'.format(thsq_values))
 
     # Cuts optimisation
