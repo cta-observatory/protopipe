@@ -24,10 +24,6 @@ from protopipe.pipeline.utils import (make_argparser,
 
 def main():
 
-    # Big hack for wavelets
-    import sys
-    sys.path.append('./')
-
     # Argument parser
     parser = make_argparser()
     parser.add_argument('--regressor_dir', default='./', help='regressors directory')
@@ -81,25 +77,36 @@ def main():
     classifier_method = cfg['GammaHadronClassifier']['method_name']
     use_proba_for_classifier = cfg['GammaHadronClassifier']['use_proba']
 
+    if regressor_method in ['None', 'none', None]:
+        use_regressor = False
+    else:
+        use_regressor = True
+
+    if classifier_method in ['None', 'none', None]:
+        use_classifier = False
+    else:
+        use_classifier = True
+
     # Classifiers
-    classifier_files = args.classifier_dir + "/classifier_{mode}_{cam_id}_{classifier}.pkl.gz"
-    clf_file = classifier_files.format(
-        **{"mode": force_mode,
-           "wave_args": "mixed",
-           "classifier": classifier_method,
-           "cam_id": "{cam_id}"}
-    )
-    classifier = EventClassifier.load(clf_file, cam_id_list=args.cam_ids)
+    if use_classifier:
+        classifier_files = args.classifier_dir + "/classifier_{mode}_{cam_id}_{classifier}.pkl.gz"
+        clf_file = classifier_files.format(
+            **{"mode": force_mode,
+               "wave_args": "mixed",
+               "classifier": classifier_method,
+               "cam_id": "{cam_id}"}
+        )
+        classifier = EventClassifier.load(clf_file, cam_id_list=args.cam_ids)
 
     # Regressors
-    regressor_files = args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
-    reg_file = regressor_files.format(
-        **{"mode": force_mode,
-           "wave_args": "mixed",
-           "regressor": regressor_method,
-           "cam_id": "{cam_id}"})
-
-    regressor = EnergyRegressor.load(reg_file, cam_id_list=args.cam_ids)
+    if use_regressor:
+        regressor_files = args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
+        reg_file = regressor_files.format(
+            **{"mode": force_mode,
+               "wave_args": "mixed",
+               "regressor": regressor_method,
+               "cam_id": "{cam_id}"})
+        regressor = EnergyRegressor.load(reg_file, cam_id_list=args.cam_ids)
 
     # catch ctr-c signal to exit current loop and still display results
     signal_handler = SignalHandler()
@@ -180,54 +187,64 @@ def main():
             if hillas_dict is not None:
 
                 # Estimate particle energy
-                energy_tel = np.zeros(len(hillas_dict.keys()))
-                weight_tel = np.zeros(len(hillas_dict.keys()))
+                if use_regressor is True:
+                    energy_tel = np.zeros(len(hillas_dict.keys()))
+                    weight_tel = np.zeros(len(hillas_dict.keys()))
 
-                for idx, tel_id in enumerate(hillas_dict.keys()):
-                    cam_id = event.inst.subarray.tel[tel_id].camera.cam_id
-                    moments = hillas_dict[tel_id]
-                    model = regressor.model_dict[cam_id]
+                    for idx, tel_id in enumerate(hillas_dict.keys()):
+                        cam_id = event.inst.subarray.tel[tel_id].camera.cam_id
+                        moments = hillas_dict[tel_id]
+                        model = regressor.model_dict[cam_id]
 
-                    features_img = np.array([
-                        np.log10(moments.intensity),
-                        np.log10(impact_dict[tel_id].value),
-                        moments.width.value,
-                        moments.length.value,
-                        h_max.value
-                    ])
-                    energy_tel[idx] = model.predict([features_img])
-                    weight_tel[idx] = moments.intensity
+                        features_img = np.array([
+                            np.log10(moments.intensity),
+                            np.log10(impact_dict[tel_id].value),
+                            moments.width.value,
+                            moments.length.value,
+                            h_max.value
+                        ])
 
-                reco_energy = np.sum(weight_tel * energy_tel) / sum(weight_tel)
+                        energy_tel[idx] = model.predict([features_img])
+                        weight_tel[idx] = moments.intensity
+
+                    reco_energy = np.sum(weight_tel * energy_tel) / sum(weight_tel)
+                else:
+                    reco_energy = np.nan
 
                 # Estimate particle score
-                score_tel = np.zeros(len(hillas_dict.keys()))
-                gammaness_tel = np.zeros(len(hillas_dict.keys()))
-                weight_tel = np.zeros(len(hillas_dict.keys()))
+                if use_classifier is True:
+                    score_tel = np.zeros(len(hillas_dict.keys()))
+                    gammaness_tel = np.zeros(len(hillas_dict.keys()))
+                    weight_tel = np.zeros(len(hillas_dict.keys()))
 
-                for idx, tel_id in enumerate(hillas_dict.keys()):
-                    cam_id = event.inst.subarray.tel[tel_id].camera.cam_id
-                    moments = hillas_dict[tel_id]
-                    model = classifier.model_dict[cam_id]
-                    features_img = np.array([
-                        np.log10(reco_energy),
-                        moments.width.value,
-                        moments.length.value,
-                        moments.skewness,
-                        moments.kurtosis,
-                        h_max.value
-                    ])
-                    if use_proba_for_classifier is False:
-                        score_tel[idx] = model.decision_function([features_img])
+                    for idx, tel_id in enumerate(hillas_dict.keys()):
+                        cam_id = event.inst.subarray.tel[tel_id].camera.cam_id
+                        moments = hillas_dict[tel_id]
+                        model = classifier.model_dict[cam_id]
+                        features_img = np.array([
+                            np.log10(reco_energy),
+                            moments.width.value,
+                            moments.length.value,
+                            moments.skewness,
+                            moments.kurtosis,
+                            h_max.value
+                        ])
+                        if use_proba_for_classifier is False:
+                            score_tel[idx] = model.decision_function([features_img])
+                        else:
+                            gammaness_tel[idx] = model.predict_proba([features_img])[:,1]
+                        # Should test other weighting strategy (e.g. power of weight)
+                        weight_tel[idx] = moments.intensity
+
+                    if use_proba_for_classifier is True:
+                        gammaness = np.sum(weight_tel * gammaness_tel) / sum(weight_tel)
                     else:
-                        gammaness_tel[idx] = model.predict_proba([features_img])[:,1]
-                    # Should test other weighting strategy (e.g. power of weight)
-                    weight_tel[idx] = moments.intensity
-
-                if use_proba_for_classifier is True:
-                    gammaness = np.sum(weight_tel * gammaness_tel) / sum(weight_tel)
+                        score = np.sum(weight_tel * score_tel) / sum(weight_tel)
                 else:
-                    score = np.sum(weight_tel * score_tel) / sum(weight_tel)
+                    score = np.nan
+                    gammaness = np.nan
+
+
 
                 shower = event.mc
                 mc_core_x = shower.core_x
