@@ -23,6 +23,22 @@ In order to process a significant amount of events the use of the GRID is rapidl
 mandatory. Some utility scripts to submits jobs on the GRID are provided on
 the `GRID repository <https://drf-gitlab.cea.fr/CTA-Irfu/grid>`_.
 
+How to?
+=======
+For this pipeline prototype, in order to buil a configuration to estimate
+the performance of the instruments, a user will follows the following steps:
+ * produce a table with gamma-ray image information with pipeline utilities (LINK)
+ * build an energy estimator with those gamma-rays image
+ * produce tables of gamma-rays and hadrons with image informations
+ * build a g/h classifier with those tables
+ * produce tables of gamma, electrons and hadrons with direction, energy and
+   score/gammaness information
+ * find the best cutoff in gammaness/score as well as the angular cut to get
+   the best sensitivity for a given amount of observation time and a given
+   template for the source of interest
+ * estimate the response of the instrument (effective area,
+   point spread function, energy resolution, sensitivity)
+
 Documentation
 =============
 

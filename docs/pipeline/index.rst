@@ -152,32 +152,36 @@ A configuration file example  with some comments is shown below:
 
     # Parameters for energy estimation
     EnergyRegressor:
-     # Name of the regression method (e.g. AdaBoostRegressor, etc.)
+     # Name of the regression method (e.g. AdaBoostRegressor, None, etc.)
      method_name: 'AdaBoostRegressor'
 
     # Parameters for g/h separation
     GammaHadronClassifier:
-     # Name of the classification method (e.g. AdaBoostRegressor, etc.)
+     # Name of the classification method (e.g. AdaBoostRegressor, None, etc.)
      method_name: 'RandomForestClassifier'
      # Use probability output or score
      use_proba: True
+
+Note that you can process events without estimations of the energy or the
+score of the particles if you specify the `method_name` as `None` in the
+corresponding sections.
 
 What could be improved?
 =======================
 * Saving calibrated images as a DL1 format (here, only image parameters are saved).
   It should simplify analysis production, e.g. having DL1 calibrated data on disk allows to study
   the impact on direction reconstruction of several cleaning
-  methods by processing the simtel files only once.
+  methods by processing the simtel files only once. Huge gain of time!
 * The EventPreparer is a bit messy, it should returns the event and one container
   with several results (hillas parameters, reconstructed shower, etc.). In addition
   some things are hard-coded , e.g. for now calibration is done in the same way
   (not a problem since only LSTCam and NectarCam have been considered until now),
-  camera radius is also hard-coded, and computation of the impact parameters
-  in the frame of the shower system should be betetr implemented.
+  camera radius is also hard-coded for LST and MST, and computation of the impact
+  parameters in the frame of the shower system should be better implemented.
 * Features for regression and classification are hard-coded in the two scripts
   `write_dl1.py` and `write_dl2.py`
 * The fields of the output tables do not follow any DL1 or DL2
-  data format (LINK?)
+  data format specified in the `gamma astro data format`_ initiative
 
 Reference/API
 =============
@@ -187,3 +191,4 @@ Reference/API
 
 .. _PyTables: https://www.pytables.org/
 .. _HDF5: https://www.hdfgroup.org/solutions/hdf5/
+.. _gamma astro data format: https://gamma-astro-data-formats.readthedocs.io/en/latest/index.html
