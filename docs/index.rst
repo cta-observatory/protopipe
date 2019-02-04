@@ -39,6 +39,15 @@ the performance of the instruments, a user will follows the following steps:
  * estimate the response of the instrument (effective area,
    point spread function, energy resolution, sensitivity)
 
+Installation
+============
+The module requires the following libraries:
+ * the `ctapipe`_ library
+ * the `pywi`_ module
+ * the `pywi-cta`_ module
+
+In order to install, `python setup.py` in a conda env?
+
 Documentation
 =============
 
@@ -49,3 +58,7 @@ Documentation
    mva/index
    perf/index
    scripts/index
+
+.. _ctapipe: https://cta-observatory.github.io/ctapipe/
+.. _pywi: http://www.pywi.org/
+.. _pywi-cta: http://cta.pywi.org/
