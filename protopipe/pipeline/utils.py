@@ -92,6 +92,7 @@ def make_argparser():
 
 
 def prod3b_tel_ids(array, site="south"):
+    """Built-in function ctapipe: subarray.get_tel_ids_for_type"""
     if array in [None, ""]:
         return None
 
@@ -104,6 +105,14 @@ def prod3b_tel_ids(array, site="south"):
             tel_ids = np.arange(1, 19 + 1)
         else:
             raise ValueError("array {} not supported".format(array))
+
+    elif site.lower() in ["north", "la palma", "lapalma", "spain", "canaries"]:
+        if array in 'subarray_LSTs':
+            tel_ids = np.arange(1, 4 + 1)
+        elif array in 'subarray_MSTs':
+            tel_ids = np.arange(5, 29 + 1)
+        elif array in 'subarray_SSTs':
+            tel_ids = np.arange(30, 99 + 1)
     else:
         raise ValueError("site '{}' not known -- try again".format(site))
 
