@@ -43,11 +43,9 @@ def main():
     cfg['General']['force_tailcut_for_extended_cleaning'] = \
         args.force_tailcut_for_extended_cleaning
     cfg['General']['force_mode'] = 'tail'
-
     force_mode = args.mode
     if cfg['General']['force_tailcut_for_extended_cleaning'] is True:
         force_mode = 'tail'
-
     print('force_mode={}'.format(force_mode))
     print('mode={}'.format(args.mode))
 
@@ -138,7 +136,6 @@ def main():
         mc_core_x = tb.Float32Col(dflt=np.nan, pos=21)
         mc_core_y = tb.Float32Col(dflt=np.nan, pos=22)
 
-    channel = "gamma" if "gamma" in " ".join(filenamelist) else "proton"
     reco_outfile = tb.open_file(
         mode="w",
         # if no outfile name is given (i.e. don't to write the event list to disk),
@@ -167,6 +164,7 @@ def main():
             # Angular quantities
             run_array_direction = event.mcheader.run_array_direction
 
+            # Angular separation between true and reco direction
             xi = angular_separation(
                 event.mc.az,
                 event.mc.alt,
@@ -174,6 +172,7 @@ def main():
                 reco_result.alt
             )
 
+            # Angular separation bewteen the center of the camera and the reco direction.
             offset = angular_separation(
                 run_array_direction[0],  # az
                 run_array_direction[1],  # alt
@@ -196,6 +195,7 @@ def main():
                         moments = hillas_dict[tel_id]
                         model = regressor.model_dict[cam_id]
 
+                        # Features to be fed in the regressor
                         features_img = np.array([
                             np.log10(moments.intensity),
                             np.log10(impact_dict[tel_id].value),
@@ -211,7 +211,7 @@ def main():
                 else:
                     reco_energy = np.nan
 
-                # Estimate particle score
+                # Estimate particle score/gammaness
                 if use_classifier is True:
                     score_tel = np.zeros(len(hillas_dict.keys()))
                     gammaness_tel = np.zeros(len(hillas_dict.keys()))
@@ -221,21 +221,27 @@ def main():
                         cam_id = event.inst.subarray.tel[tel_id].camera.cam_id
                         moments = hillas_dict[tel_id]
                         model = classifier.model_dict[cam_id]
+                        # Features to be fed in the classifier
                         features_img = np.array([
                             np.log10(reco_energy),
                             moments.width.value,
                             moments.length.value,
                             moments.skewness,
                             moments.kurtosis,
-                            h_max.value
+                            h_max.value,
+                            np.log10(energy_tel[idx]),
+                            n_cluster_dict[tel_id],
                         ])
+                        # Output of classifier according to type of classifier
                         if use_proba_for_classifier is False:
                             score_tel[idx] = model.decision_function([features_img])
                         else:
                             gammaness_tel[idx] = model.predict_proba([features_img])[:,1]
-                        # Should test other weighting strategy (e.g. power of weight)
-                        weight_tel[idx] = moments.intensity
+                        # Should test other weighting strategy (e.g. power of charge, impact, etc.)
+                        # For now, weighting a la Mars
+                        weight_tel[idx] = np.sqrt(moments.intensity)
 
+                    # Weight the final decision/proba
                     if use_proba_for_classifier is True:
                         gammaness = np.sum(weight_tel * gammaness_tel) / sum(weight_tel)
                     else:
@@ -243,8 +249,6 @@ def main():
                 else:
                     score = np.nan
                     gammaness = np.nan
-
-
 
                 shower = event.mc
                 mc_core_x = shower.core_x
@@ -255,6 +259,7 @@ def main():
 
                 alt, az = reco_result.alt, reco_result.az
 
+                # Fill table's attributes
                 reco_event["NTels_trig"] = len(event.dl0.tels_with_data)
                 reco_event["NTels_reco"] = len(hillas_dict)
                 reco_event["NTels_reco_lst"] = n_tels["LST"]
@@ -285,6 +290,7 @@ def main():
             reco_event["event_id"] = event.r1.event_id
             reco_event["obs_id"] = event.r1.obs_id
 
+            # Fill table
             reco_table.flush()
             reco_event.append()
 
@@ -296,6 +302,7 @@ def main():
     # make sure everything gets written out nicely
     reco_table.flush()
 
+    # Add in meta-data's table?
     try:
         print()
         evt_cutflow()

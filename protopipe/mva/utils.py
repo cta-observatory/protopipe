@@ -24,6 +24,7 @@ def prepare_data(ds, cuts, label=None):
     ds['log10_mc_energy'] = np.log10(ds['mc_energy'])
     try:  # for classification
         ds['log10_reco_energy'] = np.log10(ds['reco_energy'])
+        ds['log10_reco_energy_tel'] = np.log10(ds['reco_energy_tel'])
         ds['label'] = np.full(len(ds), label)
     except:
         pass
