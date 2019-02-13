@@ -1,8 +1,8 @@
 .. _pipeline:
 
-=====================
-Pipeline (`pipeline`)
-=====================
+========
+pipeline
+========
 
 Introduction
 ============
@@ -182,6 +182,11 @@ What could be improved?
   `write_dl1.py` and `write_dl2.py`
 * The fields of the output tables do not follow any DL1 or DL2
   data format specified in the `gamma astro data format`_ initiative
+
+To be fixed
+===========
+* Why specify the cam_id in the scripts writting the tables (DL1 or DL2)
+  although it is already given in the configuration file?
 
 Reference/API
 =============

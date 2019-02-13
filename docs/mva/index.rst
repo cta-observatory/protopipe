@@ -1,8 +1,8 @@
 .. _mva:
 
-=============================
-MultiVariate Analysis (`mva`)
-=============================
+===
+mva
+===
 
 Introduction
 ============
@@ -35,13 +35,13 @@ For both cases, building a regressor or a classifier, the script
 Energy estimator
 ----------------
 To build a regressor you need a table with at least the MC energy (the target)
-and some event caracteristics (the features) to reconstruct the energy. The
+and some event characteristics (the features) to reconstruct the energy. The
 script called `protopipe.scripts.build_model.py` takes as arguments a configuration
 file:
 
 .. code-block:: bash
 
-    (cta_pipeline) [julien@TheVerse] scripts $ ./build_model.py --help
+    >$ ./build_model.py --help
     usage: build_model.py [-h] --config_file CONFIG_FILE [--max_events MAX_EVENTS]
                       [--wave | --tail]
 
@@ -63,7 +63,7 @@ Here is an example of a configuration file with some comments to build a model:
     Method:
      name: 'AdaBoostRegressor'  # Scikit-learn model name
      target_name: 'mc_energy'  # Name of the regression target
-     tuned_parameters:  # List of hyperparameters to be optimised
+     tuned_parameters:  # List of hyperparameters to be optimized
       learning_rate: [0.1, 0.2, 0.3]
       n_estimators: [100, 200]
       base_estimator__max_depth: [null]  # null is equivalent to None
@@ -78,7 +78,7 @@ Here is an example of a configuration file with some comments to build a model:
      - 'length'
      - 'h_max'
 
-    SigFiducialCuts:  # Fidicual cuts that will be applied on data
+    SigFiducialCuts:  # Fiducial cuts that will be applied on data
      - 'xi <= 0.5'
 
     Diagnostic:  #  For diagnostic plots
@@ -95,7 +95,7 @@ energy, e.g., the charge, the width and the length of the images, the impact
 parameter and the height of the shower maximum.
 
 Up to now, we used a Boosted Decision Tree (BDT) algorithm to reconstruct the
-energy. Note that the tunning of the Random Forest (RF) algorithm was found
+energy. Note that the tuning of the Random Forest (RF) algorithm was found
 a bit problematic (20 % energy resolution at all energies). The important thing
 to get the a good energy estimator is to build trees with high depth.
 The minimal number of events in one split was fixed to 2.
@@ -127,7 +127,7 @@ file:
     Method:
      name: 'RandomForestClassifier'  # AdaBoostClassifier or RandomForestClassifier
      target_name: 'label'  # Name of the labels
-     tuned_parameters:  # List of hyperparameters to be optimised
+     tuned_parameters:  # List of hyper-parameters to be optimized
       n_estimators: [200]
       max_depth: [null]
       min_samples_split: [2]
@@ -144,7 +144,7 @@ file:
      - 'kurtosis'
      - 'h_max'
 
-    SigFiducialCuts:  # Fidicual cuts that will be applied on signal data
+    SigFiducialCuts:  # Fiducial cuts that will be applied on signal data
      - 'offset <= 0.5'
 
     BkgFiducialCuts:  # Fidicual cuts that will be applied on bkg data
@@ -174,14 +174,46 @@ since a lot a of cuts are done afterwards (angular cut, energy cut) which then
 make the calibration caduc.
 
 Anyway, we gave up on the BDT method since the output is not easy to normalise
-between 0 and 1 (there are also fluctuations of the samples that can totally
-crash the normalisation) and we trained a RF as people do the MARS analysis in
-CTA (not necessarly in MAGIC). Once again, the important hyperparameters
-to get the a robust classifier is to build trees with high depth and a small
-number of events to get a split (2). Please be aware that this method totally
-over-train on the training sample (ROC auc=1) and thus there is no agreement
-of the distributions of the test and training samples which I do not found
-elegant... But if it's functional, why not?
+between 0 and 1 (there are also fluctuations on the score distribution
+that can totally crash the normalisation) and we trained a Random Forest (RF) as
+people do the MARS analysis in CTA (not the same way as in MAGIC, e.g.
+information of tel #1 and #2 in the same RF).
+Once again, the main important hyper-parameters
+to get a robust classifier is to build trees with high depth and to play on the
+minimal number of events to get a final leaf (`min_samples_leaf`).
+Please be aware that if you specify a `min_samples_leaf` close to one you'll be
+in a high regime of overtraining that can be seen with an area under
+the ROC (auc) of 1 for the training sample and a mismatch between the gammaness
+distribution of the training and the test samples. In order to get an agreeement
+(by eye, could do a KS/chi2 test) between the training and test distributions
+I chose a fraction of 0.0005 to get a obtain an external node I use ~100000
+images for each sample for the training phase.
+
+Diagnostics
+-----------
+To get diagnostic plots in order to control the robustness and the performance
+of the models you can use the script `model_diagnostic.py`. It takes as arguments
+a configuration file:
+
+.. code-block:: bash
+
+    >$ ./build_model.py --help
+    usage: build_model.py [-h] --config_file CONFIG_FILE
+                      [--wave | --tail]
+
+For the energy estimator the diagnostic plots consist in:
+* distribution of the features
+* importance of the features
+* distribution of the ratio of the reconstructed energy over the true energy
+  fitted with a gaussian for the subarrays
+* energy resolution and energy bias corresponding to the gaussian parametrisation
+  for the subarrays
+
+For a g/h classifier the following diagnostic are provided:
+* distribution of the features
+* importance of the features
+* ROC curve (and its variation with energy)
+* Output model distribution (and its variation with energy)
 
 What could be improved?
 =======================
@@ -189,12 +221,14 @@ What could be improved?
   according to the run number, e.g. training data will be N% of the first runs
   (sorted by run numbers) and test data will be the remaining runs. Really easy
   to improve with scikit-learn. But I wanted to keep the information about evt_id and
-  the obs_id in order to combine tha data and produce diagnostic plot at the
-  level of event (not implemented yet), which is more complex that what scikit
-  does.
+  the obs_id in order to combine the data and produce diagnostic plot at the
+  level of event (not implemented yet), which is more complex that what scikit does.
 * Implement event-level diagnostic.
 * To train the energy estimator, the Boosted Decision Tree method is hard-coded.
-
+* For the diagnostic, in both case we might want to implement diagnostics
+  at the level of events but for this we need to link the event Id with the
+  observation Id as well as the image parameters to split and combine the
+  model output. It needs some thoughts...
 
 Reference/API
 =============
