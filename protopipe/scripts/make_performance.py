@@ -60,10 +60,9 @@ def main():
 
     # Apply additional cut to data
     cut_on_data = cfg['analysis']['cut_on_data']
-    for particle in ['electron', 'proton']:
-        evt_dict[particle] = evt_dict[particle].query('offset <= {}'.format(
-            cfg['particle_information'][particle]['offset_cut'])
-        ).copy()
+    for particle in ['gamma', 'electron', 'proton']:
+        evt_dict[particle] = evt_dict[particle].query('{}'.format(cut_on_data))
+        print('{}: min mult={}'.format(particle, evt_dict[particle].NTels_reco.min()))
 
     # Add required data in configuration file for future computation
     for particle in particles:
