@@ -216,9 +216,10 @@ In the two requirements, the number of excess is defined by
 is the normalisation between the ON and the OFF regions, :math:`N_\text{bkg}`
 is the number of background in the ON regions and :math:`\text{syst}_\text{bkg}`
 is the systematics on the number of background events. Typical values for
-:math:`\alpha` and :math:`\text{syst}_\text{bkg}` are 1/5 and 5 %, respectively.
+:math:`\alpha`, :math:`N_\text{min}` and :math:`\text{syst}_\text{bkg}` are 1/5,
+10 and 5 %, respectively.
 
-The final results of the procedure is a table containing the results of the
+The final results of the procedure is a FITS table containing the results of the
 optimisation for each energy bin such as, the minimal and maximal energy range of
 the bin, the best cutoff, the best angular cut, with the corresponding excess,
 background, etc.
@@ -236,17 +237,72 @@ Several diagnostic plots are generated during the procedure.
 For each energy bin both the efficiencies and the rates as a function
 of the score/gammaness, as well as characteristics of the bin, are automatically
 generated.
-Finally, the efficiencies and the angular cuts are all plotted against the
+The efficiencies and the angular cuts are all also plotted against the
 reconstructed energy in order to control the optimisation procedure
-(e.g. background free regions, evolution of background with the angular cut, etc.).
+(e.g. background free regions, evolution of background efficiencies
+with the angular cut, etc.).
 
 Responses of the instrument
 ===========================
 
-The instrument response functions
+A proposition for the CTA IRF data format is available
+`here <https://gamma-astro-data-formats.readthedocs.io/>`_.
+The IRF are stored as an HDU (Header Data Unit) list in a FITS
+(Flexible Image Transport System) file.
+Up to now we only considered analyses built with ON-axis gamma-ray simulations
+and dedicated to the study of point-like sources.
+We do not have offset dependency on the IRF for the moment and thus do not have
+axes corresponding to offset bins.
+Except for the migration matrix for which we hacked a bit the generation of the
+EnergyDispersion object, since it expects offset axes, everything goes pretty
+much smoothly.
 
 Responses
 ---------
+
+Effective area
+~~~~~~~~~~~~~~
+The collection area, which is proportional to the gamma-ray efficiency
+of detection, is computed as a function of the true energy. The events which
+are considered are the one passing the threshold of the best cutoff plus
+the angular cuts.
+
+Energy migration matrix
+~~~~~~~~~~~~~~~~~~~~~~~
+The migration matrix, ratio of the reconstructed energy over the true energy
+as a function of the true energy, is computed with the events passing the
+threshold of the best cutoff plus the angular cuts.
+In order to be able to use the energy dispersion with Gammapy_ to compute
+the sensitvity we artificially created fake offset bins.
+I guess that Gammapy_ should be able to reaf IRF with single offset.
+
+Background
+~~~~~~~~~~
+The question to consider whether the bakground is an IRF or not. Since here it
+is needed to estimate the sensitivity of the instrument we consider it as part
+of the IRFs.
+Here a simple HDU containing the background (protons + electrons) rate as a
+function of the reconstructed energy is generated.
+The events which are considered are the one passing the threshold of
+the best cutoff plus the angular cuts.
+
+Point spread function
+~~~~~~~~~~~~~~~~~~~~~
+Here we do not really need the PSF to compute the sensitivity, since the angular
+cuts are already applied to the effective area, the energy migration matrix
+and the background.
+I chose to represent the PSF with a containment radius of 68 % as a function
+of reconstructed energy as a simple HDU.
+The events which are considered are the one passing the threshold of
+the best cutoff.
+
+We should generate the recommended IRF, e.g. parametrised as what? Apparently
+there are multiple solutions
+(see `here, <https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/psf/index.html>`_).
+
+Angular cut values
+~~~~~~~~~~~~~~~~~~
+To be implemented: `https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/point_like/index.html`_
 
 Sensitivity
 -----------
@@ -262,5 +318,5 @@ Reference/API
    :no-inheritance-diagram:
 
 .. _HDF5: https://www.hdfgroup.org/solutions/hdf5/
-.. _gammapy: https://gammapy.org/
+.. _Gammapy: https://gammapy.org/
 .. _data format: https://gamma-astro-data-formats.readthedocs.io/
