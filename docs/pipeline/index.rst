@@ -168,6 +168,7 @@ corresponding sections.
 
 What could be improved?
 =======================
+
 * Saving calibrated images as a DL1 format (here, only image parameters are saved).
   It should simplify analysis production, e.g. having DL1 calibrated data on disk allows to study
   the impact on direction reconstruction of several cleaning
@@ -185,6 +186,7 @@ What could be improved?
 
 To be fixed
 ===========
+
 * Why specify the cam_id in the scripts writting the tables (DL1 or DL2)
   although it is already given in the configuration file?
 

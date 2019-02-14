@@ -202,21 +202,24 @@ a configuration file:
                       [--wave | --tail]
 
 For the energy estimator the diagnostic plots consist in:
-* distribution of the features
-* importance of the features
-* distribution of the ratio of the reconstructed energy over the true energy
+
+* Distribution of the features
+* Importance of the features
+* Distribution of the ratio of the reconstructed energy over the true energy
   fitted with a gaussian for the subarrays
-* energy resolution and energy bias corresponding to the gaussian parametrisation
+* Energy resolution and energy bias corresponding to the gaussian parametrisation
   for the subarrays
 
 For a g/h classifier the following diagnostic are provided:
-* distribution of the features
-* importance of the features
+
+* Distribution of the features
+* Importance of the features
 * ROC curve (and its variation with energy)
 * Output model distribution (and its variation with energy)
 
 What could be improved?
 =======================
+
 * Improve split of training/test data. For now the split of the data is done
   according to the run number, e.g. training data will be N% of the first runs
   (sorted by run numbers) and test data will be the remaining runs. Really easy

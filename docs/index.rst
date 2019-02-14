@@ -13,6 +13,7 @@ The package is currently developped and tested at the CEA in the departement
 of astrophysics.
 
 The pipeline provides scripts to:
+
  * Process simtelarray files and write DL1 or DL2 tables
  * Build regression or classification models with diagnostic plots
  * Estimate the best cutoffs which gives the minimal sensitivy
@@ -38,6 +39,7 @@ How to?
 =======
 For this pipeline prototype, in order to build an analysis to estimate
 the performance of the instruments, a user will follows the following steps:
+
  1. Energy estimator
   * produce a table with gamma-ray image information with pipeline utilities (:ref:`pipeline`)
   * build a model with mva utilities (:ref:`mva`)
@@ -54,6 +56,7 @@ the performance of the instruments, a user will follows the following steps:
   * compute the instrument response functions, effective area,
     point spread function and energy resolution (:ref:`perf`)
   * estimate the sensitivity (:ref:`perf`)
+
 
 Documentation
 =============
