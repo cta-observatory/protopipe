@@ -106,7 +106,7 @@ def prod3b_tel_ids(array, site="south"):
         else:
             raise ValueError("array {} not supported".format(array))
 
-    elif site.lower() in ["north", "la palma", "lapalma", "spain", "canaries"]:
+    elif site.lower() in ["south", "South", "Paranal", "Chili"]:
         if array in 'subarray_LSTs':
             tel_ids = np.arange(1, 4 + 1)
         elif array in 'subarray_MSTs':
