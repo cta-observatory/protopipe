@@ -370,6 +370,7 @@ class IrfMaker(object):
         matrix['MATRIX'].unit = u.Unit('')
         matrix['MATRIX'].format = str(dim_matrix) + 'E'
         hdu = IrfMaker._make_edisp_hdu(table_energy, table_migra, table_theta, matrix)
+
         return hdu
 
     @classmethod

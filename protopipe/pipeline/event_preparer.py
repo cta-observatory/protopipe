@@ -47,9 +47,30 @@ def stub(event):
 
 
 class EventPreparer():
-    """Class which loop on events and returns results stored in container"""
-    def __init__(self, config, mode, event_cutflow=None, image_cutflow=None):
+    """
+    Class which loop on events and returns results stored in container
 
+    The Class has several purposes. First of all, it prepares the images of the event
+    that will be further use for reconstruction by applying calibration, cleaning and
+    selection. Then, it reconstructs the geometry of the event and then returns
+    image (e.g. Hillas parameters)and event information (e.g. reults od the
+    reconstruction).
+
+    Parameters
+    ----------
+    config: dict
+        Configuration with analysis parameters
+    mode: str
+        Mode of the reconstruction, e.g. tail or wave
+    event_cutflow: ctapipe.utils.CutFlow
+        Statistic of events processed
+    image_cutflow: ctapipe.utils.CutFlow
+        Statistic of images processed
+
+    Returns: dict
+        Dictionnary of results
+    """
+    def __init__(self, config, mode, event_cutflow=None, image_cutflow=None):
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
             config=config['ImageCleaning']['biggest'], mode=mode
@@ -78,13 +99,13 @@ class EventPreparer():
         ellipticity_bounds = config['ImageSelection']['ellipticity']
         nominal_distance_bounds = config['ImageSelection']['nominal_distance']
 
-        self.camera_radius = {'LSTCam': 1.126, 'NectarCam': 1.126}  # Average between max(xpix) and max(ypix)
+        self.camera_radius = {'LSTCam': 1.126, 'NectarCam': 1.126}  # Average between max(xpix) and max(ypix), in meter
 
         self.image_cutflow.set_cuts(OrderedDict([
             ("noCuts", None),
             ("min pixel", lambda s: np.count_nonzero(s) < npix_bounds[0]),
             ("min charge", lambda x: x < charge_bounds[0]),
-            #("poor moments", lambda m: m.width <= 0 or m.length <= 0 or np.isnan(m.width) or np.isnan(m.length) <= 0),
+            #("poor moments", lambda m: m.width <= 0 or m.length <= 0 or np.isnan(m.width) or np.isnan(m.length)),  # TBC, maybe we loose events without nan conditions
             ("poor moments", lambda m: m.width <= 0 or m.length <= 0),
             ("bad ellipticity", lambda m: (m.width/m.length) < ellipticity_bounds[0] or (m.width/m.length) > ellipticity_bounds[-1]),
             #("close to the edge", lambda m, cam_id: m.r.value > (nominal_distance_bounds[-1] * 1.12949101073069946))  # in meter

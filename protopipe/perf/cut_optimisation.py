@@ -173,9 +173,9 @@ class CutsDiagnostic(object):
 
             ax_eff.set_xlim(self.clf_output_bounds)
             ax_rate.set_xlim(self.clf_output_bounds)
-            print('JLK HAAAAACCCCKKKKKKK!!!!')
-            ax_eff.set_xlim(-0.5, 0.5)
-            ax_rate.set_xlim(-0.5, 0.5)
+            #print('JLK HAAAAACCCCKKKKKKK!!!!')
+            #ax_eff.set_xlim(-0.5, 0.5)
+            #ax_rate.set_xlim(-0.5, 0.5)
 
             plt.tight_layout()
             plt.savefig(

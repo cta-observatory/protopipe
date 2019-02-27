@@ -302,7 +302,7 @@ there are multiple solutions
 
 Angular cut values
 ~~~~~~~~~~~~~~~~~~
-To be implemented: `https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/point_like/index.html`_
+To be implemented: `<https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/point_like/index.html>`_
 
 Sensitivity
 -----------
@@ -310,6 +310,10 @@ Sensitivity
 What could be improved?
 =======================
  * `Data format for IRFs <https://gamma-astro-data-formats.readthedocs.io/>`_
+ * Propagation and reading SIMTEL informations (meta-data, histograms)
+   directly in the DL2
+ * Implement optimisation on the number of telescopes to consider an event
+ *
 
 Reference/API
 =============
