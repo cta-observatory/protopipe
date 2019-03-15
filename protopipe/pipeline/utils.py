@@ -96,6 +96,8 @@ def prod3b_tel_ids(array, site="south"):
     if array in [None, ""]:
         return None
 
+    tel_ids = None
+
     if site.lower() in ["north", "la palma", "lapalma", "spain", "canaries"]:
         if array in 'subarray_LSTs':
             tel_ids = np.arange(1, 4 + 1)
@@ -103,8 +105,6 @@ def prod3b_tel_ids(array, site="south"):
             tel_ids = np.arange(5, 19 + 1)
         elif array in 'full_array':
             tel_ids = np.arange(1, 19 + 1)
-        else:
-            raise ValueError("array {} not supported".format(array))
 
     elif site.lower() in ["south", "paranal", "chili"]:
         if array in 'subarray_LSTs':
@@ -115,5 +115,8 @@ def prod3b_tel_ids(array, site="south"):
             tel_ids = np.arange(30, 99 + 1)
     else:
         raise ValueError("site '{}' not known -- try again".format(site))
+
+    if tel_ids is None:
+      raise ValueError("array {} not supported".format(array))
 
     return tel_ids
