@@ -9,8 +9,9 @@ from collections import namedtuple, OrderedDict
 from ctapipe.calib import CameraCalibrator
 from ctapipe.image import hillas
 from ctapipe.utils.CutFlow import CutFlow
-from ctapipe.coordinates import HorizonFrame, TiltedGroundFrame, GroundFrame
-from ctapipe.image.hillas import hillas_parameters_5 as hillas_parameters
+from ctapipe.coordinates import GroundFrame
+#from ctapipe.image.hillas import hillas_parameters_5 as hillas_parameters
+from ctapipe.image.hillas import hillas_parameters
 from ctapipe.reco.HillasReconstructor import HillasReconstructor
 
 # monkey patch the camera calibrator to do NO integration correction

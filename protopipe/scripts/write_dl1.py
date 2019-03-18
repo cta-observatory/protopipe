@@ -6,7 +6,7 @@ import signal
 import tables as tb
 
 from ctapipe.utils.CutFlow import CutFlow
-from ctapipe.io import EventSourceFactory
+from ctapipe.io import event_source
 from ctapipe.reco.energy_regressor import *
 
 from protopipe.pipeline import EventPreparer
@@ -132,9 +132,11 @@ def main():
 
         print("file: {} filename = {}".format(i, filename))
 
-        source = EventSourceFactory.produce(input_url=filename,
-                                            allowed_tels=allowed_tels,
-                                            max_events=args.max_events)
+        source = event_source(
+            input_url=filename,
+            allowed_tels=allowed_tels,
+            max_events=args.max_events
+        )
 
         # loop that cleans and parametrises the images and performs the reconstruction
         # for each event

@@ -8,7 +8,8 @@ from astropy.coordinates.angle_utilities import angular_separation
 import tables as tb
 
 # ctapipe
-from ctapipe.io import EventSourceFactory
+#from ctapipe.io import EventSourceFactory
+from ctapipe.io import event_source
 from ctapipe.utils.CutFlow import CutFlow
 from ctapipe.reco.energy_regressor import EnergyRegressor
 from ctapipe.reco.event_classifier import EventClassifier
@@ -21,7 +22,9 @@ from protopipe.pipeline.utils import (make_argparser,
                                       load_config,
                                       SignalHandler)
 
+#from memory_profiler import profile
 
+#@profile
 def main():
 
     # Argument parser
@@ -152,10 +155,14 @@ def main():
     for i, filename in enumerate(filenamelist):
         # print(f"file: {i} filename = {filename}")
 
-        source = EventSourceFactory.produce(input_url=filename,
-                                            allowed_tels=allowed_tels,
-                                            max_events=args.max_events)
-
+        # source = EventSourceFactory.produce(input_url=filename,
+        #                                     allowed_tels=allowed_tels,
+        #                                     max_events=args.max_events)
+        source = event_source(
+            input_url=filename,
+            allowed_tels=allowed_tels,
+            max_events=args.max_events
+        )
         # loop that cleans and parametrises the images and performs the reconstruction
         for (event, n_pixel_dict, hillas_dict, n_tels,
              tot_signal, max_signals, n_cluster_dict,
