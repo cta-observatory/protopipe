@@ -236,8 +236,6 @@ def main():
                             moments.skewness,
                             moments.kurtosis,
                             h_max.value,
-                            np.log10(energy_tel[idx]),
-                            n_cluster_dict[tel_id],
                         ])
                         # Output of classifier according to type of classifier
                         if use_proba_for_classifier is False:

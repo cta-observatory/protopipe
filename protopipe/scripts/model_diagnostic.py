@@ -240,6 +240,7 @@ def main():
             ax.set_xscale('log')
             ax.grid()
             ax.legend()
+            ax.set_ylim([-0.2, 1.2])
             plt.title(cam_id)
             plt.tight_layout()
             plt.savefig(path.join(outdir, 'energy_resolution.pdf'))

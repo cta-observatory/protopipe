@@ -56,7 +56,8 @@ def main():
         config=cfg,
         mode=args.mode,
         event_cutflow=evt_cutflow,
-        image_cutflow=img_cutflow)
+        image_cutflow=img_cutflow
+    )
 
     # catch ctr-c signal to exit current loop and still display results
     signal_handler = SignalHandler()
