@@ -145,8 +145,6 @@ def main():
              tot_signal, max_signals, n_cluster_dict,
              reco_result, impact_dict) in preper.prepare_event(source):
 
-            print()
-
             # Angular quantities
             run_array_direction = event.mcheader.run_array_direction
 
