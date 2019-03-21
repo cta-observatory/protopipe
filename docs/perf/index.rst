@@ -245,6 +245,8 @@ with the angular cut, etc.).
 Responses of the instrument
 ===========================
 
+The instrument response functions characterise the performance of the instrument.
+In addition, there are needed to estimate the sensitivity of the array.
 A proposition for the CTA IRF data format is available
 `here <https://gamma-astro-data-formats.readthedocs.io/>`_.
 The IRF are stored as an HDU (Header Data Unit) list in a FITS
@@ -279,12 +281,12 @@ I guess that Gammapy_ should be able to reaf IRF with single offset.
 Background
 ~~~~~~~~~~
 The question to consider whether the bakground is an IRF or not. Since here it
-is needed to estimate the sensitivity of the instrument we consider it as part
-of the IRFs.
+is needed to estimate the sensitivity of the instrument we consider it is included
+in the IRFs.
 Here a simple HDU containing the background (protons + electrons) rate as a
 function of the reconstructed energy is generated.
 The events which are considered are the one passing the threshold of
-the best cutoff plus the angular cuts.
+the best cutoff and the angular cuts.
 
 Point spread function
 ~~~~~~~~~~~~~~~~~~~~~
@@ -306,6 +308,7 @@ To be implemented: `<https://gamma-astro-data-formats.readthedocs.io/en/latest/i
 
 Sensitivity
 -----------
+The sensitivity is computed with the Gammapy software.
 
 What could be improved?
 =======================

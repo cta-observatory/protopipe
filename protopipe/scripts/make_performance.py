@@ -16,7 +16,13 @@ from protopipe.perf import (CutsOptimisation, CutsDiagnostic, CutsApplicator,
 def main():
     # Read arguments
     parser = argparse.ArgumentParser(description='Make performance files')
-    parser.add_argument('--config_file', type=str, required=True)
+    parser.add_argument('--config_file', type=str, required=True, help='')
+    parser.add_argument(
+        '--obs_time',
+        type=str,
+        required=True,
+        help='Observation time, should be given as a string, value and astropy unit separated by an empty space'
+    )
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument('--wave', dest="mode", action='store_const',
                             const="wave", default="tail",
@@ -28,6 +34,10 @@ def main():
 
     # Read configuration file
     cfg = load_config(args.config_file)
+
+    # Add obs. time in configuration file
+    str_obs_time = args.obs_time.split()
+    cfg['analysis']['obs_time'] = {'value': float(str_obs_time[0]), 'unit': str(str_obs_time[-1])}
 
     # Create output directory if necessary
     outdir = os.path.join(cfg['general']['outdir'], 'irf_{}_ThSq_{}_Time{:.2f}{}'.format(
@@ -56,13 +66,6 @@ def main():
         evt_dict[particle] = evt_dict[particle].query('offset <= {}'.format(
             cfg['particle_information'][particle]['offset_cut'])
         )
-        # print('==> After offset cut: {} {}'.format(len(evt_dict[particle]), particle))
-
-    # Apply additional cut to data
-    cut_on_data = cfg['analysis']['cut_on_data']
-    for particle in ['gamma', 'electron', 'proton']:
-        evt_dict[particle] = evt_dict[particle].query('{}'.format(cut_on_data))
-        print('{}: min mult={}'.format(particle, evt_dict[particle].NTels_reco.min()))
 
     # Add required data in configuration file for future computation
     for particle in particles:

@@ -11,7 +11,7 @@ Introduction
 classification problems. It is based on machine learning methods available in
 scikit-learn_. Internally, the tables are dealt with the Pandas_ Python module.
 
-For each type of camera a regressor/classifier should be trained For both type of models
+For each type of camera a regressor/classifier should be trained. For both type of models
 an average of the image estimates is later computed to determine a global
 output for the event (energy or score/gammaness).
 
@@ -21,11 +21,13 @@ protons is also used to build a classifier. The training of a model is done via
 the GridSearchCV_ algorithm which allows to find the best hyper-parameters of
 the models.
 
-The RegressorDiagnostic and ClassifierDiagnostic classes should be used to generate
+The RegressorDiagnostic and ClassifierDiagnostic classes can be used to generate
 several diagnostic plots for regression and classification models, respectively.
 
-To know more about is done in CTA (e.g. for the EvtDisplay and MARS analyses,
-please read )
+To know more about how it is done for EvtDisplay and MARS analyses in CTA
+please read the IRF document available
+`here <https://forge.in2p3.fr/projects/cta_analysis-and-simulations/wiki/Prod3b_based_instrument_response_functions>`_.
+
 
 How to build models
 ===================
@@ -67,7 +69,8 @@ Here is an example of a configuration file with some comments to build a model:
       learning_rate: [0.1, 0.2, 0.3]
       n_estimators: [100, 200]
       base_estimator__max_depth: [null]  # null is equivalent to None
-      base_estimator__min_samples_split: [2]
+      base_estimator__min_samples_split: [2]  # minimal number to split a node
+      base_estimator__min_samples_leaf: [10]  # minimal number of events to form an external node
      scoring: 'explained_variance'  # Metrics to choose the best regressor
      cv: 2  # k in k-cross-validation
 
@@ -98,7 +101,10 @@ Up to now, we used a Boosted Decision Tree (BDT) algorithm to reconstruct the
 energy. Note that the tuning of the Random Forest (RF) algorithm was found
 a bit problematic (20 % energy resolution at all energies). The important thing
 to get the a good energy estimator is to build trees with high depth.
-The minimal number of events in one split was fixed to 2.
+The minimal number of events to form an external node was fixed to 10 in order
+to obtain a model with a reasonable size (~50MB for  for 200000 evts).
+Indeed, allowing the trees to develop deeper would result in massive
+files (~500MB for 200000 evts).
 
 g/h classifier
 --------------
@@ -161,8 +167,8 @@ developments between gamma-ray induced showers and hadron induced shower.
 Up to now, we used the second moments of the images (width and length) as well
 as the higer orders of the images (skewness and kurtosis which do not show a very high
 separation power). We also use stereoscopic parameters such as the heigh of
-the shower maximum and the reconstructed energy. The energy as a high separation
-power since the distribution of the discriminant parameters vary a lot with
+the shower maximum and the reconstructed energy. The energy is important
+since the distribution of the discriminant parameters vary a lot with
 the energy of the particles.
 
 Since in the end we want to average the score of the particles between different
@@ -177,17 +183,30 @@ Anyway, we gave up on the BDT method since the output is not easy to normalise
 between 0 and 1 (there are also fluctuations on the score distribution
 that can totally crash the normalisation) and we trained a Random Forest (RF) as
 people do the MARS analysis in CTA (not the same way as in MAGIC, e.g.
-information of tel #1 and #2 in the same RF).
+information of tel #1 and #2 in the same RF, here one model per type of telescope
+then gammaness averaging).
+
 Once again, the main important hyper-parameters
-to get a robust classifier is to build trees with high depth and to play on the
-minimal number of events to get a final leaf (`min_samples_leaf`).
+to get a robust classifier is the maximal depth of the trees and the
+minimal number of events to get an external node (`min_samples_leaf`).
 Please be aware that if you specify a `min_samples_leaf` close to one you'll be
 in a high regime of overtraining that can be seen with an area under
 the ROC (auc) of 1 for the training sample and a mismatch between the gammaness
-distribution of the training and the test samples. In order to get an agreeement
+distribution of the training and the test samples. In order to get an agreement
 (by eye, could do a KS/chi2 test) between the training and test distributions
-I chose a fraction of 0.0005 to get a obtain an external node I use ~100000
-images for each sample for the training phase.
+I chose to grow a forest of 200 trees with a max_depth of 10. I use a maximal
+number of 200000 images for each sample for the training/test phase.
+
+Note that the previous setup differ from what Abelardo is doing. Abelardo has
+no max_depth, he grows 100 tress, and uses a min_samples_leaf close to 1 (TBC).
+He is in an overtraining regime (auc ROC close to 1) and the agreement of the
+distributions between the training and the test samples is bad. This is not good
+since one might want to control the cut efficiencies of the models and
+in real conditions to see that everything is correct.
+
+*The settings used are not really optimised, I tuned them to get reasonable
+performance and a good agreeement between the training/test samples.
+Optimisation is welcome*
 
 Diagnostics
 -----------
