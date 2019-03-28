@@ -58,7 +58,7 @@ def main():
     for particle in particles:
         # template looks like dl2_{}_{}_merged.h5
         infile = os.path.join(indir, template_input_file.format(args.mode, particle))
-        evt_dict[particle] = pd.read_hdf(infile)
+        evt_dict[particle] = pd.read_hdf(infile, key='reco_events')
 
     # Apply offset cut to proton and electron
     for particle in ['electron', 'proton']:
