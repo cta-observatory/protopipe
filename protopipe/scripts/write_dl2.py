@@ -8,7 +8,7 @@ from astropy.coordinates.angle_utilities import angular_separation
 import tables as tb
 
 # ctapipe
-#from ctapipe.io import EventSourceFactory
+# from ctapipe.io import EventSourceFactory
 from ctapipe.io import event_source
 from ctapipe.utils.CutFlow import CutFlow
 from ctapipe.reco.energy_regressor import EnergyRegressor
@@ -16,41 +16,48 @@ from ctapipe.reco.event_classifier import EventClassifier
 
 # Utilities
 from protopipe.pipeline import EventPreparer
-from protopipe.pipeline.utils import (make_argparser,
-                                      prod3b_tel_ids,
-                                      str2bool,
-                                      load_config,
-                                      SignalHandler)
+from protopipe.pipeline.utils import (
+    make_argparser,
+    prod3b_tel_ids,
+    str2bool,
+    load_config,
+    SignalHandler,
+)
 
-#from memory_profiler import profile
+# from memory_profiler import profile
 
-#@profile
+# @profile
 def main():
 
     # Argument parser
     parser = make_argparser()
-    parser.add_argument('--regressor_dir', default='./', help='regressors directory')
-    parser.add_argument('--classifier_dir', default='./', help='regressors directory')
-    parser.add_argument('--force_tailcut_for_extended_cleaning', type=str2bool, default=False,
-                        help="For tailcut cleaning for energy/score estimation")
+    parser.add_argument("--regressor_dir", default="./", help="regressors directory")
+    parser.add_argument("--classifier_dir", default="./", help="regressors directory")
+    parser.add_argument(
+        "--force_tailcut_for_extended_cleaning",
+        type=str2bool,
+        default=False,
+        help="For tailcut cleaning for energy/score estimation",
+    )
     args = parser.parse_args()
 
     # Read configuration file
     cfg = load_config(args.config_file)
 
     # Read site layout
-    site = cfg['General']['site']
-    array = cfg['General']['array']
+    site = cfg["General"]["site"]
+    array = cfg["General"]["array"]
 
     # Add force_tailcut_for_extended_cleaning in configuration
-    cfg['General']['force_tailcut_for_extended_cleaning'] = \
-        args.force_tailcut_for_extended_cleaning
-    cfg['General']['force_mode'] = 'tail'
+    cfg["General"][
+        "force_tailcut_for_extended_cleaning"
+    ] = args.force_tailcut_for_extended_cleaning
+    cfg["General"]["force_mode"] = "tail"
     force_mode = args.mode
-    if cfg['General']['force_tailcut_for_extended_cleaning'] is True:
-        force_mode = 'tail'
-    print('force_mode={}'.format(force_mode))
-    print('mode={}'.format(args.mode))
+    if cfg["General"]["force_tailcut_for_extended_cleaning"] is True:
+        force_mode = "tail"
+    print("force_mode={}".format(force_mode))
+    print("mode={}".format(args.mode))
 
     if args.infile_list:
         filenamelist = []
@@ -68,45 +75,52 @@ def main():
 
     # Event preparer
     preper = EventPreparer(
-        config=cfg,
-        mode=args.mode,
-        event_cutflow=evt_cutflow,
-        image_cutflow=img_cutflow)
+        config=cfg, mode=args.mode, event_cutflow=evt_cutflow, image_cutflow=img_cutflow
+    )
 
     # Regressor and classifier methods
-    regressor_method = cfg['EnergyRegressor']['method_name']
-    classifier_method = cfg['GammaHadronClassifier']['method_name']
-    use_proba_for_classifier = cfg['GammaHadronClassifier']['use_proba']
+    regressor_method = cfg["EnergyRegressor"]["method_name"]
+    classifier_method = cfg["GammaHadronClassifier"]["method_name"]
+    use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
 
-    if regressor_method in ['None', 'none', None]:
+    if regressor_method in ["None", "none", None]:
         use_regressor = False
     else:
         use_regressor = True
 
-    if classifier_method in ['None', 'none', None]:
+    if classifier_method in ["None", "none", None]:
         use_classifier = False
     else:
         use_classifier = True
 
     # Classifiers
     if use_classifier:
-        classifier_files = args.classifier_dir + "/classifier_{mode}_{cam_id}_{classifier}.pkl.gz"
+        classifier_files = (
+            args.classifier_dir + "/classifier_{mode}_{cam_id}_{classifier}.pkl.gz"
+        )
         clf_file = classifier_files.format(
-            **{"mode": force_mode,
-               "wave_args": "mixed",
-               "classifier": classifier_method,
-               "cam_id": "{cam_id}"}
+            **{
+                "mode": force_mode,
+                "wave_args": "mixed",
+                "classifier": classifier_method,
+                "cam_id": "{cam_id}",
+            }
         )
         classifier = EventClassifier.load(clf_file, cam_id_list=args.cam_ids)
 
     # Regressors
     if use_regressor:
-        regressor_files = args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
+        regressor_files = (
+            args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
+        )
         reg_file = regressor_files.format(
-            **{"mode": force_mode,
-               "wave_args": "mixed",
-               "regressor": regressor_method,
-               "cam_id": "{cam_id}"})
+            **{
+                "mode": force_mode,
+                "wave_args": "mixed",
+                "regressor": regressor_method,
+                "cam_id": "{cam_id}",
+            }
+        )
         regressor = EnergyRegressor.load(reg_file, cam_id_list=args.cam_ids)
 
     # catch ctr-c signal to exit current loop and still display results
@@ -143,9 +157,16 @@ def main():
         mode="w",
         # if no outfile name is given (i.e. don't to write the event list to disk),
         # need specify two "driver" arguments
-        **({"filename": args.outfile} if args.outfile else
-           {"filename": "no_outfile.h5",
-            "driver": "H5FD_CORE", "driver_core_backing_store": False}))
+        **(
+            {"filename": args.outfile}
+            if args.outfile
+            else {
+                "filename": "no_outfile.h5",
+                "driver": "H5FD_CORE",
+                "driver_core_backing_store": False,
+            }
+        )
+    )
 
     reco_table = reco_outfile.create_table("/", "reco_events", RecoEvent)
     reco_event = reco_table.row
@@ -159,24 +180,28 @@ def main():
         #                                     allowed_tels=allowed_tels,
         #                                     max_events=args.max_events)
         source = event_source(
-            input_url=filename,
-            allowed_tels=allowed_tels,
-            max_events=args.max_events
+            input_url=filename, allowed_tels=allowed_tels, max_events=args.max_events
         )
         # loop that cleans and parametrises the images and performs the reconstruction
-        for (event, n_pixel_dict, hillas_dict, n_tels,
-             tot_signal, max_signals, n_cluster_dict,
-             reco_result, impact_dict) in preper.prepare_event(source):
+        for (
+            event,
+            n_pixel_dict,
+            hillas_dict,
+            hillas_dict_reco,
+            n_tels,
+            tot_signal,
+            max_signals,
+            n_cluster_dict,
+            reco_result,
+            impact_dict,
+        ) in preper.prepare_event(source):
 
             # Angular quantities
             run_array_direction = event.mcheader.run_array_direction
 
             # Angular separation between true and reco direction
             xi = angular_separation(
-                event.mc.az,
-                event.mc.alt,
-                reco_result.az,
-                reco_result.alt
+                event.mc.az, event.mc.alt, reco_result.az, reco_result.alt
             )
 
             # Angular separation bewteen the center of the camera and the reco direction.
@@ -184,7 +209,7 @@ def main():
                 run_array_direction[0],  # az
                 run_array_direction[1],  # alt
                 reco_result.az,
-                reco_result.alt
+                reco_result.alt,
             )
 
             # Height of shower maximum
@@ -203,13 +228,15 @@ def main():
                         model = regressor.model_dict[cam_id]
 
                         # Features to be fed in the regressor
-                        features_img = np.array([
-                            np.log10(moments.intensity),
-                            np.log10(impact_dict[tel_id].value),
-                            moments.width.value,
-                            moments.length.value,
-                            h_max.value
-                        ])
+                        features_img = np.array(
+                            [
+                                np.log10(moments.intensity),
+                                np.log10(impact_dict[tel_id].value),
+                                moments.width.value,
+                                moments.length.value,
+                                h_max.value,
+                            ]
+                        )
 
                         energy_tel[idx] = model.predict([features_img])
                         weight_tel[idx] = moments.intensity
@@ -229,19 +256,23 @@ def main():
                         moments = hillas_dict[tel_id]
                         model = classifier.model_dict[cam_id]
                         # Features to be fed in the classifier
-                        features_img = np.array([
-                            np.log10(reco_energy),
-                            moments.width.value,
-                            moments.length.value,
-                            moments.skewness,
-                            moments.kurtosis,
-                            h_max.value,
-                        ])
+                        features_img = np.array(
+                            [
+                                np.log10(reco_energy),
+                                moments.width.value,
+                                moments.length.value,
+                                moments.skewness,
+                                moments.kurtosis,
+                                h_max.value,
+                            ]
+                        )
                         # Output of classifier according to type of classifier
                         if use_proba_for_classifier is False:
                             score_tel[idx] = model.decision_function([features_img])
                         else:
-                            gammaness_tel[idx] = model.predict_proba([features_img])[:,1]
+                            gammaness_tel[idx] = model.predict_proba([features_img])[
+                                :, 1
+                            ]
                         # Should test other weighting strategy (e.g. power of charge, impact, etc.)
                         # For now, weighting a la Mars
                         weight_tel[idx] = np.sqrt(moments.intensity)
@@ -271,15 +302,15 @@ def main():
                 reco_event["NTels_reco_mst"] = n_tels["MST"]
                 reco_event["NTels_reco_sst"] = n_tels["SST"]
                 reco_event["reco_energy"] = reco_energy
-                reco_event["reco_alt"] = alt.to('deg').value
-                reco_event["reco_az"] = az.to('deg').value
-                reco_event["offset"] = offset.to('deg').value
-                reco_event["xi"] = xi.to('deg').value
-                reco_event["h_max"] = h_max.to('m').value
-                reco_event["reco_core_x"] = reco_core_x.to('m').value
-                reco_event["reco_core_y"] = reco_core_y.to('m').value
-                reco_event["mc_core_x"] = mc_core_x.to('m').value
-                reco_event["mc_core_y"] = mc_core_y.to('m').value
+                reco_event["reco_alt"] = alt.to("deg").value
+                reco_event["reco_az"] = az.to("deg").value
+                reco_event["offset"] = offset.to("deg").value
+                reco_event["xi"] = xi.to("deg").value
+                reco_event["h_max"] = h_max.to("m").value
+                reco_event["reco_core_x"] = reco_core_x.to("m").value
+                reco_event["reco_core_y"] = reco_core_y.to("m").value
+                reco_event["mc_core_x"] = mc_core_x.to("m").value
+                reco_event["mc_core_y"] = mc_core_y.to("m").value
                 if use_proba_for_classifier is True:
                     reco_event["gammaness"] = gammaness
                 else:
@@ -291,7 +322,7 @@ def main():
                 reco_event["success"] = False
 
             # save basic event infos
-            reco_event["mc_energy"] = event.mc.energy.to('TeV').value
+            reco_event["mc_energy"] = event.mc.energy.to("TeV").value
             reco_event["event_id"] = event.r1.event_id
             reco_event["obs_id"] = event.r1.obs_id
 
@@ -317,8 +348,8 @@ def main():
     except ZeroDivisionError:
         pass
 
-    print('Job done!')
+    print("Job done!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
