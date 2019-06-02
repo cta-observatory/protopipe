@@ -16,7 +16,7 @@ except ImportError as e:
 __all__ = ["ImageCleaner"]
 
 
-def mars_image_cleaning(
+def mars_cleaning_1st_pass(
     geom,
     image,
     picture_thresh=7,
@@ -25,10 +25,8 @@ def mars_image_cleaning(
     min_number_picture_neighbors=0,
 ):
 
-    """This is here temporarely, just to launch a production without waiting
-    for the official ctapipe pull-request, which will be done in parallel.
-    More details in ctapipe.image.cleaning in the
-    updated local version (ask Michele P.)"""
+    """This is here temporarely, just for test-productions.
+    There will be a separate pull-request on ctapipe."""
 
     pixels_from_tailcuts_clean = tailcuts_clean(
         geom,
@@ -106,7 +104,7 @@ class ImageCleaner(object):
                 # )
 
                 # ... we want to use new MARS 1st pass function
-                self.cleaners[cam_id] = lambda img, geom, opt: mars_image_cleaning(
+                self.cleaners[cam_id] = lambda img, geom, opt: mars_cleaning_1st_pass(
                     image=img, geom=geom, **opt
                 )
 
