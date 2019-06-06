@@ -13,3 +13,7 @@ A pipeline prototype for the Cherenkov Telescope Array. To build the docs:
 	>$ display _build/html/index.html
 
 
+Requirements:
+-------------
+- [ctapipe](https://github.com/cta-observatory/ctapipe)
+- [gammapy](https://github.com/gammapy/)
