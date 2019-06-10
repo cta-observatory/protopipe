@@ -29,10 +29,15 @@ def null_integration_correction_func(
 ctapipe.calib.camera.dl1.integration_correction = null_integration_correction_func
 
 # PiWy utilities
-from pywicta.io import geometry_converter
-from pywicta.io.images import simtel_event_to_images
-from pywi.processing.filtering import pixel_clusters
-from pywi.processing.filtering.pixel_clusters import filter_pixels_clusters
+try:
+    from pywicta.io import geometry_converter
+    from pywicta.io.images import simtel_event_to_images
+    from pywi.processing.filtering import pixel_clusters
+    from pywi.processing.filtering.pixel_clusters import filter_pixels_clusters
+except ImportError as e:
+    print("pywicta package could not be imported")
+    print("wavelet cleaning will not work")
+    print(e)
 
 # Pipeline utilities
 from .image_cleaning import ImageCleaner
@@ -136,14 +141,16 @@ class EventPreparer:
                     ("noCuts", None),
                     ("min pixel", lambda s: np.count_nonzero(s) < npix_bounds[0]),
                     ("min charge", lambda x: x < charge_bounds[0]),
-                    # ("poor moments", lambda m: m.width <= 0 or m.length <= 0 or np.isnan(m.width) or np.isnan(m.length)),  # TBC, maybe we loose events without nan conditions
+                    # ("poor moments", lambda m: m.width <= 0 or m.length <= 0 or np.isnan(m.width) or np.isnan(m.length)),
+                    # TBC, maybe we loose events without nan conditions
                     ("poor moments", lambda m: m.width <= 0 or m.length <= 0),
                     (
                         "bad ellipticity",
                         lambda m: (m.width / m.length) < ellipticity_bounds[0]
                         or (m.width / m.length) > ellipticity_bounds[-1],
                     ),
-                    # ("close to the edge", lambda m, cam_id: m.r.value > (nominal_distance_bounds[-1] * 1.12949101073069946))  # in meter
+                    # ("close to the edge", lambda m, cam_id: m.r.value > (nominal_distance_bounds[-1] * 1.12949101073069946))
+                    # in meter
                     (
                         "close to the edge",
                         lambda m, cam_id: m.r.value
