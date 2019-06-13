@@ -1,0 +1,90 @@
+# General informations
+General:
+ config_name: 'lapalma_N_fullarray_MARStailcut_corrected_minNtel2'
+ site: 'north'  # North or South
+ array: 'full_array'  # subarray_LSTs, subarray_MSTs, full_array
+ cam_id_list: ['LSTCam', 'NectarCam'] # Camera identifiers (Should be read in scripts?)
+
+# Cleaning for reconstruction
+ImageCleaning:
+
+ # Cleaning for reconstruction
+ biggest:
+  tail:  #
+   thresholds:  # picture, boundary
+    - LSTCam: [6, 3]
+    - NectarCam: [8, 4]  # TBC
+   keep_isolated_pixels: False
+   min_number_picture_neighbors: 2
+
+  wave:
+   # Directory to write temporary files
+   #tmp_files_directory: '/dev/shm/'
+   tmp_files_directory: './'
+   options:
+    LSTCam:
+     type_of_filtering: 'hard_filtering'
+     filter_thresholds: [3, 0.2]
+     last_scale_treatment: 'drop'
+     kill_isolated_pixels: True
+     detect_only_positive_structures: False
+     clusters_threshold: 0
+    NectarCam:  # TBC
+     type_of_filtering: 'hard_filtering'
+     filter_thresholds: [3, 0.2]
+     last_scale_treatment: 'drop'
+     kill_isolated_pixels: True
+     detect_only_positive_structures: False
+     clusters_threshold: 0
+
+ # Cleaning for energy/score estimation
+ extended:
+  tail:  #
+   thresholds:  # picture, boundary
+    - LSTCam: [6, 3]
+    - NectarCam: [8, 4]  # TBC
+   keep_isolated_pixels: False
+   min_number_picture_neighbors: 2
+
+  wave:
+   # Directory to write temporary files
+   #tmp_files_directory: '/dev/shm/'
+   tmp_files_directory: './'
+   options:
+    LSTCam:
+     type_of_filtering: 'hard_filtering'
+     filter_thresholds: [3, 0.2]
+     last_scale_treatment: 'posmask'
+     kill_isolated_pixels: True
+     detect_only_positive_structures: False
+     clusters_threshold: 0
+    NectarCam:  # TBC
+     type_of_filtering: 'hard_filtering'
+     filter_thresholds: [3, 0.2]
+     last_scale_treatment: 'posmask'
+     kill_isolated_pixels: True
+     detect_only_positive_structures: False
+     clusters_threshold: 0
+
+# Cut for image selection
+ImageSelection:
+ charge: [50., 1e10]
+ pixel: [3, 1e10]
+ ellipticity: [0.1, 0.6]
+ nominal_distance: [0., 0.8]  # in camera radius
+
+# Minimal number of telescopes to consider events
+Reconstruction:
+ min_tel: 2
+
+# Parameters for energy estimation
+EnergyRegressor:
+ # Name of the regression method (e.g. AdaBoostRegressor, etc.)
+ method_name: 'AdaBoostRegressor'
+
+# Parameters for g/h separation
+GammaHadronClassifier:
+ # Name of the classification method (e.g. AdaBoostRegressor, etc.)
+ method_name: 'RandomForestClassifier'
+ # Use probability output or score
+ use_proba: True
