@@ -153,8 +153,8 @@ def main():
             input_url=filename, allowed_tels=allowed_tels, max_events=args.max_events
         )
 
-        # loop that cleans and parametrises the images and performs the reconstruction
-        # for each event
+        # loop that cleans and parametrises the images and performs the
+        # reconstruction for each event
         for (
             event,
             n_pixel_dict,
@@ -188,7 +188,8 @@ def main():
 
             # Height of shower maximum
             h_max = reco_result.h_max
-            # Todo add conversion in number of radiation length, need an atmosphere profile
+            # Todo add conversion in number of radiation length,
+            # need an atmosphere profile
 
             reco_energy = np.nan
             reco_energy_tel = dict()
