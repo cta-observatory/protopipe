@@ -1,0 +1,41 @@
+General:
+ model_type: 'regressor'
+ # [...] = your analysis local path
+ # Please, refer to directory structure shown at Lugano
+ data_dir: '[...]/data/DL1/for_energy_estimation'
+ data_file: 'dl1_{}_gamma_merged.h5'
+ outdir: '[...]/estimators/energy_regressor'
+ cam_id_list: ['LSTCam', 'NectarCam']
+ table_name_template: 'feature_events_'
+
+Split:
+ train_fraction: 0.8
+
+Method:
+ name: 'AdaBoostRegressor'
+ target_name: 'mc_energy'
+ tuned_parameters:
+  learning_rate: [0.3]
+  n_estimators: [100]
+  base_estimator__max_depth: [null]  # null is equivalent to None
+  base_estimator__min_samples_split: [2]
+  base_estimator__min_samples_leaf: [10]
+ scoring: 'explained_variance'
+ cv: 2
+
+FeatureList:
+ - 'log10_charge'
+ - 'log10_impact'
+ - 'width'
+ - 'length'
+ - 'h_max'
+
+SigFiducialCuts:
+ - 'xi <= 0.5'
+
+Diagnostic:
+ # Energy binning (used for reco and true energy)
+ energy:
+  nbins: 15
+  min: 0.0125
+  max: 125
