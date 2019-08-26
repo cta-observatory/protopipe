@@ -7,6 +7,7 @@ from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
 from ctapipe.calib import CameraCalibrator
+from ctapipe.image.extractor import LocalPeakWindowSum
 from ctapipe.image import hillas
 from ctapipe.utils.CutFlow import CutFlow
 from ctapipe.coordinates import GroundFrame
@@ -16,17 +17,17 @@ from ctapipe.image.hillas import hillas_parameters
 from ctapipe.reco.HillasReconstructor import HillasReconstructor
 
 # monkey patch the camera calibrator to do NO integration correction
-import ctapipe
+# import ctapipe
 
 
-def null_integration_correction_func(
-    n_chan, pulse_shape, refstep, time_slice, window_width, window_shift
-):
-    return np.ones(n_chan)
+# def null_integration_correction_func(
+#     n_chan, pulse_shape, refstep, time_slice, window_width, window_shift
+# ):
+#     return np.ones(n_chan)
 
 
 # apply the patch
-ctapipe.calib.camera.dl1.integration_correction = null_integration_correction_func
+# ctapipe.calib.camera.dl1.integration_correction = null_integration_correction_func
 
 # PiWy utilities
 try:
@@ -77,14 +78,13 @@ def stub(event):
 
 
 class EventPreparer:
-    """
-    Class which loop on events and returns results stored in container
+    """Class which loop on events and returns results stored in container.
 
-    The Class has several purposes. First of all, it prepares the images of the event
-    that will be further use for reconstruction by applying calibration, cleaning and
-    selection. Then, it reconstructs the geometry of the event and then returns
-    image (e.g. Hillas parameters)and event information (e.g. reults od the
-    reconstruction).
+    The Class has several purposes. First of all, it prepares the images of the
+    event that will be further use for reconstruction by applying calibration,
+    cleaning and selection. Then, it reconstructs the geometry of the event and
+    then returns image (e.g. Hillas parameters)and event information
+    (e.g. results of the reconstruction).
 
     Parameters
     ----------
@@ -160,6 +160,18 @@ class EventPreparer:
             )
         )
 
+        cfg = Config()
+        cfg["ChargeExtractorFactory"]["window_width"] = 5
+        cfg["ChargeExtractorFactory"]["window_shift"] = 2
+        extractor = LocalPeakWindowSum(config=cfg)
+
+        self.calib = CameraCalibrator(
+            config=cfg,
+            image_extractor=extractor,
+            # eventsource=source,
+            # tool=None,
+        )
+
         # Reconstruction
         self.shower_reco = HillasReconstructor()
 
@@ -185,15 +197,6 @@ class EventPreparer:
         # modifies the integration window to be more like in MARS
         # JLK, only for LST!!!!
         # Option for integration correction is done above
-        cfg = Config()
-        cfg["ChargeExtractorFactory"]["window_width"] = 5
-        cfg["ChargeExtractorFactory"]["window_shift"] = 2
-        self.calib = CameraCalibrator(
-            config=cfg,
-            extractor_product="LocalPeakIntegrator",
-            eventsource=source,
-            tool=None,
-        )
 
         for event in source:
 
@@ -205,8 +208,13 @@ class EventPreparer:
                 else:
                     continue
 
+            # TEST : print correction factor for event
+            for tel in event.dl0.tels_with_data:
+                print(
+                    f"Correction factor for telescope #{tel} : {self.calib._get_correction(event, tel)}"
+                )
             # calibrate the event
-            self.calib.calibrate(event)
+            self.calib(event)
 
             # telescope loop
             tot_signal = 0
