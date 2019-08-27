@@ -224,9 +224,9 @@ class EventPreparer:
             hillas_dict = {}  # for discrimination
             n_tels = {
                 "tot": len(event.dl0.tels_with_data),
-                "LST": 0,
-                "MST": 0,
-                "SST": 0,
+                "LST_LST_LSTCam": 0,
+                "MST_MST_NectarCam": 0,
+                "SST": 0,  # will change later wheh working on Paranal
             }
             n_cluster_dict = {}
             impact_dict_reco = {}  # impact distance measured in tilt system
