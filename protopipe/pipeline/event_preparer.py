@@ -360,9 +360,23 @@ class EventPreparer:
                     reco_result = self.shower_reco.predict(
                         hillas_dict_reco,
                         event.inst,
-                        point_altitude_dict,
-                        point_azimuth_dict,
+                        SkyCoord(alt=alt, az=az, frame="altaz"),
+                        {
+                            tel_id: SkyCoord(
+                                alt=point_altitude_dict[tel_id],
+                                az=point_azimuth_dict[tel_id],
+                                frame="altaz",
+                            )
+                            for tel_id in event.dl0.tels_with_data
+                        },
                     )
+
+                    # reco_result = self.shower_reco.predict(
+                    #     hillas_dict_reco,
+                    #     event.inst,
+                    #     point_altitude_dict,  # this needs to be changed using ctapipe07!
+                    #     point_azimuth_dict,  # this needs to be changed using ctapipe07!
+                    # )
 
                     # shower_sys = TiltedGroundFrame(pointing_direction=HorizonFrame(
                     #     az=reco_result.az,
