@@ -246,7 +246,7 @@ class EventPreparer:
                 camera = event.inst.subarray.tel[tel_id].camera
 
                 # count the current telescope according to its size
-                tel_type = event.inst.subarray.tel[tel_id].optics.tel_type
+                tel_type = str(event.inst.subarray.tel[tel_id])
                 # JLK, N telescopes before cut selection are not really interesting for
                 # discrimination, too much fluctuations
                 # n_tels[tel_type] += 1
