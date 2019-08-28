@@ -253,10 +253,12 @@ class EventPreparer:
 
                 # the camera image as a 1D array and stuff needed for calibration
                 # Choose gain according to pywicta's procedure
-                image_1d = simtel_event_to_images(
-                    event=event, tel_id=tel_id, ctapipe_format=True
-                )
-                pmt_signal = image_1d.input_image  # calibrated image
+
+                # image_1d = simtel_event_to_images(
+                #    event=event, tel_id=tel_id, ctapipe_format=True
+                # )
+                # pmt_signal = image_1d.input_image  # calibrated image
+                pmt_signal = event.dl1.tel[tel_id].image
 
                 # clean the image
                 try:
