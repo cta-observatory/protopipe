@@ -16,32 +16,20 @@ from ctapipe.coordinates import GroundFrame
 from ctapipe.image.hillas import hillas_parameters
 from ctapipe.reco.HillasReconstructor import HillasReconstructor
 
-# monkey patch the camera calibrator to do NO integration correction
-# import ctapipe
-
-
-# def null_integration_correction_func(
-#     n_chan, pulse_shape, refstep, time_slice, window_width, window_shift
-# ):
-#     return np.ones(n_chan)
-
-
-# apply the patch
-# ctapipe.calib.camera.dl1.integration_correction = null_integration_correction_func
+# Pipeline utilities
+from .image_cleaning import ImageCleaner
 
 # PiWy utilities
 try:
     from pywicta.io import geometry_converter
-    from pywicta.io.images import simtel_event_to_images
+
+    # from pywicta.io.images import simtel_event_to_images
     from pywi.processing.filtering import pixel_clusters
     from pywi.processing.filtering.pixel_clusters import filter_pixels_clusters
 except ImportError as e:
     print("pywicta package could not be imported")
     print("wavelet cleaning will not work")
     print(e)
-
-# Pipeline utilities
-from .image_cleaning import ImageCleaner
 
 __all__ = ["EventPreparer"]
 
@@ -102,6 +90,7 @@ class EventPreparer:
     """
 
     def __init__(self, config, mode, event_cutflow=None, image_cutflow=None):
+        """Initiliaze an EventPreparer object."""
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
             config=config["ImageCleaning"]["biggest"], mode=mode
@@ -133,7 +122,7 @@ class EventPreparer:
         self.camera_radius = {
             "LSTCam": 1.126,
             "NectarCam": 1.126,
-        }  # Average between max(xpix) and max(ypix), in meter
+        }  # Average between max(xpix) and max(ypix), in meters
 
         self.image_cutflow.set_cuts(
             OrderedDict(
@@ -160,17 +149,15 @@ class EventPreparer:
             )
         )
 
+        # configuration for the camera calibrator
+        # modifies the integration window to be more like in MARS
+        # JLK, only for LST!!!!
         cfg = Config()
         cfg["ChargeExtractorFactory"]["window_width"] = 5
         cfg["ChargeExtractorFactory"]["window_shift"] = 2
         extractor = LocalPeakWindowSum(config=cfg)
 
-        self.calib = CameraCalibrator(
-            config=cfg,
-            image_extractor=extractor,
-            # eventsource=source,
-            # tool=None,
-        )
+        self.calib = CameraCalibrator(config=cfg, image_extractor=extractor)
 
         # Reconstruction
         self.shower_reco = HillasReconstructor()
@@ -193,11 +180,6 @@ class EventPreparer:
 
     def prepare_event(self, source, return_stub=False):
 
-        # configuration for the camera calibrator
-        # modifies the integration window to be more like in MARS
-        # JLK, only for LST!!!!
-        # Option for integration correction is done above
-
         for event in source:
 
             self.event_cutflow.count("noCuts")
@@ -208,25 +190,19 @@ class EventPreparer:
                 else:
                     continue
 
-            # TEST : print correction factor for event
-            for tel in event.dl0.tels_with_data:
-                print(
-                    f"Correction factor for telescope #{tel} : {self.calib._get_correction(event, tel)}"
-                )
-            # calibrate the event
             self.calib(event)
 
             # telescope loop
             tot_signal = 0
             max_signals = {}
             n_pixel_dict = {}
-            hillas_dict_reco = {}  # for geometry
+            hillas_dict_reco = {}  # for direction reconstruction
             hillas_dict = {}  # for discrimination
             n_tels = {
                 "tot": len(event.dl0.tels_with_data),
                 "LST_LST_LSTCam": 0,
                 "MST_MST_NectarCam": 0,
-                "SST": 0,  # will change later wheh working on Paranal
+                "SST": 0,  # add later correct names when testing on Paranal
             }
             n_cluster_dict = {}
             impact_dict_reco = {}  # impact distance measured in tilt system
@@ -234,7 +210,7 @@ class EventPreparer:
             point_azimuth_dict = {}
             point_altitude_dict = {}
 
-            # To compute impact parameter in tilt system
+            # Compute impact parameter in tilt system
             run_array_direction = event.mcheader.run_array_direction
             az, alt = run_array_direction[0], run_array_direction[1]
 
@@ -247,20 +223,14 @@ class EventPreparer:
 
                 # count the current telescope according to its size
                 tel_type = str(event.inst.subarray.tel[tel_id])
-                # JLK, N telescopes before cut selection are not really interesting for
-                # discrimination, too much fluctuations
-                # n_tels[tel_type] += 1
 
-                # the camera image as a 1D array and stuff needed for calibration
-                # Choose gain according to pywicta's procedure
-
-                # image_1d = simtel_event_to_images(
-                #    event=event, tel_id=tel_id, ctapipe_format=True
-                # )
-                # pmt_signal = image_1d.input_image  # calibrated image
+                # use ctapipe's functionality to get the calibrated image
                 pmt_signal = event.dl1.tel[tel_id].image
 
-                # clean the image
+                # Clean the image:
+                # for the moment we use pywi-cta functionalities to make
+                # conversions between 1D & 2D images.
+                # We'll switch soon to switch to ctapipe.
                 try:
                     with warnings.catch_warnings():
                         # Image with biggest cluster (reco cleaning)
@@ -315,21 +285,19 @@ class EventPreparer:
                             camera, image_extended
                         )  # for discrimination and energy reconstruction
 
-                        # if width and/or length are zero (e.g. when there is only only one
-                        # pixel or when all  pixel are exactly in one row), the
-                        # parametrisation won't be very useful: skip
+                        # if width and/or length are zero (e.g. when there is
+                        # only only one pixel or when all  pixel are exactly
+                        # in one row), the parametrisation
+                        # won't be very useful: skip
                         if self.image_cutflow.cut("poor moments", moments_reco):
-                            # print('poor moments')
                             continue
 
                         if self.image_cutflow.cut(
                             "close to the edge", moments_reco, camera.cam_id
                         ):
-                            # print('close to the edge')
                             continue
 
                         if self.image_cutflow.cut("bad ellipticity", moments_reco):
-                            # print('bad ellipticity: w={}, l={}'.format(moments_reco.width, moments_reco.length))
                             continue
 
                     except (FloatingPointError, hillas.HillasParameterizationError):
@@ -371,18 +339,6 @@ class EventPreparer:
                         },
                     )
 
-                    # reco_result = self.shower_reco.predict(
-                    #     hillas_dict_reco,
-                    #     event.inst,
-                    #     point_altitude_dict,  # this needs to be changed using ctapipe07!
-                    #     point_azimuth_dict,  # this needs to be changed using ctapipe07!
-                    # )
-
-                    # shower_sys = TiltedGroundFrame(pointing_direction=HorizonFrame(
-                    #     az=reco_result.az,
-                    #     alt=reco_result.alt
-                    # ))
-
                     # Impact parameter for energy estimation (/ tel)
                     subarray = event.inst.subarray
                     for tel_id in hillas_dict.keys():
@@ -392,7 +348,6 @@ class EventPreparer:
                         tel_ground = SkyCoord(
                             pos[0], pos[1], pos[2], frame=ground_frame
                         )
-                        # tel_tilt = tel_ground.transform_to(shower_sys)
 
                         core_ground = SkyCoord(
                             reco_result.core_x,
@@ -400,7 +355,6 @@ class EventPreparer:
                             0 * u.m,
                             frame=ground_frame,
                         )
-                        # core_tilt = core_ground.transform_to(shower_sys)
 
                         # Should be better handled (tilted frame)
                         impact_dict_reco[tel_id] = np.sqrt(
