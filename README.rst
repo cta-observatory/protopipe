@@ -15,5 +15,5 @@ A pipeline prototype for the Cherenkov Telescope Array. To build the docs:
 
 Requirements:
 -------------
-- [ctapipe](https://github.com/cta-observatory/ctapipe)
-- [gammapy](https://github.com/gammapy/)
+- [ctapipe=0.6.2](https://github.com/cta-observatory/ctapipe)
+- [gammapy=0.8](https://github.com/gammapy/)
