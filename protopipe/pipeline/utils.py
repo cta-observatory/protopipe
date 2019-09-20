@@ -6,7 +6,7 @@ import argparse
 def load_config(name):
     try:
         with open(name, "r") as stream:
-            cfg = yaml.load(stream)
+            cfg = yaml.load(stream, Loader=yaml.FullLoader)
     except FileNotFoundError as e:
         print(e)
         raise
