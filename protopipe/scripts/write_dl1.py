@@ -85,9 +85,6 @@ def main():
             }
         )
 
-        # from IPython import embed
-        # embed()
-
         regressor = EnergyRegressor.load(reg_file, cam_id_list=args.cam_ids)
 
     class EventFeatures(tb.IsDescription):
