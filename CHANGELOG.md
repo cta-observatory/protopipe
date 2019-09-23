@@ -1,10 +1,6 @@
 <ins>Author:</ins> Dr. Michele Peresano  
 <ins>Affiliation:</ins> CEA-Saclay / Irfu
 
-This is a local, development document.
-It is not meant to be shown in the final release, but rather a tool for any future developer of protopipe.
-All changes are in reverse chronological order.
-
 <ins>protopipe 0.1.1:</ins>
 
 * scripts/write_dl1.py
