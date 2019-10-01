@@ -5,6 +5,8 @@
 
 * scripts/write_dl1.py
   - added optional saving of images of a run in separate file for test purposes
+* scripts/write_dl2.py
+  - added optional saving of images of a run in separate file for test purposes
 * pipeline/event_preparer.py
   - added support for the optional storage of DL1 images
 * scripts/model_diagnostic.py
