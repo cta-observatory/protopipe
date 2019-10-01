@@ -40,6 +40,7 @@ def main():
     # Read site layout
     site = cfg["General"]["site"]
     array = cfg["General"]["array"]
+    cameras = cfg["General"]["cam_id_list"]
 
     if args.infile_list:
         filenamelist = []
@@ -85,7 +86,7 @@ def main():
             }
         )
 
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=args.cam_ids)
+        regressor = EnergyRegressor.load(reg_file, cam_id_list=cameras)
 
     class EventFeatures(tb.IsDescription):
         impact_dist = tb.Float32Col(dflt=1, pos=0)

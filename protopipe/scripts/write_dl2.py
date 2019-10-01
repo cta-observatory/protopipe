@@ -47,6 +47,7 @@ def main():
     # Read site layout
     site = cfg["General"]["site"]
     array = cfg["General"]["array"]
+    cameras = cfg["General"]["cam_id_list"]
 
     # Add force_tailcut_for_extended_cleaning in configuration
     cfg["General"][
@@ -106,7 +107,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        classifier = EventClassifier.load(clf_file, cam_id_list=args.cam_ids)
+        classifier = EventClassifier.load(clf_file, cam_id_list=cameras)
 
     # Regressors
     if use_regressor:
@@ -121,7 +122,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=args.cam_ids)
+        regressor = EnergyRegressor.load(reg_file, cam_id_list=cameras)
 
     # catch ctr-c signal to exit current loop and still display results
     signal_handler = SignalHandler()
