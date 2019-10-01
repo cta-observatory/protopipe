@@ -335,7 +335,7 @@ class EventPreparer:
                                 az=point_azimuth_dict[tel_id],
                                 frame="altaz",
                             )
-                            for tel_id in event.dl0.tels_with_data
+                            for tel_id in point_altitude_dict.keys()
                         },
                     )
 
