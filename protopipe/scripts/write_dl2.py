@@ -137,9 +137,8 @@ def main():
     class StoredImages(tb.IsDescription):
         event_id = tb.Int32Col(dflt=1, pos=0)
         tel_id = tb.Int16Col(dflt=1, pos=1)
-        dl1_HG_phe_image = tb.Float32Col(shape=(1855), pos=2)
-        dl1_LG_phe_image = tb.Float32Col(shape=(1855), pos=3)
-        mc_phe_image = tb.Float32Col(shape=(1855), pos=4)
+        dl1_phe_image = tb.Float32Col(shape=(1855), pos=2)
+        mc_phe_image = tb.Float32Col(shape=(1855), pos=3)
 
     # this class defines the reconstruction parameters to keep track of
     class RecoEvent(tb.IsDescription):
@@ -194,19 +193,14 @@ def main():
     # Telescopes in analysis
     allowed_tels = set(prod3b_tel_ids(array, site=site))
     for i, filename in enumerate(filenamelist):
-        # print(f"file: {i} filename = {filename}")
 
-        # source = EventSourceFactory.produce(input_url=filename,
-        #                                     allowed_tels=allowed_tels,
-        #                                     max_events=args.max_events)
         source = event_source(
             input_url=filename, allowed_tels=allowed_tels, max_events=args.max_events
         )
         # loop that cleans and parametrises the images and performs the reconstruction
         for (
             event,
-            dl1_HG_phe_image,
-            dl1_LG_phe_image,
+            dl1_phe_image,
             mc_phe_image,
             n_pixel_dict,
             hillas_dict,
@@ -364,8 +358,7 @@ def main():
             if args.save_images is True:
                 images_phe[cam_id]["event_id"] = event.r0.event_id
                 images_phe[cam_id]["tel_id"] = tel_id
-                images_phe[cam_id]["dl1_HG_phe_image"] = dl1_HG_phe_image
-                images_phe[cam_id]["dl1_LG_phe_image"] = dl1_LG_phe_image
+                images_phe[cam_id]["dl1_phe_image"] = dl1_phe_image
                 images_phe[cam_id]["mc_phe_image"] = mc_phe_image
 
                 images_phe[cam_id].append()
