@@ -23,6 +23,13 @@ def main():
 
     # Argument parser
     parser = make_argparser()
+
+    parser.add_argument(
+        "--save_images",
+        action="store_true",
+        help="Save images in images.h5 (one file testing)",
+    )
+
     parser.add_argument(
         "--estimate_energy",
         type=str2bool,
@@ -88,6 +95,15 @@ def main():
 
         regressor = EnergyRegressor.load(reg_file, cam_id_list=cameras)
 
+    # Declaration of the column descriptor for the (possible) images file
+    class StoredImages(tb.IsDescription):
+        event_id = tb.Int32Col(dflt=1, pos=0)
+        tel_id = tb.Int16Col(dflt=1, pos=1)
+        dl1_HG_phe_image = tb.Float32Col(shape=(1855), pos=2)
+        dl1_LG_phe_image = tb.Float32Col(shape=(1855), pos=3)
+        mc_phe_image = tb.Float32Col(shape=(1855), pos=4)
+
+    # Declaration of the column descriptor for the file containing DL1 data
     class EventFeatures(tb.IsDescription):
         impact_dist = tb.Float32Col(dflt=1, pos=0)
         sum_signal_evt = tb.Float32Col(dflt=1, pos=1)
@@ -140,6 +156,12 @@ def main():
     feature_table = {}
     feature_events = {}
 
+    # Create the images file only if the user want to store the images
+    if args.save_images is True:
+        images_outfile = tb.open_file("images.h5", mode="w")
+        images_table = {}
+        images_phe = {}
+
     # Telescopes in analysis
     allowed_tels = set(prod3b_tel_ids(array, site=site))
 
@@ -155,6 +177,9 @@ def main():
         # reconstruction for each event
         for (
             event,
+            dl1_HG_phe_image,
+            dl1_LG_phe_image,
+            mc_phe_image,
             n_pixel_dict,
             hillas_dict,
             hillas_dict_reco,
@@ -164,7 +189,7 @@ def main():
             n_cluster_dict,
             reco_result,
             impact_dict,
-        ) in preper.prepare_event(source):
+        ) in preper.prepare_event(source, save_images=args.save_images):
 
             # Angular quantities
             run_array_direction = event.mcheader.run_array_direction
@@ -230,6 +255,13 @@ def main():
                         "/", "_".join(["feature_events", cam_id]), EventFeatures
                     )
                     feature_events[cam_id] = feature_table[cam_id].row
+
+                if args.save_images is True:
+                    if cam_id not in images_phe:
+                        images_table[cam_id] = images_outfile.create_table(
+                            "/", "_".join(["images", cam_id]), StoredImages
+                        )
+                        images_phe[cam_id] = images_table[cam_id].row
 
                 moments = hillas_dict[tel_id]
                 ellipticity = moments.width / moments.length
@@ -297,6 +329,15 @@ def main():
 
                 feature_events[cam_id].append()
 
+                if args.save_images is True:
+                    images_phe[cam_id]["event_id"] = event.r0.event_id
+                    images_phe[cam_id]["tel_id"] = tel_id
+                    images_phe[cam_id]["dl1_HG_phe_image"] = dl1_HG_phe_image
+                    images_phe[cam_id]["dl1_LG_phe_image"] = dl1_LG_phe_image
+                    images_phe[cam_id]["mc_phe_image"] = mc_phe_image
+
+                    images_phe[cam_id].append()
+
             if signal_handler.stop:
                 break
         if signal_handler.stop:
@@ -304,6 +345,10 @@ def main():
     # make sure that all the events are properly stored
     for table in feature_table.values():
         table.flush()
+
+    if args.save_images is True:
+        for table in images_table.values():
+            table.flush()
 
     img_cutflow()
     evt_cutflow()

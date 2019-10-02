@@ -2,8 +2,21 @@ import numpy as np
 import yaml
 import argparse
 
+import matplotlib.pyplot as plt
+
+
+def save_fig(path, outdir, name, fig = None):
+    """Save a figure in multiple formats."""
+    for ext in ["pdf", "png"]:
+        if fig:
+            fig.savefig(path.join(outdir, name, format=ext))
+        else:
+            plt.savefig(path.join(outdir, name, format=ext))
+    return None
+
 
 def load_config(name):
+    """Load YAML configuration file."""
     try:
         with open(name, "r") as stream:
             cfg = yaml.load(stream, Loader=yaml.FullLoader)

@@ -39,6 +39,11 @@ def main():
         default=False,
         help="For tailcut cleaning for energy/score estimation",
     )
+    parser.add_argument(
+        "--save_images",
+        action="store_true",
+        help="Save images in images.h5 (one file testing)",
+    )
     args = parser.parse_args()
 
     # Read configuration file
@@ -128,6 +133,14 @@ def main():
     signal_handler = SignalHandler()
     signal.signal(signal.SIGINT, signal_handler)
 
+    # Declaration of the column descriptor for the (possible) images file
+    class StoredImages(tb.IsDescription):
+        event_id = tb.Int32Col(dflt=1, pos=0)
+        tel_id = tb.Int16Col(dflt=1, pos=1)
+        dl1_HG_phe_image = tb.Float32Col(shape=(1855), pos=2)
+        dl1_LG_phe_image = tb.Float32Col(shape=(1855), pos=3)
+        mc_phe_image = tb.Float32Col(shape=(1855), pos=4)
+
     # this class defines the reconstruction parameters to keep track of
     class RecoEvent(tb.IsDescription):
         obs_id = tb.Int16Col(dflt=-1, pos=0)
@@ -172,6 +185,12 @@ def main():
     reco_table = reco_outfile.create_table("/", "reco_events", RecoEvent)
     reco_event = reco_table.row
 
+    # Create the images file only if the user want to store the images
+    if args.save_images is True:
+        images_outfile = tb.open_file("images.h5", mode="w")
+        images_table = {}
+        images_phe = {}
+
     # Telescopes in analysis
     allowed_tels = set(prod3b_tel_ids(array, site=site))
     for i, filename in enumerate(filenamelist):
@@ -186,6 +205,9 @@ def main():
         # loop that cleans and parametrises the images and performs the reconstruction
         for (
             event,
+            dl1_HG_phe_image,
+            dl1_LG_phe_image,
+            mc_phe_image,
             n_pixel_dict,
             hillas_dict,
             hillas_dict_reco,
@@ -287,6 +309,18 @@ def main():
                     score = np.nan
                     gammaness = np.nan
 
+                # Regardless if energy or gammaness is estimated, if the user
+                # wants to save the images of the run we do it here
+                # (Probably not the most efficient way, but for one file is ok)
+                if args.save_images is True:
+                    for idx, tel_id in enumerate(hillas_dict.keys()):
+                        cam_id = event.inst.subarray.tel[tel_id].camera.cam_id
+                        if cam_id not in images_phe:
+                            images_table[cam_id] = images_outfile.create_table(
+                                "/", "_".join(["images", cam_id]), StoredImages
+                            )
+                            images_phe[cam_id] = images_table[cam_id].row
+
                 shower = event.mc
                 mc_core_x = shower.core_x
                 mc_core_y = shower.core_y
@@ -327,6 +361,15 @@ def main():
             reco_event["event_id"] = event.r1.event_id
             reco_event["obs_id"] = event.r1.obs_id
 
+            if args.save_images is True:
+                images_phe[cam_id]["event_id"] = event.r0.event_id
+                images_phe[cam_id]["tel_id"] = tel_id
+                images_phe[cam_id]["dl1_HG_phe_image"] = dl1_HG_phe_image
+                images_phe[cam_id]["dl1_LG_phe_image"] = dl1_LG_phe_image
+                images_phe[cam_id]["mc_phe_image"] = mc_phe_image
+
+                images_phe[cam_id].append()
+
             # Fill table
             reco_table.flush()
             reco_event.append()
@@ -338,6 +381,10 @@ def main():
 
     # make sure everything gets written out nicely
     reco_table.flush()
+
+    if args.save_images is True:
+        for table in images_table.values():
+            table.flush()
 
     # Add in meta-data's table?
     try:
