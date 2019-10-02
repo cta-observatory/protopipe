@@ -37,8 +37,7 @@ PreparedEvent = namedtuple(
     "PreparedEvent",
     [
         "event",
-        "dl1_HG_phe_image",
-        "dl1_LG_phe_image",
+        "dl1_phe_image",
         "mc_phe_image",
         "n_pixel_dict",
         "hillas_dict",
@@ -56,9 +55,8 @@ PreparedEvent = namedtuple(
 def stub(event):
     return PreparedEvent(
         event=event,
-        dl1_HG_phe_image=None,
-        dl1_LG_phe_image=None,
-        mc_phe_image=None,
+        dl1_phe_image=None,  # container for the calibrated image in phe
+        mc_phe_image=None,  # container for the simulated image in phe
         n_pixel_dict=None,
         hillas_dict=None,
         hillas_dict_reco=None,
@@ -200,8 +198,7 @@ class EventPreparer:
 
             # telescope loop
             tot_signal = 0
-            dl1_HG_phe_image = None
-            dl1_LG_phe_image = None
+            dl1_phe_image = None
             mc_phe_image = None
             max_signals = {}
             n_pixel_dict = {}
@@ -228,12 +225,6 @@ class EventPreparer:
             for tel_id in event.dl0.tels_with_data:
                 self.image_cutflow.count("noCuts")
 
-                # Store camera images, if requested
-                if save_images is True:
-                    dl1_HG_phe_image = event.dl1.tel[tel_id].image[0]
-                    dl1_LG_phe_image = event.dl1.tel[tel_id].image[1]
-                    mc_phe_image = event.mc.tel[tel_id].photo_electron_image
-
                 camera = event.inst.subarray.tel[tel_id].camera
 
                 # count the current telescope according to its size
@@ -242,10 +233,16 @@ class EventPreparer:
                 # use ctapipe's functionality to get the calibrated image
                 pmt_signal = event.dl1.tel[tel_id].image
 
+                # Save the calibrated image after the gain has been chosen
+                # automatically by ctapipe, together with the simulated one
+                if save_images is True:
+                    dl1_phe_image = pmt_signal
+                    mc_phe_image = event.mc.tel[tel_id].photo_electron_image
+
                 # Clean the image:
                 # for the moment we use pywi-cta functionalities to make
                 # conversions between 1D & 2D images.
-                # We'll switch soon to switch to ctapipe.
+                # We'll switch soon to ctapipe also here.
                 try:
                     with warnings.catch_warnings():
                         # Image with biggest cluster (reco cleaning)
@@ -349,7 +346,7 @@ class EventPreparer:
                                 alt=point_altitude_dict[tel_id],
                                 az=point_azimuth_dict[tel_id],
                                 frame="altaz",
-                            )
+                            ) # cycle only on tels which still have an image
                             for tel_id in point_altitude_dict.keys()
                         },
                     )
@@ -393,8 +390,7 @@ class EventPreparer:
 
             yield PreparedEvent(
                 event=event,
-                dl1_HG_phe_image=dl1_HG_phe_image,
-                dl1_LG_phe_image=dl1_LG_phe_image,
+                dl1_phe_image=dl1_phe_image,
                 mc_phe_image=mc_phe_image,
                 n_pixel_dict=n_pixel_dict,
                 hillas_dict=hillas_dict,
