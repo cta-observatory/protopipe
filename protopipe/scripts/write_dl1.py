@@ -80,7 +80,6 @@ def main():
 
     # wrapper for the scikit-learn regressor
     if args.estimate_energy is True:
-        # regressor_files = args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
         regressor_files = (
             args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
         )
@@ -96,12 +95,12 @@ def main():
         regressor = EnergyRegressor.load(reg_file, cam_id_list=cameras)
 
     # Declaration of the column descriptor for the (possible) images file
+    # For the moment works only on LSTCam and NectarCam.
     class StoredImages(tb.IsDescription):
         event_id = tb.Int32Col(dflt=1, pos=0)
         tel_id = tb.Int16Col(dflt=1, pos=1)
-        dl1_HG_phe_image = tb.Float32Col(shape=(1855), pos=2)
-        dl1_LG_phe_image = tb.Float32Col(shape=(1855), pos=3)
-        mc_phe_image = tb.Float32Col(shape=(1855), pos=4)
+        dl1_phe_image = tb.Float32Col(shape=(1855), pos=2)
+        mc_phe_image = tb.Float32Col(shape=(1855), pos=3)
 
     # Declaration of the column descriptor for the file containing DL1 data
     class EventFeatures(tb.IsDescription):
@@ -177,8 +176,7 @@ def main():
         # reconstruction for each event
         for (
             event,
-            dl1_HG_phe_image,
-            dl1_LG_phe_image,
+            dl1_phe_image,
             mc_phe_image,
             n_pixel_dict,
             hillas_dict,
@@ -332,8 +330,7 @@ def main():
                 if args.save_images is True:
                     images_phe[cam_id]["event_id"] = event.r0.event_id
                     images_phe[cam_id]["tel_id"] = tel_id
-                    images_phe[cam_id]["dl1_HG_phe_image"] = dl1_HG_phe_image
-                    images_phe[cam_id]["dl1_LG_phe_image"] = dl1_LG_phe_image
+                    images_phe[cam_id]["dl1_phe_image"] = dl1_phe_image
                     images_phe[cam_id]["mc_phe_image"] = mc_phe_image
 
                     images_phe[cam_id].append()
