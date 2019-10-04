@@ -3,6 +3,13 @@
 
 # What's new
 
+## October 4th, 2019
+
+### General changes
+
+ - Fixed environment file containing specific macos-dependent package builds, which were preventing a smooth installation on a Linux machine,
+ - Updated README.
+
 ## October 2nd, 2019
 
 ### Disclaimer(s)
