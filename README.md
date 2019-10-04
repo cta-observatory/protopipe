@@ -15,7 +15,7 @@ You can create directly a conda environment by issuing the following command,
 
 This environment contains the bare minimum in order to run the scripts and build the documentation. 
 
-It doesn't take into account any additional tool you could use later on (even though it is suggested to install 'ipython','jupyter' and 'vitables' if you want to help us develop). 
+It doesn't take into account any additional tool you could use later on (even though it is suggested to install 'ipython', 'jupyter' and 'vitables' if you want to help us develop).
 
 The module named 'pywi-cta' has to be installed from the git repository https://github.com/HealthyPear/pywi-cta.git using the 'setup.py' file,
 
@@ -24,7 +24,7 @@ The module named 'pywi-cta' has to be installed from the git repository https://
 Finally, you need to launch the installation of protopipe itself from using a similar command,
 
           python setup.py develop
-          
+
 which will let you play within the git repository and use protopipe in a continuous way.
 
 Building the documentation:
@@ -35,7 +35,7 @@ Building the documentation:
 	>$ cd docs
 	>$ make html
 	>$ display _build/html/index.html (or 'open' if you work on macos)
-  
+
 You will probably get some harmless warnings.
 
 Basic use:
@@ -44,10 +44,15 @@ Basic use:
 The following instructions refer to local use of protopipe, which doesn't
 involve the use of the DIRAC computing grid (ignore the grid.yaml configuration file).
 
-A typical workflow consists in:
+Before starting to use protopipe, you have to place your working environment
+inside the one you created at the beggining:
+
+          conda activate protopipe
+
+Then, a typical workflow consists in:
 
  1. create an analysis parent folder with the auxiliary script create_dir_structure.py
- 2.     prepare the configuration files
+ 2. prepare the configuration files
     1. copy the example YAML configuration files in the relative subfolders
     2. edit them for the particular needs of your analysis
  3. build a model for energy estimation
