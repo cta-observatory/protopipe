@@ -7,6 +7,13 @@
 
 ### General changes
 
+ - Removed explicit dependencies from the environment file: these were interfacing with C++ libraries with different names which were preventing cross-platform installation,
+ - Updated README.
+
+## October 4th, 2019
+
+### General changes
+
  - Fixed environment file containing specific macos-dependent package builds, which were preventing a smooth installation on a Linux machine,
  - Updated README.
 
