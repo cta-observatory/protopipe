@@ -51,6 +51,74 @@ PreparedEvent = namedtuple(
     ],
 )
 
+# ==============================================================================
+#               THIS PART WILL DISAPPEAR WITH NEXT CTAPIPE RELEASE
+# ==============================================================================
+
+from scipy.sparse.csgraph import connected_components
+
+# This function is already in 0.7.0, but in introducing "largest_island"
+# a small change has been done that requires it to be explicitly put here.
+def number_of_islands(geom, mask):
+    """
+    Search a given pixel mask for connected clusters.
+    This can be used to seperate between gamma and hadronic showers.
+
+    Parameters
+    ----------
+    geom: `~ctapipe.instrument.CameraGeometry`
+        Camera geometry information
+    mask: ndarray
+        input mask (array of booleans)
+
+    Returns
+    -------
+    num_islands: int
+        Total number of clusters
+    island_labels: ndarray
+        Contains cluster membership of each pixel.
+        Dimesion equals input mask.
+        Entries range from 0 (not in the pixel mask) to num_islands.
+    """
+    # compress sparse neighbor matrix
+    neighbor_matrix_compressed = geom.neighbor_matrix_sparse[mask][:, mask]
+    # pixels in no cluster have label == 0
+    island_labels = np.zeros(geom.n_pixels, dtype="int32")
+
+    num_islands, island_labels_compressed = connected_components(
+        neighbor_matrix_compressed, directed=False
+    )
+
+    # count clusters from 1 onwards
+    island_labels[mask] = island_labels_compressed + 1
+
+    return num_islands, island_labels
+
+
+def largest_island(islands_labels):
+    """Find the biggest island and filter it from the image.
+
+    This function takes a list of islands in an image and isolates the largest one
+    for later parametrization.
+
+    Parameters
+    ----------
+
+    islands_labels : array
+        Flattened array containing a list of labelled islands from a cleaned image.
+        Second returned value of the function 'number_of_islands'.
+
+    Returns
+    -------
+
+    islands_labels : array
+        A boolean mask created from the input labels and filtered for the largest island.
+
+    """
+    return islands_labels == np.argmax(np.bincount(islands_labels[islands_labels > 0]))
+
+# ==============================================================================
+
 
 def stub(event):
     return PreparedEvent(
