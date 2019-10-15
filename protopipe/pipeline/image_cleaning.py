@@ -108,6 +108,8 @@ class ImageCleaner(object):
         -------
         new_img: `np.array`
             Cleaned image
+        mask: `np.array`
+            Boolean array which corresponds to the cleaned pixels
         """
 
         new_img = np.copy(img)
@@ -116,12 +118,15 @@ class ImageCleaner(object):
         if self.mode in "tail":
             mask = self.cleaners[cam_id](new_img, geom, self.clean_opts[cam_id])
             new_img[~mask] = 0
+            # this is still the full camera, but the non-surviving pixels are
+            # set to 0: this is not a problem for the number_of_islands
+            # ctapipe function used later
 
-            return new_img
+            return new_img, mask
 
         if self.mode in "wave":
             image_2d = geometry_converter.image_1d_to_2d(new_img, cam_id)
             image_2d = self.cleaners[cam_id](image_2d, self.clean_opts[cam_id])
             new_img = geometry_converter.image_2d_to_1d(image_2d, cam_id)
 
-        return new_img
+        return new_img, mask
