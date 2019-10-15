@@ -386,10 +386,10 @@ class EventPreparer:
                     try:
 
                         moments_reco = hillas_parameters(
-                            camera, image_biggest
+                            camera_biggest, image_biggest
                         )  # for geometry (eg direction)
                         moments = hillas_parameters(
-                            camera, image_extended
+                            camera_extended, image_extended
                         )  # for discrimination and energy reconstruction
 
                         # if width and/or length are zero (e.g. when there is
