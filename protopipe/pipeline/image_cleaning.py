@@ -1,5 +1,5 @@
 import numpy as np
-from ctapipe.image.cleaning import tailcuts_clean
+from ctapipe.image.cleaning import mars_cleaning_1st_pass
 
 try:
     from pywicta.denoising.wavelets_mrtransform import WaveletTransform
@@ -14,46 +14,6 @@ except ImportError as e:
     print(e)
 
 __all__ = ["ImageCleaner"]
-
-
-def mars_cleaning_1st_pass(
-    geom,
-    image,
-    picture_thresh=7,
-    boundary_thresh=5,
-    keep_isolated_pixels=False,
-    min_number_picture_neighbors=0,
-):
-
-    """This is here temporarely, just for test-productions.
-    There will be a separate pull-request on ctapipe."""
-
-    pixels_from_tailcuts_clean = tailcuts_clean(
-        geom,
-        image,
-        picture_thresh,
-        boundary_thresh,
-        keep_isolated_pixels,
-        min_number_picture_neighbors,
-    )  # this does checks for core pixels and first neighbors
-
-    # MARS has the same threshold for both boundary_thresh
-    pixels_above_2nd_boundary = image >= boundary_thresh
-
-    pixels_with_previous_neighbors = geom.neighbor_matrix_sparse.dot(
-        pixels_from_tailcuts_clean
-    )
-    if keep_isolated_pixels:
-        return (
-            pixels_above_2nd_boundary & pixels_with_previous_neighbors
-        ) | pixels_from_tailcuts_clean
-    else:
-        pixels_with_2ndboundary_neighbors = geom.neighbor_matrix_sparse.dot(
-            pixels_above_2nd_boundary
-        )
-        return (pixels_above_2nd_boundary & pixels_with_previous_neighbors) | (
-            pixels_from_tailcuts_clean & pixels_with_2ndboundary_neighbors
-        )
 
 
 class ImageCleaner(object):
@@ -94,16 +54,7 @@ class ImageCleaner(object):
                     "min_number_picture_neighbors": opt["min_number_picture_neighbors"],
                 }
 
-                # print(type)
-                # print(cam_id)
-                # print(cuts)
-
-                # we don't want to use the old tailcut ....
-                # self.cleaners[cam_id] = lambda img, geom, opt: tailcuts_clean(
-                # image=img, geom=geom, **opt
-                # )
-
-                # ... we want to use new MARS 1st pass function
+                # Select the CTA-MARS 1st pass as cleaning algorithm
                 self.cleaners[cam_id] = lambda img, geom, opt: mars_cleaning_1st_pass(
                     image=img, geom=geom, **opt
                 )
