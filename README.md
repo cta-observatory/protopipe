@@ -15,24 +15,18 @@ Get the source code and create the required basic conda environment:
           conda env create -f protopipe_environment.yml
           conda activate protopipe
 
-This environment (named _protopipe_) contains the bare minimum in order to run the scripts and build the documentation.
+This environment contains the bare minimum in order to run the scripts and build the documentation.
 
 It doesn't take into account any additional tool you could use later on (it is suggested to install _ipython_, _jupyter_ and _vitables_, especially if you want to contribute to the code).
 
-For the moment, a module named _pywi-cta_ has to be installed:
-
-          cd ../
-          git clone https://github.com/HealthyPear/pywi-cta.git
-          cd pywi-cta
-          python setup.py install
-
-Finally, you need to install _protopipe_ itself:
+Next you need to install _protopipe_ itself:
 
           cd protopipe
           python setup.py develop
 
 This will let you make changes to your local git repository without the need to update your environment every time.
 
+Remember that the environment needs to be activated in order for _protopipe_ to work.
 This procedure has been successfully tested on macOS (10.10.5 & 10.14.6) and on Scientific Linux 7.
 
 Building the documentation:
