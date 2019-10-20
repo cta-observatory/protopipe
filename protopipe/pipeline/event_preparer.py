@@ -331,6 +331,9 @@ class EventPreparer:
                     camera_extended = camera[mask_extended]
                     image_extended = image_extended[mask_extended]
 
+                    # could this go into `hillas_parameters` ...?
+                    max_signals[tel_id] = np.max(image_extended)
+
                 else:  # for wavelets we stick to old pywi-cta code
                     try:  # "try except FileNotFoundError" not clear to me, but for now it stays...
                         with warnings.catch_warnings():
