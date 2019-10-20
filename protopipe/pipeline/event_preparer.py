@@ -51,6 +51,74 @@ PreparedEvent = namedtuple(
     ],
 )
 
+# ==============================================================================
+#               THIS PART WILL DISAPPEAR WITH NEXT CTAPIPE RELEASE
+# ==============================================================================
+
+from scipy.sparse.csgraph import connected_components
+
+# This function is already in 0.7.0, but in introducing "largest_island"
+# a small change has been done that requires it to be explicitly put here.
+def number_of_islands(geom, mask):
+    """
+    Search a given pixel mask for connected clusters.
+    This can be used to seperate between gamma and hadronic showers.
+
+    Parameters
+    ----------
+    geom: `~ctapipe.instrument.CameraGeometry`
+        Camera geometry information
+    mask: ndarray
+        input mask (array of booleans)
+
+    Returns
+    -------
+    num_islands: int
+        Total number of clusters
+    island_labels: ndarray
+        Contains cluster membership of each pixel.
+        Dimesion equals input mask.
+        Entries range from 0 (not in the pixel mask) to num_islands.
+    """
+    # compress sparse neighbor matrix
+    neighbor_matrix_compressed = geom.neighbor_matrix_sparse[mask][:, mask]
+    # pixels in no cluster have label == 0
+    island_labels = np.zeros(geom.n_pixels, dtype="int32")
+
+    num_islands, island_labels_compressed = connected_components(
+        neighbor_matrix_compressed, directed=False
+    )
+
+    # count clusters from 1 onwards
+    island_labels[mask] = island_labels_compressed + 1
+
+    return num_islands, island_labels
+
+
+def largest_island(islands_labels):
+    """Find the biggest island and filter it from the image.
+
+    This function takes a list of islands in an image and isolates the largest one
+    for later parametrization.
+
+    Parameters
+    ----------
+
+    islands_labels : array
+        Flattened array containing a list of labelled islands from a cleaned image.
+        Second returned value of the function 'number_of_islands'.
+
+    Returns
+    -------
+
+    islands_labels : array
+        A boolean mask created from the input labels and filtered for the largest island.
+
+    """
+    return islands_labels == np.argmax(np.bincount(islands_labels[islands_labels > 0]))
+
+# ==============================================================================
+
 
 def stub(event):
     return PreparedEvent(
@@ -239,31 +307,69 @@ class EventPreparer:
                     dl1_phe_image = pmt_signal
                     mc_phe_image = event.mc.tel[tel_id].photo_electron_image
 
-                # Clean the image:
-                # for the moment we use pywi-cta functionalities to make
-                # conversions between 1D & 2D images.
-                # We'll switch soon to ctapipe also here.
-                try:
-                    with warnings.catch_warnings():
-                        # Image with biggest cluster (reco cleaning)
-                        image_biggest = self.cleaner_reco.clean_image(
-                            pmt_signal, camera
-                        )
-                        image_biggest2d = geometry_converter.image_1d_to_2d(
-                            image_biggest, camera.cam_id
-                        )
-                        image_biggest2d = filter_pixels_clusters(image_biggest2d)
-                        image_biggest = geometry_converter.image_2d_to_1d(
-                            image_biggest2d, camera.cam_id
-                        )
+                if self.cleaner_reco.mode == "tail":  # tail uses only ctapipe
 
-                        # Image for score/energy estimation (with clusters)
-                        image_extended = self.cleaner_extended.clean_image(
-                            pmt_signal, camera
-                        )
-                except FileNotFoundError as e:  # JLK, WHAT?
-                    print(e)
-                    continue
+                    # Cleaning used for direction reconstruction
+                    image_biggest, mask_reco = self.cleaner_reco.clean_image(
+                        pmt_signal, camera
+                    )
+                    # find all islands (in this case we don't care how many)
+                    _, labels = number_of_islands(camera, mask_reco)
+                    # find biggest one
+                    mask_biggest = largest_island(labels)
+                    # filter camera geometry and calibrated image for it
+                    camera_biggest = camera[mask_biggest]
+                    image_biggest = image_biggest[mask_biggest]
+
+                    # Cleaning used for score/energy estimation
+                    image_extended, mask_extended = self.cleaner_extended.clean_image(
+                        pmt_signal, camera
+                    )
+                    # find all islands (in THIS case we care how many)
+                    n_cluster_dict[tel_id], labels = number_of_islands(camera, mask_reco)
+                    # filter camera geometry and calibrated image
+                    camera_extended = camera[mask_extended]
+                    image_extended = image_extended[mask_extended]
+
+                else:  # for wavelets we stick to old pywi-cta code
+                    try:  # "try except FileNotFoundError" not clear to me, but for now it stays...
+                        with warnings.catch_warnings():
+                            # Image with biggest cluster (reco cleaning)
+                            image_biggest, mask_reco = self.cleaner_reco.clean_image(
+                                pmt_signal, camera
+                            )
+                            image_biggest2d = geometry_converter.image_1d_to_2d(
+                                image_biggest, camera.cam_id
+                            )
+                            image_biggest2d = filter_pixels_clusters(image_biggest2d)
+                            image_biggest = geometry_converter.image_2d_to_1d(
+                                image_biggest2d, camera.cam_id
+                            )
+
+                            # Image for score/energy estimation (with clusters)
+                            image_extended, mask_extended = self.cleaner_extended.clean_image(
+                                pmt_signal, camera
+                            )
+
+                            # This last part was outside the pywi-cta block
+                            # before, but is indeed part of it because it uses
+                            # pywi-cta functions in the "extended" case
+
+                            # For cluster counts
+                            image_2d = geometry_converter.image_1d_to_2d(
+                                image_extended, camera.cam_id
+                            )
+                            n_cluster_dict[tel_id] = pixel_clusters.number_of_pixels_clusters(
+                                array=image_2d, threshold=0
+                            )
+                            # could this go into `hillas_parameters` ...?
+                            max_signals[tel_id] = np.max(image_extended)
+
+                    except FileNotFoundError as e:  # JLK, WHAT?
+                        print(e)
+                        continue
+
+                # ==============================================================
 
                 # Apply some selection
                 if self.image_cutflow.cut("min pixel", image_biggest):
@@ -271,17 +377,6 @@ class EventPreparer:
 
                 if self.image_cutflow.cut("min charge", np.sum(image_biggest)):
                     continue
-
-                # For cluster counts
-                image_2d = geometry_converter.image_1d_to_2d(
-                    image_extended, camera.cam_id
-                )
-                n_cluster_dict[tel_id] = pixel_clusters.number_of_pixels_clusters(
-                    array=image_2d, threshold=0
-                )
-
-                # could this go into `hillas_parameters` ...?
-                max_signals[tel_id] = np.max(image_extended)
 
                 # do the hillas reconstruction of the images
                 # QUESTION should this change in numpy behaviour be done here
@@ -291,10 +386,10 @@ class EventPreparer:
                     try:
 
                         moments_reco = hillas_parameters(
-                            camera, image_biggest
+                            camera_biggest, image_biggest
                         )  # for geometry (eg direction)
                         moments = hillas_parameters(
-                            camera, image_extended
+                            camera_extended, image_extended
                         )  # for discrimination and energy reconstruction
 
                         # if width and/or length are zero (e.g. when there is
