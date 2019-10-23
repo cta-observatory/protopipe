@@ -155,7 +155,7 @@ def main():
         ax.grid()
         plt.title(cam_id)
         plt.tight_layout()
-        save_fig(path, outdir, "feature_importances")
+        save_fig(outdir, "feature_importances")
 
         # Diagnostic for regressor
         if model_type in "regressor":
@@ -192,7 +192,7 @@ def main():
             )
             plt.title(cam_id)
             fig.tight_layout()
-            save_fig(path, outdir, "features", fig=fig)
+            save_fig(outdir, "features", fig=fig)
 
             # Compute averaged energy
             print("Process test sample...")
@@ -293,7 +293,7 @@ def main():
                     (energy_edges[ibin] + energy_edges[ibin + 1]) / 2.0
                 )
 
-            save_fig(path, outdir, "migration_distribution", fig=fig)
+            save_fig(outdir, "migration_distribution", fig=fig)
 
             plt.figure(figsize=(5, 5))
             ax = plt.gca()
@@ -313,7 +313,7 @@ def main():
             ax.set_ylim([-0.2, 1.2])
             plt.title(cam_id)
             plt.tight_layout()
-            save_fig(path, outdir, "energy_resolution")
+            save_fig(outdir, "energy_resolution")
 
             # Write results
             t = Table()
@@ -389,7 +389,7 @@ def main():
             )
             plt.title(cam_id)
             fig.tight_layout()
-            save_fig(path, outdir, "features", fig=fig)
+            save_fig(outdir, "features", fig=fig)
 
             if method_name in "AdaBoostClassifier":
                 # Image-level diagnostic - method
@@ -415,7 +415,7 @@ def main():
             ax[0].set_xlim([0, 1])
             plt.title(cam_id)
             fig.tight_layout()
-            save_fig(path, outdir, "image_distribution", fig=fig)
+            save_fig(outdir, "image_distribution", fig=fig)
 
             # Image-level diagnostic - ROC curve on train and test samples
             plt.figure(figsize=(5, 5))
@@ -438,7 +438,7 @@ def main():
             ax.legend(loc="lower right")
             plt.title(cam_id)
             plt.tight_layout()
-            save_fig(path, outdir, "image_roc_curve")
+            save_fig(outdir, "image_roc_curve")
 
             # Parameters for energy variation
             cut_list = [
@@ -545,7 +545,7 @@ def main():
                 ax.set_title(cut_list[i])
                 ax.grid()
             fig.tight_layout()
-            save_fig(path, outdir, "image_distribution_variation", fig=fig)
+            save_fig(outdir, "image_distribution_variation", fig=fig)
 
             # Image-level diagnostic - ROC curve variation on test sample
             plt.figure(figsize=(5, 5))
@@ -572,7 +572,7 @@ def main():
             ax.set_ylabel("True Positive Rate")
             ax.legend(loc="lower right", fontsize="x-small")
             plt.tight_layout()
-            save_fig(path, outdir, "image_roc_curve_variation")
+            save_fig(outdir, "image_roc_curve_variation")
 
 
 if __name__ == "__main__":

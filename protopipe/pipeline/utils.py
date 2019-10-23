@@ -3,15 +3,15 @@ import yaml
 import argparse
 
 import matplotlib.pyplot as plt
+import os.path as path
 
-
-def save_fig(path, outdir, name, fig = None):
+def save_fig(outdir, name, fig = None):
     """Save a figure in multiple formats."""
     for ext in ["pdf", "png"]:
         if fig:
-            fig.savefig(path.join(outdir, name, format=ext))
+            fig.savefig(path.join(outdir, f"{name}.{ext}"))
         else:
-            plt.savefig(path.join(outdir, name, format=ext))
+            plt.savefig(path.join(outdir, f"{name}.{ext}"))
     return None
 
 
