@@ -91,5 +91,5 @@ _**Note:**_ if your developments take a relatively long time,
 
 1. update periodically your __local__ _master_ branch,
 2. if updates have been made, go to your __local__ _development_ branch (`git checkout your_branch`)
-3. if there are no conflicts, move the begining of your branch at the end of the updated master (`git rebase master`)
+3. if there are no conflicts, move the beginning of your branch at the end of the updated master (`git rebase master`)
 4. push your branch to your remote
