@@ -78,10 +78,18 @@ Instructions for developers:
 1. Fork the master _protopipe_ remote repository as explained [here](https://help.github.com/en/articles/fork-a-repo)
 2. Follow the installation instructions above, but using __your__ remote repository (we'll call __origin__ yours and __upstream__ the official one)
 3. if you want to develop something new:
-    1. create a new branch from your __local__ _master_ branch
-    2. develop inside it
-    3. push it to __origin__
-    4. continue to develop and push until you feel ready
+    1. update __local__ _master_ branch (`git pull upstream master`)
+    3. create a new branch from your __local__ _master_ branch
+    4. develop inside it
+    5. push it to __origin__
+    6. continue to develop and push until you feel ready
 4. start a __pull request__ from __origin/your_branch__ to __upstream/master__
     1. wait for an outcome
     2. if necessary, you can update or fix things in your branch because now everything is traced (__local/your_branch__ --> __origin/your_branch__ --> __pull request__)
+
+_**Note:**_ if your developments take a relatively long time,
+
+1. update periodically your __local__ _master_ branch,
+2. if updates have been made, go to your __local__ _development_ branch (`git checkout your_branch`)
+3. if there are no conflicts, move the beginning of your branch at the end of the updated master (`git rebase master`)
+4. push your branch to your remote
