@@ -117,6 +117,7 @@ def largest_island(islands_labels):
     """
     return islands_labels == np.argmax(np.bincount(islands_labels[islands_labels > 0]))
 
+
 # ==============================================================================
 
 
@@ -313,25 +314,52 @@ class EventPreparer:
                     image_biggest, mask_reco = self.cleaner_reco.clean_image(
                         pmt_signal, camera
                     )
-                    # find all islands (in this case we don't care how many)
-                    _, labels = number_of_islands(camera, mask_reco)
-                    # find biggest one
-                    mask_biggest = largest_island(labels)
-                    # filter camera geometry and calibrated image for it
-                    camera_biggest = camera[mask_biggest]
-                    image_biggest = image_biggest[mask_biggest]
+                    # find all islands using this cleaning
+                    num_islands, labels = number_of_islands(camera, mask_reco)
+
+                    if num_islands == 1:  # if only ONE islands is left ...
+                        # ...use directly the old mask and reduce dimensions
+                        # to make Hillas parametrization faster
+                        camera_biggest = camera[mask_reco]
+                        image_biggest = image_biggest[mask_reco]
+                    elif num_islands > 1:  # if more islands survived..
+                        # ...find the biggest one
+                        mask_biggest = largest_island(labels)
+                        # and also reduce dimensions
+                        camera_biggest = camera[mask_biggest]
+                        image_biggest = image_biggest[mask_biggest]
+                    else:  # if no islands survived use old camera and image
+                        camera_biggest = camera
 
                     # Cleaning used for score/energy estimation
                     image_extended, mask_extended = self.cleaner_extended.clean_image(
                         pmt_signal, camera
                     )
-                    # find all islands (in THIS case we care how many)
-                    n_cluster_dict[tel_id], labels = number_of_islands(camera, mask_reco)
-                    # filter camera geometry and calibrated image
-                    camera_extended = camera[mask_extended]
-                    image_extended = image_extended[mask_extended]
+
+                    # find all islands with this cleaning
+                    # we will also register how many have been found
+                    n_cluster_dict[tel_id], labels = number_of_islands(
+                        camera, mask_extended
+                    )
+
+                    # NOTE: the next check shouldn't be necessary if we keep
+                    # all the isolated pixel clusters, but for now the
+                    # two cleanings are set the same in analysis.yml because
+                    # the performance of the extended one has never been really
+                    # studied in model estimation.
+                    # (This is a nice way to ask for volunteers :P)
+
+                    # if some islands survived
+                    if num_islands > 0:
+                        # keep all of them and reduce dimensions
+                        camera_extended = camera[mask_extended]
+                        image_extended = image_extended[mask_extended]
+                    else:  # otherwise continue with the old camera and image
+                        camera_extended = camera
 
                     # could this go into `hillas_parameters` ...?
+                    # this is basically the charge of ALL islands
+                    # not calculated later by the Hillas parametrization!
                     max_signals[tel_id] = np.max(image_extended)
 
                 else:  # for wavelets we stick to old pywi-cta code
@@ -362,7 +390,9 @@ class EventPreparer:
                             image_2d = geometry_converter.image_1d_to_2d(
                                 image_extended, camera.cam_id
                             )
-                            n_cluster_dict[tel_id] = pixel_clusters.number_of_pixels_clusters(
+                            n_cluster_dict[
+                                tel_id
+                            ] = pixel_clusters.number_of_pixels_clusters(
                                 array=image_2d, threshold=0
                             )
                             # could this go into `hillas_parameters` ...?
@@ -444,7 +474,7 @@ class EventPreparer:
                                 alt=point_altitude_dict[tel_id],
                                 az=point_azimuth_dict[tel_id],
                                 frame="altaz",
-                            ) # cycle only on tels which still have an image
+                            )  # cycle only on tels which still have an image
                             for tel_id in point_altitude_dict.keys()
                         },
                     )
