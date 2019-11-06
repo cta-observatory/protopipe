@@ -14,7 +14,11 @@ Get the source code and create the required basic conda environment:
           cd protopipe
           conda env create -f protopipe_environment.yml
           conda activate protopipe
+          
+In case you have already an environment 'myenv' set up for that kind of development, use:
 
+          conda env update -n myenv -f protopipe_environment.yml
+          
 This environment contains the bare minimum in order to run the scripts and build the documentation.
 
 It doesn't take into account any additional tool you could use later on (it is suggested to install _ipython_, _jupyter_ and _vitables_, especially if you want to contribute to the code).
