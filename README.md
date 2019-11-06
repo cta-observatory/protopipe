@@ -49,13 +49,14 @@ The initial page is stored in _ _build/html/index.html_, which you can open usin
 
 Test if it works
 -----------------
-Before starting to use protopipe, be sure to be inside the relevant environment (e.g. """conda activate protopipe""").
-Get a _simtel_ Monte Carlo file (mydata.gz) obtained with _prod3b_ anth the La Palma site and produce a simple DL1 output (It will not work for a paranal file):
+Before starting to use _protopipe_, be sure to be inside the relevant environment (e.g. `conda activate protopipe`).
+Get a _simtel_ Monte Carlo file obtained with _prod3b_ with only _LSTCam_ and _NectarCam_ cameras.
+Any other kind of cameras in the file would lead to a crash, see issues #23. 
+Note that some generic La Palma files can contain _FlashCam_ cameras.
+The write_dl1.py script will prodcue a DL1 output from the _simtel_ data.
 
           cd protopipe/scripts
           python write_dl1.py -h
-          
-To be completed (it crashes so far)...
 
 Analysis chain general description
 ----------------------------------
