@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+from protopipe import __version__
 
 
 def readme():
@@ -8,10 +9,10 @@ def readme():
 
 setup(
     name="protopipe",
-    version="0.2.1-dev",
+    version=__version__,
     description="Pipeline to process events from DL0 to DL3",
     url="https://github.com/cta-observatory/protopipe",
-    author="CEA",
+    author="Michele Peresano, Karl Kosack, Thierry Stolarczyk, Alice Donini, Thomas Vuillaume",
     author_email="michele.peresano@cea.fr",
     license="MIT",
     packages=find_packages(),
