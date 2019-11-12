@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import numpy as np
 from astropy.coordinates.angle_utilities import angular_separation
 from sys import exit
 from glob import glob
