@@ -8,6 +8,8 @@ A pipeline prototype for the Cherenkov Telescope Array.
 Installation
 ------------
 
+These instructions are for users only, i.e. you want to use the latest version of the code but do not intend to make any change to it. If your wish is to develop the package then follow the instruction below entitled "Instructions for developpers".
+
 Get the source code and create the required basic conda environment:
 
           git clone https://github.com/cta-observatory/protopipe.git
