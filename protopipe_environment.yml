@@ -60,6 +60,7 @@ dependencies:
   - numexpr=2.7.0
   - numpy=1.17.2
   - numpy-base=1.17.2
+  - numpydoc=0.9.1
   - olefile=0.46
   - openssl=1.1.1c
   - packaging=19.2
