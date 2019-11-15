@@ -106,7 +106,7 @@ When you want to fix a bug or develop something new:
     * push to origin
 
   In this way, your pull request will be up-to-date with the master branch into which you want to merge your changes.
-  If your changes are relatively small and `you know what you are doing https://www.atlassian.com/git/tutorials/merging-vs-rebasing`_, you can use ``git rebase master``, instead of merging.
+  If your changes are relatively small and `you know what you are doing <https://www.atlassian.com/git/tutorials/merging-vs-rebasing>`_, you can use ``git rebase master``, instead of merging.
 
 How to?
 =======
