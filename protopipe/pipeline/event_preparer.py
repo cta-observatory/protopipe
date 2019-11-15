@@ -57,10 +57,11 @@ PreparedEvent = namedtuple(
 
 from scipy.sparse.csgraph import connected_components
 
+
 def camera_radius(cam_id=None):
     """
     Inspired from pywi-cta CTAMarsCriteria, CTA Mars like preselection cuts.
-    This should be replaced by a function in ctapipe getting the radius either 
+    This should be replaced by a function in ctapipe getting the radius either
     from  the pixel poisitions or from an external database
     Note
     ----
@@ -72,7 +73,7 @@ def camera_radius(cam_id=None):
     - SST-1M: 4.56
     - GCT-CHEC-S: 3.93
     - ASTRI: 4.67
-    
+
     ThS - Nov. 2019
     """
 
@@ -96,19 +97,22 @@ def camera_radius(cam_id=None):
         foclen_meters = 28.0
     elif cam_id == "all":
         print("Available camera radii")
-        print("   * LST           : ",camera_radius("LSTCam"))
-        print("   * MST - Nectar  : ",camera_radius("NectarCam"))
-        print("   * MST - Flash   : ",camera_radius("FlashCam"))
-        print("   * SST - ASTRI   : ",camera_radius("ASTRICam"))
-        print("   * SST - CHEC    : ",camera_radius("CHEC"))
-        print("   * SST - DigiCam : ",camera_radius("DigiCam"))       
+        print("   * LST           : ", camera_radius("LSTCam"))
+        print("   * MST - Nectar  : ", camera_radius("NectarCam"))
+        print("   * MST - Flash   : ", camera_radius("FlashCam"))
+        print("   * SST - ASTRI   : ", camera_radius("ASTRICam"))
+        print("   * SST - CHEC    : ", camera_radius("CHEC"))
+        print("   * SST - DigiCam : ", camera_radius("DigiCam"))
         average_camera_radius_degree = 0
         foclen_meters = 0
-    else: 
-        raise ValueError('Unknown camid', cam_id)
+    else:
+        raise ValueError("Unknown camid", cam_id)
 
-    average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen_meters
+    average_camera_radius_meters = (
+        math.tan(math.radians(average_camera_radius_degree)) * foclen_meters
+    )
     return average_camera_radius_meters
+
 
 # This function is already in 0.7.0, but in introducing "largest_island"
 # a small change has been done that requires it to be explicitly put here.
@@ -216,11 +220,14 @@ class EventPreparer:
         Dictionnary of results
     """
 
-    def __init__(self, config, mode, event_cutflow=None, image_cutflow=None, debug=False):
+    def __init__(
+        self, config, mode, event_cutflow=None, image_cutflow=None, debug=False
+    ):
         """Initiliaze an EventPreparer object."""
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
-            config=config["ImageCleaning"]["biggest"], mode=mode)
+            config=config["ImageCleaning"]["biggest"], mode=mode
+        )
 
         # Cleaning for energy/score estimation
         # Add possibility to force energy/score cleaning with tailcut analysis
@@ -244,19 +251,18 @@ class EventPreparer:
         npix_bounds = config["ImageSelection"]["pixel"]
         ellipticity_bounds = config["ImageSelection"]["ellipticity"]
         nominal_distance_bounds = config["ImageSelection"]["nominal_distance"]
-        
-        if (debug): camera_radius("all") # Display all registered camera radii
-        
+
+        if debug:
+            camera_radius("all")  # Display all registered camera radii
+
         self.camera_radius = {
-            "LSTCam": camera_radius("LSTCam"), # was 1.126,
-            "NectarCam": camera_radius("NectarCam"), # was 1.126,
+            "LSTCam": camera_radius("LSTCam"),  # was 1.126,
+            "NectarCam": camera_radius("NectarCam"),  # was 1.126,
             "FlashCam": camera_radius("FlashCam"),
             "ASTRICam": camera_radius("ASTRICam"),
             "CHEC": camera_radius("CHEC"),
-            "DigiCam": camera_radius("DigiCam")
-
-        }  
-        
+            "DigiCam": camera_radius("DigiCam"),
+        }
 
         self.image_cutflow.set_cuts(
             OrderedDict(
@@ -311,20 +317,21 @@ class EventPreparer:
                 ]
             )
         )
-    
+
     def prepare_event(self, source, return_stub=False, save_images=False, debug=False):
-        """ 
+        """
         Loop over evenst
         (doc to be completed)
         """
         ievt = 0
         for event in source:
-            
+
             # Display event counts
-            ievt+=1
-            if (debug):
-                if (ievt< 10) or (ievt%10==0) : print(ievt)
-        
+            if debug:
+                ievt += 1
+                if (ievt < 10) or (ievt % 10 == 0):
+                    print(ievt)
+
             self.event_cutflow.count("noCuts")
 
             if self.event_cutflow.cut("min2Tels trig", len(event.dl0.tels_with_data)):
