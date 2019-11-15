@@ -347,7 +347,10 @@ class EventPreparer:
                 "tot": len(event.dl0.tels_with_data),
                 "LST_LST_LSTCam": 0,
                 "MST_MST_NectarCam": 0,
-                "SST": 0,  # add later correct names when testing on Paranal
+                "MST_MST_FlashCam": 0,
+                "SST_1M_DigiCam": 0,
+                "SST_ASTRI_ASTRICam": 0,
+                "SST_GCT_CHEC": 0,
             }
             n_cluster_dict = {}
             impact_dict_reco = {}  # impact distance measured in tilt system
