@@ -27,13 +27,13 @@ class ImageCleaner(object):
         Model corresponding to `wave` or `tail`
     """
 
-    def __init__(self, config, mode="tail"):
+    def __init__(self, config, cameras, mode="tail"):
 
         self.config = config
         self.mode = mode
-        self.initialise_clean_opt()
+        self.initialise_clean_opt(cameras)
 
-    def initialise_clean_opt(self):
+    def initialise_clean_opt(self, cameras):
         """Initialise cleaner according to the different camera type"""
 
         self.cleaners = {}  # Function for cleaning for corresp. camera
