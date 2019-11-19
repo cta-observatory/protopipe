@@ -221,12 +221,12 @@ class EventPreparer:
     """
 
     def __init__(
-        self, config, mode, event_cutflow=None, image_cutflow=None, debug=False
+        self, config, cameras, mode, event_cutflow=None, image_cutflow=None, debug=False
     ):
         """Initiliaze an EventPreparer object."""
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
-            config=config["ImageCleaning"]["biggest"], mode=mode
+            config=config["ImageCleaning"]["biggest"], cameras=cameras, mode=mode
         )
 
         # Cleaning for energy/score estimation
@@ -240,7 +240,7 @@ class EventPreparer:
             pass  # force_mode = mode
 
         self.cleaner_extended = ImageCleaner(  # for energy/score estimation
-            config=config["ImageCleaning"]["extended"], mode=force_mode
+            config=config["ImageCleaning"]["extended"], cameras=cameras, mode=force_mode
         )
 
         # Image book keeping
