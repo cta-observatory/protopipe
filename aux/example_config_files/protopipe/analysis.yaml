@@ -1,9 +1,14 @@
 # General informations
+# NOTE: only simulations >= Prod3b are currently supported.
 General:
- config_name: 'lapalma_N_fullarray_MARStailcut_corrected_minNtel2'
- site: 'north'  # North or South
- array: 'full_array'  # subarray_LSTs, subarray_MSTs, full_array
- cam_id_list: ['LSTCam', 'NectarCam'] # Camera identifiers (Should be read in scripts?)
+ config_name: 'example'
+ site: 'north'  # 'north' or 'south'
+ # array can be either
+ # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
+ # - a custom list of telescope IDs
+ # WARNING: for simulations containing multiple copies of the telescopes,
+ # only the custom list is supported!
+ array: full_array
 
 # Cleaning for reconstruction
 ImageCleaning:
