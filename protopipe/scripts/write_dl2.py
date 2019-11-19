@@ -52,7 +52,6 @@ def main():
     # Read site layout
     site = cfg["General"]["site"]
     array = cfg["General"]["array"]
-    cameras = cfg["General"]["cam_id_list"]
 
     # Add force_tailcut_for_extended_cleaning in configuration
     cfg["General"][
