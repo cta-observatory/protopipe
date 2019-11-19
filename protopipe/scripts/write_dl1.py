@@ -48,7 +48,6 @@ def main():
     # Read site layout
     site = cfg["General"]["site"]
     array = cfg["General"]["array"]
-    cameras = cfg["General"]["cam_id_list"]
 
     if args.infile_list:
         filenamelist = []
