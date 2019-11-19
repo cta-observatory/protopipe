@@ -13,7 +13,7 @@ from ctapipe.reco.energy_regressor import *
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
     make_argparser,
-    prod3b_tel_ids,
+    prod3b_array,
     str2bool,
     load_config,
     SignalHandler,
@@ -64,12 +64,19 @@ def main():
     else:
         print("found {} files".format(len(filenamelist)))
 
+    # Get telescope IDs and involved camera types from the first event
+    allowed_tels, cameras = prod3b_array(filenamelist[0], site, array)
+
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
     img_cutflow = CutFlow("ImageCutFlow")
 
     preper = EventPreparer(
-        config=cfg, mode=args.mode, event_cutflow=evt_cutflow, image_cutflow=img_cutflow
+        config=cfg,
+        cameras=cameras,
+        mode=args.mode,
+        event_cutflow=evt_cutflow,
+        image_cutflow=img_cutflow,
     )
 
     # catch ctr-c signal to exit current loop and still display results
@@ -161,9 +168,6 @@ def main():
         images_outfile = tb.open_file("images.h5", mode="w")
         images_table = {}
         images_phe = {}
-
-    # Telescopes in analysis
-    allowed_tels = set(prod3b_tel_ids(array, site=site))
 
     for i, filename in enumerate(filenamelist):
 
