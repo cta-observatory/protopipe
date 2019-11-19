@@ -332,8 +332,14 @@ def main():
                 reco_event["NTels_trig"] = len(event.dl0.tels_with_data)
                 reco_event["NTels_reco"] = len(hillas_dict)
                 reco_event["NTels_reco_lst"] = n_tels["LST_LST_LSTCam"]
-                reco_event["NTels_reco_mst"] = n_tels["MST_MST_NectarCam"]
-                reco_event["NTels_reco_sst"] = n_tels["SST"] # will change
+                reco_event["NTels_reco_mst"] = (
+                    n_tels["MST_MST_NectarCam"] + n_tels["MST_MST_FlashCam"]
+                )
+                reco_event["NTels_reco_sst"] = (
+                    n_tels["SST_1M_DigiCam"]
+                    + n_tels["SST_ASTRI_ASTRICam"]
+                    + n_tels["SST_GCT_CHEC"]
+                )
                 reco_event["reco_energy"] = reco_energy
                 reco_event["reco_alt"] = alt.to("deg").value
                 reco_event["reco_az"] = az.to("deg").value
