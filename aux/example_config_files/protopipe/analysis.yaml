@@ -2,7 +2,7 @@
 # NOTE: only simulations >= Prod3b are currently supported.
 General:
  config_name: 'example'
- site: 'north'  # 'north' or 'south'
+ site: 'south'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
  # - a custom list of telescope IDs
