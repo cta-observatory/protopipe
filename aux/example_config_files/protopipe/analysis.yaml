@@ -17,12 +17,12 @@ ImageCleaning:
  biggest:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6, 3]
+    - LSTCam: [6, 3]  # TBC
     - NectarCam: [8, 4]  # TBC
-    - FlashCam: [0,0]
-    - ASTRICam: [0,0]
-    - DigiCam: [0,0]
-    - CHEC: [0,0]
+    - FlashCam: [4,2] # dummy values for reliable unit-testing
+    - ASTRICam: [4,2] # dummy values for reliable unit-testing
+    - DigiCam: [0,0] # values left unset for future studies
+    - CHEC: [0,0] # values left unset for future studies
    keep_isolated_pixels: False
    min_number_picture_neighbors: 2
 
@@ -50,12 +50,12 @@ ImageCleaning:
  extended:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6, 3]
+    - LSTCam: [6, 3]  # TBC
     - NectarCam: [8, 4]  # TBC
-    - FlashCam: [0,0]
-    - ASTRICam: [0,0]
-    - DigiCam: [0,0]
-    - CHEC: [0,0]
+    - FlashCam: [4,2] # dummy values for reliable unit-testing
+    - ASTRICam: [4,2] # dummy values for reliable unit-testing
+    - DigiCam: [0,0] # values left unset for future studies
+    - CHEC: [0,0] # values left unset for future studies
    keep_isolated_pixels: False
    min_number_picture_neighbors: 2
 
