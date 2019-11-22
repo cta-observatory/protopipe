@@ -230,8 +230,8 @@ def prod3b_array(fileName, site, array):
                 raise ValueError("ERROR: infile and site uncorrelated!")
             if type(array) == str and array != "full_array":
                 raise ValueError(
-                    "Subarray names not supported for this production.\
-                     Please, define a costum array."
+                    "Only 'full_array' supported for this production.\n\
+                     Please, use that or define a custom array with a list of tel_ids."
                 )
             elif array == "full_array":
                 return final_array_to_use(sim_array, array, subarrays_N)
@@ -261,8 +261,8 @@ def prod3b_array(fileName, site, array):
                 raise ValueError("ERROR: infile and site uncorrelated!")
             if type(array) == str and array != "full_array":
                 raise ValueError(
-                    "Subarray names not supported for this production.\
-                     Please, define a costum array."
+                    "Only 'full_array' supported for this production.\n\
+                     Please, use that or define a custom array with a list of tel_ids."
                 )
             if array == "full_array":
                 return final_array_to_use(sim_array, array, subarrays_S)
