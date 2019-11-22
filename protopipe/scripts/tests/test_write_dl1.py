@@ -22,8 +22,8 @@ def test_write_dl1():
 
     WARNING: some of the cuts in the example config file are not optimized for
     cameras other than LSTCam and NectarCam.
-    It is expected that the script ends successfully, but statistics could be
-    dangerously low.
+    In any case, it is expected that in absence of fatal bugs, the script
+    ends successfully.
     """
     exit_status = os.system(
         f"python {write_dl1.__file__}\
