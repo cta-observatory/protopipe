@@ -132,14 +132,42 @@ def make_argparser():
     return parser
 
 
-def from_list(sim_array, array):
-    """Return tel IDs and involved cameras from a custom list of tel IDs.
+def final_array_to_use(sim_array, array, subarrays=None):
+    """Return tel IDs and involved cameras either from the name of a subarray
+    or from a custom list.
 
-    Helper function for utils.check_input.
+    Helper function for utils.prod3b_array.
+
+    Parameters
+    ----------
+    subarrays : dict, optional
+        Dictionary of subarray names linked to lists of tel_ids
+        automatically extracted by telescope type.
+        If set, it will extract tel_ids from there, otherwise from the custom
+        list given by 'array'.
+    sim_array : ctapipe.instrument.SubarrayDescription
+        Full simulated array from the first event.
+    array : list, str
+        Custom list of telescope IDs that the user wants to use or name of
+        specific subarray.
+
+    Returns
+    -------
+    tel_ids : list
+        List of telescope IDs to use in a format readable by ctapipe.
+    cameras : list
+        List of camera types inferred from tel_ids.
+        This will feed both the estimators and the image cleaning.
+
     """
-    subarray = sim_array.select_subarray("", array)
-    tel_ids = subarray.tel_ids
-    cameras = [cam.cam_id for cam in subarray.camera_types]
+    if subarrays:
+        tel_ids = subarrays[array]
+        subarray = sim_array.select_subarray("", tel_ids)
+        cameras = [cam.cam_id for cam in subarray.camera_types]
+    else:
+        subarray = sim_array.select_subarray("", array)
+        tel_ids = subarray.tel_ids
+        cameras = [cam.cam_id for cam in subarray.camera_types]
     return set(tel_ids), cameras
 
 
@@ -166,7 +194,7 @@ def prod3b_array(fileName, site, array):
     Returns
     -------
     tel_ids : list
-        List of telescope IDs that the user wants to use
+        List of telescope IDs to use in a format readable by ctapipe.
     cameras : list
         List of camera types inferred from tel_ids.
         This will feed both the estimators and the image cleaning.
@@ -194,17 +222,23 @@ def prod3b_array(fileName, site, array):
 
     if site.lower() == "north":
         if sim_array.num_tels > 19:  # this means non-baseline simulation..
-            if sim_array.num_tels > 125 or sim_array.num_tels == 99:
+            if (
+                sim_array.num_tels > 125  # Paranal non-baseline
+                or sim_array.num_tels == 99  # Paranal baseline
+                or sim_array.num_tels == 98  # gamma_test_large
+            ):
                 raise ValueError("ERROR: infile and site uncorrelated!")
-            if type(array) == str:
+            if type(array) == str and array != "full_array":
                 raise ValueError(
                     "Subarray names not supported for this production.\
                      Please, define a costum array."
                 )
+            elif array == "full_array":
+                return final_array_to_use(sim_array, array, subarrays_N)
             elif (
                 type(array) == list
             ):  # ..for which only custom lists are currently supported
-                return from_list(sim_array, array)
+                return final_array_to_use(sim_array, array)
             else:
                 raise ValueError(f"array {array} not supported")
         else:  # this is a baseline simulation
@@ -213,29 +247,29 @@ def prod3b_array(fileName, site, array):
                     raise ValueError(
                         "ERROR: requested missing camera from simtel file."
                     )
-                tel_ids = subarrays_N[array]
-                subarray = sim_array.select_subarray("", tel_ids)
-                cameras = [cam.cam_id for cam in subarray.camera_types]
-                return set(tel_ids), cameras
+                else:
+                    return final_array_to_use(sim_array, array, subarrays_N)
             elif type(array) == list:
                 if any((tel_id < 1 or tel_id > 19) for tel_id in array):
                     raise ValueError("ERROR: non-existent telescope ID.")
-                return from_list(sim_array, array)
+                return final_array_to_use(sim_array, array)
             else:
                 raise ValueError(f"array {array} not supported")
     elif site.lower() == "south":
         if sim_array.num_tels > 99:  # this means non-baseline simulation..
             if sim_array.num_tels < 126:
                 raise ValueError("ERROR: infile and site uncorrelated!")
-            if type(array) == str:
+            if type(array) == str and array != "full_array":
                 raise ValueError(
                     "Subarray names not supported for this production.\
                      Please, define a costum array."
                 )
+            if array == "full_array":
+                return final_array_to_use(sim_array, array, subarrays_S)
             elif (
                 type(array) == list
             ):  # ..for which only custom lists are currently supported
-                return from_list(sim_array, array)
+                return final_array_to_use(sim_array, array)
             else:
                 raise ValueError(f"array {array} not supported")
         else:  # this is a baseline simulation
@@ -246,13 +280,16 @@ def prod3b_array(fileName, site, array):
                     raise ValueError(
                         "ERROR: requested missing camera from simtel file."
                     )
-                tel_ids = subarrays_S[array]
-                subarray = sim_array.select_subarray("", tel_ids)
-                cameras = [cam.cam_id for cam in subarray.camera_types]
-                return set(tel_ids), cameras
+                else:
+                    if sim_array.num_tels == 98:
+                        subarrays_S_test = subarrays_S
+                        subarrays_S_test[
+                            "subarray_SSTs"
+                        ] = sim_array.get_tel_ids_for_type("SST_ASTRI_ASTRICam")
+                    return final_array_to_use(sim_array, array, subarrays_S_test)
             elif type(array) == list:
                 if any((tel_id < 1 or tel_id > 99) for tel_id in array):
                     raise ValueError("ERROR: non-existent telescope ID.")
-                return from_list(sim_array, array)
+                return final_array_to_use(sim_array, array)
             else:
                 raise ValueError(f"array {array} not supported")
