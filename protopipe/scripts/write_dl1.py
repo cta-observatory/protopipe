@@ -290,6 +290,9 @@ def main():
                 feature_events[cam_id]["err_est_pos"] = np.nan
                 feature_events[cam_id]["err_est_dir"] = np.nan
                 feature_events[cam_id]["mc_energy"] = event.mc.energy.to("TeV").value
+                feature_events[cam_id]["cog_x"] = moments.x.to("m").value
+                feature_events[cam_id]["cog_y"] = moments.y.to("m").value
+                feature_events[cam_id]["phi"] = moments.phi.to("deg").value
                 feature_events[cam_id]["local_distance"] = moments.r.to("m").value
                 feature_events[cam_id]["n_pixel"] = n_pixel_dict[tel_id]
                 feature_events[cam_id]["obs_id"] = event.r0.obs_id
