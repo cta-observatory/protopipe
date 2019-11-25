@@ -8,6 +8,7 @@ from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
 from ctapipe.calib import CameraCalibrator
+from ctapipe.calib.camera.gainselection import GainSelector
 from ctapipe.image.extractor import LocalPeakWindowSum
 from ctapipe.image import hillas
 from ctapipe.utils.CutFlow import CutFlow
@@ -171,6 +172,37 @@ def largest_island(islands_labels):
     return islands_labels == np.argmax(np.bincount(islands_labels[islands_labels > 0]))
 
 
+class MyCameraCalibrator(CameraCalibrator):
+    """Create a child class of CameraCalibrator."""
+
+    def _calibrate_dl0(self, event, telid):
+        """Override class method to perform gain selection at R0 instead of R1.
+
+        Then select R1 waveforms using R0-selected gain channels.
+        """
+        waveforms_r0 = event.r0.tel[telid].waveform
+        _, selected_gain_channel = self.gain_selector(waveforms_r0)
+
+        waveforms_r1 = event.r1.tel[telid].waveform
+        if self._check_r1_empty(waveforms_r1):
+            return
+
+        # Use R0-selected gain channels to select R1 waveforms
+        _, n_pixels, _ = waveforms_r1.shape
+        waveforms_gs = waveforms_r1[selected_gain_channel, np.arange(n_pixels)]
+        if selected_gain_channel is not None:
+            event.r1.tel[telid].selected_gain_channel = selected_gain_channel
+        else:
+            if event.r1.tel[telid].selected_gain_channel is None:
+                raise ValueError(
+                    "EventSource is loading pre-gainselected waveforms "
+                    "without filling the selected_gain_channel container"
+                )
+
+        reduced_waveforms = self.data_volume_reducer(waveforms_gs)
+        event.dl0.tel[telid].waveform = reduced_waveforms
+
+
 # ==============================================================================
 
 
@@ -289,9 +321,13 @@ class EventPreparer:
         cfg = Config()
         cfg["ChargeExtractorFactory"]["window_width"] = 5
         cfg["ChargeExtractorFactory"]["window_shift"] = 2
+        cfg["ThresholdGainSelector"]["threshold"] = 4000.0  # 40 @ R1!
         extractor = LocalPeakWindowSum(config=cfg)
+        gain_selector = GainSelector.from_name("ThresholdGainSelector", config=cfg)
 
-        self.calib = CameraCalibrator(config=cfg, image_extractor=extractor)
+        self.calib = MyCameraCalibrator(
+            config=cfg, gain_selector=gain_selector, image_extractor=extractor
+        )
 
         # Reconstruction
         self.shower_reco = HillasReconstructor()
