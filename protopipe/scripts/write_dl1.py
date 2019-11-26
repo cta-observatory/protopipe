@@ -152,6 +152,9 @@ def main():
         psi = tb.Float32Col(dflt=1, pos=42)
         psi_reco = tb.Float32Col(dflt=1, pos=43)
         sum_signal_cam_reco = tb.Float32Col(dflt=1, pos=44)
+        cog_x = tb.Float32Col(dflt=1, pos=45)
+        cog_y = tb.Float32Col(dflt=1, pos=46)
+        phi = tb.Float32Col(dflt=1, pos=47)
 
     feature_outfile = tb.open_file(args.outfile, mode="w")
     feature_table = {}
