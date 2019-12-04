@@ -133,10 +133,8 @@ def make_argparser():
 
 
 def final_array_to_use(sim_array, array, subarrays=None):
-    """Return tel IDs and involved cameras either from the name of a subarray
-    or from a custom list.
-
-    Helper function for utils.prod3b_array.
+    """Infer IDs of telescopes and cameras with equivalent focal lengths.
+    This is an helper function for utils.prod3b_array.
 
     Parameters
     ----------
@@ -155,20 +153,27 @@ def final_array_to_use(sim_array, array, subarrays=None):
     -------
     tel_ids : list
         List of telescope IDs to use in a format readable by ctapipe.
-    cameras : list
-        List of camera types inferred from tel_ids.
-        This will feed both the estimators and the image cleaning.
+    cams_and_foclens : dict
+        Dictionary containing the IDs of the involved cameras as inferred from
+        the involved telescopes IDs, together with the equivalent focal lengths
+        of the telescopes.
+        The camera IDs will feed both the estimators and the image cleaning.
+        The equivalent focal lengths will be used to calculate the radius of
+        the camera on which cut for truncated images.
 
     """
     if subarrays:
         tel_ids = subarrays[array]
         subarray = sim_array.select_subarray("", tel_ids)
-        cameras = [cam.cam_id for cam in subarray.camera_types]
     else:
         subarray = sim_array.select_subarray("", array)
         tel_ids = subarray.tel_ids
-        cameras = [cam.cam_id for cam in subarray.camera_types]
-    return set(tel_ids), cameras
+    tel_types = subarray.telescope_types
+    cams_and_foclens = {
+        tel_types[i].camera.cam_id: tel_types[i].optics.equivalent_focal_length.value
+        for i in range(len(tel_types))
+    }
+    return set(tel_ids), cams_and_foclens
 
 
 def prod3b_array(fileName, site, array):

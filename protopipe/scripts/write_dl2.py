@@ -74,8 +74,9 @@ def main():
         print("no files found; check indir: {}".format(args.indir))
         exit(-1)
 
-    # Get telescope IDs and involved camera types from the first event
-    allowed_tels, cameras = prod3b_array(filenamelist[0], site, array)
+    # Get the IDs of the involved telescopes and associated cameras together
+    # with the equivalent focal lengths from the first event
+    allowed_tels, cams_and_foclens = prod3b_array(filenamelist[0], site, array)
 
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
@@ -84,7 +85,7 @@ def main():
     # Event preparer
     preper = EventPreparer(
         config=cfg,
-        cameras=cameras,
+        cams_and_foclens=cams_and_foclens,
         mode=args.mode,
         event_cutflow=evt_cutflow,
         image_cutflow=img_cutflow,
@@ -118,7 +119,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        classifier = EventClassifier.load(clf_file, cam_id_list=cameras)
+        classifier = EventClassifier.load(clf_file, cam_id_list=cams_and_foclens.keys())
 
     # Regressors
     if use_regressor:
@@ -133,7 +134,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=cameras)
+        regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
 
     # catch ctr-c signal to exit current loop and still display results
     signal_handler = SignalHandler()

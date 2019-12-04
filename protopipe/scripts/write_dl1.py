@@ -32,10 +32,7 @@ def main():
     )
 
     parser.add_argument(
-        "--estimate_energy",
-        type=str2bool,
-        default=False,
-        help="Make estimation of energy",
+        "--estimate_energy", action="store_true", help="Estimate energy"
     )
     parser.add_argument(
         "--regressor_dir", type=str, default="./", help="regressors directory"
@@ -63,8 +60,9 @@ def main():
     else:
         print("found {} files".format(len(filenamelist)))
 
-    # Get telescope IDs and involved camera types from the first event
-    allowed_tels, cameras = prod3b_array(filenamelist[0], site, array)
+    # Get the IDs of the involved telescopes and associated cameras together
+    # with the equivalent focal lengths from the first event
+    allowed_tels, cams_and_foclens = prod3b_array(filenamelist[0], site, array)
 
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
@@ -72,7 +70,7 @@ def main():
 
     preper = EventPreparer(
         config=cfg,
-        cameras=cameras,
+        cams_and_foclens=cams_and_foclens,
         mode=args.mode,
         event_cutflow=evt_cutflow,
         image_cutflow=img_cutflow,
@@ -99,7 +97,7 @@ def main():
             }
         )
 
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=cameras)
+        regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
 
     # Declaration of the column descriptor for the (possible) images file
     # For the moment works only on LSTCam and NectarCam.

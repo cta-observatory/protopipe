@@ -58,7 +58,7 @@ PreparedEvent = namedtuple(
 from scipy.sparse.csgraph import connected_components
 
 
-def camera_radius(cam_id=None):
+def camera_radius(camid_to_efl, cam_id="all"):
     """
     Inspired from pywi-cta CTAMarsCriteria, CTA Mars like preselection cuts.
     This should be replaced by a function in ctapipe getting the radius either
@@ -74,43 +74,32 @@ def camera_radius(cam_id=None):
     - GCT-CHEC-S: 3.93
     - ASTRI: 4.67
 
-    ThS - Nov. 2019
+    ThS, MP - Nov. 2019
     """
 
-    if cam_id == "ASTRICam":
-        average_camera_radius_degree = 4.67
-        foclen_meters = 2.15
-    elif cam_id == "CHEC":
-        average_camera_radius_degree = 3.93
-        foclen_meters = 2.283
-    elif cam_id == "DigiCam":
-        average_camera_radius_degree = 4.56
-        foclen_meters = 5.59
-    elif cam_id == "FlashCam":
-        average_camera_radius_degree = 3.95
-        foclen_meters = 16.0
-    elif cam_id == "NectarCam":
-        average_camera_radius_degree = 4.05
-        foclen_meters = 16.0
-    elif cam_id == "LSTCam":
-        average_camera_radius_degree = 2.31
-        foclen_meters = 28.0
+    average_camera_radii_deg = {
+        "ASTRICam": 4.67,
+        "CHEC": 3.93,
+        "DigiCam": 4.56,
+        "FlashCam": 3.95,
+        "NectarCam": 4.05,
+        "LSTCam": 2.31,
+        "SCTCam": 4.0,  # dummy value
+    }
+
+    if cam_id in camid_to_efl.keys():
+        foclen_meters = camid_to_efl[cam_id]
+        average_camera_radius_meters = (
+            math.tan(math.radians(average_camera_radii_deg[cam_id])) * foclen_meters
+        )
     elif cam_id == "all":
-        print("Available camera radii")
-        print("   * LST           : ", camera_radius("LSTCam"))
-        print("   * MST - Nectar  : ", camera_radius("NectarCam"))
-        print("   * MST - Flash   : ", camera_radius("FlashCam"))
-        print("   * SST - ASTRI   : ", camera_radius("ASTRICam"))
-        print("   * SST - CHEC    : ", camera_radius("CHEC"))
-        print("   * SST - DigiCam : ", camera_radius("DigiCam"))
-        average_camera_radius_degree = 0
-        foclen_meters = 0
+        print("Available camera radii in meters:")
+        for cam_id in camid_to_efl.keys():
+            print(f"* {cam_id} : ", camera_radius(camid_to_efl, cam_id))
+        average_camera_radius_meters = 0
     else:
         raise ValueError("Unknown camid", cam_id)
 
-    average_camera_radius_meters = (
-        math.tan(math.radians(average_camera_radius_degree)) * foclen_meters
-    )
     return average_camera_radius_meters
 
 
@@ -221,12 +210,20 @@ class EventPreparer:
     """
 
     def __init__(
-        self, config, cameras, mode, event_cutflow=None, image_cutflow=None, debug=False
+        self,
+        config,
+        cams_and_foclens,
+        mode,
+        event_cutflow=None,
+        image_cutflow=None,
+        debug=False,
     ):
         """Initiliaze an EventPreparer object."""
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
-            config=config["ImageCleaning"]["biggest"], cameras=cameras, mode=mode
+            config=config["ImageCleaning"]["biggest"],
+            cameras=cams_and_foclens.keys(),
+            mode=mode,
         )
 
         # Cleaning for energy/score estimation
@@ -240,7 +237,9 @@ class EventPreparer:
             pass  # force_mode = mode
 
         self.cleaner_extended = ImageCleaner(  # for energy/score estimation
-            config=config["ImageCleaning"]["extended"], cameras=cameras, mode=force_mode
+            config=config["ImageCleaning"]["extended"],
+            cameras=cams_and_foclens.keys(),
+            mode=force_mode,
         )
 
         # Image book keeping
@@ -253,15 +252,13 @@ class EventPreparer:
         nominal_distance_bounds = config["ImageSelection"]["nominal_distance"]
 
         if debug:
-            camera_radius("all")  # Display all registered camera radii
+            camera_radius(
+                cams_and_foclens, "all"
+            )  # Display all registered camera radii
 
         self.camera_radius = {
-            "LSTCam": camera_radius("LSTCam"),  # was 1.126,
-            "NectarCam": camera_radius("NectarCam"),  # was 1.126,
-            "FlashCam": camera_radius("FlashCam"),
-            "ASTRICam": camera_radius("ASTRICam"),
-            "CHEC": camera_radius("CHEC"),
-            "DigiCam": camera_radius("DigiCam"),
+            cam_id: camera_radius(cams_and_foclens, cam_id)
+            for cam_id in cams_and_foclens.keys()
         }
 
         self.image_cutflow.set_cuts(
@@ -355,6 +352,7 @@ class EventPreparer:
                 "LST_LST_LSTCam": 0,
                 "MST_MST_NectarCam": 0,
                 "MST_MST_FlashCam": 0,
+                "SCT_SCT_SCTCam": 0,
                 "SST_1M_DigiCam": 0,
                 "SST_ASTRI_ASTRICam": 0,
                 "SST_GCT_CHEC": 0,
