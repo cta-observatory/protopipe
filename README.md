@@ -5,8 +5,10 @@ protopipe
 
 A pipeline prototype for the Cherenkov Telescope Array.
 
-Installation:
--------------
+Installation
+------------
+
+These instructions are for users only, i.e. you want to use the latest version of the code but do not intend to make any change to it. If your wish is to develop the package then follow the instruction below entitled "Instructions for developpers".
 
 Get the source code and create the required basic conda environment:
 
@@ -14,44 +16,54 @@ Get the source code and create the required basic conda environment:
           cd protopipe
           conda env create -f protopipe_environment.yml
           conda activate protopipe
+          
+In case you have already an environment 'myenv' set up for that kind of development, use:
 
+          conda env update -n myenv -f protopipe_environment.yml
+          
 This environment contains the bare minimum in order to run the scripts and build the documentation.
 
 It doesn't take into account any additional tool you could use later on (it is suggested to install _ipython_, _jupyter_ and _vitables_, especially if you want to contribute to the code).
 
-Next you need to install _protopipe_ itself:
+Next you need to install _protopipe_ itself (_protopipe_ is the folder where the code was expanded. The name differs if you downloaded a released tagged version, it can be _protopipe-0.2_ for instance) :
 
           cd protopipe
           python setup.py develop
 
 This will let you make changes to your local git repository without the need to update your environment every time.
+In the abscence of a _conda_ or _pip_ installation made avalaible, to install a released version (no further development), use :
+
+          python setup.py install
 
 Remember that the environment needs to be activated in order for _protopipe_ to work.
 This procedure has been successfully tested on macOS (10.10.5 & 10.14.6) and on Scientific Linux 7.
 
-Building the documentation:
----------------------------
+Building the documentation
+--------------------------
 
-Starting from your _protopipe_ local repository,
+From the main folder go down to the documentation repository and create the documentation :
 
-          cd protopipe
           cd docs
           make html
 
 You will probably get some harmless warnings.
+The initial page is stored in _ _build/html/index.html_, which you can open using your favorite internet browser.
 
-The initial page is stored in _build/html/index.html_, which you can open using your favorite internet browser.
+Test if it works
+-----------------
+Before starting to use _protopipe_, be sure to be inside the relevant environment (e.g. `conda activate protopipe`).
+Get a _simtel_ Monte Carlo file obtained with _prod3b_ with only _LSTCam_ and _NectarCam_ cameras.
+Any other kind of cameras in the file would lead to a crash, see issues #23. 
+Note that some generic La Palma files can contain _FlashCam_ cameras.
+The write_dl1.py script will prodcue a DL1 output from the _simtel_ data.
 
-Basic use:
-----------
+          cd protopipe/scripts
+          python write_dl1.py -h
 
+Analysis chain general description
+----------------------------------
 The following instructions refer to local use of protopipe, which doesn't involve the use of the DIRAC computing grid (you can ignore the grid.yaml configuration file).
-
-Before starting to use protopipe, be sure to be inside the environment you created at the beggining:
-
-          conda activate protopipe
-
-Then, a typical workflow consists in:
+Typical analysis steps are the following :
 
 1. **create an analysis parent folder** with the auxiliary script _create_dir_structure.py_
 2. **prepare the configuration files**

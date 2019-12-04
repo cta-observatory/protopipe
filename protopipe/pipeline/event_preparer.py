@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from astropy import units as u
 from astropy.coordinates import SkyCoord
@@ -27,8 +28,7 @@ try:
     from pywi.processing.filtering import pixel_clusters
     from pywi.processing.filtering.pixel_clusters import filter_pixels_clusters
 except ImportError as e:
-    print("pywicta package could not be imported")
-    print("wavelet cleaning will not work")
+    print("pywicta not imported-->(no wavelet cleaning)")
     print(e)
 
 __all__ = ["EventPreparer"]
@@ -56,6 +56,59 @@ PreparedEvent = namedtuple(
 # ==============================================================================
 
 from scipy.sparse.csgraph import connected_components
+
+def camera_radius(cam_id=None):
+    """
+    Inspired from pywi-cta CTAMarsCriteria, CTA Mars like preselection cuts.
+    This should be replaced by a function in ctapipe getting the radius either 
+    from  the pixel poisitions or from an external database
+    Note
+    ----
+    average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen
+    The average camera radius values are, in degrees :
+    - LST: 2.31
+    - Nectar: 4.05
+    - Flash: 3.95
+    - SST-1M: 4.56
+    - GCT-CHEC-S: 3.93
+    - ASTRI: 4.67
+    
+    ThS - Nov. 2019
+    """
+
+    if cam_id == "ASTRICam":
+        average_camera_radius_degree = 4.67
+        foclen_meters = 2.15
+    elif cam_id == "CHEC":
+        average_camera_radius_degree = 3.93
+        foclen_meters = 2.283
+    elif cam_id == "DigiCam":
+        average_camera_radius_degree = 4.56
+        foclen_meters = 5.59
+    elif cam_id == "FlashCam":
+        average_camera_radius_degree = 3.95
+        foclen_meters = 16.0
+    elif cam_id == "NectarCam":
+        average_camera_radius_degree = 4.05
+        foclen_meters = 16.0
+    elif cam_id == "LSTCam":
+        average_camera_radius_degree = 2.31
+        foclen_meters = 28.0
+    elif cam_id == "all":
+        print("Available camera radii")
+        print("   * LST           : ",camera_radius("LSTCam"))
+        print("   * MST - Nectar  : ",camera_radius("NectarCam"))
+        print("   * MST - Flash   : ",camera_radius("FlashCam"))
+        print("   * SST - ASTRI   : ",camera_radius("ASTRICam"))
+        print("   * SST - CHEC    : ",camera_radius("CHEC"))
+        print("   * SST - DigiCam : ",camera_radius("DigiCam"))       
+        average_camera_radius_degree = 0
+        foclen_meters = 0
+    else: 
+        raise ValueError('Unknown camid', cam_id)
+
+    average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen_meters
+    return average_camera_radius_meters
 
 # This function is already in 0.7.0, but in introducing "largest_island"
 # a small change has been done that requires it to be explicitly put here.
@@ -145,7 +198,8 @@ class EventPreparer:
     event that will be further use for reconstruction by applying calibration,
     cleaning and selection. Then, it reconstructs the geometry of the event and
     then returns image (e.g. Hillas parameters)and event information
-    (e.g. results of the reconstruction).
+    (e.g. results of the reconstruction).    #--------------------------------------------------------------------------
+
 
     Parameters
     ----------
@@ -162,12 +216,11 @@ class EventPreparer:
         Dictionnary of results
     """
 
-    def __init__(self, config, mode, event_cutflow=None, image_cutflow=None):
+    def __init__(self, config, mode, event_cutflow=None, image_cutflow=None, debug=False):
         """Initiliaze an EventPreparer object."""
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
-            config=config["ImageCleaning"]["biggest"], mode=mode
-        )
+            config=config["ImageCleaning"]["biggest"], mode=mode)
 
         # Cleaning for energy/score estimation
         # Add possibility to force energy/score cleaning with tailcut analysis
@@ -191,11 +244,19 @@ class EventPreparer:
         npix_bounds = config["ImageSelection"]["pixel"]
         ellipticity_bounds = config["ImageSelection"]["ellipticity"]
         nominal_distance_bounds = config["ImageSelection"]["nominal_distance"]
-
+        
+        if (debug): camera_radius("all") # Display all registered camera radii
+        
         self.camera_radius = {
-            "LSTCam": 1.126,
-            "NectarCam": 1.126,
-        }  # Average between max(xpix) and max(ypix), in meters
+            "LSTCam": camera_radius("LSTCam"), # was 1.126,
+            "NectarCam": camera_radius("NectarCam"), # was 1.126,
+            "FlashCam": camera_radius("FlashCam"),
+            "ASTRICam": camera_radius("ASTRICam"),
+            "CHEC": camera_radius("CHEC"),
+            "DigiCam": camera_radius("DigiCam")
+
+        }  
+        
 
         self.image_cutflow.set_cuts(
             OrderedDict(
@@ -250,11 +311,20 @@ class EventPreparer:
                 ]
             )
         )
-
-    def prepare_event(self, source, return_stub=False, save_images=False):
-
+    
+    def prepare_event(self, source, return_stub=False, save_images=False, debug=False):
+        """ 
+        Loop over evenst
+        (doc to be completed)
+        """
+        ievt = 0
         for event in source:
-
+            
+            # Display event counts
+            ievt+=1
+            if (debug):
+                if (ievt< 10) or (ievt%10==0) : print(ievt)
+        
             self.event_cutflow.count("noCuts")
 
             if self.event_cutflow.cut("min2Tels trig", len(event.dl0.tels_with_data)):
@@ -350,17 +420,19 @@ class EventPreparer:
                     # (This is a nice way to ask for volunteers :P)
 
                     # if some islands survived
+                    
                     if num_islands > 0:
                         # keep all of them and reduce dimensions
                         camera_extended = camera[mask_extended]
                         image_extended = image_extended[mask_extended]
                     else:  # otherwise continue with the old camera and image
                         camera_extended = camera
-
-                    # could this go into `hillas_parameters` ...?
+                    
+		    # could this go into `hillas_parameters` ...?
                     # this is basically the charge of ALL islands
-                    # not calculated later by the Hillas parametrization!
+                    # not calculated later by the Hillas parametrization!    
                     max_signals[tel_id] = np.max(image_extended)
+
 
                 else:  # for wavelets we stick to old pywi-cta code
                     try:  # "try except FileNotFoundError" not clear to me, but for now it stays...
