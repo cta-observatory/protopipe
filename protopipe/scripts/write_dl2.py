@@ -333,7 +333,9 @@ def main():
                 reco_event["NTels_reco"] = len(hillas_dict)
                 reco_event["NTels_reco_lst"] = n_tels["LST_LST_LSTCam"]
                 reco_event["NTels_reco_mst"] = (
-                    n_tels["MST_MST_NectarCam"] + n_tels["MST_MST_FlashCam"]
+                    n_tels["MST_MST_NectarCam"]
+                    + n_tels["MST_MST_FlashCam"]
+                    + n_tels["SCT_SCT_SCTCam"]
                 )
                 reco_event["NTels_reco_sst"] = (
                     n_tels["SST_1M_DigiCam"]

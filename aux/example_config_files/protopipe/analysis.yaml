@@ -23,6 +23,7 @@ ImageCleaning:
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies
     - CHEC: [0,0] # values left unset for future studies
+    - SCTCam: [0,0] # values left unset for future studies
    keep_isolated_pixels: False
    min_number_picture_neighbors: 2
 
@@ -56,6 +57,7 @@ ImageCleaning:
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies
     - CHEC: [0,0] # values left unset for future studies
+    - SCTCam: [0,0] # values left unset for future studies
    keep_isolated_pixels: False
    min_number_picture_neighbors: 2
 

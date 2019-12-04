@@ -282,7 +282,9 @@ def main():
                 feature_events[cam_id]["sum_signal_cam"] = moments.intensity
                 feature_events[cam_id]["N_LST"] = n_tels["LST_LST_LSTCam"]
                 feature_events[cam_id]["N_MST"] = (
-                    n_tels["MST_MST_NectarCam"] + n_tels["MST_MST_FlashCam"]
+                    n_tels["MST_MST_NectarCam"]
+                    + n_tels["MST_MST_FlashCam"]
+                    + n_tels["SCT_SCT_SCTCam"]
                 )
                 feature_events[cam_id]["N_SST"] = (
                     n_tels["SST_1M_DigiCam"]
