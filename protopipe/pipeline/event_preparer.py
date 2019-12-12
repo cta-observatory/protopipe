@@ -456,19 +456,17 @@ class EventPreparer:
                     # (This is a nice way to ask for volunteers :P)
 
                     # if some islands survived
-                    
-                    if num_islands > 0:
+                    if n_cluster_dict[tel_id] > 0:
                         # keep all of them and reduce dimensions
                         camera_extended = camera[mask_extended]
                         image_extended = image_extended[mask_extended]
                     else:  # otherwise continue with the old camera and image
                         camera_extended = camera
-                    
-		    # could this go into `hillas_parameters` ...?
-                    # this is basically the charge of ALL islands
-                    # not calculated later by the Hillas parametrization!    
-                    max_signals[tel_id] = np.max(image_extended)
 
+                    # could this go into `hillas_parameters` ...?
+                    # this is basically the charge of ALL islands
+                    # not calculated later by the Hillas parametrization!
+                    max_signals[tel_id] = np.max(image_extended)
 
                 else:  # for wavelets we stick to old pywi-cta code
                     try:  # "try except FileNotFoundError" not clear to me, but for now it stays...
