@@ -155,6 +155,10 @@ def main():
         cog_x = tb.Float32Col(dflt=1, pos=45)
         cog_y = tb.Float32Col(dflt=1, pos=46)
         phi = tb.Float32Col(dflt=1, pos=47)
+        leak1_reco = tb.Float32Col(dflt=np.nan, pos=48)
+        leak2_reco = tb.Float32Col(dflt=np.nan, pos=48)
+        leak1 = tb.Float32Col(dflt=np.nan, pos=48)
+        leak2 = tb.Float32Col(dflt=np.nan, pos=48)
 
     feature_outfile = tb.open_file(args.outfile, mode="w")
     feature_table = {}
@@ -186,6 +190,7 @@ def main():
             n_pixel_dict,
             hillas_dict,
             hillas_dict_reco,
+            leakage_dict,
             n_tels,
             tot_signal,
             max_signals,
@@ -283,7 +288,7 @@ def main():
                 feature_events[cam_id]["sum_signal_cam"] = moments.intensity
                 feature_events[cam_id]["N_LST"] = n_tels["LST_LST_LSTCam"]
                 feature_events[cam_id]["N_MST"] = n_tels["MST_MST_NectarCam"]
-                feature_events[cam_id]["N_SST"] = n_tels["SST"] # will change
+                feature_events[cam_id]["N_SST"] = n_tels["SST"]  # will change
                 feature_events[cam_id]["width"] = moments.width.to("m").value
                 feature_events[cam_id]["length"] = moments.length.to("m").value
                 feature_events[cam_id]["psi"] = moments.psi.to("deg").value
@@ -332,6 +337,14 @@ def main():
                 ).value
                 feature_events[cam_id]["psi_reco"] = moments_reco.psi.to("deg").value
                 feature_events[cam_id]["sum_signal_cam_reco"] = moments_reco.intensity
+                feature_events[cam_id]["leak1_reco"] = leakage_dict[tel_id][
+                    "leak1_reco"
+                ]
+                feature_events[cam_id]["leak2_reco"] = leakage_dict[tel_id][
+                    "leak2_reco"
+                ]
+                feature_events[cam_id]["leak1"] = leakage_dict[tel_id]["leak1"]
+                feature_events[cam_id]["leak2"] = leakage_dict[tel_id]["leak2"]
 
                 feature_events[cam_id].append()
 
