@@ -40,6 +40,12 @@ def main():
     parser.add_argument(
         "--regressor_dir", type=str, default="./", help="regressors directory"
     )
+
+    parser.add_argument(
+        "--array_direction_altaz", type=tuple, default=None,
+        help="set an array pointing direction. Required for non parallel pointing"
+    )
+
     args = parser.parse_args()
 
     # Read configuration file
@@ -191,8 +197,15 @@ def main():
             impact_dict,
         ) in preper.prepare_event(source, save_images=args.save_images):
 
-            # Angular quantities
-            run_array_direction = event.mcheader.run_array_direction
+
+            if args.array_direction_altaz:
+                run_array_direction = []
+                run_array_direction.append(args.array_direction_altaz[1])
+                run_array_direction.append(args.array_direction_altaz[0])
+
+            else:
+                run_array_direction = event.mcheader.run_array_direction
+
 
             xi = angular_separation(
                 event.mc.az, event.mc.alt, reco_result.az, reco_result.alt
