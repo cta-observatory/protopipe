@@ -212,7 +212,7 @@ def prod3b_array(fileName, site, array):
 
     sim_array = event.inst.subarray  # get simulated array
 
-    # Dictionaries of subarray names for baseline simulations
+    # Dictionaries of subarray names for BASELINE simulations
     subarrays_N = {  # La Palma has only 2 cameras
         "subarray_LSTs": sim_array.get_tel_ids_for_type("LST_LST_LSTCam"),
         "subarray_MSTs": sim_array.get_tel_ids_for_type("MST_MST_NectarCam"),
@@ -286,12 +286,11 @@ def prod3b_array(fileName, site, array):
                         "ERROR: requested missing camera from simtel file."
                     )
                 else:
-                    if sim_array.num_tels == 98:
-                        subarrays_S_test = subarrays_S
-                        subarrays_S_test[
-                            "subarray_SSTs"
-                        ] = sim_array.get_tel_ids_for_type("SST_ASTRI_ASTRICam")
-                    return final_array_to_use(sim_array, array, subarrays_S_test)
+                    if sim_array.num_tels == 98:  # this is gamma_test_large
+                        subarrays_S["subarray_SSTs"] = sim_array.get_tel_ids_for_type(
+                            "SST_ASTRI_ASTRICam"  # in this file SSTs are ASTRI
+                        )
+                    return final_array_to_use(sim_array, array, subarrays_S)
             elif type(array) == list:
                 if any((tel_id < 1 or tel_id > 99) for tel_id in array):
                     raise ValueError("ERROR: non-existent telescope ID.")
