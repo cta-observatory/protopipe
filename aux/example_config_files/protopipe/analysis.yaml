@@ -1,5 +1,5 @@
 # General informations
-# NOTE: only simulations >= Prod3b are currently supported.
+# NOTE: only Prod3b simulations are currently supported.
 General:
  config_name: 'example'
  site: 'south'  # 'north' or 'south'
@@ -7,7 +7,7 @@ General:
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
  # - a custom list of telescope IDs
  # WARNING: for simulations containing multiple copies of the telescopes,
- # only the custom list is supported!
+ # only 'full_array' or custom list are supported options!
  array: full_array
 
 # Cleaning for reconstruction
