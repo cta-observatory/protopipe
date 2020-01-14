@@ -97,8 +97,8 @@ class ImageCleaner(object):
     def clean_image(self, img, geom):
         """Clean image according to configuration
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         img: array
             Calibrated image
         geom: `~ctapipe.XXX`
