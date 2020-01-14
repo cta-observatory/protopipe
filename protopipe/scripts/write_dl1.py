@@ -357,8 +357,11 @@ def main():
         for table in images_table.values():
             table.flush()
 
-    img_cutflow()
     evt_cutflow()
+    if img_cutflow.cuts["noCuts"][1] > 0:
+        img_cutflow()
+    else:
+        print("No events survived the image cleaning phase!")
 
 
 if __name__ == "__main__":
