@@ -195,6 +195,7 @@ Reference/API
 
 .. automodapi:: protopipe.pipeline
    :no-inheritance-diagram:
+   :skip: event_source
 
 .. _PyTables: https://www.pytables.org/
 .. _HDF5: https://www.hdfgroup.org/solutions/hdf5/
