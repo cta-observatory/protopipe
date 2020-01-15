@@ -232,11 +232,13 @@ def prod3b_array(fileName, site, array):
                 or sim_array.num_tels == 99  # Paranal baseline
                 or sim_array.num_tels == 98  # gamma_test_large
             ):
-                raise ValueError("ERROR: infile and site uncorrelated!")
+                raise ValueError(
+                    "\033[91m ERROR: infile and site uncorrelated! \033[0m"
+                )
             if type(array) == str and array != "full_array":
                 raise ValueError(
-                    "Only 'full_array' supported for this production.\n\
-                     Please, use that or define a custom array with a list of tel_ids."
+                    "\033[91m ERROR: Only 'full_array' supported for this production.\n\
+                     Please, use that or define a custom array with a list of tel_ids.  \033[0m"
                 )
             elif array == "full_array":
                 return final_array_to_use(sim_array, array, subarrays_N)
@@ -245,29 +247,37 @@ def prod3b_array(fileName, site, array):
             ):  # ..for which only custom lists are currently supported
                 return final_array_to_use(sim_array, array)
             else:
-                raise ValueError(f"array {array} not supported")
+                raise ValueError(
+                    f"\033[91m ERROR: array {array} not supported. \033[0m"
+                )
         else:  # this is a baseline simulation
             if type(array) == str:
                 if array not in subarrays_N.keys():
                     raise ValueError(
-                        "ERROR: requested missing camera from simtel file."
+                        "\033[91m ERROR: requested missing camera from simtel file. \033[0m"
                     )
                 else:
                     return final_array_to_use(sim_array, array, subarrays_N)
             elif type(array) == list:
                 if any((tel_id < 1 or tel_id > 19) for tel_id in array):
-                    raise ValueError("ERROR: non-existent telescope ID.")
+                    raise ValueError(
+                        "\033[91m ERROR: non-existent telescope ID. \033[0m"
+                    )
                 return final_array_to_use(sim_array, array)
             else:
-                raise ValueError(f"array {array} not supported")
+                raise ValueError(
+                    f"\033[91m ERROR: array {array} not supported. \033[0m"
+                )
     elif site.lower() == "south":
         if sim_array.num_tels > 99:  # this means non-baseline simulation..
             if sim_array.num_tels < 126:
-                raise ValueError("ERROR: infile and site uncorrelated!")
+                raise ValueError(
+                    "\033[91m ERROR: infile and site uncorrelated! \033[0m"
+                )
             if type(array) == str and array != "full_array":
                 raise ValueError(
-                    "Only 'full_array' supported for this production.\n\
-                     Please, use that or define a custom array with a list of tel_ids."
+                    "\033[91m ERROR: Only 'full_array' supported for this production.\n\
+                     Please, use that or define a custom array with a list of tel_ids. \033[0m"
                 )
             if array == "full_array":
                 return final_array_to_use(sim_array, array, subarrays_S)
@@ -276,14 +286,18 @@ def prod3b_array(fileName, site, array):
             ):  # ..for which only custom lists are currently supported
                 return final_array_to_use(sim_array, array)
             else:
-                raise ValueError(f"array {array} not supported")
+                raise ValueError(
+                    f"\033[91m ERROR: Array {array} not supported. \033[0m"
+                )
         else:  # this is a baseline simulation
             if sim_array.num_tels == 19:
-                raise ValueError("ERROR: infile and site uncorrelated!")
+                raise ValueError(
+                    "\033[91m ERROR: infile and site uncorrelated! \033[0m"
+                )
             if type(array) == str:
                 if array not in subarrays_S.keys():
                     raise ValueError(
-                        "ERROR: requested missing camera from simtel file."
+                        "\033[91m ERROR: requested missing camera from simtel file. \033[0m"
                     )
                 else:
                     if sim_array.num_tels == 98:  # this is gamma_test_large
@@ -293,7 +307,11 @@ def prod3b_array(fileName, site, array):
                     return final_array_to_use(sim_array, array, subarrays_S)
             elif type(array) == list:
                 if any((tel_id < 1 or tel_id > 99) for tel_id in array):
-                    raise ValueError("ERROR: non-existent telescope ID.")
+                    raise ValueError(
+                        "\033[91m ERROR: non-existent telescope ID. \033[0m"
+                    )
                 return final_array_to_use(sim_array, array)
             else:
-                raise ValueError(f"array {array} not supported")
+                raise ValueError(
+                    f"\033[91m ERROR: Array {array} not supported. \033[0m"
+                )

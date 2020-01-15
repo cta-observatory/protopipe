@@ -42,9 +42,15 @@ def main():
     # Read configuration file
     cfg = load_config(args.config_file)
 
-    # Read site layout
-    site = cfg["General"]["site"]
-    array = cfg["General"]["array"]
+    try:  # If the user didn't specify a site and/or and array...
+        site = cfg["General"]["site"]
+        array = cfg["General"]["array"]
+    except KeyError:  # ...raise an error and exit.
+        print(
+            "\033[91m ERROR: make sure that both 'site' and 'array' are "
+            "specified in the analysis configuration file! \033[0m"
+        )
+        exit()
 
     if args.infile_list:
         filenamelist = []
@@ -358,10 +364,24 @@ def main():
             table.flush()
 
     evt_cutflow()
-    if img_cutflow.cuts["noCuts"][1] > 0:
-        img_cutflow()
+
+    # Catch specific cases
+    triggered_events = evt_cutflow.cuts["min2Tels trig"][1]
+    reconstructed_events = evt_cutflow.cuts["min2Tels reco"][1]
+
+    if triggered_events == 0:
+        print(
+            "\033[93mWARNING: No events have been triggered"
+            " by the selected telescopes! \033[0m"
+        )
     else:
-        print("No events survived the image cleaning phase!")
+        img_cutflow()
+        if reconstructed_events == 0:
+            print(
+                "\033[93m WARNING: None of the triggered events have been "
+                "properly reconstructed by the selected telescopes!\n"
+                "DL1 file will be empty! \033[0m"
+            )
 
 
 if __name__ == "__main__":
