@@ -16,6 +16,8 @@ setup(
     author_email="michele.peresano@cea.fr",
     license="MIT",
     packages=find_packages(),
+    package_data={"protopipe": ["aux/example_config_files/protopipe/analysis.yaml"]},
+    include_package_data=True,
     install_requires=["ctapipe"],
     zip_safe=False,
 )

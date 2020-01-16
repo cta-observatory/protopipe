@@ -1,6 +1,6 @@
 """Test the write_dl1 script in a variety of conditions."""
-import os
-import protopipe
+from os import path, system
+from pkg_resources import resource_filename
 from protopipe.scripts import write_dl1
 from ctapipe.utils import get_dataset_path
 
@@ -13,8 +13,10 @@ GAMMA_TEST_LARGE = get_dataset_path("gamma_test_large.simtel.gz")
 # Later on, we will need a sub-simtel file from each of the
 # MC productions expected to be analyzed with protopipe.
 
-parentdir = os.path.dirname(protopipe.__path__[0])  # where protopipe is
-configs = os.path.join(parentdir, "aux/example_config_files/protopipe/")
+# configuration files
+ana_config = resource_filename(
+    "protopipe", "aux/example_config_files/protopipe/analysis.yaml"
+)
 
 
 def test_write_dl1():
@@ -25,11 +27,11 @@ def test_write_dl1():
     In any case, it is expected that in absence of fatal bugs, the script
     ends successfully.
     """
-    exit_status = os.system(
+    exit_status = system(
         f"python {write_dl1.__file__}\
-        --config_file {os.path.join(configs, 'analysis.yaml')}\
+        --config_file {ana_config}\
         -o test_dl1.h5\
-        -i {os.path.dirname(GAMMA_TEST_LARGE)}\
-        -f {os.path.basename(GAMMA_TEST_LARGE)}"
+        -i {path.dirname(GAMMA_TEST_LARGE)}\
+        -f {path.basename(GAMMA_TEST_LARGE)}"
     )
     assert exit_status == 0

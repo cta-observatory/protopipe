@@ -1,5 +1,6 @@
 include README.rst
 
+recursive-include protopipe/aux
 recursive-include protopipe/pipeline/*.py
 
 global-exclude *.pyc
