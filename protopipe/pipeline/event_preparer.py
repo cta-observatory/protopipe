@@ -352,7 +352,7 @@ class EventPreparer:
                 "LST_LST_LSTCam": 0,
                 "MST_MST_NectarCam": 0,
                 "MST_MST_FlashCam": 0,
-                "SCT_SCT_SCTCam": 0,
+                "MST_SCT_SCTCam": 0,
                 "SST_1M_DigiCam": 0,
                 "SST_ASTRI_ASTRICam": 0,
                 "SST_GCT_CHEC": 0,
