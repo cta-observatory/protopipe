@@ -27,13 +27,13 @@ class ImageCleaner(object):
         Model corresponding to `wave` or `tail`
     """
 
-    def __init__(self, config, mode="tail"):
+    def __init__(self, config, cameras, mode="tail"):
 
         self.config = config
         self.mode = mode
-        self.initialise_clean_opt()
+        self.initialise_clean_opt(cameras)
 
-    def initialise_clean_opt(self):
+    def initialise_clean_opt(self, cameras):
         """Initialise cleaner according to the different camera type"""
 
         self.cleaners = {}  # Function for cleaning for corresp. camera
@@ -43,21 +43,27 @@ class ImageCleaner(object):
         if self.mode in "tail":
 
             # Initialise cleaner per camera type
-            for type in opt["thresholds"]:
+            for type in opt["thresholds"]:  # cycle through all the cameras...
                 cam_id = list(type.keys())[0]
-                cuts = list(type.values())[0]
+                if cam_id in cameras:
+                    # ...but initialize the cleaner only for the once in use
+                    cuts = list(type.values())[0]
 
-                self.clean_opts[cam_id] = {
-                    "picture_thresh": cuts[0],
-                    "boundary_thresh": cuts[1],
-                    "keep_isolated_pixels": opt["keep_isolated_pixels"],
-                    "min_number_picture_neighbors": opt["min_number_picture_neighbors"],
-                }
+                    self.clean_opts[cam_id] = {
+                        "picture_thresh": cuts[0],
+                        "boundary_thresh": cuts[1],
+                        "keep_isolated_pixels": opt["keep_isolated_pixels"],
+                        "min_number_picture_neighbors": opt[
+                            "min_number_picture_neighbors"
+                        ],
+                    }
 
-                # Select the CTA-MARS 1st pass as cleaning algorithm
-                self.cleaners[cam_id] = lambda img, geom, opt: mars_cleaning_1st_pass(
-                    image=img, geom=geom, **opt
-                )
+                    # Select the CTA-MARS 1st pass as cleaning algorithm
+                    self.cleaners[
+                        cam_id
+                    ] = lambda img, geom, opt: mars_cleaning_1st_pass(
+                        image=img, geom=geom, **opt
+                    )
 
         elif self.mode in "wave":
 
