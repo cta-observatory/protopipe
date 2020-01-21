@@ -1,9 +1,14 @@
 # General informations
+# NOTE: only Prod3b simulations are currently supported.
 General:
- config_name: 'lapalma_N_fullarray_MARStailcut_corrected_minNtel2'
- site: 'north'  # North or South
- array: 'full_array'  # subarray_LSTs, subarray_MSTs, full_array
- cam_id_list: ['LSTCam', 'NectarCam'] # Camera identifiers (Should be read in scripts?)
+ config_name: 'example'
+ site: 'south'  # 'north' or 'south'
+ # array can be either
+ # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
+ # - a custom list of telescope IDs
+ # WARNING: for simulations containing multiple copies of the telescopes,
+ # only 'full_array' or custom list are supported options!
+ array: full_array
 
 # Cleaning for reconstruction
 ImageCleaning:
@@ -12,8 +17,13 @@ ImageCleaning:
  biggest:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6, 3]
+    - LSTCam: [6, 3]  # TBC
     - NectarCam: [8, 4]  # TBC
+    - FlashCam: [4,2] # dummy values for reliable unit-testing
+    - ASTRICam: [4,2] # dummy values for reliable unit-testing
+    - DigiCam: [0,0] # values left unset for future studies
+    - CHEC: [0,0] # values left unset for future studies
+    - SCTCam: [0,0] # values left unset for future studies
    keep_isolated_pixels: False
    min_number_picture_neighbors: 2
 
@@ -41,8 +51,13 @@ ImageCleaning:
  extended:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6, 3]
+    - LSTCam: [6, 3]  # TBC
     - NectarCam: [8, 4]  # TBC
+    - FlashCam: [4,2] # dummy values for reliable unit-testing
+    - ASTRICam: [4,2] # dummy values for reliable unit-testing
+    - DigiCam: [0,0] # values left unset for future studies
+    - CHEC: [0,0] # values left unset for future studies
+    - SCTCam: [0,0] # values left unset for future studies
    keep_isolated_pixels: False
    min_number_picture_neighbors: 2
 

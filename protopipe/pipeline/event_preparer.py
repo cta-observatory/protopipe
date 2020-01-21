@@ -8,6 +8,7 @@ from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
 from ctapipe.calib import CameraCalibrator
+from ctapipe.calib.camera.gainselection import GainSelector
 from ctapipe.image.extractor import LocalPeakWindowSum
 from ctapipe.image import hillas
 from ctapipe.utils.CutFlow import CutFlow
@@ -57,10 +58,11 @@ PreparedEvent = namedtuple(
 
 from scipy.sparse.csgraph import connected_components
 
-def camera_radius(cam_id=None):
+
+def camera_radius(camid_to_efl, cam_id="all"):
     """
     Inspired from pywi-cta CTAMarsCriteria, CTA Mars like preselection cuts.
-    This should be replaced by a function in ctapipe getting the radius either 
+    This should be replaced by a function in ctapipe getting the radius either
     from  the pixel poisitions or from an external database
     Note
     ----
@@ -72,43 +74,35 @@ def camera_radius(cam_id=None):
     - SST-1M: 4.56
     - GCT-CHEC-S: 3.93
     - ASTRI: 4.67
-    
-    ThS - Nov. 2019
+
+    ThS, MP - Nov. 2019
     """
 
-    if cam_id == "ASTRICam":
-        average_camera_radius_degree = 4.67
-        foclen_meters = 2.15
-    elif cam_id == "CHEC":
-        average_camera_radius_degree = 3.93
-        foclen_meters = 2.283
-    elif cam_id == "DigiCam":
-        average_camera_radius_degree = 4.56
-        foclen_meters = 5.59
-    elif cam_id == "FlashCam":
-        average_camera_radius_degree = 3.95
-        foclen_meters = 16.0
-    elif cam_id == "NectarCam":
-        average_camera_radius_degree = 4.05
-        foclen_meters = 16.0
-    elif cam_id == "LSTCam":
-        average_camera_radius_degree = 2.31
-        foclen_meters = 28.0
-    elif cam_id == "all":
-        print("Available camera radii")
-        print("   * LST           : ",camera_radius("LSTCam"))
-        print("   * MST - Nectar  : ",camera_radius("NectarCam"))
-        print("   * MST - Flash   : ",camera_radius("FlashCam"))
-        print("   * SST - ASTRI   : ",camera_radius("ASTRICam"))
-        print("   * SST - CHEC    : ",camera_radius("CHEC"))
-        print("   * SST - DigiCam : ",camera_radius("DigiCam"))       
-        average_camera_radius_degree = 0
-        foclen_meters = 0
-    else: 
-        raise ValueError('Unknown camid', cam_id)
+    average_camera_radii_deg = {
+        "ASTRICam": 4.67,
+        "CHEC": 3.93,
+        "DigiCam": 4.56,
+        "FlashCam": 3.95,
+        "NectarCam": 4.05,
+        "LSTCam": 2.31,
+        "SCTCam": 4.0,  # dummy value
+    }
 
-    average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen_meters
+    if cam_id in camid_to_efl.keys():
+        foclen_meters = camid_to_efl[cam_id]
+        average_camera_radius_meters = (
+            math.tan(math.radians(average_camera_radii_deg[cam_id])) * foclen_meters
+        )
+    elif cam_id == "all":
+        print("Available camera radii in meters:")
+        for cam_id in camid_to_efl.keys():
+            print(f"* {cam_id} : ", camera_radius(camid_to_efl, cam_id))
+        average_camera_radius_meters = 0
+    else:
+        raise ValueError("Unknown camid", cam_id)
+
     return average_camera_radius_meters
+
 
 # This function is already in 0.7.0, but in introducing "largest_island"
 # a small change has been done that requires it to be explicitly put here.
@@ -171,6 +165,37 @@ def largest_island(islands_labels):
     return islands_labels == np.argmax(np.bincount(islands_labels[islands_labels > 0]))
 
 
+class MyCameraCalibrator(CameraCalibrator):
+    """Create a child class of CameraCalibrator."""
+
+    def _calibrate_dl0(self, event, telid):
+        """Override class method to perform gain selection at R0 instead of R1.
+
+        Then select R1 waveforms using R0-selected gain channels.
+        """
+        waveforms_r0 = event.r0.tel[telid].waveform
+        _, selected_gain_channel = self.gain_selector(waveforms_r0)
+
+        waveforms_r1 = event.r1.tel[telid].waveform
+        if self._check_r1_empty(waveforms_r1):
+            return
+
+        # Use R0-selected gain channels to select R1 waveforms
+        _, n_pixels, _ = waveforms_r1.shape
+        waveforms_gs = waveforms_r1[selected_gain_channel, np.arange(n_pixels)]
+        if selected_gain_channel is not None:
+            event.r1.tel[telid].selected_gain_channel = selected_gain_channel
+        else:
+            if event.r1.tel[telid].selected_gain_channel is None:
+                raise ValueError(
+                    "EventSource is loading pre-gainselected waveforms "
+                    "without filling the selected_gain_channel container"
+                )
+
+        reduced_waveforms = self.data_volume_reducer(waveforms_gs)
+        event.dl0.tel[telid].waveform = reduced_waveforms
+
+
 # ==============================================================================
 
 
@@ -216,11 +241,22 @@ class EventPreparer:
         Dictionnary of results
     """
 
-    def __init__(self, config, mode, event_cutflow=None, image_cutflow=None, debug=False):
+    def __init__(
+        self,
+        config,
+        cams_and_foclens,
+        mode,
+        event_cutflow=None,
+        image_cutflow=None,
+        debug=False,
+    ):
         """Initiliaze an EventPreparer object."""
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
-            config=config["ImageCleaning"]["biggest"], mode=mode)
+            config=config["ImageCleaning"]["biggest"],
+            cameras=cams_and_foclens.keys(),
+            mode=mode,
+        )
 
         # Cleaning for energy/score estimation
         # Add possibility to force energy/score cleaning with tailcut analysis
@@ -233,7 +269,9 @@ class EventPreparer:
             pass  # force_mode = mode
 
         self.cleaner_extended = ImageCleaner(  # for energy/score estimation
-            config=config["ImageCleaning"]["extended"], mode=force_mode
+            config=config["ImageCleaning"]["extended"],
+            cameras=cams_and_foclens.keys(),
+            mode=force_mode,
         )
 
         # Image book keeping
@@ -244,19 +282,16 @@ class EventPreparer:
         npix_bounds = config["ImageSelection"]["pixel"]
         ellipticity_bounds = config["ImageSelection"]["ellipticity"]
         nominal_distance_bounds = config["ImageSelection"]["nominal_distance"]
-        
-        if (debug): camera_radius("all") # Display all registered camera radii
-        
-        self.camera_radius = {
-            "LSTCam": camera_radius("LSTCam"), # was 1.126,
-            "NectarCam": camera_radius("NectarCam"), # was 1.126,
-            "FlashCam": camera_radius("FlashCam"),
-            "ASTRICam": camera_radius("ASTRICam"),
-            "CHEC": camera_radius("CHEC"),
-            "DigiCam": camera_radius("DigiCam")
 
-        }  
-        
+        if debug:
+            camera_radius(
+                cams_and_foclens, "all"
+            )  # Display all registered camera radii
+
+        self.camera_radius = {
+            cam_id: camera_radius(cams_and_foclens, cam_id)
+            for cam_id in cams_and_foclens.keys()
+        }
 
         self.image_cutflow.set_cuts(
             OrderedDict(
@@ -289,9 +324,13 @@ class EventPreparer:
         cfg = Config()
         cfg["ChargeExtractorFactory"]["window_width"] = 5
         cfg["ChargeExtractorFactory"]["window_shift"] = 2
+        cfg["ThresholdGainSelector"]["threshold"] = 4000.0  # 40 @ R1!
         extractor = LocalPeakWindowSum(config=cfg)
+        gain_selector = GainSelector.from_name("ThresholdGainSelector", config=cfg)
 
-        self.calib = CameraCalibrator(config=cfg, image_extractor=extractor)
+        self.calib = MyCameraCalibrator(
+            config=cfg, gain_selector=gain_selector, image_extractor=extractor
+        )
 
         # Reconstruction
         self.shower_reco = HillasReconstructor()
@@ -311,20 +350,21 @@ class EventPreparer:
                 ]
             )
         )
-    
+
     def prepare_event(self, source, return_stub=False, save_images=False, debug=False):
-        """ 
+        """
         Loop over evenst
         (doc to be completed)
         """
         ievt = 0
         for event in source:
-            
+
             # Display event counts
-            ievt+=1
-            if (debug):
-                if (ievt< 10) or (ievt%10==0) : print(ievt)
-        
+            if debug:
+                ievt += 1
+                if (ievt < 10) or (ievt % 10 == 0):
+                    print(ievt)
+
             self.event_cutflow.count("noCuts")
 
             if self.event_cutflow.cut("min2Tels trig", len(event.dl0.tels_with_data)):
@@ -347,7 +387,11 @@ class EventPreparer:
                 "tot": len(event.dl0.tels_with_data),
                 "LST_LST_LSTCam": 0,
                 "MST_MST_NectarCam": 0,
-                "SST": 0,  # add later correct names when testing on Paranal
+                "MST_MST_FlashCam": 0,
+                "MST_SCT_SCTCam": 0,
+                "SST_1M_DigiCam": 0,
+                "SST_ASTRI_ASTRICam": 0,
+                "SST_GCT_CHEC": 0,
             }
             n_cluster_dict = {}
             impact_dict_reco = {}  # impact distance measured in tilt system
@@ -420,19 +464,18 @@ class EventPreparer:
                     # (This is a nice way to ask for volunteers :P)
 
                     # if some islands survived
-                    
-                    if num_islands > 0:
+
+                    if n_cluster_dict[tel_id] > 0:
                         # keep all of them and reduce dimensions
                         camera_extended = camera[mask_extended]
                         image_extended = image_extended[mask_extended]
                     else:  # otherwise continue with the old camera and image
                         camera_extended = camera
-                    
-		    # could this go into `hillas_parameters` ...?
-                    # this is basically the charge of ALL islands
-                    # not calculated later by the Hillas parametrization!    
-                    max_signals[tel_id] = np.max(image_extended)
 
+                    # could this go into `hillas_parameters` ...?
+                    # this is basically the charge of ALL islands
+                    # not calculated later by the Hillas parametrization!
+                    max_signals[tel_id] = np.max(image_extended)
 
                 else:  # for wavelets we stick to old pywi-cta code
                     try:  # "try except FileNotFoundError" not clear to me, but for now it stays...

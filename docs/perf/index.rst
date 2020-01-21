@@ -263,14 +263,14 @@ Responses
 ---------
 
 Effective area
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
 The collection area, which is proportional to the gamma-ray efficiency
 of detection, is computed as a function of the true energy. The events which
 are considered are the one passing the threshold of the best cutoff plus
 the angular cuts.
 
 Energy migration matrix
-~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^
 The migration matrix, ratio of the reconstructed energy over the true energy
 as a function of the true energy, is computed with the events passing the
 threshold of the best cutoff plus the angular cuts.
@@ -279,7 +279,7 @@ the sensitvity we artificially created fake offset bins.
 I guess that Gammapy_ should be able to reaf IRF with single offset.
 
 Background
-~~~~~~~~~~
+^^^^^^^^^^
 The question to consider whether the bakground is an IRF or not. Since here it
 is needed to estimate the sensitivity of the instrument we consider it is included
 in the IRFs.
@@ -289,7 +289,7 @@ The events which are considered are the one passing the threshold of
 the best cutoff and the angular cuts.
 
 Point spread function
-~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 Here we do not really need the PSF to compute the sensitivity, since the angular
 cuts are already applied to the effective area, the energy migration matrix
 and the background.
@@ -303,7 +303,7 @@ there are multiple solutions
 (see `here, <https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/psf/index.html>`_).
 
 Angular cut values
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 To be implemented: `<https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/point_like/index.html>`_
 
 Sensitivity
