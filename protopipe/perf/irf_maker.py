@@ -345,11 +345,11 @@ class IrfMaker(object):
                 (data_g["reco_energy"] >= info["emin"])
                 & (data_g["reco_energy"] < info["emax"])
                 & (data_g["pass_best_cutoff"]),
-                ["xi"],
+                [self.config['column_definition']['angular_distance_to_the_src']],
             ]
 
             # Compute PSF
-            psf[ibin] = np.percentile(sel["xi"], radius)
+            psf[ibin] = np.percentile(sel[self.config['column_definition']['angular_distance_to_the_src']], radius)
 
         t = Table()
         t["ENERG_LO"] = Column(
