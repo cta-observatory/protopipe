@@ -294,10 +294,6 @@ def main():
                 feature_events[cam_id]["max_signal_cam"] = max_signals[tel_id]
                 feature_events[cam_id]["sum_signal_cam"] = moments.intensity
                 feature_events[cam_id]["N_LST"] = n_tels["LST_LST_LSTCam"]
-<<<<<<< HEAD
-                feature_events[cam_id]["N_MST"] = n_tels["MST_MST_NectarCam"]
-                feature_events[cam_id]["N_SST"] = n_tels["SST"]  # will change
-=======
                 feature_events[cam_id]["N_MST"] = (
                     n_tels["MST_MST_NectarCam"]
                     + n_tels["MST_MST_FlashCam"]
@@ -308,7 +304,6 @@ def main():
                     + n_tels["SST_ASTRI_ASTRICam"]
                     + n_tels["SST_GCT_CHEC"]
                 )
->>>>>>> master
                 feature_events[cam_id]["width"] = moments.width.to("m").value
                 feature_events[cam_id]["length"] = moments.length.to("m").value
                 feature_events[cam_id]["psi"] = moments.psi.to("deg").value

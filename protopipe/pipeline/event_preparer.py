@@ -60,11 +60,7 @@ PreparedEvent = namedtuple(
 from scipy.sparse.csgraph import connected_components
 
 
-<<<<<<< HEAD
-def camera_radius(cam_id=None):
-=======
 def camera_radius(camid_to_efl, cam_id="all"):
->>>>>>> master
     """
     Inspired from pywi-cta CTAMarsCriteria, CTA Mars like preselection cuts.
     This should be replaced by a function in ctapipe getting the radius either
@@ -80,11 +76,7 @@ def camera_radius(camid_to_efl, cam_id="all"):
     - GCT-CHEC-S: 3.93
     - ASTRI: 4.67
 
-<<<<<<< HEAD
-    ThS - Nov. 2019
-=======
     ThS, MP - Nov. 2019
->>>>>>> master
     """
 
     average_camera_radii_deg = {
@@ -103,23 +95,6 @@ def camera_radius(camid_to_efl, cam_id="all"):
             math.tan(math.radians(average_camera_radii_deg[cam_id])) * foclen_meters
         )
     elif cam_id == "all":
-<<<<<<< HEAD
-        print("Available camera radii")
-        print("   * LST           : ", camera_radius("LSTCam"))
-        print("   * MST - Nectar  : ", camera_radius("NectarCam"))
-        print("   * MST - Flash   : ", camera_radius("FlashCam"))
-        print("   * SST - ASTRI   : ", camera_radius("ASTRICam"))
-        print("   * SST - CHEC    : ", camera_radius("CHEC"))
-        print("   * SST - DigiCam : ", camera_radius("DigiCam"))
-        average_camera_radius_degree = 0
-        foclen_meters = 0
-    else:
-        raise ValueError("Unknown camid", cam_id)
-
-    average_camera_radius_meters = (
-        math.tan(math.radians(average_camera_radius_degree)) * foclen_meters
-    )
-=======
         print("Available camera radii in meters:")
         for cam_id in camid_to_efl.keys():
             print(f"* {cam_id} : ", camera_radius(camid_to_efl, cam_id))
@@ -127,7 +102,6 @@ def camera_radius(camid_to_efl, cam_id="all"):
     else:
         raise ValueError("Unknown camid", cam_id)
 
->>>>>>> master
     return average_camera_radius_meters
 
 
@@ -270,9 +244,6 @@ class EventPreparer:
     """
 
     def __init__(
-<<<<<<< HEAD
-        self, config, mode, event_cutflow=None, image_cutflow=None, debug=False
-=======
         self,
         config,
         cams_and_foclens,
@@ -280,18 +251,13 @@ class EventPreparer:
         event_cutflow=None,
         image_cutflow=None,
         debug=False,
->>>>>>> master
     ):
         """Initiliaze an EventPreparer object."""
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
-<<<<<<< HEAD
-            config=config["ImageCleaning"]["biggest"], mode=mode
-=======
             config=config["ImageCleaning"]["biggest"],
             cameras=cams_and_foclens.keys(),
             mode=mode,
->>>>>>> master
         )
 
         # Cleaning for energy/score estimation
@@ -320,17 +286,6 @@ class EventPreparer:
         nominal_distance_bounds = config["ImageSelection"]["nominal_distance"]
 
         if debug:
-<<<<<<< HEAD
-            camera_radius("all")  # Display all registered camera radii
-
-        self.camera_radius = {
-            "LSTCam": camera_radius("LSTCam"),  # was 1.126,
-            "NectarCam": camera_radius("NectarCam"),  # was 1.126,
-            "FlashCam": camera_radius("FlashCam"),
-            "ASTRICam": camera_radius("ASTRICam"),
-            "CHEC": camera_radius("CHEC"),
-            "DigiCam": camera_radius("DigiCam"),
-=======
             camera_radius(
                 cams_and_foclens, "all"
             )  # Display all registered camera radii
@@ -338,7 +293,6 @@ class EventPreparer:
         self.camera_radius = {
             cam_id: camera_radius(cams_and_foclens, cam_id)
             for cam_id in cams_and_foclens.keys()
->>>>>>> master
         }
 
         self.image_cutflow.set_cuts(
@@ -408,13 +362,8 @@ class EventPreparer:
         for event in source:
 
             # Display event counts
-<<<<<<< HEAD
-            ievt += 1
-            if debug:
-=======
             if debug:
                 ievt += 1
->>>>>>> master
                 if (ievt < 10) or (ievt % 10 == 0):
                     print(ievt)
 
@@ -543,10 +492,7 @@ class EventPreparer:
                     # (This is a nice way to ask for volunteers :P)
 
                     # if some islands survived
-<<<<<<< HEAD
-=======
 
->>>>>>> master
                     if n_cluster_dict[tel_id] > 0:
                         # keep all of them and reduce dimensions
                         camera_extended = camera[mask_extended]
