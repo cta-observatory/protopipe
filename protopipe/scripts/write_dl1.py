@@ -13,7 +13,7 @@ from ctapipe.reco.energy_regressor import *
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
     make_argparser,
-    prod3b_tel_ids,
+    prod3b_array,
     str2bool,
     load_config,
     SignalHandler,
@@ -32,10 +32,7 @@ def main():
     )
 
     parser.add_argument(
-        "--estimate_energy",
-        type=str2bool,
-        default=False,
-        help="Make estimation of energy",
+        "--estimate_energy", action="store_true", help="Estimate energy"
     )
     parser.add_argument(
         "--regressor_dir", type=str, default="./", help="regressors directory"
@@ -45,10 +42,15 @@ def main():
     # Read configuration file
     cfg = load_config(args.config_file)
 
-    # Read site layout
-    site = cfg["General"]["site"]
-    array = cfg["General"]["array"]
-    cameras = cfg["General"]["cam_id_list"]
+    try:  # If the user didn't specify a site and/or and array...
+        site = cfg["General"]["site"]
+        array = cfg["General"]["array"]
+    except KeyError:  # ...raise an error and exit.
+        print(
+            "\033[91m ERROR: make sure that both 'site' and 'array' are "
+            "specified in the analysis configuration file! \033[0m"
+        )
+        exit()
 
     if args.infile_list:
         filenamelist = []
@@ -64,12 +66,20 @@ def main():
     else:
         print("found {} files".format(len(filenamelist)))
 
+    # Get the IDs of the involved telescopes and associated cameras together
+    # with the equivalent focal lengths from the first event
+    allowed_tels, cams_and_foclens = prod3b_array(filenamelist[0], site, array)
+
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
     img_cutflow = CutFlow("ImageCutFlow")
 
     preper = EventPreparer(
-        config=cfg, mode=args.mode, event_cutflow=evt_cutflow, image_cutflow=img_cutflow
+        config=cfg,
+        cams_and_foclens=cams_and_foclens,
+        mode=args.mode,
+        event_cutflow=evt_cutflow,
+        image_cutflow=img_cutflow,
     )
 
     # catch ctr-c signal to exit current loop and still display results
@@ -93,7 +103,7 @@ def main():
             }
         )
 
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=cameras)
+        regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
 
     # Declaration of the column descriptor for the (possible) images file
     # For the moment works only on LSTCam and NectarCam.
@@ -169,9 +179,6 @@ def main():
         images_outfile = tb.open_file("images.h5", mode="w")
         images_table = {}
         images_phe = {}
-
-    # Telescopes in analysis
-    allowed_tels = set(prod3b_tel_ids(array, site=site))
 
     for i, filename in enumerate(filenamelist):
 
@@ -287,8 +294,21 @@ def main():
                 feature_events[cam_id]["max_signal_cam"] = max_signals[tel_id]
                 feature_events[cam_id]["sum_signal_cam"] = moments.intensity
                 feature_events[cam_id]["N_LST"] = n_tels["LST_LST_LSTCam"]
+<<<<<<< HEAD
                 feature_events[cam_id]["N_MST"] = n_tels["MST_MST_NectarCam"]
                 feature_events[cam_id]["N_SST"] = n_tels["SST"]  # will change
+=======
+                feature_events[cam_id]["N_MST"] = (
+                    n_tels["MST_MST_NectarCam"]
+                    + n_tels["MST_MST_FlashCam"]
+                    + n_tels["MST_SCT_SCTCam"]
+                )
+                feature_events[cam_id]["N_SST"] = (
+                    n_tels["SST_1M_DigiCam"]
+                    + n_tels["SST_ASTRI_ASTRICam"]
+                    + n_tels["SST_GCT_CHEC"]
+                )
+>>>>>>> master
                 feature_events[cam_id]["width"] = moments.width.to("m").value
                 feature_events[cam_id]["length"] = moments.length.to("m").value
                 feature_events[cam_id]["psi"] = moments.psi.to("deg").value
@@ -369,8 +389,25 @@ def main():
         for table in images_table.values():
             table.flush()
 
-    img_cutflow()
     evt_cutflow()
+
+    # Catch specific cases
+    triggered_events = evt_cutflow.cuts["min2Tels trig"][1]
+    reconstructed_events = evt_cutflow.cuts["min2Tels reco"][1]
+
+    if triggered_events == 0:
+        print(
+            "\033[93mWARNING: No events have been triggered"
+            " by the selected telescopes! \033[0m"
+        )
+    else:
+        img_cutflow()
+        if reconstructed_events == 0:
+            print(
+                "\033[93m WARNING: None of the triggered events have been "
+                "properly reconstructed by the selected telescopes!\n"
+                "DL1 file will be empty! \033[0m"
+            )
 
 
 if __name__ == "__main__":

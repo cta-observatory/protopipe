@@ -18,7 +18,7 @@ from ctapipe.reco.event_classifier import EventClassifier
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
     make_argparser,
-    prod3b_tel_ids,
+    prod3b_array,
     str2bool,
     load_config,
     SignalHandler,
@@ -52,7 +52,6 @@ def main():
     # Read site layout
     site = cfg["General"]["site"]
     array = cfg["General"]["array"]
-    cameras = cfg["General"]["cam_id_list"]
 
     # Add force_tailcut_for_extended_cleaning in configuration
     cfg["General"][
@@ -75,13 +74,21 @@ def main():
         print("no files found; check indir: {}".format(args.indir))
         exit(-1)
 
+    # Get the IDs of the involved telescopes and associated cameras together
+    # with the equivalent focal lengths from the first event
+    allowed_tels, cams_and_foclens = prod3b_array(filenamelist[0], site, array)
+
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
     img_cutflow = CutFlow("ImageCutFlow")
 
     # Event preparer
     preper = EventPreparer(
-        config=cfg, mode=args.mode, event_cutflow=evt_cutflow, image_cutflow=img_cutflow
+        config=cfg,
+        cams_and_foclens=cams_and_foclens,
+        mode=args.mode,
+        event_cutflow=evt_cutflow,
+        image_cutflow=img_cutflow,
     )
 
     # Regressor and classifier methods
@@ -112,7 +119,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        classifier = EventClassifier.load(clf_file, cam_id_list=cameras)
+        classifier = EventClassifier.load(clf_file, cam_id_list=cams_and_foclens.keys())
 
     # Regressors
     if use_regressor:
@@ -127,7 +134,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=cameras)
+        regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
 
     # catch ctr-c signal to exit current loop and still display results
     signal_handler = SignalHandler()
@@ -190,8 +197,6 @@ def main():
         images_table = {}
         images_phe = {}
 
-    # Telescopes in analysis
-    allowed_tels = set(prod3b_tel_ids(array, site=site))
     for i, filename in enumerate(filenamelist):
 
         source = event_source(
@@ -328,8 +333,16 @@ def main():
                 reco_event["NTels_trig"] = len(event.dl0.tels_with_data)
                 reco_event["NTels_reco"] = len(hillas_dict)
                 reco_event["NTels_reco_lst"] = n_tels["LST_LST_LSTCam"]
-                reco_event["NTels_reco_mst"] = n_tels["MST_MST_NectarCam"]
-                reco_event["NTels_reco_sst"] = n_tels["SST"] # will change
+                reco_event["NTels_reco_mst"] = (
+                    n_tels["MST_MST_NectarCam"]
+                    + n_tels["MST_MST_FlashCam"]
+                    + n_tels["MST_SCT_SCTCam"]
+                )
+                reco_event["NTels_reco_sst"] = (
+                    n_tels["SST_1M_DigiCam"]
+                    + n_tels["SST_ASTRI_ASTRICam"]
+                    + n_tels["SST_GCT_CHEC"]
+                )
                 reco_event["reco_energy"] = reco_energy
                 reco_event["reco_alt"] = alt.to("deg").value
                 reco_event["reco_az"] = az.to("deg").value
