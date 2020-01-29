@@ -165,10 +165,13 @@ def main():
         cog_x = tb.Float32Col(dflt=1, pos=45)
         cog_y = tb.Float32Col(dflt=1, pos=46)
         phi = tb.Float32Col(dflt=1, pos=47)
-        leak1_reco = tb.Float32Col(dflt=np.nan, pos=48)
-        leak2_reco = tb.Float32Col(dflt=np.nan, pos=48)
-        leak1 = tb.Float32Col(dflt=np.nan, pos=48)
-        leak2 = tb.Float32Col(dflt=np.nan, pos=48)
+        cog_x_reco = tb.Float32Col(dflt=1, pos=48)
+        cog_y_reco = tb.Float32Col(dflt=1, pos=49)
+        phi_reco = tb.Float32Col(dflt=1, pos=50)
+        leak1_reco = tb.Float32Col(dflt=np.nan, pos=51)
+        leak2_reco = tb.Float32Col(dflt=np.nan, pos=52)
+        leak1 = tb.Float32Col(dflt=np.nan, pos=53)
+        leak2 = tb.Float32Col(dflt=np.nan, pos=54)
 
     feature_outfile = tb.open_file(args.outfile, mode="w")
     feature_table = {}
@@ -317,6 +320,9 @@ def main():
                 feature_events[cam_id]["cog_y"] = moments.y.to("m").value
                 feature_events[cam_id]["phi"] = moments.phi.to("deg").value
                 feature_events[cam_id]["local_distance"] = moments.r.to("m").value
+                feature_events[cam_id]["cog_x_reco"] = moments_reco.x.to("m").value
+                feature_events[cam_id]["cog_y_reco"] = moments_reco.y.to("m").value
+                feature_events[cam_id]["phi_reco"] = moments_reco.phi.to("deg").value
                 feature_events[cam_id]["n_pixel"] = n_pixel_dict[tel_id]
                 feature_events[cam_id]["obs_id"] = event.r0.obs_id
                 feature_events[cam_id]["event_id"] = event.r0.event_id
