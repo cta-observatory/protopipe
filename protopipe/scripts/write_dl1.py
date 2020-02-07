@@ -320,9 +320,7 @@ def main():
                 feature_events[cam_id]["cog_y"] = moments.y.to("m").value
                 feature_events[cam_id]["phi"] = moments.phi.to("deg").value
                 feature_events[cam_id]["local_distance"] = moments.r.to("m").value
-                feature_events[cam_id]["cog_x_reco"] = moments_reco.x.to("m").value
-                feature_events[cam_id]["cog_y_reco"] = moments_reco.y.to("m").value
-                feature_events[cam_id]["phi_reco"] = moments_reco.phi.to("deg").value
+
                 feature_events[cam_id]["n_pixel"] = n_pixel_dict[tel_id]
                 feature_events[cam_id]["obs_id"] = event.r0.obs_id
                 feature_events[cam_id]["event_id"] = event.r0.event_id
@@ -331,7 +329,6 @@ def main():
                 feature_events[cam_id]["reco_energy"] = reco_energy
                 feature_events[cam_id]["ellipticity"] = ellipticity.value
                 feature_events[cam_id]["n_cluster"] = n_cluster_dict[tel_id]
-                feature_events[cam_id]["n_tel_reco"] = n_tels["reco"]
                 feature_events[cam_id]["n_tel_discri"] = n_tels["discri"]
                 feature_events[cam_id]["mc_core_x"] = event.mc.core_x.to("m").value
                 feature_events[cam_id]["mc_core_y"] = event.mc.core_y.to("m").value
@@ -346,6 +343,10 @@ def main():
                 feature_events[cam_id]["az"] = reco_result.az.to("deg").value
                 feature_events[cam_id]["reco_energy_tel"] = reco_energy_tel[tel_id]
                 # Variables from hillas_dist_reco
+                feature_events[cam_id]["n_tel_reco"] = n_tels["reco"]
+                feature_events[cam_id]["cog_x_reco"] = moments_reco.x.to("m").value
+                feature_events[cam_id]["cog_y_reco"] = moments_reco.y.to("m").value
+                feature_events[cam_id]["phi_reco"] = moments_reco.phi.to("deg").value
                 feature_events[cam_id]["ellipticity_reco"] = ellipticity_reco.value
                 feature_events[cam_id]["local_distance_reco"] = moments_reco.r.to(
                     "m"
