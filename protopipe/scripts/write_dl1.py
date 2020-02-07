@@ -358,14 +358,18 @@ def main():
                 ).value
                 feature_events[cam_id]["psi_reco"] = moments_reco.psi.to("deg").value
                 feature_events[cam_id]["sum_signal_cam_reco"] = moments_reco.intensity
-                feature_events[cam_id]["leak1_reco"] = leakage_dict[tel_id][
-                    "leak1_reco"
+                feature_events[cam_id]["leakage_pixels_width_1_reco"] = leakage_dict[
+                    tel_id
+                ]["leak1_reco"]
+                feature_events[cam_id]["leakage_pixels_width_2_reco"] = leakage_dict[
+                    tel_id
+                ]["leak2_reco"]
+                feature_events[cam_id]["leakage_pixels_width_1"] = leakage_dict[tel_id][
+                    "leak1"
                 ]
-                feature_events[cam_id]["leak2_reco"] = leakage_dict[tel_id][
-                    "leak2_reco"
+                feature_events[cam_id]["leakage_pixels_width_2"] = leakage_dict[tel_id][
+                    "leak2"
                 ]
-                feature_events[cam_id]["leak1"] = leakage_dict[tel_id]["leak1"]
-                feature_events[cam_id]["leak2"] = leakage_dict[tel_id]["leak2"]
 
                 feature_events[cam_id].append()
 
