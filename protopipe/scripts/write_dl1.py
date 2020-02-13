@@ -168,10 +168,10 @@ def main():
         cog_x_reco = tb.Float32Col(dflt=1, pos=48)
         cog_y_reco = tb.Float32Col(dflt=1, pos=49)
         phi_reco = tb.Float32Col(dflt=1, pos=50)
-        leak1_reco = tb.Float32Col(dflt=np.nan, pos=51)
-        leak2_reco = tb.Float32Col(dflt=np.nan, pos=52)
-        leak1 = tb.Float32Col(dflt=np.nan, pos=53)
-        leak2 = tb.Float32Col(dflt=np.nan, pos=54)
+        leakage_pixels_width_1_reco = tb.Float32Col(dflt=np.nan, pos=51)
+        leakage_pixels_width_2_reco = tb.Float32Col(dflt=np.nan, pos=52)
+        leakage_pixels_width_1 = tb.Float32Col(dflt=np.nan, pos=53)
+        leakage_pixels_width_2 = tb.Float32Col(dflt=np.nan, pos=54)
 
     feature_outfile = tb.open_file(args.outfile, mode="w")
     feature_table = {}
