@@ -39,6 +39,7 @@ PreparedEvent = namedtuple(
     [
         "event",
         "dl1_phe_image",
+        "dl1_phe_image_mask_reco",
         "mc_phe_image",
         "n_pixel_dict",
         "hillas_dict",
@@ -203,6 +204,7 @@ def stub(event):
     return PreparedEvent(
         event=event,
         dl1_phe_image=None,  # container for the calibrated image in phe
+        dl1_phe_image_mask_reco =None, # container for the reco cleaning mask
         mc_phe_image=None,  # container for the simulated image in phe
         n_pixel_dict=None,
         hillas_dict=None,
@@ -377,8 +379,9 @@ class EventPreparer:
 
             # telescope loop
             tot_signal = 0
-            dl1_phe_image = None
-            mc_phe_image = None
+            dl1_phe_image = {}
+            dl1_phe_image_mask_reco = {}
+            mc_phe_image = {}
             max_signals = {}
             n_pixel_dict = {}
             hillas_dict_reco = {}  # for direction reconstruction
@@ -419,8 +422,8 @@ class EventPreparer:
                 # Save the calibrated image after the gain has been chosen
                 # automatically by ctapipe, together with the simulated one
                 if save_images is True:
-                    dl1_phe_image = pmt_signal
-                    mc_phe_image = event.mc.tel[tel_id].photo_electron_image
+                    dl1_phe_image[tel_id] = pmt_signal
+                    mc_phe_image[tel_id] = event.mc.tel[tel_id].photo_electron_image
 
                 if self.cleaner_reco.mode == "tail":  # tail uses only ctapipe
 
@@ -436,12 +439,18 @@ class EventPreparer:
                         # to make Hillas parametrization faster
                         camera_biggest = camera[mask_reco]
                         image_biggest = image_biggest[mask_reco]
+                        if save_images is True:
+                        	dl1_phe_image_mask_reco[tel_id] = 1*mask_reco
+                   
                     elif num_islands > 1:  # if more islands survived..
                         # ...find the biggest one
                         mask_biggest = largest_island(labels)
                         # and also reduce dimensions
                         camera_biggest = camera[mask_biggest]
                         image_biggest = image_biggest[mask_biggest]
+                        if save_images is True:
+                        	dl1_phe_image_mask_reco[tel_id] = 1*mask_biggest
+                        	
                     else:  # if no islands survived use old camera and image
                         camera_biggest = camera
 
@@ -634,6 +643,7 @@ class EventPreparer:
             yield PreparedEvent(
                 event=event,
                 dl1_phe_image=dl1_phe_image,
+                dl1_phe_image_mask_reco=dl1_phe_image_mask_reco,
                 mc_phe_image=mc_phe_image,
                 n_pixel_dict=n_pixel_dict,
                 hillas_dict=hillas_dict,
