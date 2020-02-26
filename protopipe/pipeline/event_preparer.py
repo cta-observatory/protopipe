@@ -2,6 +2,13 @@
 from abc import abstractmethod
 import math
 import numpy as np
+
+# remove with ctapipe0.8
+from scipy.sparse.csgraph import connected_components
+
+# remove with ctapipe0.8
+from numpy.polynomial.polynomial import polyval
+
 from scipy.stats import siegelslopes
 from astropy import units as u
 from astropy.coordinates import SkyCoord
@@ -10,14 +17,11 @@ from traitlets.config import Config
 from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
-from ctapipe.io.containers import (
-    ReconstructedShowerContainer,
-    HillasParametersContainer,
-    TimingParametersContainer,
-)
+from ctapipe.io.containers import TimingParametersContainer
 from ctapipe.calib import CameraCalibrator
 from ctapipe.calib.camera.gainselection import GainSelector
-from ctapipe.image.extractor import LocalPeakWindowSum
+
+# from ctapipe.image.extractor import LocalPeakWindowSum
 from ctapipe.image import hillas
 from ctapipe.image.cleaning import tailcuts_clean
 from ctapipe.utils.CutFlow import CutFlow
@@ -28,7 +32,7 @@ from ctapipe.image.extractor import (
     extract_pulse_time_around_peak,
 )
 
-from ctapipe.image.timing_parameters import timing_parameters
+# from ctapipe.image.timing_parameters import timing_parameters
 from ctapipe.image.hillas import hillas_parameters, camera_to_shower_coordinates
 from ctapipe.reco.HillasReconstructor import HillasReconstructor
 
