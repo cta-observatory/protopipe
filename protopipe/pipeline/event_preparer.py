@@ -58,6 +58,7 @@ PreparedEvent = namedtuple(
         "event",
         "dl1_phe_image",
         "dl1_phe_image_1stPass",
+        "calibration_status",
         "mc_phe_image",
         "n_pixel_dict",
         "hillas_dict",
@@ -381,17 +382,16 @@ class MyCameraCalibrator(CameraCalibrator):
             # charge, pulse_time = self.image_extractor(waveforms, telid)
 
             if isinstance(self.image_extractor, TwoPassWindowSum):
-                charge, pulse_time, charge1, pulse_time1, status, chi_squared = self.image_extractor(
-                    waveforms, event, telid
+                charge, pulse_time, charge1, pulse_time1, status = self.image_extractor(
+                    waveforms, telid
                 )
             else:  # if the image extractor is not the one from CTA-MARS
                 charge, pulse_time = self.image_extractor(
-                    waveforms, event
+                    waveforms, telid
                 )  # just double the information (not very efficient)
                 charge1 = charge
                 pulse_time1 = pulse_time
                 status = np.nan
-                chi_squared = np.nan
 
             # this class method writes 2nd pass information in event.dl1
             # and returns 1st pass information as external arrays
@@ -409,7 +409,7 @@ class MyCameraCalibrator(CameraCalibrator):
 
         event.dl1.tel[telid].image = corrected_charge
         event.dl1.tel[telid].pulse_time = pulse_time
-        return charge1, pulse_time1, status, chi_squared
+        return charge1, pulse_time1, status
 
     def __call__(self, event):
         """
@@ -425,17 +425,16 @@ class MyCameraCalibrator(CameraCalibrator):
         """
 
         status = {}
-        chi_squared = {}
         charge1 = {}
         pulse_time1 = {}
 
         for telid in event.r1.tel.keys():
             self._calibrate_dl0(event, telid)
-            charge1[telid], pulse_time1[telid], status[telid], chi_squared[
-                telid
-            ] = self._calibrate_dl1(event, telid)
+            charge1[telid], pulse_time1[telid], status[telid] = self._calibrate_dl1(
+                event, telid
+            )
 
-        return charge1, pulse_time1, status, chi_squared
+        return charge1, pulse_time1, status
 
 
 class TwoPassWindowSum(MyImageExtractor):  # later change to ImageExtractor
@@ -580,7 +579,6 @@ class TwoPassWindowSum(MyImageExtractor):  # later change to ImageExtractor
             # the we register that it didn't survive the 2nd pass
             # because we cannot proceed
             status = 0
-            rcs = np.nan
             charge_2npass = np.zeros_like(charge_1stpass)
             pulse_time_2npass = np.zeros_like(pulse_time_1stpass)
             # and we return the information we have at this point
@@ -590,7 +588,6 @@ class TwoPassWindowSum(MyImageExtractor):  # later change to ImageExtractor
                 charge_1stpass,
                 pulse_time_1stpass,
                 status,
-                rcs,
             )
         else:  # otherwise we proceed by parametrizing the image
             hillas = hillas_parameters(camera, image_2)
@@ -687,7 +684,6 @@ class TwoPassWindowSum(MyImageExtractor):  # later change to ImageExtractor
                 charge_1stpass,
                 pulse_time_1stpass,
                 status,
-                rcs,
             )
 
 
@@ -875,14 +871,14 @@ class EventPreparer:
                 else:
                     continue
 
-            images1stPass, pulseTimes1stPass, calibration_status, chi_squared = self.calib(
-                event
-            )
+            images1stPass, pulseTimes1stPass, calstat = self.calib(event)
 
             # telescope loop
             tot_signal = 0
-            dl1_phe_image = None
-            mc_phe_image = None
+            dl1_phe_image = {}
+            dl1_phe_image_1stPass = {}
+            calibration_status = {}
+            mc_phe_image = {}
             max_signals = {}
             n_pixel_dict = {}
             hillas_dict_reco = {}  # for direction reconstruction
@@ -926,8 +922,10 @@ class EventPreparer:
                     dl1_phe_image[tel_id] = pmt_signal
                     if self.extractorName == "TwoPassWindowSum":
                         dl1_phe_image_1stPass[tel_id] = images1stPass[tel_id]
-                    else:  # no other image extractpr has 2 passes
+                        calibration_status[tel_id] = calstat[tel_id]
+                    else:  # no other image extractor has 2 passes
                         dl1_phe_image_1stPass[tel_id] = pmt_signal
+                        calibration_status[tel_id] = np.nan
                     mc_phe_image[tel_id] = event.mc.tel[tel_id].photo_electron_image
 
                 if self.cleaner_reco.mode == "tail":  # tail uses only ctapipe
@@ -1143,6 +1141,7 @@ class EventPreparer:
                 event=event,
                 dl1_phe_image=dl1_phe_image,
                 dl1_phe_image_1stPass=dl1_phe_image_1stPass,
+                calibration_status=calibration_status,
                 mc_phe_image=mc_phe_image,
                 n_pixel_dict=n_pixel_dict,
                 hillas_dict=hillas_dict,
