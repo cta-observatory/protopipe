@@ -111,7 +111,7 @@ def main():
         event_id = tb.Int32Col(dflt=1, pos=0)
         tel_id = tb.Int16Col(dflt=1, pos=1)
         dl1_phe_image=tb.Float32Col(shape=(1855), pos=2)
-        dl1_phe_image_mask_reco=tb.Float32Col(shape=(1855), pos=3)
+        dl1_phe_image_mask_reco=tb.BoolCol(shape=(1855), pos=3)
         mc_phe_image = tb.Float32Col(shape=(1855), pos=4)
         mc_energy = tb.Float32Col(dflt=1, pos=5)
 
