@@ -364,6 +364,15 @@ class MyCameraCalibrator(CameraCalibrator):
             #   - Update on SST review decision
             corrected_charge = waveforms[..., 0]
             pulse_time = np.zeros(n_pixels)
+
+            # TwoPassWindowSum doesn't have sense in this case, for the moment
+            # I will leave things as they are and return empty containers
+            charge1 = corrected_charge
+            pulse_time1 = pulse_time
+            status = np.nan
+
+            # In the future, each camera ID should have a dedicated and
+            # optimized choice of image extractor
         else:
             # TODO: pass camera to ImageExtractor.__init__
             if self.image_extractor.requires_neighbors():
@@ -399,6 +408,7 @@ class MyCameraCalibrator(CameraCalibrator):
 
         event.dl1.tel[telid].image = corrected_charge
         event.dl1.tel[telid].pulse_time = pulse_time
+
         return charge1, pulse_time1, status
 
     def __call__(self, event):
