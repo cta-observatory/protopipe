@@ -440,7 +440,7 @@ class EventPreparer:
                         camera_biggest = camera[mask_reco]
                         image_biggest = image_biggest[mask_reco]
                         if save_images is True:
-                        	dl1_phe_image_mask_reco[tel_id] = 1*mask_reco
+                        	dl1_phe_image_mask_reco[tel_id] = mask_reco
                    
                     elif num_islands > 1:  # if more islands survived..
                         # ...find the biggest one
@@ -449,7 +449,7 @@ class EventPreparer:
                         camera_biggest = camera[mask_biggest]
                         image_biggest = image_biggest[mask_biggest]
                         if save_images is True:
-                        	dl1_phe_image_mask_reco[tel_id] = 1*mask_biggest
+                        	dl1_phe_image_mask_reco[tel_id] = mask_biggest
                         	
                     else:  # if no islands survived use old camera and image
                         camera_biggest = camera
