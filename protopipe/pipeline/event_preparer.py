@@ -76,12 +76,10 @@ PreparedEvent = namedtuple(
 #               THIS PART WILL DISAPPEAR WITH NEXT CTAPIPE RELEASE
 # ==============================================================================
 
-from numpy.polynomial.polynomial import polyval
-
 
 def timing_parameters(geom, image, pulse_time, hillas_parameters):
     """
-    Function to extract timing parameters from a cleaned image
+    Extract timing parameters from a cleaned image.
 
     Parameters
     ----------
@@ -97,8 +95,8 @@ def timing_parameters(geom, image, pulse_time, hillas_parameters):
     Returns
     -------
     timing_parameters: TimingParametersContainer
-    """
 
+    """
     unit = geom.pix_x.unit
 
     # select only the pixels in the cleaned image that are greater than zero.
@@ -115,36 +113,29 @@ def timing_parameters(geom, image, pulse_time, hillas_parameters):
     (slope, intercept), cov = np.polyfit(
         longi.value, pulse_time, deg=1, w=np.sqrt(image), cov=True
     )  # keep polyfit for the parameters error estimation (not used anyway)
+
+    # Overwrite fitting parameters using a robust linear regressor that will
+    # be less sensitive to outliers
     slope, intercept = siegelslopes(
         pulse_time, x=longi.value
-    )  # robust fitting to dela with outliers
-    # (not equivalent but similar to ROOT robust fit option)
-
-    chi_squared = np.sum(
-        (np.polyval([slope, intercept], longi.value) - pulse_time) ** 2
-    )
-    # chi_squared = 1
-    rcs = chi_squared / (len(pulse_time) - 2)
-    # if rcs > 1.5 or rcs < 0.5:
-    #     raise RuntimeError("Bad chi square!")
+    )  # (not equivalent but similar to ROOT robust fit option in CTA-MARS)
+    # CAVEAT: this function doesn't treat fit errors, so I keep those
+    # calculated with polyfit. This is not really meaningfull, because they are
+    # two different algorithms, but I don't want to change this function too
+    # much and in any case such errors don't seem to be used further in the
+    # analysis for now.
 
     slope_err, intercept_err = np.sqrt(np.diag(cov))
     predicted_time = polyval(longi.value, (intercept, slope))
     deviation = np.sqrt(np.sum((pulse_time - predicted_time) ** 2) / pulse_time.size)
 
-    return (
-        TimingParametersContainer(
-            slope=slope / unit,
-            intercept=intercept,
-            deviation=deviation,
-            slope_err=slope_err,
-            intercept_err=intercept_err,
-        ),
-        rcs,
-    )  # reduced chi square actually!
-
-
-from scipy.sparse.csgraph import connected_components
+    return TimingParametersContainer(
+        slope=slope / unit,
+        intercept=intercept,
+        deviation=deviation,
+        slope_err=slope_err,
+        intercept_err=intercept_err,
+    )
 
 
 def camera_radius(camid_to_efl, cam_id="all"):
@@ -196,6 +187,7 @@ def camera_radius(camid_to_efl, cam_id="all"):
 def number_of_islands(geom, mask):
     """
     Search a given pixel mask for connected clusters.
+
     This can be used to seperate between gamma and hadronic showers.
 
     Parameters
@@ -213,6 +205,7 @@ def number_of_islands(geom, mask):
         Contains cluster membership of each pixel.
         Dimesion equals input mask.
         Entries range from 0 (not in the pixel mask) to num_islands.
+
     """
     # compress sparse neighbor matrix
     neighbor_matrix_compressed = geom.neighbor_matrix_sparse[mask][:, mask]
@@ -253,8 +246,7 @@ def largest_island(islands_labels):
 
 
 def slide_window(waveform, width):
-    """Smooth a pixel's waveform (or a slice of it) with a kernel of certain
-     size via convolution.
+    """Smooth a waveform (or slice of it) with a kernel via convolution.
 
     Parameters
     ----------
@@ -276,9 +268,7 @@ def slide_window(waveform, width):
 
 
 class MyImageExtractor(ImageExtractor):
-    """
-    Overwrite ImageExtractor to use subarray for telescope information.
-    """
+    """Overwrite ImageExtractor to use subarray for telescope information."""
 
     def __init__(self, config=None, parent=None, subarray=None, **kwargs):
         """
@@ -464,8 +454,6 @@ class TwoPassWindowSum(MyImageExtractor):  # later change to ImageExtractor
        non-core pixels re-calibrated with a 2nd pass
     8) Clean the resulting calibrated image again with the a double-boundary
        tailcut cleaning. (NOT PART OF IMAGE EXTRACTOR)
-
-    Dr. Michele Peresano, 2019
 
     """
 
@@ -719,8 +707,7 @@ class EventPreparer:
     event that will be further use for reconstruction by applying calibration,
     cleaning and selection. Then, it reconstructs the geometry of the event and
     then returns image (e.g. Hillas parameters)and event information
-    (e.g. results of the reconstruction).    #--------------------------------------------------------------------------
-
+    (e.g. results of the reconstruction).
 
     Parameters
     ----------
@@ -735,6 +722,7 @@ class EventPreparer:
 
     Returns: dict
         Dictionnary of results
+
     """
 
     def __init__(
@@ -815,16 +803,18 @@ class EventPreparer:
             )
         )
 
-        # configuration for the camera calibrator
-        # modifies the integration window to be more like in MARS
-        # JLK, only for LST!!!!
+        # Configuration for the camera calibrator
+
         cfg = Config()
         # cfg["ChargeExtractorFactory"]["window_width"] = 5
         # cfg["ChargeExtractorFactory"]["window_shift"] = 2
-        cfg["ThresholdGainSelector"]["threshold"] = 4000.0  # 40 @ R1!
-        extractor = TwoPassWindowSum(config=cfg, subarray=subarray)
-        self.extractorName = list(extractor.get_current_config().items())[0][0]
+        cfg["ThresholdGainSelector"]["threshold"] = 4000.0
         gain_selector = GainSelector.from_name("ThresholdGainSelector", config=cfg)
+
+        extractor = TwoPassWindowSum(config=cfg, subarray=subarray)
+        # Get the name of the image extractor in order to adapt some options
+        # specific to TwoPassWindowSum later on
+        self.extractorName = list(extractor.get_current_config().items())[0][0]
 
         self.calib = MyCameraCalibrator(
             config=cfg, gain_selector=gain_selector, image_extractor=extractor
@@ -844,15 +834,32 @@ class EventPreparer:
                     ("noCuts", None),
                     ("min2Tels trig", lambda x: x < min_ntel),
                     ("min2Tels reco", lambda x: x < min_ntel),
-                    ("direction nan", lambda x: x.is_valid == False),
+                    ("direction nan", lambda x: x.is_valid is False),
                 ]
             )
         )
 
     def prepare_event(self, source, return_stub=False, save_images=False, debug=False):
         """
-        Loop over events
-        (doc to be completed)
+        Calibrate, clean and reconstruct the direction of an event.
+
+        Parameters
+        ----------
+        source : ctapipe.io.EventSource
+            A container of selected showers from a simtel file.
+        return_stub : bool
+            If True, yield also images from events that won't be reconstructed.
+            This feature is not currently available.
+        save_images : bool
+            If True, save photoelectron images from reconstructed events.
+        debug : bool
+            If True, print some debugging information (to be expanded).
+
+        Yields
+        ------
+        PreparedEvent: dict
+            Dictionary containing event-image information to be written.
+
         """
         ievt = 0
         for event in source:
