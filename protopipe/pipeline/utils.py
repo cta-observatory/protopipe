@@ -173,7 +173,7 @@ def final_array_to_use(sim_array, array, subarrays=None):
         tel_types[i].camera.cam_id: tel_types[i].optics.equivalent_focal_length.value
         for i in range(len(tel_types))
     }
-    return set(tel_ids), cams_and_foclens
+    return set(tel_ids), cams_and_foclens, subarray  # redundant, to improve!
 
 
 def prod3b_array(fileName, site, array):

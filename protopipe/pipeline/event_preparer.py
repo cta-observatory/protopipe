@@ -1,5 +1,15 @@
+"""Calibrate, clean the image, and reconstruct the direction of an event."""
+from abc import abstractmethod
 import math
 import numpy as np
+
+# remove with ctapipe0.8
+from scipy.sparse.csgraph import connected_components
+
+# remove with ctapipe0.8
+from numpy.polynomial.polynomial import polyval
+
+from scipy.stats import siegelslopes
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 import warnings
@@ -7,15 +17,23 @@ from traitlets.config import Config
 from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
+from ctapipe.io.containers import TimingParametersContainer
 from ctapipe.calib import CameraCalibrator
 from ctapipe.calib.camera.gainselection import GainSelector
-from ctapipe.image.extractor import LocalPeakWindowSum
+
+# from ctapipe.image.extractor import LocalPeakWindowSum
 from ctapipe.image import hillas
+from ctapipe.image.cleaning import tailcuts_clean
 from ctapipe.utils.CutFlow import CutFlow
 from ctapipe.coordinates import GroundFrame
+from ctapipe.image.extractor import (
+    ImageExtractor,
+    sum_samples_around_peak,
+    extract_pulse_time_around_peak,
+)
 
-# from ctapipe.image.hillas import hillas_parameters_5 as hillas_parameters
-from ctapipe.image.hillas import hillas_parameters
+# from ctapipe.image.timing_parameters import timing_parameters
+from ctapipe.image.hillas import hillas_parameters, camera_to_shower_coordinates
 from ctapipe.reco.HillasReconstructor import HillasReconstructor
 
 # Pipeline utilities
@@ -40,6 +58,8 @@ PreparedEvent = namedtuple(
         "event",
         "dl1_phe_image",
         "dl1_phe_image_mask_reco",
+        "dl1_phe_image_1stPass",
+        "calibration_status",
         "mc_phe_image",
         "n_pixel_dict",
         "hillas_dict",
@@ -57,7 +77,66 @@ PreparedEvent = namedtuple(
 #               THIS PART WILL DISAPPEAR WITH NEXT CTAPIPE RELEASE
 # ==============================================================================
 
-from scipy.sparse.csgraph import connected_components
+
+def timing_parameters(geom, image, pulse_time, hillas_parameters):
+    """
+    Extract timing parameters from a cleaned image.
+
+    Parameters
+    ----------
+    geom: ctapipe.instrument.CameraGeometry
+        Camera geometry
+    image : array_like
+        Pixel values
+    pulse_time : array_like
+        Time of the pulse extracted from each pixels waveform
+    hillas_parameters: ctapipe.io.containers.HillasParametersContainer
+        Result of hillas_parameters
+
+    Returns
+    -------
+    timing_parameters: TimingParametersContainer
+
+    """
+    unit = geom.pix_x.unit
+
+    # select only the pixels in the cleaned image that are greater than zero.
+    # we need to exclude possible pixels with zero signal after cleaning.
+    greater_than_0 = image > 0
+    pix_x = geom.pix_x[greater_than_0]
+    pix_y = geom.pix_y[greater_than_0]
+    image = image[greater_than_0]
+    pulse_time = pulse_time[greater_than_0]
+
+    longi, trans = camera_to_shower_coordinates(
+        pix_x, pix_y, hillas_parameters.x, hillas_parameters.y, hillas_parameters.psi
+    )
+    (slope, intercept), cov = np.polyfit(
+        longi.value, pulse_time, deg=1, w=np.sqrt(image), cov=True
+    )  # keep polyfit for the parameters error estimation (not used anyway)
+
+    # Overwrite fitting parameters using a robust linear regressor that will
+    # be less sensitive to outliers
+    slope, intercept = siegelslopes(
+        pulse_time, x=longi.value
+    )  # (not equivalent but similar to ROOT robust fit option in CTA-MARS)
+    # CAVEAT: this function doesn't treat fit errors, so I keep those
+    # calculated with polyfit. This is not really meaningfull, because they are
+    # two different algorithms, but I don't want to change this function too
+    # much and in any case such errors don't seem to be used further in the
+    # analysis for now.
+
+    slope_err, intercept_err = np.sqrt(np.diag(cov))
+    predicted_time = polyval(longi.value, (intercept, slope))
+    deviation = np.sqrt(np.sum((pulse_time - predicted_time) ** 2) / pulse_time.size)
+
+    return TimingParametersContainer(
+        slope=slope / unit,
+        intercept=intercept,
+        deviation=deviation,
+        slope_err=slope_err,
+        intercept_err=intercept_err,
+    )
 
 
 def camera_radius(camid_to_efl, cam_id="all"):
@@ -76,7 +155,6 @@ def camera_radius(camid_to_efl, cam_id="all"):
     - GCT-CHEC-S: 3.93
     - ASTRI: 4.67
 
-    ThS, MP - Nov. 2019
     """
 
     average_camera_radii_deg = {
@@ -110,6 +188,7 @@ def camera_radius(camid_to_efl, cam_id="all"):
 def number_of_islands(geom, mask):
     """
     Search a given pixel mask for connected clusters.
+
     This can be used to seperate between gamma and hadronic showers.
 
     Parameters
@@ -127,6 +206,7 @@ def number_of_islands(geom, mask):
         Contains cluster membership of each pixel.
         Dimesion equals input mask.
         Entries range from 0 (not in the pixel mask) to num_islands.
+
     """
     # compress sparse neighbor matrix
     neighbor_matrix_compressed = geom.neighbor_matrix_sparse[mask][:, mask]
@@ -166,6 +246,81 @@ def largest_island(islands_labels):
     return islands_labels == np.argmax(np.bincount(islands_labels[islands_labels > 0]))
 
 
+def slide_window(waveform, width):
+    """Smooth a waveform (or slice of it) with a kernel via convolution.
+
+    Parameters
+    ----------
+    waveform : array_like
+        DL0-level waveform (or slice of it) of one event.
+        Shape: max (n_samples)
+    width : int
+        Size of the smoothing kernel.
+
+    Returns
+    -------
+    sum : array_like
+        Array containing the sums for each of the kernel positions.
+        Shape: max (n_samples - (window_width - 1))
+
+    """
+    sums = np.convolve(waveform, np.ones(width, dtype=int), "valid")
+    return sums
+
+
+class MyImageExtractor(ImageExtractor):
+    """Overwrite ImageExtractor to use subarray for telescope information."""
+
+    def __init__(self, config=None, parent=None, subarray=None, **kwargs):
+        """
+        Base component to handle the extraction of charge and pulse time
+        from an image cube (waveforms).
+
+        Parameters
+        ----------
+        config : traitlets.loader.Config
+            Configuration specified by config file or cmdline arguments.
+            Used to set traitlet values.
+            Set to None if no configuration to pass.
+        tool : ctapipe.core.Tool or None
+            Tool executable that is calling this component.
+            Passes the correct logger to the component.
+            Set to None if no Tool to pass.
+        subarray: ctapipe.instrument.SubarrayDescription
+            Description of the subarray
+        kwargs
+        """
+        super().__init__(config=config, parent=parent, **kwargs)
+        self.subarray = subarray
+        for trait in list(self.class_traits()):
+            try:
+                getattr(self, trait).attach_subarray(subarray)
+            except (AttributeError, TypeError):
+                pass
+
+    @abstractmethod
+    def __call__(self, waveforms, telid=None):  # added telid to the call
+        """
+        Call the relevant functions to fully extract the charge and time
+        for the particular extractor.
+
+        Parameters
+        ----------
+        waveforms : ndarray
+            Waveforms stored in a numpy array of shape
+            (n_pix, n_samples).
+
+        Returns
+        -------
+        charge : ndarray
+            Extracted charge.
+            Shape: (n_pix)
+        pulse_time : ndarray
+            Floating point pulse time in each pixel.
+            Shape: (n_pix)
+        """
+
+
 class MyCameraCalibrator(CameraCalibrator):
     """Create a child class of CameraCalibrator."""
 
@@ -196,6 +351,345 @@ class MyCameraCalibrator(CameraCalibrator):
         reduced_waveforms = self.data_volume_reducer(waveforms_gs)
         event.dl0.tel[telid].waveform = reduced_waveforms
 
+    def _calibrate_dl1(self, event, telid):
+        waveforms = event.dl0.tel[telid].waveform
+        if self._check_dl0_empty(waveforms):
+            return
+        n_pixels, n_samples = waveforms.shape
+        if n_samples == 1:
+            # To handle ASTRI and dst
+            # TODO: Improved handling of ASTRI and dst
+            #   - dst with custom EventSource?
+            #   - Read into dl1 container directly?
+            #   - Don't do anything if dl1 container already filled
+            #   - Update on SST review decision
+            corrected_charge = waveforms[..., 0]
+            pulse_time = np.zeros(n_pixels)
+
+            # TwoPassWindowSum doesn't have sense in this case, for the moment
+            # I will leave things as they are and return empty containers
+            charge1 = corrected_charge
+            pulse_time1 = pulse_time
+            status = np.nan
+
+            # In the future, each camera ID should have a dedicated and
+            # optimized choice of image extractor
+        else:
+            # TODO: pass camera to ImageExtractor.__init__
+            if self.image_extractor.requires_neighbors():
+                camera = event.inst.subarray.tel[telid].camera
+                self.image_extractor.neighbors = camera.neighbor_matrix_where
+            # charge, pulse_time = self.image_extractor(waveforms, telid)
+
+            if isinstance(self.image_extractor, TwoPassWindowSum):
+                charge, pulse_time, charge1, pulse_time1, status = self.image_extractor(
+                    waveforms, telid
+                )
+            else:  # if the image extractor is not the one from CTA-MARS
+                charge, pulse_time = self.image_extractor(
+                    waveforms, telid
+                )  # just double the information (not very efficient)
+                charge1 = charge
+                pulse_time1 = pulse_time
+                status = np.nan
+
+            # this class method writes 2nd pass information in event.dl1
+            # and returns 1st pass information as external arrays
+            # these arrays are registered in dictionaries in the __call__
+            # method
+
+            if isinstance(self.image_extractor, TwoPassWindowSum):
+                # CTA/MARS dosn't correct for charge integration
+                corrected_charge = charge
+            else:  # apply it
+                # Apply integration correction
+                # TODO: Remove integration correction
+                correction = self._get_correction(event, telid)
+                corrected_charge = charge * correction
+
+        event.dl1.tel[telid].image = corrected_charge
+        event.dl1.tel[telid].pulse_time = pulse_time
+
+        return charge1, pulse_time1, status
+
+    def __call__(self, event):
+        """
+        Perform the full camera calibration from R1 to DL1.
+
+        Any calibration relating to data levels before the data level the file
+        is read into will be skipped.
+
+        Parameters
+        ----------
+        event : container
+          A `ctapipe` event container
+        """
+
+        status = {}
+        charge1 = {}
+        pulse_time1 = {}
+
+        for telid in event.r1.tel.keys():
+            self._calibrate_dl0(event, telid)
+            charge1[telid], pulse_time1[telid], status[telid] = self._calibrate_dl1(
+                event, telid
+            )
+
+        return charge1, pulse_time1, status
+
+
+class TwoPassWindowSum(MyImageExtractor):  # later change to ImageExtractor
+    """Extract image by integrating the waveform a second time using a
+     time-gradient linear fit.
+
+    This is in particular the CTA-MARS version.
+    Procedure:
+    1) slide a 3-samples window through the waveform, finding max counts sum;
+       the range of the sliding is the one allowing extension from 3 to 5;
+       add 1 sample on each side and integrate charge in the 5-sample window;
+       time is obtained as a charge-weighted average of the sample numbers;
+       No information from neighboouring pixels is used.
+    2) preliminary image cleaning via simple tailcut with minimum number
+       of core neighbours set at 1,
+    3) only the biggest cluster of pixels ("main island") is kept.
+    4) Parametrize following Hillas approach only if the resulting image has 3
+       or more pixels (already in protopipe but after "real" image cleaning).
+    5) Do a linear fit of pulse time vs. distance along major image axis (in
+       CTA-MARS the ROOT "robust" fit option is used).
+    6) For all pixels except the core ones in the preliminary image, integrate
+       the waveform once more, in a fixed window of 5 samples set at the time
+       "predicted" by the linear time fit.
+       If the predicted time for a pixel leads to a window outside the readout
+       window, then integrate also the last (or first) 5 samples.
+    7) The result is an image with core pixels calibrated with a 1st pass and
+       non-core pixels re-calibrated with a 2nd pass
+    8) Clean the resulting calibrated image again with the a double-boundary
+       tailcut cleaning. (NOT PART OF IMAGE EXTRACTOR)
+
+    """
+
+    def __call__(self, waveforms, telid=None):
+        """
+        Call this ImageExtractor.
+
+        Parameters
+        ----------
+        waveforms : array of size (N_pixels, N_samples)
+            DL0-level waveforms of one event.
+
+        Returns
+        -------
+        charge : array_like
+            Integrated charge per pixel.
+            Shape: (n_pix, n_channels)
+        pulse_time : array_like
+            Samples in which the waveform peak has been recognized.
+            Shape: (n_pix)
+
+        """
+
+        # STEP 1
+
+        # Starting from DL0, the channel is already selected (if more than one)
+        # event.dl0.tel[tel_id].waveform object has shape (N_pixels, N_samples)
+        # For each pixel, we slide a 3-samples window through the whole
+        # waveform, summing each time the ADC counts contained within it.
+
+        window1_width = 3  # could become a configurable
+        sums = np.apply_along_axis(slide_window, 1, waveforms[:, 1:-1], window1_width)
+        # Note that the input waveforms are clipped at the extremes because
+        # we want to extend this 3-samples window to 5 samples
+        # 'sums' has now the shape of (N_pixels, N_samples-4)
+
+        # For each pixel, in each of the (N_samples - 4) positions, we check
+        # where the window encountered the maximum number of ADC counts
+        startWindows = np.apply_along_axis(np.argmax, 1, sums)
+        # Now startWindows has the shape of (N_pixels).
+        # Note that the index values stored in startWindows come from 'sums'
+        # of which the first index (0) corresponds of index 1 of each waveform
+        # since we clipped them before.
+
+        # Since we have to add 1 sample on each side
+        # window_shift will always be (-)1
+        window_shifts = np.full_like(startWindows, 1)
+        # the new window_width will always be the old one + 1
+        # so to make 1 + 3 + 1
+        window_widths_2 = np.full_like(startWindows, window1_width + 1)
+
+        # the 'peak_index' argument of 'extract_around_peak' has a different
+        # meaning here: it's the start of the 3-samples window.
+        # Since the "sums" arrays started from index 1 of each waveform,
+        # then each peak index has to be increased by one
+        charge_1stpass = sum_samples_around_peak(
+            waveforms, startWindows + 1, window_widths_2, window_shifts
+        )
+        pulse_time_1stpass = extract_pulse_time_around_peak(
+            waveforms, startWindows + 1, window_widths_2, window_shifts
+        )
+
+        # STEP 2
+
+        # set thresholds for core-pixels depending on telescope type
+        # boundary thresholds will be half of core thresholds
+        # WARNING: in dev version these values should be
+        # read from a configuration file
+        subarray = self.subarray
+        if subarray.tel[telid].type == "LST":
+            core_th = 6  # (not yet optimized)
+        if subarray.tel[telid].type == "MST":
+            core_th = 8  # (not yet optimized)
+        if subarray.tel[telid].type == "SST":
+            core_th = 4  # (not yet optimized)
+
+        # Preliminary image cleaning with simple two-level tail-cut
+        camera = self.subarray.tel[telid].camera
+        mask_1 = tailcuts_clean(
+            camera,
+            charge_1stpass,
+            picture_thresh=core_th,
+            boundary_thresh=core_th / 2,
+            keep_isolated_pixels=False,
+            min_number_picture_neighbors=1,
+        )
+        image_1 = charge_1stpass.copy()
+        image_1[~mask_1] = 0
+
+        # STEP 3
+
+        # # find all islands using this cleaning
+        num_islands, labels = number_of_islands(camera, mask_1)
+        if num_islands == 0:
+            image_2 = image_1.copy()  # no islands = image unchanged
+        else:
+            # ...find the biggest one
+            mask_biggest = largest_island(labels)
+            image_2 = image_1.copy()
+            image_2[~mask_biggest] = 0
+
+        # Indexes of pixels that will need the 2nd pass
+        nonCore_pixels_ids = np.where(image_2 < core_th)[0]
+        nonCore_pixels_mask = image_2 < core_th
+        # print(f"There are {len(non_core_pix_ids)} non-core pixels.")
+
+        # STEP 4
+
+        # if the resulting image has less then 3 pixels
+        if np.count_nonzero(image_2) < 3:
+            # the we register that it didn't survive the 2nd pass
+            # because we cannot proceed
+            status = 0
+            charge_2npass = np.zeros_like(charge_1stpass)
+            pulse_time_2npass = np.zeros_like(pulse_time_1stpass)
+            # and we return the information we have at this point
+            return (
+                charge_2npass,
+                pulse_time_2npass,
+                charge_1stpass,
+                pulse_time_1stpass,
+                status,
+            )
+        else:  # otherwise we proceed by parametrizing the image
+            hillas = hillas_parameters(camera, image_2)
+
+            # STEP 5
+
+            # linear fit of pulse time vs. distance along major image axis
+            timing = timing_parameters(camera, image_2, pulse_time_1stpass, hillas)
+
+            long, trans = camera_to_shower_coordinates(
+                camera.pix_x, camera.pix_y, hillas.x, hillas.y, hillas.psi
+            )
+
+            # for LSTCam and NectarCam sample = ns, but not for other cameras
+            # Here treated as sample, but think about a general method!
+            predicted_pulse_times = (
+                timing.slope * long[nonCore_pixels_ids] + timing.intercept
+            )
+            predicted_peaks = np.zeros(len(predicted_pulse_times))
+
+            # Approximate to nearest integer then cast to int64
+            # otherwise charge extraction function complains
+            np.rint(predicted_pulse_times.value, predicted_peaks)
+            predicted_peaks = predicted_peaks.astype(np.int64)
+
+            # Due to the fit these peak indexes can now be also outside of the
+            # readout window.
+
+            # STEP 6
+
+            # select only the waveforms correspondent to non-core pixels
+            # of the main island survived from the 1st pass image cleaning
+            nonCore_waveforms = waveforms[nonCore_pixels_ids]
+
+            # Build 'width' and 'shift' arrays that adapt on the position of
+            # the window along each waveform
+
+            # Now the definition of peak_index is really the peak.
+            # We have to add 2 samples each side, so the shist will always
+            # be (-)2, while width will always end 4 samples to the right.
+            # This "always" refers to a 5-samples window of course
+            window_widths = np.full_like(predicted_peaks, 4, dtype=np.int64)
+            window_shifts = np.full_like(predicted_peaks, 2, dtype=np.int64)
+
+            # BUT, if the predicted_peaks falls outside of the
+            # readout window then we take the first (or last) 5 samples
+            # EDIT: the first index is 0!!!!
+            window_widths[predicted_peaks < 0] = 4
+            window_shifts[predicted_peaks < 0] = 0
+            window_widths[predicted_peaks > (waveforms.shape[1] - 1)] = 4
+            window_shifts[predicted_peaks > (waveforms.shape[1] - 1)] = 4
+
+            # Now we can also (re)define the patological predicted times
+            # because (we needed them to define the corrispective widths
+            # and shifts)
+
+            # set sample to 0 (beginning of the waveform) if predicted time
+            # falls before
+            predicted_peaks[predicted_peaks < 0] = 0
+            # set sample to max-1 (first sample has index 0)
+            # if predicted time falls after
+            predicted_peaks[predicted_peaks > (waveforms.shape[1] - 1)] = (
+                waveforms.shape[1] - 1
+            )
+
+            # re-calibrate non-core pixels using the fixed 5-samples window
+            charge_noCore = sum_samples_around_peak(
+                nonCore_waveforms, predicted_peaks, window_widths, window_shifts
+            )
+            pulse_times_noCore = extract_pulse_time_around_peak(
+                nonCore_waveforms, predicted_peaks, window_widths, window_shifts
+            )
+
+            # STEP 7
+
+            # combine core and non-core information in the final output
+            charge_2npass = image_2.copy()  # core + non-core pixels
+            charge_2npass[nonCore_pixels_mask] = charge_noCore  # non-core pixels
+            pulse_time_2npass = pulse_time_1stpass  # core + non-core pixels
+            pulse_time_2npass[
+                nonCore_pixels_mask
+            ] = pulse_times_noCore  # non-core pixels
+
+            status = 1
+
+            # Label as bad quality images also those which passed the Hillas
+            # parametrization, but resulted in patological widths
+            if np.isnan(hillas.width.value) or hillas.width.value == 0:
+                status = 0
+
+            return (
+                charge_2npass,
+                pulse_time_2npass,
+                charge_1stpass,
+                pulse_time_1stpass,
+                status,
+            )
+
+
+# to make the plots from Abelardo I needed both passes information
+# this would require to modify too much current ctapipe...
+# return charge, pulse_time, first_dl1_image, preliminary_pulse_times
+
 
 # ==============================================================================
 
@@ -225,8 +719,7 @@ class EventPreparer:
     event that will be further use for reconstruction by applying calibration,
     cleaning and selection. Then, it reconstructs the geometry of the event and
     then returns image (e.g. Hillas parameters)and event information
-    (e.g. results of the reconstruction).    #--------------------------------------------------------------------------
-
+    (e.g. results of the reconstruction).
 
     Parameters
     ----------
@@ -241,11 +734,13 @@ class EventPreparer:
 
     Returns: dict
         Dictionnary of results
+
     """
 
     def __init__(
         self,
         config,
+        subarray,
         cams_and_foclens,
         mode,
         event_cutflow=None,
@@ -320,15 +815,18 @@ class EventPreparer:
             )
         )
 
-        # configuration for the camera calibrator
-        # modifies the integration window to be more like in MARS
-        # JLK, only for LST!!!!
+        # Configuration for the camera calibrator
+
         cfg = Config()
-        cfg["ChargeExtractorFactory"]["window_width"] = 5
-        cfg["ChargeExtractorFactory"]["window_shift"] = 2
-        cfg["ThresholdGainSelector"]["threshold"] = 4000.0  # 40 @ R1!
-        extractor = LocalPeakWindowSum(config=cfg)
+        # cfg["ChargeExtractorFactory"]["window_width"] = 5
+        # cfg["ChargeExtractorFactory"]["window_shift"] = 2
+        cfg["ThresholdGainSelector"]["threshold"] = 4000.0
         gain_selector = GainSelector.from_name("ThresholdGainSelector", config=cfg)
+
+        extractor = TwoPassWindowSum(config=cfg, subarray=subarray)
+        # Get the name of the image extractor in order to adapt some options
+        # specific to TwoPassWindowSum later on
+        self.extractorName = list(extractor.get_current_config().items())[0][0]
 
         self.calib = MyCameraCalibrator(
             config=cfg, gain_selector=gain_selector, image_extractor=extractor
@@ -348,15 +846,32 @@ class EventPreparer:
                     ("noCuts", None),
                     ("min2Tels trig", lambda x: x < min_ntel),
                     ("min2Tels reco", lambda x: x < min_ntel),
-                    ("direction nan", lambda x: x.is_valid == False),
+                    ("direction nan", lambda x: x.is_valid is False),
                 ]
             )
         )
 
     def prepare_event(self, source, return_stub=False, save_images=False, debug=False):
         """
-        Loop over evenst
-        (doc to be completed)
+        Calibrate, clean and reconstruct the direction of an event.
+
+        Parameters
+        ----------
+        source : ctapipe.io.EventSource
+            A container of selected showers from a simtel file.
+        return_stub : bool
+            If True, yield also images from events that won't be reconstructed.
+            This feature is not currently available.
+        save_images : bool
+            If True, save photoelectron images from reconstructed events.
+        debug : bool
+            If True, print some debugging information (to be expanded).
+
+        Yields
+        ------
+        PreparedEvent: dict
+            Dictionary containing event-image information to be written.
+
         """
         ievt = 0
         for event in source:
@@ -375,12 +890,14 @@ class EventPreparer:
                 else:
                     continue
 
-            self.calib(event)
+            images1stPass, pulseTimes1stPass, calstat = self.calib(event)
 
             # telescope loop
             tot_signal = 0
             dl1_phe_image = {}
             dl1_phe_image_mask_reco = {}
+            dl1_phe_image_1stPass = {}
+            calibration_status = {}
             mc_phe_image = {}
             max_signals = {}
             n_pixel_dict = {}
@@ -423,6 +940,14 @@ class EventPreparer:
                 # automatically by ctapipe, together with the simulated one
                 if save_images is True:
                     dl1_phe_image[tel_id] = pmt_signal
+
+                    if self.extractorName == "TwoPassWindowSum":
+                        dl1_phe_image_1stPass[tel_id] = images1stPass[tel_id]
+                        calibration_status[tel_id] = calstat[tel_id]
+                    else:  # no other image extractor has 2 passes
+                        dl1_phe_image_1stPass[tel_id] = pmt_signal
+                        calibration_status[tel_id] = np.nan
+                        
                     mc_phe_image[tel_id] = event.mc.tel[tel_id].photo_electron_image
 
                 if self.cleaner_reco.mode == "tail":  # tail uses only ctapipe
@@ -644,6 +1169,8 @@ class EventPreparer:
                 event=event,
                 dl1_phe_image=dl1_phe_image,
                 dl1_phe_image_mask_reco=dl1_phe_image_mask_reco,
+                dl1_phe_image_1stPass=dl1_phe_image_1stPass,
+                calibration_status=calibration_status,
                 mc_phe_image=mc_phe_image,
                 n_pixel_dict=n_pixel_dict,
                 hillas_dict=hillas_dict,
