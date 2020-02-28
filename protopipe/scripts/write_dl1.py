@@ -68,7 +68,9 @@ def main():
 
     # Get the IDs of the involved telescopes and associated cameras together
     # with the equivalent focal lengths from the first event
-    allowed_tels, cams_and_foclens = prod3b_array(filenamelist[0], site, array)
+    allowed_tels, cams_and_foclens, subarray = prod3b_array(
+        filenamelist[0], site, array
+    )
 
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
@@ -76,6 +78,7 @@ def main():
 
     preper = EventPreparer(
         config=cfg,
+        subarray=subarray,
         cams_and_foclens=cams_and_foclens,
         mode=args.mode,
         event_cutflow=evt_cutflow,
@@ -111,8 +114,10 @@ def main():
         event_id = tb.Int32Col(dflt=1, pos=0)
         tel_id = tb.Int16Col(dflt=1, pos=1)
         dl1_phe_image = tb.Float32Col(shape=(1855), pos=2)
-        mc_phe_image = tb.Float32Col(shape=(1855), pos=3)
-        mc_energy = tb.Float32Col(dflt=1, pos=4)
+        dl1_phe_image_1stPass = tb.Float32Col(shape=(1855), pos=3)
+        calibration_status = tb.Int16Col(dflt=1, pos=4)
+        mc_phe_image = tb.Float32Col(shape=(1855), pos=5)
+        mc_energy = tb.Float32Col(dflt=1, pos=6)
 
     # Declaration of the column descriptor for the file containing DL1 data
     class EventFeatures(tb.IsDescription):
@@ -186,6 +191,8 @@ def main():
         for (
             event,
             dl1_phe_image,
+            dl1_phe_image_1stPass,
+            calibration_status,
             mc_phe_image,
             n_pixel_dict,
             hillas_dict,
@@ -347,8 +354,14 @@ def main():
                 if args.save_images is True:
                     images_phe[cam_id]["event_id"] = event.r0.event_id
                     images_phe[cam_id]["tel_id"] = tel_id
-                    images_phe[cam_id]["dl1_phe_image"] = dl1_phe_image
-                    images_phe[cam_id]["mc_phe_image"] = mc_phe_image
+                    images_phe[cam_id]["dl1_phe_image"] = dl1_phe_image[tel_id]
+                    images_phe[cam_id]["dl1_phe_image_1stPass"] = dl1_phe_image_1stPass[
+                        tel_id
+                    ]
+                    images_phe[cam_id]["calibration_status"] = calibration_status[
+                        tel_id
+                    ]
+                    images_phe[cam_id]["mc_phe_image"] = mc_phe_image[tel_id]
                     images_phe[cam_id]["mc_energy"] = event.mc.energy.value  # TeV
 
                     images_phe[cam_id].append()
