@@ -113,6 +113,10 @@ def main():
     class StoredImages(tb.IsDescription):
         event_id = tb.Int32Col(dflt=1, pos=0)
         tel_id = tb.Int16Col(dflt=1, pos=1)
+        dl1_phe_image=tb.Float32Col(shape=(1855), pos=2)
+        dl1_phe_image_mask_reco=tb.BoolCol(shape=(1855), pos=3)
+        mc_phe_image = tb.Float32Col(shape=(1855), pos=4)
+        mc_energy = tb.Float32Col(dflt=1, pos=5)
         dl1_phe_image = tb.Float32Col(shape=(1855), pos=2)
         dl1_phe_image_1stPass = tb.Float32Col(shape=(1855), pos=3)
         calibration_status = tb.Int16Col(dflt=1, pos=4)
@@ -191,6 +195,7 @@ def main():
         for (
             event,
             dl1_phe_image,
+            dl1_phe_image_mask_reco,
             dl1_phe_image_1stPass,
             calibration_status,
             mc_phe_image,
@@ -354,6 +359,8 @@ def main():
                 if args.save_images is True:
                     images_phe[cam_id]["event_id"] = event.r0.event_id
                     images_phe[cam_id]["tel_id"] = tel_id
+                    images_phe[cam_id]["dl1_phe_image"] = dl1_phe_image[tel_id] 
+                    images_phe[cam_id]["dl1_phe_image_mask_reco"] = dl1_phe_image_mask_reco[tel_id] 
                     images_phe[cam_id]["dl1_phe_image"] = dl1_phe_image[tel_id]
                     images_phe[cam_id]["dl1_phe_image_1stPass"] = dl1_phe_image_1stPass[
                         tel_id
