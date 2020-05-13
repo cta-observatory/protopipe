@@ -56,5 +56,5 @@ In order to process a significant amount of events the use of the GRID is rapidl
 mandatory.
 
 .. warning::
-  This is working progress.
-  Basically coincides with the same list of instructions but on the grid.
+  These instructions, together with the associated ones for installation,
+  will be available soon after the required material is online.
