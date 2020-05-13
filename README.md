@@ -31,16 +31,16 @@ Get the source code and create the required basic conda environment:
 
           git clone https://github.com/cta-observatory/protopipe.git
           cd protopipe
-          conda env create -f protopipe_environment.yml
+          conda env create -f environment.yml
           conda activate protopipe
 
 In case you are updating your environment from a previously existing one, named e.g. 'myenv', use:
 
-          conda env update -n myenv -f protopipe_environment.yml
-          
+          conda env update -n myenv -f environment.yml
+
 This environment contains the bare minimum in order to run the scripts and build the documentation.
 
-It doesn't take into account any additional tool you could use later on (it is suggested to install _ipython_, _jupyter_ and _vitables_, especially if you want to contribute to the code).
+It doesn't take into account any additional tool you could use later on (it is suggested to install _jupyter_ and _vitables_, especially if you want to contribute to the code).
 
 Next you need to install _protopipe_ itself (the main folder will be named _protopipe_ for the development version, or _protopipe-X.Y.Z_ for a released tagged version) :
 
@@ -49,7 +49,7 @@ Next you need to install _protopipe_ itself (the main folder will be named _prot
 To install a _released_ version with no further development, use:
 
           python setup.py install
-          
+
 To use and develop the latest _development_ version, use:
 
           python setup.py develop
@@ -77,7 +77,7 @@ Before starting to use _protopipe_, be sure to be inside the relevant conda envi
 
           cd protopipe/scripts
           python write_dl1.py -h
-          
+
 
 Analysis chain general description
 ----------------------------------
