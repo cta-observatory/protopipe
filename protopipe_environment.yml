@@ -153,4 +153,3 @@ dependencies:
   - pip:
     - ipython-genutils==0.2.0
     - joblib==0.14.1
-prefix: /Users/michele/Applications/anaconda3/envs/protopipe_test
