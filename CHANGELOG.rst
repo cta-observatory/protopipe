@@ -28,7 +28,7 @@
 0.3 (Unreleased)
 -----------------
 
-Planned for Spring 2020.
+Planned for early summer 2020.
 
 .. _gammapy_0p2p1_release:
 
