@@ -1,10 +1,10 @@
 .. _perf:
 
 perf
-****
+====
 
 Introduction
-============
+------------
 
 The ``protopipe.perf`` module contains tools used to,
 
