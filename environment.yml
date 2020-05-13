@@ -1,0 +1,13 @@
+name: protopipe
+channels:
+  - defaults
+  - conda-forge
+  - cta-observatory
+dependencies:
+  - ctapipe=0.7.0
+  - gammapy=0.8
+  - ipython
+  - nbsphinx
+  - numpydoc
+  - sphinx-automodapi
+  - sphinx_rtd_theme
