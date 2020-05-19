@@ -24,10 +24,10 @@ MANIFEST
 docs/api
 docs/_build
 
-# "Benchmark" plots
-notebooks/DL1/plots*
-notebooks/DL2/plots*
-notebooks/DL3/plots*
+# Benchmarks
+benchmarks/DL1/plots*
+benchmarks/DL2/plots*
+benchmarks/DL3/plots*
 
 # Eclipse editor project files
 .project
