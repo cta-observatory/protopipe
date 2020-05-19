@@ -49,14 +49,13 @@ Benchmarks
 
    benchmarks/benchmarks_DL1_calibration.ipynb
 
-The *protopipe* package contains the folder *notebooks* (not a module)
+The *protopipe* package contains the folder *benchmarks* (not a module)
 hosting the notebooks used for benchmarking protopipe.
 
-The notebook have been created following the development triggered by the
+Their contents follows the development triggered by the ongoing
 comparison between protopipe and CTA-MARS (see
 `this issue <https://github.com/cta-observatory/protopipe/issues/24>`__ and
 references therein for a summary).
-As such, for the moment their contents reflect such comparison.
 
 For this reason, the
 `MC sample <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`)
