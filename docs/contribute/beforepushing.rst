@@ -49,26 +49,37 @@ Benchmarks
 
    benchmarks/benchmarks_DL1_calibration.ipynb
 
-The *protopipe* package contains a folder named *notebooks* (not a module).
-This folder has been created following the development triggered by the
+The *protopipe* package contains the folder *notebooks* (not a module)
+hosting the notebooks used for benchmarking protopipe.
+
+The notebook have been created following the development triggered by the
 comparison between protopipe and CTA-MARS (see
 `this issue <https://github.com/cta-observatory/protopipe/issues/24>`__ and
-references therein for a summary). As such, for the moment its contents reflect
-this comparison.
+references therein for a summary).
+As such, for the moment their contents reflect such comparison.
 
-It is supposed to grow in the near future in 3 folders,
+For this reason, the
+`MC sample <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`)
+to be used for these benchmarks needs to be the same.
+
+The benchmarks are organised in 3 folders,
 
 - DL1
-  - `calibration <../../notebooks/DL1/calibration.html>`__ | *calibration.ipynb*
-  - `image cleaning <../../notebooks/DL1/image_cleaning.html>`__ | *image_cleaning.ipynb*
-
+  
+  * `calibration <benchmarks/benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
+  * `image cleaning <benchmarks/benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
+  
 - DL2
-  - direction reconstruction
-  - energy estimation
-  - particle classification
+  
+  * `direction reconstruction <benchmarks/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
+  * energy estimation
+  * particle classification
+  
 - DL3
-  - cuts optimization
-  - Instrument Response Functions
+  
+  * cuts optimization
+  * Instrument Response Functions
+  
 
 .. note::
    This part of protopipe is not meant to be kept here in the end, in order to
@@ -84,15 +95,9 @@ It is supposed to grow in the near future in 3 folders,
    `issue <https://github.com/cta-observatory/protopipe/issues/25>`__
    for news about this).
 
-The comparison with CTA-MARS has been done using a particular file from a
-particular setup of the Prod3B production.
-This file is
-`gamma_20deg_180deg_run100___cta-prod3-demo-2147m-LaPalma-baseline.simtel.gz`
-and the most recent results are hosted
-`here <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Comparisons_between_pipelines>`__.
-
 .. note::
-   Yet again, this is temporary: it is planned to run such benchmarks in the
+   The storage of static versions of the benchmarks in this documentation is temporary.
+   It it is planned to run such benchmarks in the
    future via an external resource which will deal automatically with the
    pipeline code, the reference files and related output.
 
