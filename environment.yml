@@ -9,5 +9,8 @@ dependencies:
   - ipython
   - nbsphinx
   - numpydoc
+  - pandas
+  - pytest
   - sphinx-automodapi
   - sphinx_rtd_theme
+  - vitables
