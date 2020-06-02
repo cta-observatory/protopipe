@@ -1,9 +1,26 @@
 protopipe
 =========
 
-![Code Quality](https://api.codacy.com/project/badge/Grade/32f2fb2df3154fa1838c765d4f9110ba)
+[![Travis CI][image1]][hyperlink1]
+[![Code Quality][image2]][hyperlink2]
+[![Coverage][image3]][hyperlink3]
+<!---[![Zenodo][image4]][hyperlink4]--->
+
+[hyperlink1]: https://travis-ci.org/cta-observatory/protopipe
+[image1]: https://travis-ci.org/cta-observatory/protopipe.svg?branch=master
+[hyperlink2]: https://app.codacy.com/manual/HealthyPear/protopipe/dashboard
+[image2]: https://api.codacy.com/project/badge/Grade/32f2fb2df3154fa1838c765d4f9110ba
+[hyperlink3]: https://codecov.io/gh/cta-observatory/protopipe
+[image3]: https://codecov.io/gh/cta-observatory/protopipe/branch/master/graph/badge.svg
+<!---
+[hyperlink4]: https://travis-ci.org/cta-observatory/protopipe
+[image4]: https://travis-ci.org/cta-observatory/protopipe.svg?branch=master
+--->
 
 A pipeline prototype for the Cherenkov Telescope Array.
+
+* Code: https://github.com/cta-observatory/protopipe
+* Docs: https://cta-observatory.github.io/protopipe/
 
 Installation
 ------------
@@ -14,26 +31,30 @@ Get the source code and create the required basic conda environment:
 
           git clone https://github.com/cta-observatory/protopipe.git
           cd protopipe
-          conda env create -f protopipe_environment.yml
+          conda env create -f environment.yml
           conda activate protopipe
-          
-In case you have already an environment 'myenv' set up for that kind of development, use:
 
-          conda env update -n myenv -f protopipe_environment.yml
-          
+In case you are updating your environment from a previously existing one, named e.g. 'myenv', use:
+
+          conda env update -n myenv -f environment.yml
+
 This environment contains the bare minimum in order to run the scripts and build the documentation.
 
-It doesn't take into account any additional tool you could use later on (it is suggested to install _ipython_, _jupyter_ and _vitables_, especially if you want to contribute to the code).
+It doesn't take into account any additional tool you could use later on (it is suggested to install _jupyter_ and _vitables_, especially if you want to contribute to the code).
 
-Next you need to install _protopipe_ itself (_protopipe_ is the folder where the code was expanded. The name differs if you downloaded a released tagged version, it can be _protopipe-0.2_ for instance) :
+Next you need to install _protopipe_ itself (the main folder will be named _protopipe_ for the development version, or _protopipe-X.Y.Z_ for a released tagged version) :
 
           cd protopipe
-          python setup.py develop
 
-This will let you make changes to your local git repository without the need to update your environment every time.
-In the abscence of a _conda_ or _pip_ installation made avalaible, to install a released version (no further development), use :
+To install a _released_ version with no further development, use:
 
           python setup.py install
+
+To use and develop the latest _development_ version, use:
+
+          python setup.py develop
+
+The second command will let you make changes to your local git repository without the need to update your environment every time.
 
 Remember that the environment needs to be activated in order for _protopipe_ to work.
 This procedure has been successfully tested on macOS (10.10.5 & 10.14.6) and on Scientific Linux 7.
@@ -46,19 +67,17 @@ From the main folder go down to the documentation repository and create the docu
           cd docs
           make html
 
-You will probably get some harmless warnings.
+If you are (or plan to be) a developer and you get some warnings when you build the documention, before pushing a Pull Request please try to fix them.
+
 The initial page is stored in _ _build/html/index.html_, which you can open using your favorite internet browser.
 
 Test if it works
 -----------------
-Before starting to use _protopipe_, be sure to be inside the relevant environment (e.g. `conda activate protopipe`).
-Get a _simtel_ Monte Carlo file obtained with _prod3b_ with only _LSTCam_ and _NectarCam_ cameras.
-Any other kind of cameras in the file would lead to a crash, see issues #23. 
-Note that some generic La Palma files can contain _FlashCam_ cameras.
-The write_dl1.py script will prodcue a DL1 output from the _simtel_ data.
+Before starting to use _protopipe_, be sure to be inside the relevant conda environment (should be named `protopipe` by default) and try to print the help documentation for one of the scripts, e.g.,
 
           cd protopipe/scripts
           python write_dl1.py -h
+
 
 Analysis chain general description
 ----------------------------------
