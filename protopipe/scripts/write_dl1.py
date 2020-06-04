@@ -171,6 +171,16 @@ def main():
         psi = tb.Float32Col(dflt=1, pos=42)
         psi_reco = tb.Float32Col(dflt=1, pos=43)
         sum_signal_cam_reco = tb.Float32Col(dflt=1, pos=44)
+        cog_x = tb.Float32Col(dflt=1, pos=45)
+        cog_y = tb.Float32Col(dflt=1, pos=46)
+        phi = tb.Float32Col(dflt=1, pos=47)
+        cog_x_reco = tb.Float32Col(dflt=1, pos=48)
+        cog_y_reco = tb.Float32Col(dflt=1, pos=49)
+        phi_reco = tb.Float32Col(dflt=1, pos=50)
+        leakage_pixels_width_1_reco = tb.Float32Col(dflt=np.nan, pos=51)
+        leakage_pixels_width_2_reco = tb.Float32Col(dflt=np.nan, pos=52)
+        leakage_pixels_width_1 = tb.Float32Col(dflt=np.nan, pos=53)
+        leakage_pixels_width_2 = tb.Float32Col(dflt=np.nan, pos=54)
 
     feature_outfile = tb.open_file(args.outfile, mode="w")
     feature_table = {}
@@ -202,6 +212,7 @@ def main():
             n_pixel_dict,
             hillas_dict,
             hillas_dict_reco,
+            leakage_dict,
             n_tels,
             tot_signal,
             max_signals,
@@ -317,7 +328,11 @@ def main():
                 feature_events[cam_id]["err_est_pos"] = np.nan
                 feature_events[cam_id]["err_est_dir"] = np.nan
                 feature_events[cam_id]["mc_energy"] = event.mc.energy.to("TeV").value
+                feature_events[cam_id]["cog_x"] = moments.x.to("m").value
+                feature_events[cam_id]["cog_y"] = moments.y.to("m").value
+                feature_events[cam_id]["phi"] = moments.phi.to("deg").value
                 feature_events[cam_id]["local_distance"] = moments.r.to("m").value
+
                 feature_events[cam_id]["n_pixel"] = n_pixel_dict[tel_id]
                 feature_events[cam_id]["obs_id"] = event.r0.obs_id
                 feature_events[cam_id]["event_id"] = event.r0.event_id
@@ -326,7 +341,6 @@ def main():
                 feature_events[cam_id]["reco_energy"] = reco_energy
                 feature_events[cam_id]["ellipticity"] = ellipticity.value
                 feature_events[cam_id]["n_cluster"] = n_cluster_dict[tel_id]
-                feature_events[cam_id]["n_tel_reco"] = n_tels["reco"]
                 feature_events[cam_id]["n_tel_discri"] = n_tels["discri"]
                 feature_events[cam_id]["mc_core_x"] = event.mc.core_x.to("m").value
                 feature_events[cam_id]["mc_core_y"] = event.mc.core_y.to("m").value
@@ -341,6 +355,10 @@ def main():
                 feature_events[cam_id]["az"] = reco_result.az.to("deg").value
                 feature_events[cam_id]["reco_energy_tel"] = reco_energy_tel[tel_id]
                 # Variables from hillas_dist_reco
+                feature_events[cam_id]["n_tel_reco"] = n_tels["reco"]
+                feature_events[cam_id]["cog_x_reco"] = moments_reco.x.to("m").value
+                feature_events[cam_id]["cog_y_reco"] = moments_reco.y.to("m").value
+                feature_events[cam_id]["phi_reco"] = moments_reco.phi.to("deg").value
                 feature_events[cam_id]["ellipticity_reco"] = ellipticity_reco.value
                 feature_events[cam_id]["local_distance_reco"] = moments_reco.r.to(
                     "m"
@@ -353,6 +371,18 @@ def main():
                 ).value
                 feature_events[cam_id]["psi_reco"] = moments_reco.psi.to("deg").value
                 feature_events[cam_id]["sum_signal_cam_reco"] = moments_reco.intensity
+                feature_events[cam_id]["leakage_pixels_width_1_reco"] = leakage_dict[
+                    tel_id
+                ]["leak1_reco"]
+                feature_events[cam_id]["leakage_pixels_width_2_reco"] = leakage_dict[
+                    tel_id
+                ]["leak2_reco"]
+                feature_events[cam_id]["leakage_pixels_width_1"] = leakage_dict[tel_id][
+                    "leak1"
+                ]
+                feature_events[cam_id]["leakage_pixels_width_2"] = leakage_dict[tel_id][
+                    "leak2"
+                ]
 
                 feature_events[cam_id].append()
 

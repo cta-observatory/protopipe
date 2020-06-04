@@ -20,9 +20,7 @@ from collections import namedtuple, OrderedDict
 from ctapipe.io.containers import TimingParametersContainer
 from ctapipe.calib import CameraCalibrator
 from ctapipe.calib.camera.gainselection import GainSelector
-
-# from ctapipe.image.extractor import LocalPeakWindowSum
-from ctapipe.image import hillas
+from ctapipe.image import hillas, leakage, concentration
 from ctapipe.image.cleaning import tailcuts_clean
 from ctapipe.utils.CutFlow import CutFlow
 from ctapipe.coordinates import GroundFrame
@@ -64,6 +62,7 @@ PreparedEvent = namedtuple(
         "n_pixel_dict",
         "hillas_dict",
         "hillas_dict_reco",
+        "leakage_dict",
         "n_tels",
         "tot_signal",
         "max_signals",
@@ -698,11 +697,12 @@ def stub(event):
     return PreparedEvent(
         event=event,
         dl1_phe_image=None,  # container for the calibrated image in phe
-        dl1_phe_image_mask_reco =None, # container for the reco cleaning mask
+        dl1_phe_image_mask_reco=None,  # container for the reco cleaning mask
         mc_phe_image=None,  # container for the simulated image in phe
         n_pixel_dict=None,
         hillas_dict=None,
         hillas_dict_reco=None,
+        leakage_dict=None,
         n_tels=None,
         tot_signal=None,
         max_signals=None,
@@ -903,6 +903,7 @@ class EventPreparer:
             n_pixel_dict = {}
             hillas_dict_reco = {}  # for direction reconstruction
             hillas_dict = {}  # for discrimination
+            leakage_dict = {}
             n_tels = {
                 "tot": len(event.dl0.tels_with_data),
                 "LST_LST_LSTCam": 0,
@@ -947,7 +948,7 @@ class EventPreparer:
                     else:  # no other image extractor has 2 passes
                         dl1_phe_image_1stPass[tel_id] = pmt_signal
                         calibration_status[tel_id] = np.nan
-                        
+
                     mc_phe_image[tel_id] = event.mc.tel[tel_id].photo_electron_image
 
                 if self.cleaner_reco.mode == "tail":  # tail uses only ctapipe
@@ -956,6 +957,19 @@ class EventPreparer:
                     image_biggest, mask_reco = self.cleaner_reco.clean_image(
                         pmt_signal, camera
                     )
+
+                    # calculate the leakage (before filtering)
+                    leakages = {}  # this is needed by both cleanings
+                    # The check on SIZE shouldn't be here, but for the moment
+                    # I prefer to sacrifice fancincess
+                    if np.sum(image_biggest[mask_reco]) != 0.0:
+                        leakage_biggest = leakage(camera, image_biggest, mask_reco)
+                        leakages["leak1_reco"] = leakage_biggest["leakage1_intensity"]
+                        leakages["leak2_reco"] = leakage_biggest["leakage2_intensity"]
+                    else:
+                        leakages["leak1_reco"] = 0.0
+                        leakages["leak2_reco"] = 0.0
+
                     # find all islands using this cleaning
                     num_islands, labels = number_of_islands(camera, mask_reco)
 
@@ -965,8 +979,8 @@ class EventPreparer:
                         camera_biggest = camera[mask_reco]
                         image_biggest = image_biggest[mask_reco]
                         if save_images is True:
-                        	dl1_phe_image_mask_reco[tel_id] = mask_reco
-                   
+                            dl1_phe_image_mask_reco[tel_id] = mask_reco
+
                     elif num_islands > 1:  # if more islands survived..
                         # ...find the biggest one
                         mask_biggest = largest_island(labels)
@@ -974,8 +988,8 @@ class EventPreparer:
                         camera_biggest = camera[mask_biggest]
                         image_biggest = image_biggest[mask_biggest]
                         if save_images is True:
-                        	dl1_phe_image_mask_reco[tel_id] = mask_biggest
-                        	
+                            dl1_phe_image_mask_reco[tel_id] = mask_biggest
+
                     else:  # if no islands survived use old camera and image
                         camera_biggest = camera
 
@@ -983,6 +997,18 @@ class EventPreparer:
                     image_extended, mask_extended = self.cleaner_extended.clean_image(
                         pmt_signal, camera
                     )
+
+                    # calculate the leakage (before filtering)
+                    # this part is not well coded, but for the moment it works
+                    if np.sum(image_extended[mask_extended]) != 0.0:
+                        leakage_extended = leakage(
+                            camera, image_extended, mask_extended
+                        )
+                        leakages["leak1"] = leakage_extended["leakage1_intensity"]
+                        leakages["leak2"] = leakage_extended["leakage2_intensity"]
+                    else:
+                        leakages["leak1"] = 0.0
+                        leakages["leak2"] = 0.0
 
                     # find all islands with this cleaning
                     # we will also register how many have been found
@@ -1100,6 +1126,7 @@ class EventPreparer:
                 hillas_dict_reco[tel_id] = moments_reco
                 n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                 tot_signal += moments.intensity
+                leakage_dict[tel_id] = leakages
 
             n_tels["reco"] = len(hillas_dict_reco)
             n_tels["discri"] = len(hillas_dict)
@@ -1175,6 +1202,7 @@ class EventPreparer:
                 n_pixel_dict=n_pixel_dict,
                 hillas_dict=hillas_dict,
                 hillas_dict_reco=hillas_dict_reco,
+                leakage_dict=leakage_dict,
                 n_tels=n_tels,
                 tot_signal=tot_signal,
                 max_signals=max_signals,
