@@ -52,6 +52,8 @@ GRID:
 # The following DL0 paths refer to directory structure shown at Lugano
 # you will find it together with the rest of the files
 
+# Better use absolute paths to be sure!
+
 EnergyRegressor:
  # This list is used to build an energy regressor, if output_type=DL1 and
  # if estimate_energy is False
