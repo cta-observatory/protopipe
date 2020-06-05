@@ -3,58 +3,20 @@
 Workflow and usage
 ==================
 
-Pipeline
---------
+.. toctree::
+    :maxdepth: 1
+    :hidden:
 
-The following steps allow to build an analysis and estimate the performance of CTA.
+    use_pipeline
+    use_grid
 
-.. warning::
-  | Even though *protopipe* can now support all prod3b simtel Monte Carlo files,
-    it is currently tested using only LSTCam and NectarCam cameras.
-  | Note that some generic La Palma files can contain FlashCam cameras.
+You should have at least a working installation of protopipe (:ref:`install`).
 
-1. Setup the analysis
+If you want to perform large scale analyses, please install also the grid interface (:ref:`install-grid`).
 
-* create an analysis parent folder with the auxiliary script *create_dir_structure.py*
-* `python create_dir_structure.py $PATH $NAME`
-* copy and edit the example YAML configuration files in the *config* subfolders
+After this you should,
 
-2. Energy estimator
+ * get accustomed to the basic pipeline workflow (:ref:`use-pipeline`),
+ * then make your own complete analysis (:ref:`use-grid`),
 
-* produce a table with gamma-ray image information with pipeline utilities (:ref:`DL1_training`)
-* build a model with mva utilities (:ref:`model_building`)
-
-3. Gamma hadron classifier
-
-* produce tables of gamma-rays and hadrons with image informations with pipeline utilities (:ref:`DL1_training`)
-* build a model with mva utilities (:ref:`model_building`)
-
-4. DL2 production
-
-* produce tables of gamma-rays, hadrons and electrons with event informations with pipeline utilities (:ref:`DL2`)
-
-5. Estimate performance of the instrument (:ref:`optimization_cuts_IRFs`)
-
-* find the best cutoff in gammaness/score, to discriminate between signal
-  and background, as well as the angular cut to obtain the best sensitivity
-  for a given amount of observation time and a given template for the
-  source of interest
-* compute the instrument response functions, effective area,
-  point spread function and energy resolution
-* estimate the sensitivity
-
-.. warning::
-
-  * *protopipe* currently is optimized for point-source best-sensitivity,
-  * DL1/DL2 scripts take as input only 1 file at the time.
-
-
-Large scale productions
------------------------
-
-In order to process a significant amount of events the use of the GRID is rapidly
-mandatory.
-
-.. warning::
-  These instructions, together with the associated ones for installation,
-  will be available soon after the required material is online.
+For bugs and new features, please contribute to the project (:ref:`contribute`).
