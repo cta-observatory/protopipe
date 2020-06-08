@@ -13,4 +13,5 @@ dependencies:
   - pytest
   - sphinx-automodapi
   - sphinx_rtd_theme
+  - uproot
   - vitables
