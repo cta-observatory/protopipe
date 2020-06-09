@@ -32,7 +32,7 @@ def main():
     )
 
     parser.add_argument(
-        "--estimate_energy", action="store_true", help="Estimate energy"
+        "--estimate_energy", type=str2bool, default=False, help="Estimate energy"
     )
     parser.add_argument(
         "--regressor_dir", type=str, default="./", help="regressors directory"
