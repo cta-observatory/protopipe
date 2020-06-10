@@ -14,8 +14,6 @@ but since Sep 23, 2019 is also open for development by other members of the CTA 
 
 The code is hosted in a `GitHub repository <https://github.com/cta-observatory/protopipe>`__, to
 which this documentation is linked.
-The API documentation gets automatically updated as soon as a new contribution
-gets accepted and merged into the public code.
 
 .. warning::
   This is not yet stable code, so expect large and rapid changes.

@@ -6,10 +6,19 @@ Installation
 The only requirement is an Anaconda (or Miniconda) installation which supports
 Python 3.
 
-There are two different ways to install protopipe,
+There are two different ways to install `protopipe`,
 
 * if you just want to use it as it is (:ref:`install-basic`),
 * or if you also want to develop it (:ref:`install-developer`).
+
+In both cases you will need some computational power in order to produce enough
+data files for model and performance estimation.
+This can be accomplished through the use of a GRID environment.
+
+After installing `protopipe`,
+
+* install the code necessary to interface it with the grid (:ref:`install-grid`),
+* use protopipe on the grid (:ref:`use-grid`).
 
 .. Note::
 
@@ -34,3 +43,4 @@ There are two different ways to install protopipe,
 
     basic
     developers
+    grid

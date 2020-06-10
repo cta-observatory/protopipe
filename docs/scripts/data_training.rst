@@ -1,4 +1,4 @@
-.. _DL1_training:
+.. _data_training:
 
 Data training
 =============
