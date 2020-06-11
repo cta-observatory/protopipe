@@ -8,6 +8,7 @@ dependencies:
   - gammapy=0.8
   - ipython
   - nbsphinx
+  - notebook
   - numpydoc
   - pandas
   - pytest
