@@ -13,7 +13,7 @@ The following steps describe the basics of protopipe analysis and estimate of th
 1. Setup the analysis
 
 * create an analysis parent folder with the auxiliary script ``create_dir_structure.py``
-* ``python create_dir_structure.py $PATH $NAME``
+* ``python $PROTOPIPE/protopipe/aux/scripts/create_dir_structure.py $PATH $NAME``
 * copy and edit the example YAML configuration files in the *config* subfolders
 
 2. Energy estimator
