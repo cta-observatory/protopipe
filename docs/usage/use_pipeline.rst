@@ -10,16 +10,16 @@ The following steps describe the basics of protopipe analysis and estimate of th
     it is currently tested using only LSTCam and NectarCam cameras.
   | Note that some generic La Palma files can contain FlashCam cameras.
 
-In order to go through an analysis with *protopipe*, aside from using the
-scripts that make up the pipeline you will use need some auxiliary tools that
-you can find under ```$PROTOPIPE/protopipe/aux/```,
+In order to perform a complete analysis with *protopipe*, aside from using the
+scripts that make up the pipeline you will use some auxiliary tools stored
+under ```$PROTOPIPE/protopipe/aux/```,
 
 - ``scripts``, to ease the creation and management of the analysis products,
 - ``example_config_files``, in YAML format for GRID usage and the pipeline itself.
 
 1. Setup the analysis
 
-* create an analysis parent folder with the auxiliary script ``create_dir_structure.py``
+* create an analysis folder with the auxiliary script ``create_dir_structure.py``
 * ``python $PROTOPIPE/protopipe/aux/scripts/create_dir_structure.py $PATH $NAME``
 * copy and edit the example YAML configuration files in the *config* subfolders
 
