@@ -70,14 +70,18 @@ The benchmarks are organised in 3 folders,
 - DL2
 
   * `direction reconstruction <benchmarks/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
-  * energy estimation
-  * particle classification
+  * `energy estimation <benchmarks/benchmarks_DL2_energy-estimation.ipynb>`__ | *benchmarks_DL2_energy-estimation.ipynb*
+  * `particle classification <benchmarks/benchmarks_DL2_particle_classification.ipynb>`__ | *benchmarks_DL2_particle_classification.ipynb*
 
 - DL3
 
-  * cuts optimization
-  * Instrument Response Functions
+  * `Point Spread Function <benchmarks/benchmarks_DL3_PSF.ipynb>`__ | *benchmarks_DL3_PSF.ipynb*
+  * `Instrument Response Functions and sensitivity <benchmarks/benchmarks_DL3_IRFs_and_sensitivity.ipynb>`__ | *benchmarks_DL3_IRFs_and_sensitivity.ipynb*
 
+The DL3 folder contains the associate reference data:
+
+- the CTA requirements,
+- the ASWG performance (to be updated).
 
 .. note::
    This part of protopipe is not meant to be kept here in the end, in order to
@@ -102,3 +106,6 @@ The benchmarks are organised in 3 folders,
    For the moment the purpose of use these tools in the current setup is to help
    early developers and testers to check if their changes improve or degrade
    previous performances.
+
+   Please, find `here <https://indico.cta-observatory.org/event/1995/contributions/19991/attachments/15559/19825/CTAC_Lugano_2019_Peresano.pdf>`__
+   the **latest complete performance**.

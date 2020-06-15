@@ -1,0 +1,29 @@
+# CTA Performance Requirements
+# for further details and definitions of the performance indicators, see:
+# www.cta-observatory.org/science/cta-performance/
+# (Document: CTA-SPE-SCI-00000-0001, v1)
+#
+# South site - MST sub system
+# First column: energy log10(E/TeV)
+# Second column: E^{2} x Flux Sensitivity (erg cm^{-2} s^{-1})
+#
+-1.05   4.79496e-12
+-0.9    1.34813e-12
+-0.8    1.04315e-12
+-0.7    7.80452e-13
+-0.6    5.99503e-13
+-0.5    4.72792e-13
+-0.4    3.82356e-13
+-0.3    3.16438e-13
+-0.2    2.67326e-13
+-0.1    2.2995e-13
+0.0    2.0097e-13
+0.1    1.78187e-13
+0.2    1.60156e-13
+0.3    1.4594e-13
+0.4    1.34951e-13
+0.5    1.26845e-13
+0.6    1.21464e-13
+0.7    1.18798e-13
+0.8    1.47214e-13
+1.7    1.42139e-12

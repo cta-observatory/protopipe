@@ -1,0 +1,44 @@
+# CTA Performance Requirements
+# for further details and definitions of the performance indicators, see:
+# www.cta-observatory.org/science/cta-performance/
+# (Document: CTA-SPE-SCI-00000-0001, v1)
+#
+# North site - full system
+# First column: energy log10(E/TeV)
+# Second column: E^{2} x Flux Sensitivity (erg cm^{-2} s^{-1})
+#
+-1.7    1.25064e-10
+-1.6    4.32693e-11
+-1.5    2.03042e-11
+-1.4    1.16719e-11
+-1.3    7.41819e-12
+-1.2    4.9347e-12
+-1.1    3.36703e-12
+-1  2.3446e-12
+-0.9    1.66704e-12
+-0.8    1.2129e-12
+-0.7    9.05048e-13
+-0.6    6.93634e-13
+-0.5    5.46254e-13
+-0.4    4.41781e-13
+-0.3    3.66437e-13
+-0.2    3.11243e-13
+-0.1    2.70378e-13
+0   2.40116e-13
+0.1 2.18141e-13
+0.2 2.03118e-13
+0.3 1.9443e-13
+0.4 1.92029e-13
+0.5 1.96362e-13
+0.6 2.08373e-13
+0.7 2.29544e-13
+0.8 2.6199e-13
+0.9 3.0861e-13
+1   3.73294e-13
+1.1 4.6121e-13
+1.2 5.79181e-13
+1.3 7.36186e-13
+1.4 9.4402e-13
+1.5 1.21816e-12
+1.6 1.57888e-12
+1.7 2.05277e-12
