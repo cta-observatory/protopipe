@@ -36,7 +36,7 @@ Energy regressor
 
 To build this you need a table with at least the MC energy (the target)
 and some event characteristics (the features) to reconstruct the energy.
-This table should be created via :ref:`DL1_training`.
+This table should be created via :ref:`data_training`.
 
 The following is a commented example of ``regressor.yaml``:
 
@@ -209,7 +209,7 @@ in real conditions to see that everything is correct.
 
   They have been tuned to get reasonable performance and a good agreeement
   between the training/test samples.
-  
+
   A first optimisation will follow from the comparison against CTA-MARS, even
   though the parameters used and settings are already the same.
 

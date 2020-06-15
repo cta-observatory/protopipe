@@ -100,6 +100,14 @@ def make_argparser():
     )
 
     parser.add_argument(
+        "--cam_ids",
+        type=str,
+        default=["LSTCam", "NectarCam"],
+        nargs="*",
+        help="give the specific list of camera types to run on",
+    )
+
+    parser.add_argument(
         "--wave_dir",
         type=str,
         default=None,
