@@ -178,7 +178,9 @@ def final_array_to_use(sim_array, array, subarrays=None):
         tel_ids = subarray.tel_ids
     tel_types = subarray.telescope_types
     cams_and_foclens = {
-        tel_types[i].camera.cam_id: tel_types[i].optics.equivalent_focal_length.value
+        tel_types[i]
+        .camera.camera_name: tel_types[i]
+        .optics.equivalent_focal_length.value
         for i in range(len(tel_types))
     }
     return set(tel_ids), cams_and_foclens, subarray  # redundant, to improve!
@@ -218,7 +220,7 @@ def prod3b_array(fileName, site, array):
     for event in source:  # get only first event
         pass
 
-    sim_array = event.inst.subarray  # get simulated array
+    sim_array = source.subarray  # get simulated array
 
     # Dictionaries of subarray names for BASELINE simulations
     subarrays_N = {  # La Palma has only 2 cameras

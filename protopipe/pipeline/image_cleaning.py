@@ -119,7 +119,7 @@ class ImageCleaner(object):
         """
 
         new_img = np.copy(img)
-        cam_id = geom.cam_id
+        cam_id = geom.camera_name
 
         if self.mode in "tail":
             mask = self.cleaners[cam_id](new_img, geom, self.clean_opts[cam_id])
