@@ -1,6 +1,7 @@
 import yaml
 import argparse
 
+import astropy.units as u
 import matplotlib.pyplot as plt
 import os.path as path
 
@@ -340,3 +341,35 @@ def prod3b_array(fileName, site, array):
                 raise ValueError(
                     f"\033[91m ERROR: Array {array} not supported. \033[0m"
                 )
+
+
+def effective_focal_lengths(camera_name):
+    """Provide the effective focal length for the required camera.
+
+    Data comes from Konrad's table.
+
+    Parameters
+    ----------
+    camera_name : str
+        Name of the camera from ctapipe.instrument.CameraDescription
+
+    Returns
+    ----------
+    eff_foc_len : float
+        Effective focal length in meters
+
+    """
+
+    effective_focal_lengths = {
+        "LSTCam": 29.30565 * u.m,
+        "NectarCam": 16.44505 * u.m,
+        "FlashCam": 16.44505 * u.m,
+        "ASTRICam": 2.15191 * u.m,
+        "SCTCam": 5.58310 * u.m,
+        "CHEC": 2.30913 * u.m,
+        "DigiCam": 5.69705 * u.m,
+    }
+
+    eff_foc_len = effective_focal_lengths[camera_name]
+
+    return eff_foc_len
