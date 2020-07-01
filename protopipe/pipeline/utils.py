@@ -12,11 +12,14 @@ class bcolors:
     OKBLUE = "\033[94m"
     OKGREEN = "\033[92m"
     WARNING = "\033[93m"
+    BOLDWARNING = "\033[1m\033[93m"
     FAIL = "\033[91m"
     ENDC = "\033[0m"
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
     BOLDGREEN = "\033[1m\033[92m"
+    REVERSED = "\033[7m"
+    PURPLE = "\033[95m"
 
 
 def save_fig(outdir, name, fig=None):
