@@ -9,15 +9,15 @@ from traitlets.config import Config
 from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
-from ctapipe.containers import ReconstructedShowerContainer
+from ctapipe.containers import HillasParametersContainer, ReconstructedShowerContainer
 from ctapipe.calib import CameraCalibrator
 from ctapipe.image.extractor import TwoPassWindowSum
-from ctapipe.image import hillas, leakage, number_of_islands, largest_island
+from ctapipe.image import leakage, number_of_islands, largest_island
 from ctapipe.utils.CutFlow import CutFlow
 from ctapipe.coordinates import GroundFrame
 
 # from ctapipe.image.timing_parameters import timing_parameters
-from ctapipe.image.hillas import hillas_parameters
+from ctapipe.image.hillas import hillas_parameters, HillasParameterizationError
 from ctapipe.reco.HillasReconstructor import HillasReconstructor
 from ctapipe.reco.reco_algorithms import (
     TooFewTelescopesException,
@@ -65,10 +65,12 @@ PreparedEvent = namedtuple(
 
 
 def camera_radius(camid_to_efl, cam_id="all"):
-    """
+    """Get camera radii.
+
     Inspired from pywi-cta CTAMarsCriteria, CTA Mars like preselection cuts.
     This should be replaced by a function in ctapipe getting the radius either
     from  the pixel poisitions or from an external database
+
     Note
     ----
     average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen
@@ -226,16 +228,18 @@ class EventPreparer:
                     ("noCuts", None),
                     ("min pixel", lambda s: np.count_nonzero(s) < npix_bounds[0]),
                     ("min charge", lambda x: x < charge_bounds[0]),
-                    # ("poor moments", lambda m: m.width <= 0 or m.length <= 0 or np.isnan(m.width) or np.isnan(m.length)),
-                    # TBC, maybe we loose events without nan conditions
-                    ("poor moments", lambda m: m.width <= 0 or m.length <= 0),
+                    (
+                        "poor moments",
+                        lambda m: m.width <= 0
+                        or m.length <= 0
+                        or np.isnan(m.width)
+                        or np.isnan(m.length),
+                    ),
                     (
                         "bad ellipticity",
                         lambda m: (m.width / m.length) < ellipticity_bounds[0]
                         or (m.width / m.length) > ellipticity_bounds[-1],
                     ),
-                    # ("close to the edge", lambda m, cam_id: m.r.value > (nominal_distance_bounds[-1] * 1.12949101073069946))
-                    # in meter
                     (
                         "close to the edge",
                         lambda m, cam_id: m.r.value
@@ -332,6 +336,10 @@ class EventPreparer:
                 # else:
                 #     continue
 
+            # =============================================================
+            #                CALIBRATION
+            # =============================================================
+
             if debug:
                 print(
                     bcolors.OKBLUE
@@ -340,7 +348,10 @@ class EventPreparer:
                 )
             self.calib(event)  # Calibrate the event
 
-            # telescope loop
+            # =============================================================
+            #                BEGINNING OF LOOP OVER TELESCOPES
+            # =============================================================
+
             tot_signal = 0
             dl1_phe_image = {}
             dl1_phe_image_mask_reco = {}
@@ -376,6 +387,9 @@ class EventPreparer:
 
             for tel_id in event.dl0.tels_with_data:
 
+                point_azimuth_dict[tel_id] = event.mc.tel[tel_id].azimuth_raw * u.rad
+                point_altitude_dict[tel_id] = event.mc.tel[tel_id].altitude_raw * u.rad
+
                 if debug:
                     print(
                         bcolors.OKBLUE
@@ -387,8 +401,9 @@ class EventPreparer:
 
                 camera = source.subarray.tel[tel_id].camera.geometry
 
-                # count the current telescope according to its size
+                # count the current telescope according to its type
                 tel_type = str(source.subarray.tel[tel_id])
+                n_tels[tel_type] += 1
 
                 # use ctapipe's functionality to get the calibrated image
                 pmt_signal = event.dl1.tel[tel_id].image
@@ -401,6 +416,7 @@ class EventPreparer:
 
                 # We now ASSUME that the event will be good
                 good_for_reco[tel_id] = 1
+                # later we change to 0 if any condition is NOT satisfied
 
                 if self.cleaner_reco.mode == "tail":  # tail uses only ctapipe
 
@@ -532,6 +548,8 @@ class EventPreparer:
                 #                PRELIMINARY IMAGE SELECTION
                 # =============================================================
 
+                cleaned_image_is_good = True  # we assume this
+
                 # Apply some selection
                 if self.image_cutflow.cut("min pixel", image_biggest):
                     if debug:
@@ -541,7 +559,7 @@ class EventPreparer:
                             + bcolors.ENDC
                         )
                     good_for_reco[tel_id] = 0  # we record it as BAD
-                    continue
+                    cleaned_image_is_good = False
 
                 if self.image_cutflow.cut("min charge", np.sum(image_biggest)):
                     if debug:
@@ -551,7 +569,7 @@ class EventPreparer:
                             + bcolors.ENDC
                         )
                     good_for_reco[tel_id] = 0  # we record it as BAD
-                    continue
+                    cleaned_image_is_good = False
 
                 # Better do this everytime...
                 # with np.errstate(invalid="raise", divide="raise"):
@@ -596,72 +614,90 @@ class EventPreparer:
                 #                   IMAGE PARAMETRIZATION
                 # =============================================================
 
-                # Here we parametrize no matter what and we always save the result
-                moments_reco = hillas_parameters(
-                    camera_biggest, image_biggest
-                )  # for geometry (eg direction)
-                moments = hillas_parameters(
-                    camera_extended, image_extended
-                )  # for discrimination and energy reconstruction
+                with np.errstate(invalid="raise", divide="raise"):
+                    try:
 
-                # =============================================================
-                #                   FINAL IMAGE SELECTION
-                # =============================================================
+                        if not cleaned_image_is_good:  # BAD image quality
+                            raise ValueError
 
-                # if width and/or length are zero (e.g. when there is
-                # only only one pixel or when all  pixel are exactly
-                # in one row), the parametrisation
-                # won't be very useful: skip
-                if self.image_cutflow.cut("poor moments", moments_reco):
-                    if debug:
-                        print(
-                            bcolors.WARNING + "WARNING : poor moments!" + bcolors.ENDC
-                        )
-                    good_for_reco[tel_id] = 0  # we record it as BAD
+                        # Parametrize the image
+                        moments_reco = hillas_parameters(
+                            camera_biggest, image_biggest
+                        )  # for geometry (eg direction)
+                        moments = hillas_parameters(
+                            camera_extended, image_extended
+                        )  # for discrimination and energy reconstruction
 
-                if self.image_cutflow.cut(
-                    "close to the edge", moments_reco, camera.camera_name
-                ):
-                    if debug:
-                        print(
-                            bcolors.WARNING
-                            + "WARNING : out of containment radius!\n"
-                            + f"Camera radius = {self.camera_radius[camera.camera_name]}\n"
-                            + f"COG radius = {moments_reco.r}"
-                            + bcolors.ENDC
-                        )
+                        # ===================================================
+                        #             PARAMETRIZED IMAGE SELECTION
+                        # ===================================================
 
-                    good_for_reco[tel_id] = 0
+                        # if width and/or length are zero (e.g. when there is
+                        # only only one pixel or when all  pixel are exactly
+                        # in one row), the parametrisation
+                        # won't be very useful: skip
+                        if self.image_cutflow.cut("poor moments", moments_reco):
+                            if debug:
+                                print(
+                                    bcolors.WARNING
+                                    + "WARNING : poor moments!"
+                                    + bcolors.ENDC
+                                )
+                            good_for_reco[tel_id] = 0  # we record it as BAD
 
-                if self.image_cutflow.cut("bad ellipticity", moments_reco):
-                    print(bcolors.WARNING + "WARNING : bad ellipticity" + bcolors.ENDC)
-                    good_for_reco[tel_id] = 0
+                        if self.image_cutflow.cut(
+                            "close to the edge", moments_reco, camera.camera_name
+                        ):
+                            if debug:
+                                print(
+                                    bcolors.WARNING
+                                    + "WARNING : out of containment radius!\n"
+                                    + f"Camera radius = {self.camera_radius[camera.camera_name]}\n"
+                                    + f"COG radius = {moments_reco.r}"
+                                    + bcolors.ENDC
+                                )
 
-                if debug and good_for_reco[tel_id] == 1:
-                    print(
-                        bcolors.OKGREEN
-                        + "Image survived and correctly parametrized."
-                        # + "\nIt will be used for direction reconstruction!"
-                        + bcolors.ENDC
-                    )
-                elif debug and good_for_reco[tel_id] == 0:
-                    print(
-                        bcolors.WARNING
-                        + "Image not survived or "
-                        + "not good enough for parametrization."
-                        # + "\nIt will be NOT used for direction reconstruction, "
-                        # + "BUT it's information will be recorded."
-                        + bcolors.ENDC
-                    )
+                            good_for_reco[tel_id] = 0
 
-                point_azimuth_dict[tel_id] = event.mc.tel[tel_id].azimuth_raw * u.rad
-                point_altitude_dict[tel_id] = event.mc.tel[tel_id].altitude_raw * u.rad
+                        if self.image_cutflow.cut("bad ellipticity", moments_reco):
+                            print(
+                                bcolors.WARNING
+                                + "WARNING : bad ellipticity"
+                                + bcolors.ENDC
+                            )
+                            good_for_reco[tel_id] = 0
 
-                n_tels[tel_type] += 1
+                        if debug and good_for_reco[tel_id] == 1:
+                            print(
+                                bcolors.OKGREEN
+                                + "Image survived and correctly parametrized."
+                                # + "\nIt will be used for direction reconstruction!"
+                                + bcolors.ENDC
+                            )
+                        elif debug and good_for_reco[tel_id] == 0:
+                            print(
+                                bcolors.WARNING
+                                + "Image not survived or "
+                                + "not good enough for parametrization."
+                                # + "\nIt will be NOT used for direction reconstruction, "
+                                # + "BUT it's information will be recorded."
+                                + bcolors.ENDC
+                            )
+                    except (
+                        FloatingPointError,
+                        HillasParameterizationError,
+                        ValueError,
+                    ):
+                        hillas_dict[tel_id] = HillasParametersContainer()
+                        hillas_dict_reco[tel_id] = HillasParametersContainer()
+                        tot_signal += moments.intensity
+                        n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
+                        leakage_dict[tel_id] = leakages
+
                 hillas_dict[tel_id] = moments
                 hillas_dict_reco[tel_id] = moments_reco
-                n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                 tot_signal += moments.intensity
+                n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                 leakage_dict[tel_id] = leakages
 
                 # END OF THE CYCLE OVER THE TELESCOPES
@@ -679,50 +715,25 @@ class EventPreparer:
             n_tels["GOOD images"] = len(np.extract(images_status == 1, images_status))
             n_tels["BAD images"] = n_tels["Triggered"] - n_tels["GOOD images"]
 
-            if debug:
-                print(
-                    bcolors.OKBLUE
-                    + "Starting direction reconstruction..."
-                    + bcolors.ENDC
-                )
-
-            if n_tels["GOOD images"] == 0:
-                if debug:
-                    print("WARNING : no image for this event is usefull!")
-                    print("WARNING : recording dummy direction information!")
-                reco_result = ReconstructedShowerContainer()
-                if return_stub:
-                    if debug:
-                        print("Recording event...")
-                        print(
-                            "WARNING: This is event shall not be used further along the pipeline."
-                        )
-                    yield stub(
-                        event,
-                        mc_phe_image,
-                        dl1_phe_image,
-                        dl1_phe_image_mask_reco,
-                        good_for_reco,
-                        hillas_dict,
-                        hillas_dict_reco,
-                        n_tels,
-                        leakage_dict,
-                    )
-                else:
-                    continue
-
             if self.event_cutflow.cut("min2Tels reco", n_tels["GOOD images"]):
                 if debug:
                     print(
-                        f"WARNING: < {self.min_tel} ({len(n_tels['GOOD images'])}) images remaining!"
+                        bcolors.FAIL
+                        + f"WARNING: < {self.min_ntel} ({n_tels['GOOD images']}) images remaining!"
+                        + "\nWARNING : direction reconstruction is not possible!"
+                        + bcolors.ENDC
                     )
-                    print("WARNING : recording dummy direction information!")
+
+                # create a dummy container for direction reconstruction
                 reco_result = ReconstructedShowerContainer()
+
                 if return_stub:  # if saving all events (default)
                     if debug:
-                        print("Recording event...")
+                        print(bcolors.OKBLUE + "Recording event..." + bcolors.ENDC)
                         print(
-                            "WARNING: This is event shall NOT be used further along the pipeline."
+                            bcolors.WARNING
+                            + "WARNING: This is event shall NOT be used further along the pipeline."
+                            + bcolors.ENDC
                         )
                     yield stub(  # record event with dummy info
                         event,
@@ -735,8 +746,16 @@ class EventPreparer:
                         n_tels,
                         leakage_dict,
                     )
+                    continue
                 else:
                     continue
+
+            if debug:
+                print(
+                    bcolors.OKBLUE
+                    + "Starting direction reconstruction..."
+                    + bcolors.ENDC
+                )
 
             try:
                 with warnings.catch_warnings():
@@ -753,7 +772,7 @@ class EventPreparer:
 
                     if debug:
                         print(
-                            bcolors.OKBLUE
+                            bcolors.PURPLE
                             + f"{len(good_hillas_dict_reco)} images will be "
                             + "used to recover the shower's direction..."
                             + bcolors.ENDC
@@ -803,10 +822,14 @@ class EventPreparer:
                 raise
                 if return_stub:
                     if debug:
-                        print("Recording event...")
                         print(
-                            "WARNING: This is event shall NOT be used further along the pipeline."
+                            bcolors.FAIL
+                            + "Shower could NOT be correctly reconstructed! "
+                            + "Recording event..."
+                            + "WARNING: This is event shall NOT be used further along the pipeline."
+                            + bcolors.ENDC
                         )
+
                     yield stub(  # record event with dummy info
                         event,
                         mc_phe_image,
@@ -823,13 +846,19 @@ class EventPreparer:
 
             if self.event_cutflow.cut("direction nan", reco_result):
                 if debug:
-                    print("WARNING: undefined direction!")
+                    print(
+                        bcolors.WARNING + "WARNING: undefined direction!" + bcolors.ENDC
+                    )
                 if return_stub:
                     if debug:
-                        print("Recording event...")
                         print(
-                            "WARNING: This is event shall NOT be used further along the pipeline."
+                            bcolors.FAIL
+                            + "Shower could NOT be correctly reconstructed! "
+                            + "Recording event..."
+                            + "WARNING: This is event shall NOT be used further along the pipeline."
+                            + bcolors.ENDC
                         )
+
                     yield stub(  # record event with dummy info
                         event,
                         mc_phe_image,
@@ -868,4 +897,5 @@ class EventPreparer:
                 reco_result=reco_result,
                 impact_dict=impact_dict_reco,
                 good_event=True,
+                good_for_reco=good_for_reco,
             )
