@@ -59,6 +59,7 @@ PreparedEvent = namedtuple(
         "reco_result",
         "impact_dict",
         "good_event",
+        "good_for_reco",
     ],
 )
 
@@ -135,7 +136,7 @@ def stub(
         n_cluster_dict=dict.fromkeys(hillas_dict_reco.keys(), 0),  # no clusters
         reco_result=ReconstructedShowerContainer(),  # defaults to nans
         impact_dict=dict.fromkeys(
-            hillas_dict_reco, np.nan
+            hillas_dict_reco, np.nan * u.m
         ),  # undefined impact parameter
         good_event=False,
     )
@@ -264,13 +265,13 @@ class EventPreparer:
         self.event_cutflow = event_cutflow or CutFlow("EventCutFlow")
 
         # Add cuts on events
-        min_ntel = config["Reconstruction"]["min_tel"]
+        self.min_ntel = config["Reconstruction"]["min_tel"]
         self.event_cutflow.set_cuts(
             OrderedDict(
                 [
                     ("noCuts", None),
-                    ("min2Tels trig", lambda x: x < min_ntel),
-                    ("min2Tels reco", lambda x: x < min_ntel),
+                    ("min2Tels trig", lambda x: x < self.min_ntel),
+                    ("min2Tels reco", lambda x: x < self.min_ntel),
                     ("direction nan", lambda x: x.is_valid is False),
                 ]
             )
@@ -331,6 +332,12 @@ class EventPreparer:
                 # else:
                 #     continue
 
+            if debug:
+                print(
+                    bcolors.OKBLUE
+                    + "Extracting all calibrated images..."
+                    + bcolors.ENDC
+                )
             self.calib(event)  # Calibrate the event
 
             # telescope loop
@@ -607,7 +614,9 @@ class EventPreparer:
                 # won't be very useful: skip
                 if self.image_cutflow.cut("poor moments", moments_reco):
                     if debug:
-                        print("WARNING : poor moments!")
+                        print(
+                            bcolors.WARNING + "WARNING : poor moments!" + bcolors.ENDC
+                        )
                     good_for_reco[tel_id] = 0  # we record it as BAD
 
                 if self.image_cutflow.cut(
@@ -617,7 +626,7 @@ class EventPreparer:
                         print(
                             bcolors.WARNING
                             + "WARNING : out of containment radius!\n"
-                            + "Camera radius = {self.camera_radius[camera.camera_name]}"
+                            + f"Camera radius = {self.camera_radius[camera.camera_name]}\n"
                             + f"COG radius = {moments_reco.r}"
                             + bcolors.ENDC
                         )
@@ -632,16 +641,16 @@ class EventPreparer:
                     print(
                         bcolors.OKGREEN
                         + "Image survived and correctly parametrized."
-                        + "It will be used for direction reconstruction!"
+                        # + "\nIt will be used for direction reconstruction!"
                         + bcolors.ENDC
                     )
                 elif debug and good_for_reco[tel_id] == 0:
                     print(
                         bcolors.WARNING
                         + "Image not survived or "
-                        + "not good enough for parametrization.\n"
-                        + "It will be NOT used for direction reconstruction, "
-                        + "BUT it's information will be recorded."
+                        + "not good enough for parametrization."
+                        # + "\nIt will be NOT used for direction reconstruction, "
+                        # + "BUT it's information will be recorded."
                         + bcolors.ENDC
                     )
 

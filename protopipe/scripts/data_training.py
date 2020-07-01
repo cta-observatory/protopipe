@@ -227,6 +227,7 @@ def main():
             reco_result,
             impact_dict,
             good_event,
+            good_for_reco,
         ) in preper.prepare_event(
             source, save_images=args.save_images, debug=args.debug
         ):
@@ -262,8 +263,8 @@ def main():
 
                 xi = np.nan * u.deg
                 offset = np.nan * u.deg
-                reco_core_x = np.nan * u.deg
-                reco_core_y = np.nan * u.deg
+                reco_core_x = np.nan * u.m
+                reco_core_y = np.nan * u.m
                 h_max = np.nan * u.m
                 reco_result.alt = np.nan * u.deg
                 reco_result.az = np.nan * u.deg
@@ -436,6 +437,14 @@ def main():
         for table in images_table.values():
             table.flush()
 
+    print(
+        bcolors.BOLD
+        + "\n\n==================================================\n"
+        + "Statistical summary of processed events and images\n"
+        + "==================================================\n"
+        # + bcolors.ENDC
+    )
+
     evt_cutflow()
 
     # Catch specific cases
@@ -448,6 +457,7 @@ def main():
             " by the selected telescopes! \033[0m"
         )
     else:
+        print("\n")
         img_cutflow()
         if reconstructed_events == 0:
             print(
@@ -455,6 +465,7 @@ def main():
                 "properly reconstructed by the selected telescopes!\n"
                 "DL1 file will be empty! \033[0m"
             )
+        print(bcolors.ENDC)
 
 
 if __name__ == "__main__":
