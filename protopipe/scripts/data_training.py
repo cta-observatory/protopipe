@@ -190,6 +190,7 @@ def main():
         leakage_pixels_width_1 = tb.Float32Col(dflt=np.nan, pos=53)
         leakage_pixels_width_2 = tb.Float32Col(dflt=np.nan, pos=54)
         is_valid = tb.BoolCol(dflt=False, pos=55)
+        good_image = tb.Int16Col(dflt=1, pos=56)
 
     feature_outfile = tb.open_file(args.outfile, mode="w")
     feature_table = {}
@@ -328,6 +329,7 @@ def main():
                 moments_reco = hillas_dict_reco[tel_id]
                 ellipticity_reco = moments_reco.width / moments_reco.length
 
+                feature_events[cam_id]["good_image"] = good_for_reco[tel_id]
                 feature_events[cam_id]["is_valid"] = is_valid
                 feature_events[cam_id]["impact_dist"] = (
                     impact_dict[tel_id].to("m").value
