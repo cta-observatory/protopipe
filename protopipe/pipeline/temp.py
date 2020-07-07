@@ -10,12 +10,20 @@ file will change.
 
 """
 
+import numpy as np
+from scipy.sparse import lil_matrix, csr_matrix
+import astropy.units as u
+from astropy.coordinates import Angle, SkyCoord
+
+from ctapipe.coordinates import CameraFrame, TelescopeFrame
 from ctapipe.instrument import CameraGeometry
+from ctapipe.reco import HillasReconstructor
+from ctapipe.reco.HillasReconstructor import HillasPlane
 
 
 class MyCameraGeometry(CameraGeometry):
 
-    """Child class of the usual CameraGeometry with modifications taken from PR #1191"""
+    """Modifications taken from PR 1191."""
 
     def __init__(
         self,
@@ -38,7 +46,7 @@ class MyCameraGeometry(CameraGeometry):
                 f"Pixel coordinates must be 1 dimensional, got {pix_x.ndim}"
             )
 
-        assert len(pix_x) == len(pix_y), "pix_x and pix_y must have same length"
+        assert len(pix_x) == len(pix_y)
         self.n_pixels = len(pix_x)
         self.camera_name = camera_name
         self.pix_id = pix_id
