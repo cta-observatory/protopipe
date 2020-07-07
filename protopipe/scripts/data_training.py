@@ -11,7 +11,7 @@ import tables as tb
 
 from ctapipe.utils.CutFlow import CutFlow
 from ctapipe.io import event_source
-from ctapipe.reco.energy_regressor import *
+from ctapipe.reco.energy_regressor import EnergyRegressor
 
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
@@ -34,13 +34,15 @@ def main():
     )
 
     parser.add_argument(
-        "--save_images",
-        action="store_true",
-        help="Save images in images.h5 (one file testing)",
+        "--save_images", action="store_true", help="Save also all images",
     )
 
     parser.add_argument(
-        "--estimate_energy", type=str2bool, default=False, help="Estimate energy"
+        "--estimate_energy",
+        type=str2bool,
+        default=False,
+        help="Estimate the events' energy with a regressor from\
+         protopipe.scripts.build_model",
     )
     parser.add_argument(
         "--regressor_dir", type=str, default="./", help="regressors directory"
@@ -116,91 +118,113 @@ def main():
 
         regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
 
-    # Declaration of the column descriptor for the (possible) images file
-    # For the moment works only on LSTCam and NectarCam.
-    class StoredImages(tb.IsDescription):
-        event_id = tb.Int32Col(dflt=1, pos=0)
-        tel_id = tb.Int16Col(dflt=1, pos=1)
-        dl1_phe_image = tb.Float32Col(shape=(1855), pos=2)
-        dl1_phe_image_mask_reco = tb.BoolCol(shape=(1855), pos=3)
-        mc_phe_image = tb.Float32Col(shape=(1855), pos=4)
-        mc_energy = tb.Float32Col(dflt=1, pos=5)
-        dl1_phe_image = tb.Float32Col(shape=(1855), pos=2)
-        dl1_phe_image_1stPass = tb.Float32Col(shape=(1855), pos=3)
-        calibration_status = tb.Int16Col(dflt=1, pos=4)
-        mc_phe_image = tb.Float32Col(shape=(1855), pos=5)
-        mc_energy = tb.Float32Col(dflt=1, pos=6)
+    class DataTrainingOutput(tb.IsDescription):
+        """Column descriptor for the file containing output training data."""
 
-    # Declaration of the column descriptor for the file containing DL1 data
-    class EventFeatures(tb.IsDescription):
-        impact_dist = tb.Float32Col(dflt=1, pos=0)
-        sum_signal_evt = tb.Float32Col(dflt=1, pos=1)
-        max_signal_cam = tb.Float32Col(dflt=1, pos=2)
-        sum_signal_cam = tb.Float32Col(dflt=1, pos=3)
-        N_LST = tb.Int16Col(dflt=1, pos=4)
-        N_MST = tb.Int16Col(dflt=1, pos=5)
-        N_SST = tb.Int16Col(dflt=1, pos=6)
-        width = tb.Float32Col(dflt=1, pos=7)
-        length = tb.Float32Col(dflt=1, pos=8)
-        skewness = tb.Float32Col(dflt=1, pos=9)
-        kurtosis = tb.Float32Col(dflt=1, pos=10)
-        h_max = tb.Float32Col(dflt=1, pos=11)
-        err_est_pos = tb.Float32Col(dflt=1, pos=12)
-        err_est_dir = tb.Float32Col(dflt=1, pos=13)
-        mc_energy = tb.FloatCol(dflt=1, pos=14)
-        local_distance = tb.Float32Col(dflt=1, pos=15)
-        n_pixel = tb.Int16Col(dflt=1, pos=16)
-        n_cluster = tb.Int16Col(dflt=-1, pos=17)
-        obs_id = tb.Int16Col(dflt=1, pos=18)
-        event_id = tb.Int32Col(dflt=1, pos=19)
-        tel_id = tb.Int16Col(dflt=1, pos=20)
-        xi = tb.Float32Col(dflt=np.nan, pos=21)
-        reco_energy = tb.FloatCol(dflt=np.nan, pos=22)
-        ellipticity = tb.FloatCol(dflt=1, pos=23)
-        n_tel_reco = tb.FloatCol(dflt=1, pos=24)
-        n_tel_discri = tb.FloatCol(dflt=1, pos=25)
-        mc_core_x = tb.FloatCol(dflt=1, pos=26)
-        mc_core_y = tb.FloatCol(dflt=1, pos=27)
-        reco_core_x = tb.FloatCol(dflt=1, pos=28)
-        reco_core_y = tb.FloatCol(dflt=1, pos=29)
-        mc_h_first_int = tb.FloatCol(dflt=1, pos=30)
-        offset = tb.Float32Col(dflt=np.nan, pos=31)
-        mc_x_max = tb.Float32Col(dflt=np.nan, pos=31)
-        alt = tb.Float32Col(dflt=np.nan, pos=33)
-        az = tb.Float32Col(dflt=np.nan, pos=34)
-        reco_energy_tel = tb.Float32Col(dflt=np.nan, pos=35)
-        # from hillas_reco
-        ellipticity_reco = tb.FloatCol(dflt=1, pos=36)
-        local_distance_reco = tb.Float32Col(dflt=1, pos=37)
-        skewness_reco = tb.Float32Col(dflt=1, pos=38)
-        kurtosis_reco = tb.Float32Col(dflt=1, pos=39)
-        width_reco = tb.Float32Col(dflt=1, pos=40)
-        length_reco = tb.Float32Col(dflt=1, pos=41)
-        psi = tb.Float32Col(dflt=1, pos=42)
-        psi_reco = tb.Float32Col(dflt=1, pos=43)
-        sum_signal_cam_reco = tb.Float32Col(dflt=1, pos=44)
-        cog_x = tb.Float32Col(dflt=1, pos=45)
-        cog_y = tb.Float32Col(dflt=1, pos=46)
-        phi = tb.Float32Col(dflt=1, pos=47)
-        cog_x_reco = tb.Float32Col(dflt=1, pos=48)
-        cog_y_reco = tb.Float32Col(dflt=1, pos=49)
-        phi_reco = tb.Float32Col(dflt=1, pos=50)
-        leakage_pixels_width_1_reco = tb.Float32Col(dflt=np.nan, pos=51)
-        leakage_pixels_width_2_reco = tb.Float32Col(dflt=np.nan, pos=52)
-        leakage_pixels_width_1 = tb.Float32Col(dflt=np.nan, pos=53)
-        leakage_pixels_width_2 = tb.Float32Col(dflt=np.nan, pos=54)
-        is_valid = tb.BoolCol(dflt=False, pos=55)
-        good_image = tb.Int16Col(dflt=1, pos=56)
+        # ======================================================================
+        # ARRAY
+        obs_id = tb.Int16Col(dflt=1, pos=0)
+        event_id = tb.Int32Col(dflt=1, pos=1)
+        tel_id = tb.Int16Col(dflt=1, pos=2)
+        N_LST = tb.Int16Col(dflt=1, pos=3)
+        N_MST = tb.Int16Col(dflt=1, pos=4)
+        N_SST = tb.Int16Col(dflt=1, pos=5)
+        n_tel_reco = tb.FloatCol(dflt=1, pos=6)
+        n_tel_discri = tb.FloatCol(dflt=1, pos=7)
 
-    feature_outfile = tb.open_file(args.outfile, mode="w")
-    feature_table = {}
-    feature_events = {}
+        # ======================================================================
+        # DL1
+        hillas_intensity_reco = tb.Float32Col(dflt=1, pos=8)
+        hillas_intensity = tb.Float32Col(dflt=1, pos=9)
+
+        hillas_x_reco = tb.Float32Col(dflt=1, pos=10)
+        hillas_y_reco = tb.Float32Col(dflt=1, pos=11)
+        hillas_x = tb.Float32Col(dflt=1, pos=12)
+        hillas_y = tb.Float32Col(dflt=1, pos=13)
+
+        hillas_r_reco = tb.Float32Col(dflt=1, pos=14)
+        hillas_r = tb.Float32Col(dflt=1, pos=15)
+
+        hillas_phi_reco = tb.Float32Col(dflt=1, pos=16)
+        hillas_phi = tb.Float32Col(dflt=1, pos=17)
+
+        hillas_length_reco = tb.Float32Col(dflt=1, pos=18)
+        hillas_length = tb.Float32Col(dflt=1, pos=19)
+
+        hillas_width_reco = tb.Float32Col(dflt=1, pos=20)
+        hillas_width = tb.Float32Col(dflt=1, pos=21)
+
+        hillas_psi_reco = tb.Float32Col(dflt=1, pos=22)
+        hillas_psi = tb.Float32Col(dflt=1, pos=23)
+
+        hillas_skewness_reco = tb.Float32Col(dflt=1, pos=24)
+        hillas_skewness = tb.Float32Col(dflt=1, pos=25)
+
+        hillas_kurtosis = tb.Float32Col(dflt=1, pos=26)
+        hillas_kurtosis_reco = tb.Float32Col(dflt=1, pos=27)
+
+        leakage_intensity_width_1_reco = tb.Float32Col(dflt=np.nan, pos=28)
+        leakage_intensity_width_2_reco = tb.Float32Col(dflt=np.nan, pos=29)
+        leakage_intensity_width_1 = tb.Float32Col(dflt=np.nan, pos=30)
+        leakage_intensity_width_2 = tb.Float32Col(dflt=np.nan, pos=31)
+
+        # The following are missing from current ctapipe DL1 output
+        # Not sure if it's worth to add them
+
+        hillas_ellipticity_reco = tb.FloatCol(dflt=1, pos=32)
+        hillas_ellipticity = tb.FloatCol(dflt=1, pos=33)
+
+        max_signal_cam = tb.Float32Col(dflt=1, pos=34)
+
+        pixels = tb.Int16Col(dflt=1, pos=35)
+        clusters = tb.Int16Col(dflt=-1, pos=36)
+
+        # ======================================================================
+
+        # DL2 - DIRECTION RECONSTRUCTION
+        impact_dist = tb.Float32Col(dflt=1, pos=37)
+        h_max = tb.Float32Col(dflt=1, pos=38)
+        alt = tb.Float32Col(dflt=np.nan, pos=39)
+        az = tb.Float32Col(dflt=np.nan, pos=40)
+        err_est_pos = tb.Float32Col(dflt=1, pos=41)
+        err_est_dir = tb.Float32Col(dflt=1, pos=42)
+        xi = tb.Float32Col(dflt=np.nan, pos=43)
+        offset = tb.Float32Col(dflt=np.nan, pos=44)
+
+        mc_core_x = tb.FloatCol(dflt=1, pos=45)
+        mc_core_y = tb.FloatCol(dflt=1, pos=46)
+        reco_core_x = tb.FloatCol(dflt=1, pos=47)
+        reco_core_y = tb.FloatCol(dflt=1, pos=48)
+
+        mc_h_first_int = tb.FloatCol(dflt=1, pos=49)
+        mc_x_max = tb.Float32Col(dflt=np.nan, pos=50)
+
+        is_valid = tb.BoolCol(dflt=False, pos=51)
+        good_image = tb.Int16Col(dflt=1, pos=52)
+
+        # ======================================================================
+
+        # DL2 - ENERGY ESTIMATION
+        true_energy = tb.FloatCol(dflt=1, pos=53)
+        reco_energy = tb.FloatCol(dflt=np.nan, pos=54)
+        reco_energy_tel = tb.Float32Col(dflt=np.nan, pos=55)
+
+        # ======================================================================
+
+        # DL1 IMAGES (optional)
+        true_image = tb.Float32Col(shape=(1855), pos=56)
+        reco_image = tb.Float32Col(shape=(1855), pos=57)
+        cleaning_mask_reco = tb.BoolCol(shape=(1855), pos=58)  # not in ctapipe
+
+    outfile = tb.open_file(args.outfile, mode="w")
+    outTable = {}
+    outData = {}
 
     # Create the images file only if the user want to store the images
-    if args.save_images is True:
-        images_outfile = tb.open_file("images.h5", mode="w")
-        images_table = {}
-        images_phe = {}
+    # if args.save_images is True:
+    #     images_outfile = tb.open_file("images.h5", mode="w")
+    #     images_table = {}
+    #     images_phe = {}
 
     for i, filename in enumerate(filenamelist):
 
@@ -214,15 +238,14 @@ def main():
         # reconstruction for each event
         for (
             event,
-            dl1_phe_image,
-            dl1_phe_image_mask_reco,
-            mc_phe_image,
+            reco_image,
+            cleaning_mask_reco,
+            true_image,
             n_pixel_dict,
             hillas_dict,
             hillas_dict_reco,
             leakage_dict,
             n_tels,
-            tot_signal,
             max_signals,
             n_cluster_dict,
             reco_result,
@@ -307,18 +330,18 @@ def main():
             for idx, tel_id in enumerate(hillas_dict.keys()):
                 cam_id = source.subarray.tel[tel_id].camera.camera_name
 
-                if cam_id not in feature_events:
-                    feature_table[cam_id] = feature_outfile.create_table(
-                        "/", "_".join(["feature_events", cam_id]), EventFeatures
+                if cam_id not in outData:
+                    outTable[cam_id] = outfile.create_table(
+                        "/", cam_id, DataTrainingOutput,
                     )
-                    feature_events[cam_id] = feature_table[cam_id].row
+                    outData[cam_id] = outTable[cam_id].row
 
-                if args.save_images is True:
-                    if cam_id not in images_phe:
-                        images_table[cam_id] = images_outfile.create_table(
-                            "/", "_".join(["images", cam_id]), StoredImages
-                        )
-                        images_phe[cam_id] = images_table[cam_id].row
+                # if args.save_images is True:
+                #     if cam_id not in images_phe:
+                #         images_table[cam_id] = images_outfile.create_table(
+                #             "/", "_".join(["images", cam_id]), StoredImages
+                #         )
+                #         images_phe[cam_id] = images_table[cam_id].row
 
                 moments = hillas_dict[tel_id]
                 ellipticity = moments.width / moments.length
@@ -329,117 +352,104 @@ def main():
                 moments_reco = hillas_dict_reco[tel_id]
                 ellipticity_reco = moments_reco.width / moments_reco.length
 
-                feature_events[cam_id]["good_image"] = good_for_reco[tel_id]
-                feature_events[cam_id]["is_valid"] = is_valid
-                feature_events[cam_id]["impact_dist"] = (
-                    impact_dict[tel_id].to("m").value
-                )
-                feature_events[cam_id]["sum_signal_evt"] = tot_signal
-                feature_events[cam_id]["max_signal_cam"] = max_signals[tel_id]
-                feature_events[cam_id]["sum_signal_cam"] = moments.intensity
-                feature_events[cam_id]["N_LST"] = n_tels["LST_LST_LSTCam"]
-                feature_events[cam_id]["N_MST"] = (
+                outData[cam_id]["good_image"] = good_for_reco[tel_id]
+                outData[cam_id]["is_valid"] = is_valid
+                outData[cam_id]["impact_dist"] = impact_dict[tel_id].to("m").value
+                outData[cam_id]["max_signal_cam"] = max_signals[tel_id]
+                outData[cam_id]["hillas_intensity"] = moments.intensity
+                outData[cam_id]["N_LST"] = n_tels["LST_LST_LSTCam"]
+                outData[cam_id]["N_MST"] = (
                     n_tels["MST_MST_NectarCam"]
                     + n_tels["MST_MST_FlashCam"]
                     + n_tels["MST_SCT_SCTCam"]
                 )
-                feature_events[cam_id]["N_SST"] = (
+                outData[cam_id]["N_SST"] = (
                     n_tels["SST_1M_DigiCam"]
                     + n_tels["SST_ASTRI_ASTRICam"]
                     + n_tels["SST_GCT_CHEC"]
                 )
-                feature_events[cam_id]["width"] = moments.width.to("deg").value
-                feature_events[cam_id]["length"] = moments.length.to("deg").value
-                feature_events[cam_id]["psi"] = moments.psi.to("deg").value
-                feature_events[cam_id]["skewness"] = moments.skewness
-                feature_events[cam_id]["kurtosis"] = moments.kurtosis
-                feature_events[cam_id]["h_max"] = h_max.to("m").value
-                feature_events[cam_id]["err_est_pos"] = np.nan
-                feature_events[cam_id]["err_est_dir"] = np.nan
-                feature_events[cam_id]["mc_energy"] = event.mc.energy.to("TeV").value
-                feature_events[cam_id]["cog_x"] = moments.x.to("deg").value
-                feature_events[cam_id]["cog_y"] = moments.y.to("deg").value
-                feature_events[cam_id]["phi"] = moments.phi.to("deg").value
-                feature_events[cam_id]["local_distance"] = moments.r.to("deg").value
+                outData[cam_id]["hillas_width"] = moments.width.to("deg").value
+                outData[cam_id]["hillas_length"] = moments.length.to("deg").value
+                outData[cam_id]["hillas_psi"] = moments.psi.to("deg").value
+                outData[cam_id]["hillas_skewness"] = moments.skewness
+                outData[cam_id]["hillas_kurtosis"] = moments.kurtosis
+                outData[cam_id]["h_max"] = h_max.to("m").value
+                outData[cam_id]["err_est_pos"] = np.nan
+                outData[cam_id]["err_est_dir"] = np.nan
+                outData[cam_id]["true_energy"] = event.mc.energy.to("TeV").value
+                outData[cam_id]["hillas_x"] = moments.x.to("deg").value
+                outData[cam_id]["hillas_y"] = moments.y.to("deg").value
+                outData[cam_id]["hillas_phi"] = moments.phi.to("deg").value
+                outData[cam_id]["hillas_r"] = moments.r.to("deg").value
 
-                feature_events[cam_id]["n_pixel"] = n_pixel_dict[tel_id]
-                feature_events[cam_id]["obs_id"] = event.index.obs_id
-                feature_events[cam_id]["event_id"] = event.index.event_id
-                feature_events[cam_id]["tel_id"] = tel_id
-                feature_events[cam_id]["xi"] = xi.to("deg").value
-                feature_events[cam_id]["reco_energy"] = reco_energy
-                feature_events[cam_id]["ellipticity"] = ellipticity.value
-                feature_events[cam_id]["n_cluster"] = n_cluster_dict[tel_id]
-                feature_events[cam_id]["n_tel_discri"] = n_tels["GOOD images"]
-                feature_events[cam_id]["mc_core_x"] = event.mc.core_x.to("m").value
-                feature_events[cam_id]["mc_core_y"] = event.mc.core_y.to("m").value
-                feature_events[cam_id]["reco_core_x"] = reco_core_x.to("m").value
-                feature_events[cam_id]["reco_core_y"] = reco_core_y.to("m").value
-                feature_events[cam_id]["mc_h_first_int"] = event.mc.h_first_int.to(
-                    "m"
-                ).value
-                feature_events[cam_id]["offset"] = offset.to("deg").value
-                feature_events[cam_id]["mc_x_max"] = event.mc.x_max.value  # g / cm2
-                feature_events[cam_id]["alt"] = reco_result.alt.to("deg").value
-                feature_events[cam_id]["az"] = reco_result.az.to("deg").value
-                feature_events[cam_id]["reco_energy_tel"] = reco_energy_tel[tel_id]
+                outData[cam_id]["pixels"] = n_pixel_dict[tel_id]
+                outData[cam_id]["obs_id"] = event.index.obs_id
+                outData[cam_id]["event_id"] = event.index.event_id
+                outData[cam_id]["tel_id"] = tel_id
+                outData[cam_id]["xi"] = xi.to("deg").value
+                outData[cam_id]["reco_energy"] = reco_energy
+                outData[cam_id]["hillas_ellipticity"] = ellipticity.value
+                outData[cam_id]["clusters"] = n_cluster_dict[tel_id]
+                outData[cam_id]["n_tel_discri"] = n_tels["GOOD images"]
+                outData[cam_id]["mc_core_x"] = event.mc.core_x.to("m").value
+                outData[cam_id]["mc_core_y"] = event.mc.core_y.to("m").value
+                outData[cam_id]["reco_core_x"] = reco_core_x.to("m").value
+                outData[cam_id]["reco_core_y"] = reco_core_y.to("m").value
+                outData[cam_id]["mc_h_first_int"] = event.mc.h_first_int.to("m").value
+                outData[cam_id]["offset"] = offset.to("deg").value
+                outData[cam_id]["mc_x_max"] = event.mc.x_max.value  # g / cm2
+                outData[cam_id]["alt"] = reco_result.alt.to("deg").value
+                outData[cam_id]["az"] = reco_result.az.to("deg").value
+                outData[cam_id]["reco_energy_tel"] = reco_energy_tel[tel_id]
                 # Variables from hillas_dist_reco
-                feature_events[cam_id]["n_tel_reco"] = n_tels["GOOD images"]
-                feature_events[cam_id]["cog_x_reco"] = moments_reco.x.to("deg").value
-                feature_events[cam_id]["cog_y_reco"] = moments_reco.y.to("deg").value
-                feature_events[cam_id]["phi_reco"] = moments_reco.phi.to("deg").value
-                feature_events[cam_id]["ellipticity_reco"] = ellipticity_reco.value
-                feature_events[cam_id]["local_distance_reco"] = moments_reco.r.to(
+                outData[cam_id]["n_tel_reco"] = n_tels["GOOD images"]
+                outData[cam_id]["hillas_x_reco"] = moments_reco.x.to("deg").value
+                outData[cam_id]["hillas_y_reco"] = moments_reco.y.to("deg").value
+                outData[cam_id]["hillas_phi_reco"] = moments_reco.phi.to("deg").value
+                outData[cam_id]["hillas_ellipticity_reco"] = ellipticity_reco.value
+                outData[cam_id]["hillas_r_reco"] = moments_reco.r.to("deg").value
+                outData[cam_id]["hillas_skewness_reco"] = moments_reco.skewness
+                outData[cam_id]["hillas_kurtosis_reco"] = moments_reco.kurtosis
+                outData[cam_id]["hillas_width_reco"] = moments_reco.width.to(
                     "deg"
                 ).value
-                feature_events[cam_id]["skewness_reco"] = moments_reco.skewness
-                feature_events[cam_id]["kurtosis_reco"] = moments_reco.kurtosis
-                feature_events[cam_id]["width_reco"] = moments_reco.width.to(
+                outData[cam_id]["hillas_length_reco"] = moments_reco.length.to(
                     "deg"
                 ).value
-                feature_events[cam_id]["length_reco"] = moments_reco.length.to(
-                    "deg"
-                ).value
-                feature_events[cam_id]["psi_reco"] = moments_reco.psi.to("deg").value
-                feature_events[cam_id]["sum_signal_cam_reco"] = moments_reco.intensity
-                feature_events[cam_id]["leakage_pixels_width_1_reco"] = leakage_dict[
+                outData[cam_id]["hillas_psi_reco"] = moments_reco.psi.to("deg").value
+                outData[cam_id]["hillas_intensity_reco"] = moments_reco.intensity
+                outData[cam_id]["leakage_intensity_width_1_reco"] = leakage_dict[
                     tel_id
                 ]["leak1_reco"]
-                feature_events[cam_id]["leakage_pixels_width_2_reco"] = leakage_dict[
+                outData[cam_id]["leakage_intensity_width_2_reco"] = leakage_dict[
                     tel_id
                 ]["leak2_reco"]
-                feature_events[cam_id]["leakage_pixels_width_1"] = leakage_dict[tel_id][
+                outData[cam_id]["leakage_intensity_width_1"] = leakage_dict[tel_id][
                     "leak1"
                 ]
-                feature_events[cam_id]["leakage_pixels_width_2"] = leakage_dict[tel_id][
+                outData[cam_id]["leakage_intensity_width_2"] = leakage_dict[tel_id][
                     "leak2"
                 ]
 
-                feature_events[cam_id].append()
+                # =======================
+                # IMAGES INFORMATION
+                # =======================
 
                 if args.save_images is True:
-                    images_phe[cam_id]["event_id"] = event.index.event_id
-                    images_phe[cam_id]["tel_id"] = tel_id
-                    images_phe[cam_id][
-                        "dl1_phe_image_mask_reco"
-                    ] = dl1_phe_image_mask_reco[tel_id]
-                    images_phe[cam_id]["reco_image"] = dl1_phe_image[tel_id]
-                    images_phe[cam_id]["true_image"] = mc_phe_image[tel_id]
-                    images_phe[cam_id]["mc_energy"] = event.mc.energy.value  # TeV
+                    outData[cam_id]["true_image"] = true_image[tel_id]
+                    outData[cam_id]["reco_image"] = reco_image[tel_id]
+                    outData[cam_id]["cleaning_mask_reco"] = cleaning_mask_reco[tel_id]
+                # =======================
 
-                    images_phe[cam_id].append()
+                outData[cam_id].append()
 
             if signal_handler.stop:
                 break
         if signal_handler.stop:
             break
     # make sure that all the events are properly stored
-    for table in feature_table.values():
+    for table in outTable.values():
         table.flush()
-
-    if args.save_images is True:
-        for table in images_table.values():
-            table.flush()
 
     print(
         bcolors.BOLD
