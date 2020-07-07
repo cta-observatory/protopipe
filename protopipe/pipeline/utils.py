@@ -449,3 +449,5 @@ def CTAMARS_radii(camera_name):
         "LSTCam": 2.31,
         "SCTCam": 4.0,  # dummy value
     }
+
+    return average_camera_radii_deg[camera_name]
