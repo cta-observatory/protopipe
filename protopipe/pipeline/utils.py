@@ -373,3 +373,74 @@ def effective_focal_lengths(camera_name):
     eff_foc_len = effective_focal_lengths[camera_name]
 
     return eff_foc_len
+
+
+def camera_radius(camid_to_efl, cam_id="all"):
+    """Get camera radii.
+
+    Inspired from pywi-cta CTAMarsCriteria, CTA Mars like preselection cuts.
+    This should be replaced by a function in ctapipe getting the radius either
+    from  the pixel poisitions or from an external database
+
+    Note
+    ----
+    average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen
+    The average camera radius values are, in degrees :
+    - LST: 2.31
+    - Nectar: 4.05
+    - Flash: 3.95
+    - SST-1M: 4.56
+    - GCT-CHEC-S: 3.93
+    - ASTRI: 4.67
+
+    """
+
+    average_camera_radii_deg = {
+        "ASTRICam": 4.67,
+        "CHEC": 3.93,
+        "DigiCam": 4.56,
+        "FlashCam": 3.95,
+        "NectarCam": 4.05,
+        "LSTCam": 2.31,
+        "SCTCam": 4.0,  # dummy value
+    }
+
+    if cam_id in camid_to_efl.keys():
+        foclen_meters = camid_to_efl[cam_id]
+        average_camera_radius_meters = (
+            math.tan(math.radians(average_camera_radii_deg[cam_id])) * foclen_meters
+        )
+    elif cam_id == "all":
+        print("Available camera radii in meters:")
+        for cam_id in camid_to_efl.keys():
+            print(f"* {cam_id} : {camera_radius(camid_to_efl, cam_id)}")
+        average_camera_radius_meters = 0
+    else:
+        raise ValueError("Unknown camid", cam_id)
+
+    return average_camera_radius_meters
+
+
+def CTAMARS_radii():
+
+    """Radii of the cameras as defined in CTA-MARS.
+
+    These values are defined in the code of CTA-MARS.
+    They correspond to the radius of an equivalent FOV covering the same solid
+    angle.
+
+    Returns
+    ----------
+    average_camera_radii_deg : dict
+        Dictionary containing the hard-coded values.
+    """
+
+    average_camera_radii_deg = {
+        "ASTRICam": 4.67,
+        "CHEC": 3.93,
+        "DigiCam": 4.56,
+        "FlashCam": 3.95,
+        "NectarCam": 4.05,
+        "LSTCam": 2.31,
+        "SCTCam": 4.0,  # dummy value
+    }
