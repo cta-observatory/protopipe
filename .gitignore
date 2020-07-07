@@ -2,6 +2,7 @@
 
 # Compiled files
 *.py[co]
+*.pyc
 *.a
 *.o
 *.so
