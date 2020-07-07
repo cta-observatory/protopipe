@@ -348,8 +348,8 @@ def main():
                     + n_tels["SST_ASTRI_ASTRICam"]
                     + n_tels["SST_GCT_CHEC"]
                 )
-                feature_events[cam_id]["width"] = moments.width.to("m").value
-                feature_events[cam_id]["length"] = moments.length.to("m").value
+                feature_events[cam_id]["width"] = moments.width.to("deg").value
+                feature_events[cam_id]["length"] = moments.length.to("deg").value
                 feature_events[cam_id]["psi"] = moments.psi.to("deg").value
                 feature_events[cam_id]["skewness"] = moments.skewness
                 feature_events[cam_id]["kurtosis"] = moments.kurtosis
@@ -357,10 +357,10 @@ def main():
                 feature_events[cam_id]["err_est_pos"] = np.nan
                 feature_events[cam_id]["err_est_dir"] = np.nan
                 feature_events[cam_id]["mc_energy"] = event.mc.energy.to("TeV").value
-                feature_events[cam_id]["cog_x"] = moments.x.to("m").value
-                feature_events[cam_id]["cog_y"] = moments.y.to("m").value
+                feature_events[cam_id]["cog_x"] = moments.x.to("deg").value
+                feature_events[cam_id]["cog_y"] = moments.y.to("deg").value
                 feature_events[cam_id]["phi"] = moments.phi.to("deg").value
-                feature_events[cam_id]["local_distance"] = moments.r.to("m").value
+                feature_events[cam_id]["local_distance"] = moments.r.to("deg").value
 
                 feature_events[cam_id]["n_pixel"] = n_pixel_dict[tel_id]
                 feature_events[cam_id]["obs_id"] = event.index.obs_id
@@ -385,18 +385,20 @@ def main():
                 feature_events[cam_id]["reco_energy_tel"] = reco_energy_tel[tel_id]
                 # Variables from hillas_dist_reco
                 feature_events[cam_id]["n_tel_reco"] = n_tels["GOOD images"]
-                feature_events[cam_id]["cog_x_reco"] = moments_reco.x.to("m").value
-                feature_events[cam_id]["cog_y_reco"] = moments_reco.y.to("m").value
+                feature_events[cam_id]["cog_x_reco"] = moments_reco.x.to("deg").value
+                feature_events[cam_id]["cog_y_reco"] = moments_reco.y.to("deg").value
                 feature_events[cam_id]["phi_reco"] = moments_reco.phi.to("deg").value
                 feature_events[cam_id]["ellipticity_reco"] = ellipticity_reco.value
                 feature_events[cam_id]["local_distance_reco"] = moments_reco.r.to(
-                    "m"
+                    "deg"
                 ).value
                 feature_events[cam_id]["skewness_reco"] = moments_reco.skewness
                 feature_events[cam_id]["kurtosis_reco"] = moments_reco.kurtosis
-                feature_events[cam_id]["width_reco"] = moments_reco.width.to("m").value
+                feature_events[cam_id]["width_reco"] = moments_reco.width.to(
+                    "deg"
+                ).value
                 feature_events[cam_id]["length_reco"] = moments_reco.length.to(
-                    "m"
+                    "deg"
                 ).value
                 feature_events[cam_id]["psi_reco"] = moments_reco.psi.to("deg").value
                 feature_events[cam_id]["sum_signal_cam_reco"] = moments_reco.intensity

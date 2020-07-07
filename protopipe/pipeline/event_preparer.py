@@ -14,7 +14,7 @@ from ctapipe.calib import CameraCalibrator
 from ctapipe.image.extractor import TwoPassWindowSum
 from ctapipe.image import leakage, number_of_islands, largest_island
 from ctapipe.utils.CutFlow import CutFlow
-from ctapipe.coordinates import GroundFrame
+from ctapipe.coordinates import GroundFrame, TelescopeFrame
 
 # from ctapipe.image.timing_parameters import timing_parameters
 from ctapipe.image.hillas import hillas_parameters, HillasParameterizationError
@@ -26,7 +26,8 @@ from ctapipe.reco.reco_algorithms import (
 
 # Pipeline utilities
 from .image_cleaning import ImageCleaner
-from .utils import bcolors
+from .utils import bcolors, effective_focal_lengths, camera_radius, CTAMARS_radii
+from .temp import MyCameraGeometry, MyHillasReconstructor
 
 # PiWy utilities
 try:
@@ -62,52 +63,6 @@ PreparedEvent = namedtuple(
         "good_for_reco",
     ],
 )
-
-
-def camera_radius(camid_to_efl, cam_id="all"):
-    """Get camera radii.
-
-    Inspired from pywi-cta CTAMarsCriteria, CTA Mars like preselection cuts.
-    This should be replaced by a function in ctapipe getting the radius either
-    from  the pixel poisitions or from an external database
-
-    Note
-    ----
-    average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen
-    The average camera radius values are, in degrees :
-    - LST: 2.31
-    - Nectar: 4.05
-    - Flash: 3.95
-    - SST-1M: 4.56
-    - GCT-CHEC-S: 3.93
-    - ASTRI: 4.67
-
-    """
-
-    average_camera_radii_deg = {
-        "ASTRICam": 4.67,
-        "CHEC": 3.93,
-        "DigiCam": 4.56,
-        "FlashCam": 3.95,
-        "NectarCam": 4.05,
-        "LSTCam": 2.31,
-        "SCTCam": 4.0,  # dummy value
-    }
-
-    if cam_id in camid_to_efl.keys():
-        foclen_meters = camid_to_efl[cam_id]
-        average_camera_radius_meters = (
-            math.tan(math.radians(average_camera_radii_deg[cam_id])) * foclen_meters
-        )
-    elif cam_id == "all":
-        print("Available camera radii in meters:")
-        for cam_id in camid_to_efl.keys():
-            print(f"* {cam_id} : {camera_radius(camid_to_efl, cam_id)}")
-        average_camera_radius_meters = 0
-    else:
-        raise ValueError("Unknown camid", cam_id)
-
-    return average_camera_radius_meters
 
 
 def stub(
@@ -217,9 +172,15 @@ class EventPreparer:
                 cams_and_foclens, "all"
             )  # Display all registered camera radii
 
+        # Radii in meters from CTA-MARS
+        # self.camera_radius = {
+        #     cam_id: camera_radius(cams_and_foclens, cam_id)
+        #     for cam_id in cams_and_foclens.keys()
+        # }
+
+        # Radii in degrees from CTA-MARS
         self.camera_radius = {
-            cam_id: camera_radius(cams_and_foclens, cam_id)
-            for cam_id in cams_and_foclens.keys()
+            cam_id: CTAMARS_radii(cam_id) for cam_id in cams_and_foclens.keys()
         }
 
         self.image_cutflow.set_cuts(
@@ -263,7 +224,7 @@ class EventPreparer:
         )
 
         # Reconstruction
-        self.shower_reco = HillasReconstructor()
+        self.shower_reco = MyHillasReconstructor()
 
         # Event book keeping
         self.event_cutflow = event_cutflow or CutFlow("EventCutFlow")
@@ -289,6 +250,8 @@ class EventPreparer:
         ----------
         source : ctapipe.io.EventSource
             A container of selected showers from a simtel file.
+        geom_cam_tel: dict
+            Dictionary of of MyCameraGeometry objects for each camera in the file
         return_stub : bool
             If True, yield also images from events that won't be reconstructed.
             This feature is not currently available.
@@ -303,6 +266,42 @@ class EventPreparer:
             Dictionary containing event-image information to be written.
 
         """
+
+        # =============================================================
+        #                TRANSFORMED CAMERA GEOMETRIES
+        # =============================================================
+
+        # These are the camera geometries were the Hillas parametrization will
+        # be performed.
+        # They are transformed to TelescopeFrame using the effective focal
+        # lengths
+
+        # These geometries could be used also to performe the image cleaning,
+        # but for the moment we still do that in the CameraFrame
+
+        geom_cam_tel = {}
+        for camera in source.subarray.camera_types:
+
+            # Original geometry of each camera
+            geom = camera.geometry
+            # Same but with focal length as an attribute
+            # This is planned to disappear and be imported by ctapipe
+            focal_length = effective_focal_lengths(camera.camera_name)
+
+            geom_cam_tel[camera.camera_name] = MyCameraGeometry(
+                camera_name=camera.camera_name,
+                pix_type=geom.pix_type,
+                pix_id=geom.pix_id,
+                pix_x=geom.pix_x,
+                pix_y=geom.pix_y,
+                pix_area=geom.pix_area,
+                cam_rotation=geom.cam_rotation,
+                pix_rotation=geom.pix_rotation,
+                equivalent_focal_length=focal_length,
+            ).transform_to(TelescopeFrame())
+
+        # =============================================================
+
         ievt = 0
         for event in source:
 
@@ -571,45 +570,6 @@ class EventPreparer:
                     good_for_reco[tel_id] = 0  # we record it as BAD
                     cleaned_image_is_good = False
 
-                # Better do this everytime...
-                # with np.errstate(invalid="raise", divide="raise"):
-                #     try:
-                #
-                #         moments_reco = hillas_parameters(
-                #             camera_biggest, image_biggest
-                #         )  # for geometry (eg direction)
-                #         moments = hillas_parameters(
-                #             camera_extended, image_extended
-                #         )  # for discrimination and energy reconstruction
-                #
-                #         # if width and/or length are zero (e.g. when there is
-                #         # only only one pixel or when all  pixel are exactly
-                #         # in one row), the parametrisation
-                #         # won't be very useful: skip
-                #         if self.image_cutflow.cut("poor moments", moments_reco):
-                #             if debug:
-                #                 print("WARNING : poor moments!")
-                #             good_for_reco[tel_id] = 0  # we record it as BAD
-                #
-                #         if self.image_cutflow.cut(
-                #             "close to the edge", moments_reco, camera.camera_name
-                #         ):
-                #             print(
-                #                 f"Camera radius = {self.camera_radius[camera.camera_name]}"
-                #             )
-                #             print(f"COG radius = {moments_reco.r}")
-                #             good_for_reco[tel_id] = 0
-                #             print(f"WARNING : out of containment radius")
-                #             continue
-                #
-                #         if self.image_cutflow.cut("bad ellipticity", moments_reco):
-                #             print(f"WARNING : bad ellipticity")
-                #             good_for_reco[tel_id] = 0
-                #             continue
-                #
-                #     except (FloatingPointError, hillas.HillasParameterizationError):
-                #         continue
-
                 # =============================================================
                 #                   IMAGE PARAMETRIZATION
                 # =============================================================
@@ -620,13 +580,37 @@ class EventPreparer:
                         if not cleaned_image_is_good:  # BAD image quality
                             raise ValueError
 
-                        # Parametrize the image
+                        camera_biggest.pix_id
+                        camera_extended.pix_id
+
+                        # # Parametrize the image
+                        # moments_reco = hillas_parameters(
+                        #     camera_biggest, image_biggest
+                        # )  # for geometry (eg direction)
+                        # moments = hillas_parameters(
+                        #     camera_extended, image_extended
+                        # )  # for discrimination and energy reconstruction
+
+                        # Filter the cameras in TelescopeFrame with the same
+                        # cleaning masks
+                        camera_biggest_tel = geom_cam_tel[camera.camera_name][
+                            camera_biggest.pix_id
+                        ]
+                        camera_extended_tel = geom_cam_tel[camera.camera_name][
+                            camera_extended.pix_id
+                        ]
+
+                        # Parametrize the image in the TelescopeFrame
                         moments_reco = hillas_parameters(
-                            camera_biggest, image_biggest
+                            camera_biggest_tel, image_biggest
                         )  # for geometry (eg direction)
                         moments = hillas_parameters(
-                            camera_extended, image_extended
+                            camera_extended_tel, image_extended
                         )  # for discrimination and energy reconstruction
+
+                        if debug:
+                            print("Image parameters:")
+                            print(moments_reco)
 
                         # ===================================================
                         #             PARAMETRIZED IMAGE SELECTION
@@ -783,14 +767,7 @@ class EventPreparer:
                         good_hillas_dict_reco,
                         source.subarray,
                         SkyCoord(alt=alt, az=az, frame="altaz"),
-                        {
-                            tel_id: SkyCoord(
-                                alt=point_altitude_dict[tel_id],
-                                az=point_azimuth_dict[tel_id],
-                                frame="altaz",
-                            )  # cycle only on tels which still have an image
-                            for tel_id in point_altitude_dict.keys()
-                        },
+                        None,  # use the array direction
                     )
 
                     # Impact parameter for energy estimation (/ tel)
