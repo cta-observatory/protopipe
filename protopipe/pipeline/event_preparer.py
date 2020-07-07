@@ -54,7 +54,6 @@ PreparedEvent = namedtuple(
         "hillas_dict_reco",
         "leakage_dict",
         "n_tels",
-        "tot_signal",
         "max_signals",
         "n_cluster_dict",
         "reco_result",
@@ -88,7 +87,6 @@ def stub(
         hillas_dict_reco=hillas_dict_reco,
         leakage_dict=leakage_dict,
         n_tels=n_tels,
-        tot_signal=None,
         max_signals=dict.fromkeys(hillas_dict_reco.keys(), np.nan),  # no charge
         n_cluster_dict=dict.fromkeys(hillas_dict_reco.keys(), 0),  # no clusters
         reco_result=ReconstructedShowerContainer(),  # defaults to nans
@@ -351,7 +349,6 @@ class EventPreparer:
             #                BEGINNING OF LOOP OVER TELESCOPES
             # =============================================================
 
-            tot_signal = 0
             dl1_phe_image = {}
             dl1_phe_image_mask_reco = {}
             mc_phe_image = {}
@@ -674,13 +671,11 @@ class EventPreparer:
                     ):
                         hillas_dict[tel_id] = HillasParametersContainer()
                         hillas_dict_reco[tel_id] = HillasParametersContainer()
-                        tot_signal += moments.intensity
                         n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                         leakage_dict[tel_id] = leakages
 
                 hillas_dict[tel_id] = moments
                 hillas_dict_reco[tel_id] = moments_reco
-                tot_signal += moments.intensity
                 n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                 leakage_dict[tel_id] = leakages
 
@@ -868,7 +863,6 @@ class EventPreparer:
                 hillas_dict_reco=hillas_dict_reco,
                 leakage_dict=leakage_dict,
                 n_tels=n_tels,
-                tot_signal=tot_signal,
                 max_signals=max_signals,
                 n_cluster_dict=n_cluster_dict,
                 reco_result=reco_result,
