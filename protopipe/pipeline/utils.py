@@ -421,13 +421,18 @@ def camera_radius(camid_to_efl, cam_id="all"):
     return average_camera_radius_meters
 
 
-def CTAMARS_radii():
+def CTAMARS_radii(camera_name):
 
     """Radii of the cameras as defined in CTA-MARS.
 
     These values are defined in the code of CTA-MARS.
     They correspond to the radius of an equivalent FOV covering the same solid
     angle.
+
+    Parameters
+    ----------
+    camera_name : str
+        Name of the camera.
 
     Returns
     ----------
