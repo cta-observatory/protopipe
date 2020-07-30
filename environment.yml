@@ -4,7 +4,7 @@ channels:
   - conda-forge
   - cta-observatory
 dependencies:
-  - ctapipe=0.7.0
+  - ctapipe=0.8.0
   - gammapy=0.8
   - ipython
   - nbsphinx
