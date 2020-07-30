@@ -641,11 +641,12 @@ class EventPreparer:
                             good_for_reco[tel_id] = 0
 
                         if self.image_cutflow.cut("bad ellipticity", moments_reco):
-                            print(
-                                bcolors.WARNING
-                                + "WARNING : bad ellipticity"
-                                + bcolors.ENDC
-                            )
+                            if debug:
+                                print(
+                                    bcolors.WARNING
+                                    + "WARNING : bad ellipticity"
+                                    + bcolors.ENDC
+                                )
                             good_for_reco[tel_id] = 0
 
                         if debug and good_for_reco[tel_id] == 1:
