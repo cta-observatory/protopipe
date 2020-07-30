@@ -3,13 +3,17 @@
 Data training
 =============
 
-`protopipe.scripts.write_dl1.py` is used to build tables of image and stereo
-parameters that will be further used to build energy estimators and
-classifiers per type of camera.
-In case you want to estimate the energy of the particles,
-to build g/h classifiers, typically, you need to specify the boolean
-`estimate_energy` parameter as well as the directory where the model is
-saved via the `regressor_dir` option.
+``protopipe.scripts.write_dl1.py`` is used to build tables of image and shower
+parameters that will be further used to build energy and particle classification
+estimators for camera type.
+
+.. note::
+  | In the current version of the pipeline, the particle classification model
+    needs uses the estimate of the particle's energy as one of the parameters.
+  | When training the data for that model you will need to specify the boolean
+    ``estimate_energy`` parameter as well as the directory where the model is
+    saved via the ``regressor_dir`` option.
+
 
 By invoking the help argument, you can get help about how the script works:
 
