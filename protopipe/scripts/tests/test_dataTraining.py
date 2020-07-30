@@ -14,9 +14,7 @@ GAMMA_TEST_LARGE = get_dataset_path("gamma_test_large.simtel.gz")
 # MC productions expected to be analyzed with protopipe.
 
 # configuration files
-ana_config = resource_filename(
-    "protopipe", "aux/example_config_files/protopipe/analysis.yaml"
-)
+ana_config = resource_filename("protopipe", "aux/example_config_files/analysis.yaml")
 
 
 def test_dataTraining_noImages():
