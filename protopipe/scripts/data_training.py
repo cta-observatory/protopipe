@@ -118,113 +118,90 @@ def main():
 
         regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
 
-    class DataTrainingOutput(tb.IsDescription):
-        """Column descriptor for the file containing output training data."""
-
+    # COLUMN DESCRIPTOR AS DICTIONARY
+    # Column descriptor for the file containing output training data."""
+    DataTrainingOutput = dict(
         # ======================================================================
         # ARRAY
-        obs_id = tb.Int16Col(dflt=1, pos=0)
-        event_id = tb.Int32Col(dflt=1, pos=1)
-        tel_id = tb.Int16Col(dflt=1, pos=2)
-        N_LST = tb.Int16Col(dflt=1, pos=3)
-        N_MST = tb.Int16Col(dflt=1, pos=4)
-        N_SST = tb.Int16Col(dflt=1, pos=5)
-        n_tel_reco = tb.FloatCol(dflt=1, pos=6)
-        n_tel_discri = tb.FloatCol(dflt=1, pos=7)
-
+        obs_id=tb.Int16Col(dflt=1, pos=0),
+        event_id=tb.Int32Col(dflt=1, pos=1),
+        tel_id=tb.Int16Col(dflt=1, pos=2),
+        N_LST=tb.Int16Col(dflt=1, pos=3),
+        N_MST=tb.Int16Col(dflt=1, pos=4),
+        N_SST=tb.Int16Col(dflt=1, pos=5),
+        n_tel_reco=tb.FloatCol(dflt=1, pos=6),
+        n_tel_discri=tb.FloatCol(dflt=1, pos=7),
         # ======================================================================
         # DL1
-        hillas_intensity_reco = tb.Float32Col(dflt=1, pos=8)
-        hillas_intensity = tb.Float32Col(dflt=1, pos=9)
-
-        hillas_x_reco = tb.Float32Col(dflt=1, pos=10)
-        hillas_y_reco = tb.Float32Col(dflt=1, pos=11)
-        hillas_x = tb.Float32Col(dflt=1, pos=12)
-        hillas_y = tb.Float32Col(dflt=1, pos=13)
-
-        hillas_r_reco = tb.Float32Col(dflt=1, pos=14)
-        hillas_r = tb.Float32Col(dflt=1, pos=15)
-
-        hillas_phi_reco = tb.Float32Col(dflt=1, pos=16)
-        hillas_phi = tb.Float32Col(dflt=1, pos=17)
-
-        hillas_length_reco = tb.Float32Col(dflt=1, pos=18)
-        hillas_length = tb.Float32Col(dflt=1, pos=19)
-
-        hillas_width_reco = tb.Float32Col(dflt=1, pos=20)
-        hillas_width = tb.Float32Col(dflt=1, pos=21)
-
-        hillas_psi_reco = tb.Float32Col(dflt=1, pos=22)
-        hillas_psi = tb.Float32Col(dflt=1, pos=23)
-
-        hillas_skewness_reco = tb.Float32Col(dflt=1, pos=24)
-        hillas_skewness = tb.Float32Col(dflt=1, pos=25)
-
-        hillas_kurtosis = tb.Float32Col(dflt=1, pos=26)
-        hillas_kurtosis_reco = tb.Float32Col(dflt=1, pos=27)
-
-        leakage_intensity_width_1_reco = tb.Float32Col(dflt=np.nan, pos=28)
-        leakage_intensity_width_2_reco = tb.Float32Col(dflt=np.nan, pos=29)
-        leakage_intensity_width_1 = tb.Float32Col(dflt=np.nan, pos=30)
-        leakage_intensity_width_2 = tb.Float32Col(dflt=np.nan, pos=31)
-
+        hillas_intensity_reco=tb.Float32Col(dflt=1, pos=8),
+        hillas_intensity=tb.Float32Col(dflt=1, pos=9),
+        hillas_x_reco=tb.Float32Col(dflt=1, pos=10),
+        hillas_y_reco=tb.Float32Col(dflt=1, pos=11),
+        hillas_x=tb.Float32Col(dflt=1, pos=12),
+        hillas_y=tb.Float32Col(dflt=1, pos=13),
+        hillas_r_reco=tb.Float32Col(dflt=1, pos=14),
+        hillas_r=tb.Float32Col(dflt=1, pos=15),
+        hillas_phi_reco=tb.Float32Col(dflt=1, pos=16),
+        hillas_phi=tb.Float32Col(dflt=1, pos=17),
+        hillas_length_reco=tb.Float32Col(dflt=1, pos=18),
+        hillas_length=tb.Float32Col(dflt=1, pos=19),
+        hillas_width_reco=tb.Float32Col(dflt=1, pos=20),
+        hillas_width=tb.Float32Col(dflt=1, pos=21),
+        hillas_psi_reco=tb.Float32Col(dflt=1, pos=22),
+        hillas_psi=tb.Float32Col(dflt=1, pos=23),
+        hillas_skewness_reco=tb.Float32Col(dflt=1, pos=24),
+        hillas_skewness=tb.Float32Col(dflt=1, pos=25),
+        hillas_kurtosis=tb.Float32Col(dflt=1, pos=26),
+        hillas_kurtosis_reco=tb.Float32Col(dflt=1, pos=27),
+        leakage_intensity_width_1_reco=tb.Float32Col(dflt=np.nan, pos=28),
+        leakage_intensity_width_2_reco=tb.Float32Col(dflt=np.nan, pos=29),
+        leakage_intensity_width_1=tb.Float32Col(dflt=np.nan, pos=30),
+        leakage_intensity_width_2=tb.Float32Col(dflt=np.nan, pos=31),
         # The following are missing from current ctapipe DL1 output
         # Not sure if it's worth to add them
-
-        hillas_ellipticity_reco = tb.FloatCol(dflt=1, pos=32)
-        hillas_ellipticity = tb.FloatCol(dflt=1, pos=33)
-
-        max_signal_cam = tb.Float32Col(dflt=1, pos=34)
-
-        pixels = tb.Int16Col(dflt=1, pos=35)
-        clusters = tb.Int16Col(dflt=-1, pos=36)
-
+        hillas_ellipticity_reco=tb.FloatCol(dflt=1, pos=32),
+        hillas_ellipticity=tb.FloatCol(dflt=1, pos=33),
+        max_signal_cam=tb.Float32Col(dflt=1, pos=34),
+        pixels=tb.Int16Col(dflt=1, pos=35),
+        clusters=tb.Int16Col(dflt=-1, pos=36),
         # ======================================================================
-
         # DL2 - DIRECTION RECONSTRUCTION
-        impact_dist = tb.Float32Col(dflt=1, pos=37)
-        h_max = tb.Float32Col(dflt=1, pos=38)
-        alt = tb.Float32Col(dflt=np.nan, pos=39)
-        az = tb.Float32Col(dflt=np.nan, pos=40)
-        err_est_pos = tb.Float32Col(dflt=1, pos=41)
-        err_est_dir = tb.Float32Col(dflt=1, pos=42)
-        xi = tb.Float32Col(dflt=np.nan, pos=43)
-        offset = tb.Float32Col(dflt=np.nan, pos=44)
-
-        mc_core_x = tb.FloatCol(dflt=1, pos=45)
-        mc_core_y = tb.FloatCol(dflt=1, pos=46)
-        reco_core_x = tb.FloatCol(dflt=1, pos=47)
-        reco_core_y = tb.FloatCol(dflt=1, pos=48)
-
-        mc_h_first_int = tb.FloatCol(dflt=1, pos=49)
-        mc_x_max = tb.Float32Col(dflt=np.nan, pos=50)
-
-        is_valid = tb.BoolCol(dflt=False, pos=51)
-        good_image = tb.Int16Col(dflt=1, pos=52)
-
+        impact_dist=tb.Float32Col(dflt=1, pos=37),
+        h_max=tb.Float32Col(dflt=1, pos=38),
+        alt=tb.Float32Col(dflt=np.nan, pos=39),
+        az=tb.Float32Col(dflt=np.nan, pos=40),
+        err_est_pos=tb.Float32Col(dflt=1, pos=41),
+        err_est_dir=tb.Float32Col(dflt=1, pos=42),
+        xi=tb.Float32Col(dflt=np.nan, pos=43),
+        offset=tb.Float32Col(dflt=np.nan, pos=44),
+        mc_core_x=tb.FloatCol(dflt=1, pos=45),
+        mc_core_y=tb.FloatCol(dflt=1, pos=46),
+        reco_core_x=tb.FloatCol(dflt=1, pos=47),
+        reco_core_y=tb.FloatCol(dflt=1, pos=48),
+        mc_h_first_int=tb.FloatCol(dflt=1, pos=49),
+        mc_x_max=tb.Float32Col(dflt=np.nan, pos=50),
+        is_valid=tb.BoolCol(dflt=False, pos=51),
+        good_image=tb.Int16Col(dflt=1, pos=52),
         # ======================================================================
-
         # DL2 - ENERGY ESTIMATION
-        true_energy = tb.FloatCol(dflt=1, pos=53)
-        reco_energy = tb.FloatCol(dflt=np.nan, pos=54)
-        reco_energy_tel = tb.Float32Col(dflt=np.nan, pos=55)
-
+        true_energy=tb.FloatCol(dflt=1, pos=53),
+        reco_energy=tb.FloatCol(dflt=np.nan, pos=54),
+        reco_energy_tel=tb.Float32Col(dflt=np.nan, pos=55),
         # ======================================================================
-
-        # DL1 IMAGES (optional)
-        true_image = tb.Float32Col(shape=(1855), pos=56)
-        reco_image = tb.Float32Col(shape=(1855), pos=57)
-        cleaning_mask_reco = tb.BoolCol(shape=(1855), pos=58)  # not in ctapipe
+        # DL1 IMAGES
+        # this is optional data saved by the user
+        # since these data declarations require to know how many pixels
+        # each saved image will have,
+        # we add them later on, right before creating the table
+        # We list them here for reference
+        # true_image=tb.Float32Col(shape=(1855), pos=56),
+        # reco_image=tb.Float32Col(shape=(1855), pos=57),
+        # cleaning_mask_reco=tb.BoolCol(shape=(1855), pos=58),  # not in ctapipe
+    )
 
     outfile = tb.open_file(args.outfile, mode="w")
     outTable = {}
     outData = {}
-
-    # Create the images file only if the user want to store the images
-    # if args.save_images is True:
-    #     images_outfile = tb.open_file("images.h5", mode="w")
-    #     images_table = {}
-    #     images_phe = {}
 
     for i, filename in enumerate(filenamelist):
 
@@ -331,17 +308,26 @@ def main():
                 cam_id = source.subarray.tel[tel_id].camera.camera_name
 
                 if cam_id not in outData:
+
+                    if args.save_images is True:
+                        # we define and save images content here, to make it
+                        # adaptive to different cameras
+
+                        n_pixels = source.subarray.tel[tel_id].camera.geometry.n_pixels
+                        DataTrainingOutput["true_image"] = tb.Float32Col(
+                            shape=(n_pixels), pos=56
+                        )
+                        DataTrainingOutput["reco_image"] = tb.Float32Col(
+                            shape=(n_pixels), pos=57
+                        )
+                        DataTrainingOutput["cleaning_mask_reco"] = tb.BoolCol(
+                            shape=(n_pixels), pos=58
+                        )  # not in ctapipe
+
                     outTable[cam_id] = outfile.create_table(
                         "/", cam_id, DataTrainingOutput,
                     )
                     outData[cam_id] = outTable[cam_id].row
-
-                # if args.save_images is True:
-                #     if cam_id not in images_phe:
-                #         images_table[cam_id] = images_outfile.create_table(
-                #             "/", "_".join(["images", cam_id]), StoredImages
-                #         )
-                #         images_phe[cam_id] = images_table[cam_id].row
 
                 moments = hillas_dict[tel_id]
                 ellipticity = moments.width / moments.length
@@ -436,6 +422,9 @@ def main():
                 # =======================
 
                 if args.save_images is True:
+                    # we define and save images content here, to make it
+                    # adaptive to different cameras
+
                     outData[cam_id]["true_image"] = true_image[tel_id]
                     outData[cam_id]["reco_image"] = reco_image[tel_id]
                     outData[cam_id]["cleaning_mask_reco"] = cleaning_mask_reco[tel_id]
