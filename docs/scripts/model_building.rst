@@ -8,7 +8,9 @@ energy and gamma/hadron classification.
 The base classes are defined in the ``protopipe.mva`` module (see :ref:`mva`).
 
 For both cases, building a regressor or a classifier, the script
-`protopipe.scripts.build_model.py` is used.
+``protopipe.scripts.build_model.py`` is used.
+
+The following is a summary of ist usage required arguments and options.
 
 .. code-block::
 
@@ -36,9 +38,10 @@ Energy regressor
 
 To build this you need a table with at least the MC energy (the target)
 and some event characteristics (the features) to reconstruct the energy.
-This table should be created via :ref:`DL1_training`.
+This table is created in the :ref:`data_training` step.
 
-The following is a commented example of ``regressor.yaml``:
+The following is a commented example of the required configuration file
+``regressor.yaml``:
 
 .. code-block:: yaml
 
@@ -47,7 +50,7 @@ The following is a commented example of ``regressor.yaml``:
      data_dir: 'absolute_data_path'  # Directory with the data
      data_file: 'dl1_{}_gamma_merged.h5'  # Name of the data file ({} will be completed with the mode (tail,wave))
      outdir: 'absolute_output_path'  # Output directory
-     cam_id_list: ['LSTCam', 'NectarCam']  # List of camera
+     cam_id_list: ['LSTCam', 'NectarCam']  # List of the cameras to be used
      table_name_template: 'feature_events_'  # Template name of table in DF5 (will be completed with cam_ids)
 
     Split:
@@ -93,11 +96,11 @@ energy, e.g.,
 * the impact parameter,
 * the height of the shower maximum.
 
-Up to now, we used a Boosted Decision Tree (BDT) algorithm to reconstruct the
-energy.
-Note that the tuning of the Random Forest (RF) algorithm was found
+The algorithm used to reconstruct the energy is a **Boosted Decision Tree (BDT)**.
+The tuning of the *Random Forest (RF)* algorithm was found to be
 a bit problematic (20 % energy resolution at all energies).
-The important thing to get the a good energy estimator is to build trees with high depth.
+The important thing to get a good energy estimator is to build trees with high
+depth.
 The minimal number of events to form an external node was fixed to 10 in order
 to obtain a model with a reasonable size (~50MB for  for 200000 evts).
 Indeed, allowing the trees to develop deeper would result in massive
@@ -106,12 +109,12 @@ files (~500MB for 200000 evts).
 g/h classifier
 --------------
 
-To build a g/h classifier you need gamma-ray and proton tables with some
-features discriminate between gamma and hadrons (electrons are handled later
+To build a gamma/hadron classifier you need gamma-ray and proton tables with some
+features used to discriminate between gamma and hadrons (electrons are handled later
 as a contamination).
 
 .. note::
-  An alternative approach to study could be to train a classifier with gamma
+  An alternative approach - yet to study - could be to train a classifier with gamma
   against a background sample composed of weighted hadrons and weighted electrons.
 
 .. code-block:: yaml
@@ -209,7 +212,7 @@ in real conditions to see that everything is correct.
 
   They have been tuned to get reasonable performance and a good agreeement
   between the training/test samples.
-  
+
   A first optimisation will follow from the comparison against CTA-MARS, even
   though the parameters used and settings are already the same.
 

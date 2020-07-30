@@ -2,6 +2,7 @@
 
 # Compiled files
 *.py[co]
+*.pyc
 *.a
 *.o
 *.so
@@ -81,7 +82,9 @@ distribute-*.tar.gz
 *.h5
 *.hdf5
 *.fits
-*.fits.gz
+irf.fits.gz
+table_best_cutoff.fits
+*.pkl.gz
 
 *.pstats
 target

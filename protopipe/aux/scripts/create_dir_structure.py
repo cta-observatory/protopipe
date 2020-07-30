@@ -29,19 +29,21 @@ def makedir(name):
 # along the rest of the protopipe configuration
 
 # read name of working directory as 1st argument
+# create it if not existent
 wd = sys.argv[1]
+makedir(wd)
+
 # read name of the analysis as 2nd argument
 analysisName = sys.argv[2]
-
 # Create analysis parent folder
 analysis = os.path.join(wd, analysisName)
 makedir(analysis)
 
 subdirectories = {
-  "configs": ["grid", "protopipe"],
-  "data": ["DL0", "DL1", "DL2", "DL3"],
-  "estimators": ["energy_regressor", "gamma_hadron_classifier"],
-  "performance": [] # here no subdirectories, make_performance.py will do it
+    "configs": ["grid", "protopipe"],
+    "data": ["DL0", "DL1", "DL2", "DL3"],
+    "estimators": ["energy_regressor", "gamma_hadron_classifier"],
+    "performance": [],  # here no subdirectories, make_performance.py will do it
 }
 
 for d in subdirectories:
@@ -55,4 +57,3 @@ for d in subdirectories:
             makedir(os.path.join(subsubdir, "for_energy_estimation"))
 
 print("Directory structure ready for protopipe analysis on DIRAC.")
-
