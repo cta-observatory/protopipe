@@ -3,70 +3,67 @@
 The repository
 ==============
 
-It is the place from which both users and developers can monitor the
-status of the development of *protopipe*.
+Is useful for both basic users and developers to monitor the status of the
+development of *protopipe*.
 
-The best place where to start is the **projects** tab.
-Here, as of today, there are 3 open projects:
+Start from the **projects** tab, which currently consists of
 
 - *Next release*,
 - *Development of new algorithms*,
 - *Bugs*.
 
-All the projects do not point to specific deadlines, instead they are meant to
-give a continuous overview about the current activities.
+They don't come with specific deadlines, because they are meant to
+give a continuous overview regardless of versioning.
 
-If what you had in mind is already covered there, you can participate,
-otherwise you can open an issue yourself.
+Please, if what you have in mind is not already covered open a new issue.
 
 Next release
 ------------
 
-This project collects all open issues and pull-requests that are related to the
+This project collects all open issues and pull-requests related to the
 work needed for releasing a new version of the pipeline.
 It is organized in 4 sections:
 
-- *Summary issues*, these are not "issues" in the real sense of the word,
-  but rather GitHub issues that list enhancements which are all related to a particular subject
-- *To Do*, these are open issues that should trigger pull-requests (some can be as simple as a question),
+- *Summary issues*, lists of issues all related to a particular subject,
+- *To Do*, open issues that should trigger pull-requests (some can be as simple as a question),
 - *In progress*, pull-requests pushed by a user to the repository,
-- *Review in progress*, one or some of the mantainers have started reviewing
-  the pull-requests and/or discussing with the authors,
+- *Review in progress*, one or some of the maintainers started reviewing
+  the pull-request(s) and/or discussing with the authors,
 - *Reviewer approved*, the pull-request has been approved by the mantainers,
   but not yet merged into the master branch,
-- *Done*, the pull-request has been accepted and merged; any issue linked to it
-  (and likely appearing in the "To Do" section) will be automatically closed and will disappear.
+- *Done*, the pull-request has been accepted and merged; any linked issue
+  in the "To Do" column will automatically disappear.
 
-At any point, if an issue or pull-request gets re-opened (maybe because there was
-an error or an incompletness has been spotted) it will automatically reappear
-in the corresponding section of this project.
+At any point, if an issue or pull-request gets re-opened it will automatically
+reappear in the corresponding section of this project.
 
 Development of new algorithms
 -----------------------------
 
-By this we mean the development of new features that, even if not vital for the
-next release, are still needed by the collaboration/observatory and can be
+Features that, even if not vital for the
+next release, are still needed by some working groups and can be
 tested with this pipeline.
-An example of this is the support for the divergent pointing technique developed
-in ctapipe.
+An example of this is the support for the divergent pointing technique.
 
 This project has the same structure of the "Next release" project and works in
-the same way. In particular,
+the same way.
 
-- relevant issues and pull-requests should be labelled as **additional tool**,
-- the issues listed in the "Summary issues" column are expected to
-  be isolated from each other, so each issue is a algorithm/subject itself.
+In particular,
+
+- relevant issues and pull-requests should be labelled as ``additional tool``,
+- the "Summary issues" column are expected to
+  be isolated from each other (each one referring to a different algorithm).
 
 Bugs
 ----
 
-This is meant to be a tracker for bugs, but also for situations in which
-the code works (so technically not a bug), but either we discovered a limitation
-in performance or this has degraded for an unkown reason.
+A tracker for bugs, but also for situations in which
+the code works (so technically not a bug), but either a limitation or degradation
+in performance has been discovered.
 
 The project is divided in the following sections:
 
-- *Needs triage*, collects all open issues tagged either **bug** or **wrong behaviour**
+- *Needs triage*, collects all open issues labelled either ``bug`` or ``wrong behaviour``
   that have not been classified by priority,
 - *High priority*, open issues that previously needed triage, but that have been
   recognized to be fatal or urgent,

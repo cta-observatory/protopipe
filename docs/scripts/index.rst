@@ -18,13 +18,13 @@ Details
 .. toctree::
     :maxdepth: 1
 
-    DL1_training
+    data_training
     model_building
     model_diagnostics
     DL2
     optimization_cuts_IRFs
 
-The tables created in the :ref:`DL1_training` and :ref:`DL2` steps are written
+The tables created in the :ref:`data_training` and :ref:`DL2` steps are written
 on disk in HDF5_ format using the PyTables_ Python module.
 This choice has been done considering the potential huge
 volume of data we will be dealing with in a near future.

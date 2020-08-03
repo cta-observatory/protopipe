@@ -1,7 +1,7 @@
-"""Test the write_dl1 script in a variety of conditions."""
+"""Test the data training script in a variety of conditions."""
 from os import path, system
 from pkg_resources import resource_filename
-from protopipe.scripts import write_dl1
+from protopipe.scripts import data_training
 from ctapipe.utils import get_dataset_path
 
 # TEST FILES
@@ -14,12 +14,10 @@ GAMMA_TEST_LARGE = get_dataset_path("gamma_test_large.simtel.gz")
 # MC productions expected to be analyzed with protopipe.
 
 # configuration files
-ana_config = resource_filename(
-    "protopipe", "aux/example_config_files/protopipe/analysis.yaml"
-)
+ana_config = resource_filename("protopipe", "aux/example_config_files/analysis.yaml")
 
 
-def test_write_dl1():
+def test_dataTraining_noImages():
     """Very bare test to see if the script reaches the end correctly.
 
     WARNING: some of the cuts in the example config file are not optimized for
@@ -28,9 +26,30 @@ def test_write_dl1():
     ends successfully.
     """
     exit_status = system(
-        f"python {write_dl1.__file__}\
+        f"python {data_training.__file__}\
         --config_file {ana_config}\
-        -o test_dl1.h5\
+        -o test_training_noImages.h5\
+        -m 10\
+        -i {path.dirname(GAMMA_TEST_LARGE)}\
+        -f {path.basename(GAMMA_TEST_LARGE)}"
+    )
+    assert exit_status == 0
+
+
+def test_dataTraining_withImages():
+    """Very bare test to see if the script reaches the end correctly.
+
+    WARNING: some of the cuts in the example config file are not optimized for
+    cameras other than LSTCam and NectarCam.
+    In any case, it is expected that in absence of fatal bugs, the script
+    ends successfully.
+    """
+    exit_status = system(
+        f"python {data_training.__file__}\
+        --config_file {ana_config}\
+        -o test_training_withImages.h5\
+        -m 10\
+        --save_images\
         -i {path.dirname(GAMMA_TEST_LARGE)}\
         -f {path.basename(GAMMA_TEST_LARGE)}"
     )
