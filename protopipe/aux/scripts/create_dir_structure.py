@@ -40,7 +40,7 @@ analysis = os.path.join(wd, analysisName)
 makedir(analysis)
 
 subdirectories = {
-    "configs": ["grid", "protopipe"],
+    "configs": [],
     "data": ["DL0", "DL1", "DL2", "DL3"],
     "estimators": ["energy_regressor", "gamma_hadron_classifier"],
     "performance": [],  # here no subdirectories, make_performance.py will do it
