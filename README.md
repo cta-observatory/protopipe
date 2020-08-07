@@ -1,6 +1,8 @@
 protopipe
 =========
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/232c0f37df78416eaba6a3f5e90dc268)](https://app.codacy.com/gh/cta-observatory/protopipe?utm_source=github.com&utm_medium=referral&utm_content=cta-observatory/protopipe&utm_campaign=Badge_Grade_Dashboard)
+
 [![Travis CI][image1]][hyperlink1]
 [![Code Quality][image2]][hyperlink2]
 [![Coverage][image3]][hyperlink3]
