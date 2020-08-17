@@ -23,62 +23,7 @@ from ctapipe.reco.HillasReconstructor import HillasPlane
 
 class MyCameraGeometry(CameraGeometry):
 
-    """Modifications taken from PR 1191."""
-
-    def __init__(
-        self,
-        camera_name,
-        pix_id,
-        pix_x,
-        pix_y,
-        pix_area,
-        pix_type,
-        pix_rotation="0d",
-        cam_rotation="0d",
-        neighbors=None,
-        apply_derotation=True,
-        frame=None,
-        equivalent_focal_length=None,  # this is new
-    ):
-
-        if pix_x.ndim != 1 or pix_y.ndim != 1:
-            raise ValueError(
-                f"Pixel coordinates must be 1 dimensional, got {pix_x.ndim}"
-            )
-
-        assert len(pix_x) == len(pix_y)
-        self.n_pixels = len(pix_x)
-        self.camera_name = camera_name
-        self.pix_id = pix_id
-        self.pix_x = pix_x
-        self.pix_y = pix_y
-        self.pix_area = pix_area
-        self.pix_type = pix_type
-        self.pix_rotation = Angle(pix_rotation)
-        self.cam_rotation = Angle(cam_rotation)
-        self._neighbors = neighbors
-        self.frame = frame
-        self.equivalent_focal_length = equivalent_focal_length  # this is new
-
-        if neighbors is not None:
-            if isinstance(neighbors, list):
-                lil = lil_matrix((self.n_pixels, self.n_pixels), dtype=bool)
-                for pix_id, neighbors in enumerate(neighbors):
-                    lil[pix_id, neighbors] = True
-                self._neighbors = lil.tocsr()
-            else:
-                self._neighbors = csr_matrix(neighbors)
-
-        if self.pix_area is None:
-            self.pix_area = self.guess_pixel_area(pix_x, pix_y, pix_type)
-
-        if apply_derotation:
-            # todo: this should probably not be done, but need to fix
-            # GeometryConverter and reco algorithms if we change it.
-            self.rotate(cam_rotation)
-
-        # cache border pixel mask per instance
-        self.border_cache = {}
+    """Modifications inspired from PR 1191."""
 
     def transform_to(self, frame):
         """
@@ -90,11 +35,6 @@ class MyCameraGeometry(CameraGeometry):
         frame: ctapipe.coordinates.CameraFrame
             The coordinate frame to transform to.
         """
-        if self.frame is None:
-            if self.equivalent_focal_length is not None:
-                self.frame = CameraFrame(focal_length=self.equivalent_focal_length)
-            else:
-                self.frame = CameraFrame()
 
         coord = SkyCoord(x=self.pix_x, y=self.pix_y, frame=self.frame)
         trans = coord.transform_to(frame)
@@ -103,15 +43,12 @@ class MyCameraGeometry(CameraGeometry):
         uv = SkyCoord(x=[1, 0], y=[0, 1], unit=self.pix_x.unit, frame=self.frame)
         uv_trans = uv.transform_to(frame)
 
-        rot = np.arctan2(uv_trans[0].fov_lat, uv_trans[1].fov_lat)
-        det = np.linalg.det([uv_trans.fov_lon.value, uv_trans.fov_lat.value])
-
-        # try:
-        #    rot = np.arctan2(uv_trans[0].fov_lat, uv_trans[1].fov_lat)
-        #    det = np.linalg.det([uv_trans.fov_lat.value, uv_trans.fov_lat.value])
-        # except AttributeError:
-        #    rot = np.arctan2(uv_trans[0].fov_lat, uv_trans[1].fov_lat)
-        #    det = np.linalg.det([uv_trans.x.value, uv_trans.fov_lat.value])
+        try:
+           rot = np.arctan2(uv_trans[0].y, uv_trans[1].y)
+           det = np.linalg.det([uv_trans.x.value, uv_trans.y.value])
+        except AttributeError:
+           rot = np.arctan2(uv_trans[0].fov_lat, uv_trans[1].fov_lat)
+           det = np.linalg.det([uv_trans.fov_lon.value, uv_trans.fov_lat.value])
 
         cam_rotation = rot + det * self.cam_rotation
         pix_rotation = rot + det * self.pix_rotation
