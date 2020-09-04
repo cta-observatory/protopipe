@@ -46,7 +46,13 @@ Benchmarks
 .. toctree::
    :hidden:
 
-   benchmarks/benchmarks_DL1_calibration.ipynb
+   benchmarks/benchmarks_DL1_calibration
+   benchmarks/benchmarks_DL1_image-cleaning
+   benchmarks/benchmarks_DL2_direction-reconstruction
+   benchmarks/benchmarks_DL2_energy-estimation
+   benchmarks/benchmarks_DL2_particle-classification
+   benchmarks/benchmarks_DL3_PSF
+   benchmarks/benchmarks_DL3_IRFs_and_sensitivity
 
 *protopipe* contains a folder named *benchmarks* (not a module)
 hosting the notebooks used for benchmarking.
@@ -71,7 +77,7 @@ The benchmarks are organised in 3 folders,
 
   * `direction reconstruction <benchmarks/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
   * `energy estimation <benchmarks/benchmarks_DL2_energy-estimation.ipynb>`__ | *benchmarks_DL2_energy-estimation.ipynb*
-  * `particle classification <benchmarks/benchmarks_DL2_particle_classification.ipynb>`__ | *benchmarks_DL2_particle_classification.ipynb*
+  * `particle classification <benchmarks/benchmarks_DL2_particle-classification.ipynb>`__ | *benchmarks_DL2_particle-classification.ipynb*
 
 - DL3
 
