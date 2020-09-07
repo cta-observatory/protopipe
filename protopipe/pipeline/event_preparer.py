@@ -295,7 +295,7 @@ class EventPreparer:
                 pix_area=geom.pix_area,
                 cam_rotation=geom.cam_rotation,
                 pix_rotation=geom.pix_rotation,
-                frame = CameraFrame(focal_length = focal_length)
+                frame=CameraFrame(focal_length=focal_length),
             ).transform_to(TelescopeFrame())
 
         # =============================================================
@@ -328,10 +328,7 @@ class EventPreparer:
                         + f"WARNING : < {self.min_tel} triggered telescopes!"
                         + bcolors.ENDC
                     )
-                    pass  # we register this, but we proceed to analyze it
-                #     yield stub(event)
-                # else:
-                #     continue
+                    # we show this, but we proceed to analyze it
 
             # =============================================================
             #                CALIBRATION
@@ -576,9 +573,6 @@ class EventPreparer:
 
                         if not cleaned_image_is_good:  # BAD image quality
                             raise ValueError
-
-                        camera_biggest.pix_id
-                        camera_extended.pix_id
 
                         # # Parametrize the image
                         # moments_reco = hillas_parameters(

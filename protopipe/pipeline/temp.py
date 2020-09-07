@@ -11,9 +11,8 @@ file will change.
 """
 
 import numpy as np
-from scipy.sparse import lil_matrix, csr_matrix
 import astropy.units as u
-from astropy.coordinates import Angle, SkyCoord
+from astropy.coordinates import SkyCoord
 
 from ctapipe.coordinates import CameraFrame, TelescopeFrame
 from ctapipe.instrument import CameraGeometry
@@ -44,11 +43,11 @@ class MyCameraGeometry(CameraGeometry):
         uv_trans = uv.transform_to(frame)
 
         try:
-           rot = np.arctan2(uv_trans[0].y, uv_trans[1].y)
-           det = np.linalg.det([uv_trans.x.value, uv_trans.y.value])
+            rot = np.arctan2(uv_trans[0].y, uv_trans[1].y)
+            det = np.linalg.det([uv_trans.x.value, uv_trans.y.value])
         except AttributeError:
-           rot = np.arctan2(uv_trans[0].fov_lat, uv_trans[1].fov_lat)
-           det = np.linalg.det([uv_trans.fov_lon.value, uv_trans.fov_lat.value])
+            rot = np.arctan2(uv_trans[0].fov_lat, uv_trans[1].fov_lat)
+            det = np.linalg.det([uv_trans.fov_lon.value, uv_trans.fov_lat.value])
 
         cam_rotation = rot + det * self.cam_rotation
         pix_rotation = rot + det * self.pix_rotation
