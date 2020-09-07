@@ -6,49 +6,49 @@ pipeline
 Introduction
 ------------
 
-`protopipe.pipeline` contains classes that are used in scripts
-producing tables with images information (DL1), typically for g/h classifier and
-energy regressor, and tables with event information, typically used for
+`protopipe.pipeline` contains classes that are used in scripts to produce
+
+- tables with images information (DL1), typically for g/h classifier and
+energy regressor,
+- tables with event information, typically used for
 performance estimation (DL2).
 
-Two classes from the sub-module are used to process the events. The EventPreparer class, which
-goal is to loop on events and to provide event parameters (e.g. impact parameter) and
-image parameters (e.g. Hillas parameters). The second class, ImageCleaner,
-is dedicated to clean the images according to different options
-(tail cut and/or wavelet).
+Two classes from the sub-module are used to process the events.
+- ``EventPreparer`` class, which loops on events and to provide event
+parameters (e.g. impact parameter) and
+image parameters (e.g. Hillas parameters),
+- ``ImageCleaner``, cleans the images according to different options.
 
 Details
 -------
 
 .. warning::
 
-  The ctapipe version used in protopipe is always the last stable version
+  The version of *ctapipe* used by *protopipe* is always the last stable version
   packaged on the Anaconda framework.
-  This means that some of the code needed to be hard-coded in order to
-  implement newer features. This code will disappear at each newer release of
-  ctapipe.
+  This means that some of the more cutting-edge code needs to be hard-coded. 
+  This code should always be stored in ``protopipe.pipeline.temp`` and 
+  disappear at each newer release of *ctapipe*.
 
-The following is a description of the *default* algorithms and settings.
+The following is a description of the *default* algorithms and settings, chosen
+to mimic the CTA-MARS pipeline.
 
 Calibration
 ^^^^^^^^^^^
 
 The current calibration is performed using:
 
-* automatic high gain selection at threshold of 4000 counts in low gain at RO level,
+* automatic gain channel selection (when more than one) above 4000 ADC counts at RO level,
 * charge and pulse times extraction via ``ctapipe.image.extractors.TwoPassWindowSum``
-* no integration correction
-
-The resulting **optimized cleaning thresholds** for LSTCam and NectarCam
-when requiring 99.7% rejection of the "noise" (0 true phes) are
-(4.2, 2.1) for LSTCam and (4., 2.) for NectarCam.
+* correction for the integration window.
 
 .. note::
 
-  These phe units are not corrected for the average bias but are the ones
-  effectively used through the pipeline at the moment (also CTA-MARS).
-  For details on how these values are obtained, plese refer to the calibration
-  benchmarks (:ref:`beforepushing`)
+  The photoelectron units used later for cleaning the images are those **not** 
+  corrected for the average bias. Said this, thanks to the integration correction
+  this effect is now negligible.  
+  For details on how these values are obtained, please refer to the calibration
+  benchmarks (:ref:`beforepushing`).
 
 Imaging
 ^^^^^^^
@@ -63,11 +63,13 @@ but the settings are user-dependent.
 **Selection** is performed by the following requirements:
 
 * at least 50 phe (still biased units),
-* image's center of gravity (COG) within 80% of camera radius,
+* image's center of gravity (COG) within 80% of camera radius (radii stored in ``protopipe.pipeline.utils``),
 * ellipticity between 0.1 and 0.6,
 * at least 3 surviving pixels.
 
-**Parametrization** is performed by ``ctapipe.image.hillas.hillas_parameters``.
+**Parametrization** is performed by ``ctapipe.image.hillas.hillas_parameters``
+in the ``ctapipe.coordinates.TelescopeFrame`` using the effective focal lenghts
+values stored in ``protopipe.pipeline.utils``.
 
 Direction reconstruction
 ^^^^^^^^^^^^^^^^^^^^^^^^

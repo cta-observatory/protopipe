@@ -14,7 +14,7 @@ from ctapipe.calib import CameraCalibrator
 from ctapipe.image.extractor import TwoPassWindowSum
 from ctapipe.image import leakage, number_of_islands, largest_island
 from ctapipe.utils.CutFlow import CutFlow
-from ctapipe.coordinates import GroundFrame, TelescopeFrame
+from ctapipe.coordinates import GroundFrame, TelescopeFrame, CameraFrame
 
 # from ctapipe.image.timing_parameters import timing_parameters
 from ctapipe.image.hillas import hillas_parameters, HillasParameterizationError
@@ -295,7 +295,7 @@ class EventPreparer:
                 pix_area=geom.pix_area,
                 cam_rotation=geom.cam_rotation,
                 pix_rotation=geom.pix_rotation,
-                equivalent_focal_length=focal_length,
+                frame = CameraFrame(focal_length = focal_length)
             ).transform_to(TelescopeFrame())
 
         # =============================================================
