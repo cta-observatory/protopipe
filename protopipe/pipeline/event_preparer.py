@@ -295,7 +295,7 @@ class EventPreparer:
                 pix_area=geom.pix_area,
                 cam_rotation=geom.cam_rotation,
                 pix_rotation=geom.pix_rotation,
-                frame = CameraFrame(focal_length = focal_length)
+                frame=CameraFrame(focal_length=focal_length),
             ).transform_to(TelescopeFrame())
 
         # =============================================================
@@ -574,7 +574,7 @@ class EventPreparer:
                 with np.errstate(invalid="raise", divide="raise"):
                     try:
 
-                        if not cleaned_image_is_good:  # BAD image quality
+                        if debug and (not cleaned_image_is_good):  # BAD image quality
                             print(
                                 bcolors.WARNING
                                 + "WARNING : The cleaned image didn't pass"
@@ -676,13 +676,14 @@ class EventPreparer:
                         HillasParameterizationError,
                         ValueError,
                     ) as e:
-                        print(
-                            bcolors.FAIL
-                            + "Parametrization error: "
-                            + f"{e}\n"
-                            + "Dummy parameters recorded."
-                            + bcolors.ENDC
-                        )
+                        if debug:
+                            print(
+                                bcolors.FAIL
+                                + "Parametrization error: "
+                                + f"{e}\n"
+                                + "Dummy parameters recorded."
+                                + bcolors.ENDC
+                            )
                         hillas_dict[tel_id] = HillasParametersContainer()
                         hillas_dict_reco[tel_id] = HillasParametersContainer()
                         n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
