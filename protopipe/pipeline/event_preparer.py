@@ -27,7 +27,11 @@ from ctapipe.reco.reco_algorithms import (
 # Pipeline utilities
 from .image_cleaning import ImageCleaner
 from .utils import bcolors, effective_focal_lengths, camera_radius, CTAMARS_radii
-from .temp import MyCameraGeometry, MyHillasReconstructor
+from .temp import (
+    HillasParametersTelescopeFrameContainer,
+    MyCameraGeometry,
+    MyHillasReconstructor,
+)
 
 # PiWy utilities
 try:
@@ -567,23 +571,23 @@ class EventPreparer:
                     good_for_reco[tel_id] = 0  # we record it as BAD
                     cleaned_image_is_good = False
 
+                if debug and (not cleaned_image_is_good):  # BAD image quality
+                    print(
+                        bcolors.WARNING
+                        + "WARNING : The cleaned image didn't pass"
+                        + " preliminary cuts.\n"
+                        + "An attempt to parametrize it will be made,"
+                        + " but the image will NOT be used for"
+                        + " direction reconstruction."
+                        + bcolors.ENDC
+                    )
+
                 # =============================================================
                 #                   IMAGE PARAMETRIZATION
                 # =============================================================
 
                 with np.errstate(invalid="raise", divide="raise"):
                     try:
-
-                        if debug and (not cleaned_image_is_good):  # BAD image quality
-                            print(
-                                bcolors.WARNING
-                                + "WARNING : The cleaned image didn't pass"
-                                + " preliminary cuts.\n"
-                                + "An attempt to parametrize it will be made,"
-                                + " but the image will NOT be used for"
-                                + " direction reconstruction."
-                                + bcolors.ENDC
-                            )
 
                         # Filter the cameras in TelescopeFrame with the same
                         # cleaning masks
@@ -684,8 +688,10 @@ class EventPreparer:
                                 + "Dummy parameters recorded."
                                 + bcolors.ENDC
                             )
-                        hillas_dict[tel_id] = HillasParametersContainer()
-                        hillas_dict_reco[tel_id] = HillasParametersContainer()
+                        hillas_dict[tel_id] = HillasParametersTelescopeFrameContainer()
+                        hillas_dict_reco[
+                            tel_id
+                        ] = HillasParametersTelescopeFrameContainer()
                         n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                         leakage_dict[tel_id] = leakages
 

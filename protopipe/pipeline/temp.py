@@ -11,14 +11,34 @@ file will change.
 """
 
 import numpy as np
+from numpy import nan
 from scipy.sparse import lil_matrix, csr_matrix
 import astropy.units as u
 from astropy.coordinates import Angle, SkyCoord
 
+from ctapipe.core import Container, Field
 from ctapipe.coordinates import CameraFrame, TelescopeFrame
 from ctapipe.instrument import CameraGeometry
 from ctapipe.reco import HillasReconstructor
 from ctapipe.reco.HillasReconstructor import HillasPlane
+
+
+class HillasParametersTelescopeFrameContainer(Container):
+    container_prefix = "hillas"
+
+    intensity = Field(nan, "total intensity (size)")
+
+    x = Field(nan * u.deg, "centroid x coordinate", unit=u.deg)
+    y = Field(nan * u.deg, "centroid x coordinate", unit=u.deg)
+    r = Field(nan * u.deg, "radial coordinate of centroid", unit=u.deg)
+    phi = Field(nan * u.deg, "polar coordinate of centroid", unit=u.deg)
+
+    length = Field(nan * u.deg, "standard deviation along the major-axis", unit=u.deg)
+    width = Field(nan * u.deg, "standard spread along the minor-axis", unit=u.deg)
+    psi = Field(nan * u.deg, "rotation angle of ellipse", unit=u.deg)
+
+    skewness = Field(nan, "measure of the asymmetry")
+    kurtosis = Field(nan, "measure of the tailedness")
 
 
 class MyCameraGeometry(CameraGeometry):
@@ -44,11 +64,11 @@ class MyCameraGeometry(CameraGeometry):
         uv_trans = uv.transform_to(frame)
 
         try:
-           rot = np.arctan2(uv_trans[0].y, uv_trans[1].y)
-           det = np.linalg.det([uv_trans.x.value, uv_trans.y.value])
+            rot = np.arctan2(uv_trans[0].y, uv_trans[1].y)
+            det = np.linalg.det([uv_trans.x.value, uv_trans.y.value])
         except AttributeError:
-           rot = np.arctan2(uv_trans[0].fov_lat, uv_trans[1].fov_lat)
-           det = np.linalg.det([uv_trans.fov_lon.value, uv_trans.fov_lat.value])
+            rot = np.arctan2(uv_trans[0].fov_lat, uv_trans[1].fov_lat)
+            det = np.linalg.det([uv_trans.fov_lon.value, uv_trans.fov_lat.value])
 
         cam_rotation = rot + det * self.cam_rotation
         pix_rotation = rot + det * self.pix_rotation
