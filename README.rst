@@ -1,6 +1,6 @@
-======================================
-protopipe |travis| |codacy| |coverage|
-======================================
+======================================================
+protopipe |travis| |codacy| |coverage| |documentation|
+======================================================
 
 .. |travis| image:: https://travis-ci.org/cta-observatory/protopipe.svg?branch=master
     :target: https://travis-ci.org/cta-observatory/protopipe
@@ -8,6 +8,8 @@ protopipe |travis| |codacy| |coverage|
   :target: https://www.codacy.com/gh/cta-observatory/protopipe?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cta-observatory/protopipe&amp;utm_campaign=Badge_Grade
 .. |coverage| image:: https://codecov.io/gh/cta-observatory/protopipe/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/cta-observatory/protopipe
+.. |documentation| image:: https://readthedocs.org/projects/protopipe/badge/?version=latest
+  :target: https://protopipe.readthedocs.io/en/latest/?badge=latest
 
 A pipeline prototype for the `Cherenkov Telescope Array (CTA) <www.cta-observatory.org>`_
 
