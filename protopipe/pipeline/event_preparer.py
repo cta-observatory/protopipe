@@ -567,23 +567,23 @@ class EventPreparer:
                     good_for_reco[tel_id] = 0  # we record it as BAD
                     cleaned_image_is_good = False
 
+                if debug and (not cleaned_image_is_good):  # BAD image quality
+                    print(
+                        bcolors.WARNING
+                        + "WARNING : The cleaned image didn't pass"
+                        + " preliminary cuts.\n"
+                        + "An attempt to parametrize it will be made,"
+                        + " but the image will NOT be used for"
+                        + " direction reconstruction."
+                        + bcolors.ENDC
+                    )
+
                 # =============================================================
                 #                   IMAGE PARAMETRIZATION
                 # =============================================================
 
                 with np.errstate(invalid="raise", divide="raise"):
                     try:
-
-                        if debug and (not cleaned_image_is_good):  # BAD image quality
-                            print(
-                                bcolors.WARNING
-                                + "WARNING : The cleaned image didn't pass"
-                                + " preliminary cuts.\n"
-                                + "An attempt to parametrize it will be made,"
-                                + " but the image will NOT be used for"
-                                + " direction reconstruction."
-                                + bcolors.ENDC
-                            )
 
                         # Filter the cameras in TelescopeFrame with the same
                         # cleaning masks
