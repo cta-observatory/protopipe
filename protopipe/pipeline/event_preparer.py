@@ -27,7 +27,11 @@ from ctapipe.reco.reco_algorithms import (
 # Pipeline utilities
 from .image_cleaning import ImageCleaner
 from .utils import bcolors, effective_focal_lengths, camera_radius, CTAMARS_radii
-from .temp import MyCameraGeometry, MyHillasReconstructor
+from .temp import (
+    HillasParametersTelescopeFrameContainer,
+    MyCameraGeometry,
+    MyHillasReconstructor,
+)
 
 # PiWy utilities
 try:
@@ -684,8 +688,10 @@ class EventPreparer:
                                 + "Dummy parameters recorded."
                                 + bcolors.ENDC
                             )
-                        hillas_dict[tel_id] = HillasParametersContainer()
-                        hillas_dict_reco[tel_id] = HillasParametersContainer()
+                        hillas_dict[tel_id] = HillasParametersTelescopeFrameContainer()
+                        hillas_dict_reco[
+                            tel_id
+                        ] = HillasParametersTelescopeFrameContainer()
                         n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                         leakage_dict[tel_id] = leakages
 
