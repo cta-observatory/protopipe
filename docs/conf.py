@@ -105,13 +105,13 @@ todo_include_todos = True
 
 autoclass_content = "both"  # include both class docstring and __init__
 
-autodoc_default_options = {
-    # Make sure that any autodoc declarations show the right members
-    "members": True,
-    "inherited-members": True,
-    "private-members": True,
-    "show-inheritance": True,
-}
+# autodoc_default_options = {
+#     # Make sure that any autodoc declarations show the right members
+#     "members": True,
+#     "inherited-members": True,
+#     "private-members": True,
+#     "show-inheritance": True,
+# }
 
 autosummary_generate = True  # Make _autosummary files and include them
 napoleon_numpy_docstring = False  # Force consistency, leave only Google
