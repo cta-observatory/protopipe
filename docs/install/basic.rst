@@ -24,7 +24,7 @@ Steps for installation:
   2. enter the folder ``cd protopipe-X.Y.Z``
   3. create a dedicated environment ``conda env create -f environment.yml`` (``protopipe_environment.yml`` up to release 0.2.1)
   4. activate it ``conda activate protopipe``
-  5. install *protopipe* itself ``python setup.py install``
+  5. install *protopipe* itself ``pip install .``
 
 Next steps:
 
