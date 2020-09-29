@@ -6,14 +6,14 @@ General:
  data_file: 'dl1_{}_gamma_merged.h5'
  outdir: '[...]/estimators/energy_regressor'
  cam_id_list: ['LSTCam', 'NectarCam']
- table_name_template: 'feature_events_'
+ table_name_template: ''
 
 Split:
  train_fraction: 0.8
 
 Method:
  name: 'AdaBoostRegressor'
- target_name: 'mc_energy'
+ target_name: 'true_energy'
  tuned_parameters:
   learning_rate: [0.3]
   n_estimators: [100]
@@ -24,14 +24,15 @@ Method:
  cv: 2
 
 FeatureList:
- - 'log10_charge'
- - 'log10_impact'
- - 'width'
- - 'length'
+ - 'log10_hillas_intensity'
+ - 'log10_impact_dist'
+ - 'hillas_width'
+ - 'hillas_length'
  - 'h_max'
 
 SigFiducialCuts:
  - 'xi <= 0.5'
+ - 'good_image == 1'
 
 Diagnostic:
  # Energy binning (used for reco and true energy)
