@@ -150,7 +150,12 @@ def main():
         ax = plt.gca()
         ax = diagnostic[cam_id].plot_feature_importance(
             ax,
-            **{"alpha": 0.7, "edgecolor": "black", "linewidth": 2, "color": "darkgreen"}
+            **{
+                "alpha": 0.7,
+                "edgecolor": "black",
+                "linewidth": 2,
+                "color": "darkgreen",
+            },
         )
         ax.set_ylabel("Feature importance")
         ax.grid()
@@ -199,8 +204,8 @@ def main():
             print("Process test sample...")
             data_test_evt = get_evt_subarray_model_output(
                 data_test,
-                weight_name="sum_signal_cam",
-                keep_cols=["mc_energy"],
+                weight_name="hillas_intensity_reco",
+                keep_cols=["tel_id", "true_energy"],
                 model_output_name="reco_energy_img",
                 model_output_name_evt="reco_energy",
             )
@@ -226,14 +231,14 @@ def main():
                 ax = axes[ibin]
 
                 data = data_test_evt.query(
-                    "mc_energy >= {} and mc_energy < {}".format(
+                    "true_energy >= {} and true_energy < {}".format(
                         energy_edges[ibin], energy_edges[ibin + 1]
                     )
                 )
                 print("Estimate energy for {} evts".format(len(data)))
 
                 er = data["reco_energy"]
-                emc = data["mc_energy"]
+                emc = data["true_energy"]
 
                 opt_hist = {
                     "edgecolor": "black",
@@ -425,13 +430,13 @@ def main():
                 ax,
                 diagnostic[cam_id].data_train[diagnostic[cam_id].model_output_name],
                 diagnostic[cam_id].data_train["label"],
-                **dict(color="darkgreen", lw=2, label="Training sample")
+                **dict(color="darkgreen", lw=2, label="Training sample"),
             )
             plot_roc_curve(
                 ax,
                 data_test[diagnostic[cam_id].model_output_name],
                 diagnostic[cam_id].data_test["label"],
-                **dict(color="darkorange", lw=2, label="Test sample")
+                **dict(color="darkorange", lw=2, label="Test sample"),
             )
             ax.set_xlabel("False Positive Rate")
             ax.set_ylabel("True Positive Rate")

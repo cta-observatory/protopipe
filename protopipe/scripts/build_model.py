@@ -2,7 +2,6 @@
 
 import os
 import pandas as pd
-import numpy as np
 import argparse
 from os import path
 from sklearn.ensemble import (
@@ -55,7 +54,7 @@ def main():
     # Read configuration file
     cfg = load_config(args.config_file)
 
-    # Type of model (regression or classification)
+    # Type of model (regressor or classifier)
     model_type = cfg["General"]["model_type"]
 
     # Import parameters

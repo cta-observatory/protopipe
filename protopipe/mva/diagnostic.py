@@ -4,10 +4,12 @@ from sklearn.metrics import accuracy_score
 
 from .utils import plot_hist, plot_distributions, plot_roc_curve
 
-__all__ = ['ModelDiagnostic',
-           'RegressorDiagnostic',
-           'ClassifierDiagnostic',
-           'BoostedDecisionTreeDiagnostic']
+__all__ = [
+    "ModelDiagnostic",
+    "RegressorDiagnostic",
+    "ClassifierDiagnostic",
+    "BoostedDecisionTreeDiagnostic",
+]
 
 
 class ModelDiagnostic(object):
@@ -23,6 +25,7 @@ class ModelDiagnostic(object):
     target_name: str
         Name of the target (e.g. score, gamaness, energy, etc.)
     """
+
     def __init__(self, model, feature_name_list, target_name):
         self.model = model
         self.feature_name_list = feature_name_list
@@ -39,26 +42,26 @@ class ModelDiagnostic(object):
         """
         if ax is None:
             import matplotlib.pyplot as plt
+
             ax = plt.gca()
 
         importance = self.model.feature_importances_
-        importance, feature_labels = \
-            zip(*sorted(zip(importance, self.feature_name_list), reverse=True))
+        importance, feature_labels = zip(
+            *sorted(zip(importance, self.feature_name_list), reverse=True)
+        )
 
         bin_edges = np.arange(0, len(importance) + 1)
         bin_width = bin_edges[1:] - bin_edges[:-1] - 0.1
 
         ax.bar(bin_edges[:-1], importance, width=bin_width, **kwargs)
-        ax.set_xticks(np.arange(0, len(importance)+1))
+        ax.set_xticks(np.arange(0, len(importance)))
         ax.set_xticklabels(feature_labels, rotation=75)
 
         return ax
 
-    def plot_features(self, data_list,
-                      nbin=30,
-                      hist_kwargs_list={},
-                      error_kw_list={},
-                      ncols=2):
+    def plot_features(
+        self, data_list, nbin=30, hist_kwargs_list={}, error_kw_list={}, ncols=2
+    ):
         """
         Plot model features for different data set (e.g. training and test samples).
 
@@ -80,7 +83,8 @@ class ModelDiagnostic(object):
             data_list,
             nbin,
             hist_kwargs_list,
-            error_kw_list, ncols
+            error_kw_list,
+            ncols,
         )
 
     def add_image_model_output(self):
@@ -104,7 +108,10 @@ class RegressorDiagnostic(ModelDiagnostic):
     data_test: `~pandas.DataFrame`
         Data frame
     """
-    def __init__(self, model, feature_name_list, target_name, data_train, data_test, output_name):
+
+    def __init__(
+        self, model, feature_name_list, target_name, data_train, data_test, output_name
+    ):
         super().__init__(model, feature_name_list, target_name)
 
         self.data_train = data_train
@@ -113,21 +120,20 @@ class RegressorDiagnostic(ModelDiagnostic):
         self.target_estimation_name = self.target_name
 
         self.output_name = output_name
-        self.output_name_img = output_name + '_img'
+        self.output_name_img = output_name + "_img"
 
         # Compute and add target estimation
         self.data_train = self.add_image_model_output(
-            self.data_train,
-            col_name=self.output_name_img
+            self.data_train, col_name=self.output_name_img
         )
         self.data_test = self.add_image_model_output(
-            self.data_test,
-            col_name=self.output_name_img
+            self.data_test, col_name=self.output_name_img
         )
 
     @staticmethod
-    def plot_resolution_distribution(ax, y_true, y_reco, nbin=100, fit_range=[-3,3],
-                                     fit_kwargs={}, hist_kwargs={}):
+    def plot_resolution_distribution(
+        ax, y_true, y_reco, nbin=100, fit_range=[-3, 3], fit_kwargs={}, hist_kwargs={}
+    ):
         """
         Compute bias and resolution with a gaussian fit
         and returns a plot with the fit results and the migration distribution
@@ -138,6 +144,7 @@ class RegressorDiagnostic(ModelDiagnostic):
 
         if ax is None:
             import matplotlib.pyplot as plt
+
             ax = plt.gca()
 
         migration = (y_reco - y_true) / y_true
@@ -150,14 +157,16 @@ class RegressorDiagnostic(ModelDiagnostic):
         except:
             param = [-1, -1, -1]
             cov = [[]]
-            print('Not enough stat ? (#evts={})'.format(len(y_true)))
+            print("Not enough stat ? (#evts={})".format(len(y_true)))
 
         plot_hist(
-            ax=ax, data=migration, nbin=nbin,
+            ax=ax,
+            data=migration,
+            nbin=nbin,
             yerr=False,
             norm=False,
             limit=fit_range,
-            hist_kwargs=hist_kwargs
+            hist_kwargs=hist_kwargs,
         )
 
         ax.plot(x, gauss(x, param[0], param[1], param[2]), **fit_kwargs)
@@ -186,8 +195,17 @@ class ClassifierDiagnostic(ModelDiagnostic):
         If false, `decision_function` will be called, otherwise, predict_proba.
         In the last case we only consider the probability for signal event
     """
-    def __init__(self, model, feature_name_list, target_name,
-                 data_train, data_test, model_output_name='score', is_output_proba=False):
+
+    def __init__(
+        self,
+        model,
+        feature_name_list,
+        target_name,
+        data_train,
+        data_test,
+        model_output_name="score",
+        is_output_proba=False,
+    ):
         super().__init__(model, feature_name_list, target_name)
 
         self.data_train = data_train
@@ -197,12 +215,10 @@ class ClassifierDiagnostic(ModelDiagnostic):
 
         # Compute and add model output
         self.data_train = self.add_image_model_output(
-            self.data_train,
-            col_name=self.model_output_name
+            self.data_train, col_name=self.model_output_name
         )
         self.data_test = self.add_image_model_output(
-            self.data_test,
-            col_name=self.model_output_name
+            self.data_test, col_name=self.model_output_name
         )
 
     def add_image_model_output(self, data, col_name):
@@ -210,29 +226,59 @@ class ClassifierDiagnostic(ModelDiagnostic):
         if self.is_output_proba is False:
             data[col_name] = self.model.decision_function(data[self.feature_name_list])
         else:  # Interested in signal probability
-            data[col_name] = self.model.predict_proba(data[self.feature_name_list])[:,1]
+            data[col_name] = self.model.predict_proba(data[self.feature_name_list])[
+                :, 1
+            ]
         return data
 
     def plot_image_model_output_distribution(
-            self,
-            cut=None,
-            nbin=30,
-            hist_kwargs_list=[
-                {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma training sample',
-                'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
-                {'edgecolor': 'blue', 'color': 'blue', 'label': 'Gamma test sample',
-                'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2},
-                {'edgecolor': 'red', 'color': 'red', 'label': 'Proton training sample',
-                'alpha': 0.2, 'fill': True, 'ls': '-', 'lw': 2},
-                {'edgecolor': 'red', 'color': 'red', 'label': 'Proton test sample',
-                'alpha': 1, 'fill': False, 'ls': '--', 'lw': 2}
-            ],
-            error_kw_list=[
-                dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=0.2),
-                dict(ecolor='blue', lw=2, capsize=3, capthick=2, alpha=1),
-                dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=0.2),
-                dict(ecolor='red', lw=2, capsize=3, capthick=2, alpha=1)
-                ]
+        self,
+        cut=None,
+        nbin=30,
+        hist_kwargs_list=[
+            {
+                "edgecolor": "blue",
+                "color": "blue",
+                "label": "Gamma training sample",
+                "alpha": 0.2,
+                "fill": True,
+                "ls": "-",
+                "lw": 2,
+            },
+            {
+                "edgecolor": "blue",
+                "color": "blue",
+                "label": "Gamma test sample",
+                "alpha": 1,
+                "fill": False,
+                "ls": "--",
+                "lw": 2,
+            },
+            {
+                "edgecolor": "red",
+                "color": "red",
+                "label": "Proton training sample",
+                "alpha": 0.2,
+                "fill": True,
+                "ls": "-",
+                "lw": 2,
+            },
+            {
+                "edgecolor": "red",
+                "color": "red",
+                "label": "Proton test sample",
+                "alpha": 1,
+                "fill": False,
+                "ls": "--",
+                "lw": 2,
+            },
+        ],
+        error_kw_list=[
+            dict(ecolor="blue", lw=2, capsize=3, capthick=2, alpha=0.2),
+            dict(ecolor="blue", lw=2, capsize=3, capthick=2, alpha=1),
+            dict(ecolor="red", lw=2, capsize=3, capthick=2, alpha=0.2),
+            dict(ecolor="red", lw=2, capsize=3, capthick=2, alpha=1),
+        ],
     ):
         """Plot output distribution. Need more output column"""
         if cut is not None:
@@ -244,12 +290,16 @@ class ClassifierDiagnostic(ModelDiagnostic):
 
         return plot_distributions(
             [self.model_output_name],
-            [data_train.query('label==1'), data_test.query('label==1'),
-             data_train.query('label==0'), data_test.query('label==0')],
+            [
+                data_train.query("label==1"),
+                data_test.query("label==1"),
+                data_train.query("label==0"),
+                data_test.query("label==0"),
+            ],
             nbin,
             hist_kwargs_list,
             error_kw_list,
-            1
+            1,
         )
 
     # def plot_evt_model_output_distribution(self,
@@ -404,17 +454,20 @@ class BoostedDecisionTreeDiagnostic(object):
     def plot_error_rate(cls, ax, model, data_scikit, **kwargs):
         """Diagnostic plot showing error rate as a function of the specialisation"""
         import matplotlib.pyplot as plt
+
         if ax is None:
             ax = plt.gca()
 
         test_errors = []
-        for test_predict in model.staged_predict(data_scikit['X_test']):
-            test_errors.append(1. - accuracy_score(test_predict, data_scikit['y_test']))
+        for test_predict in model.staged_predict(data_scikit["X_test"]):
+            test_errors.append(
+                1.0 - accuracy_score(test_predict, data_scikit["y_test"])
+            )
 
         ntrees = len(model)
         ax.plot(range(1, ntrees + 1), test_errors, **kwargs)
-        ax.set_xlabel('Number of Trees')
-        ax.set_ylabel('Error rate')
+        ax.set_xlabel("Number of Trees")
+        ax.set_ylabel("Error rate")
         ax.grid()
         plt.tight_layout()
         return ax
@@ -423,6 +476,7 @@ class BoostedDecisionTreeDiagnostic(object):
     def plot_tree_error_rate(cls, ax, model, **kwargs):
         """Diagnostic plot showing tree error rate"""
         import matplotlib.pyplot as plt
+
         if ax is None:
             ax = plt.gca()
 
@@ -431,11 +485,12 @@ class BoostedDecisionTreeDiagnostic(object):
 
         ntrees = len(model)
         ax.plot(range(1, ntrees + 1), estimator_errors, **kwargs)
-        ax.set_xlabel('Tree number')
-        ax.set_ylabel('Error rate / tree')
+        ax.set_xlabel("Tree number")
+        ax.set_ylabel("Error rate / tree")
         ax.grid()
         plt.tight_layout()
         return ax
+
 
 # class RandomForestDiagnostic(object):
 #     """
