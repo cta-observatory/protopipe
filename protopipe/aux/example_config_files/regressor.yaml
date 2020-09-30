@@ -24,7 +24,7 @@ Method:
  cv: 2
 
 FeatureList:
- - 'log10_hillas_intensity'
+ - 'log10_hillas_intensity' # NOTE: this is using hillas_intensity_reco internally....
  - 'log10_impact_dist'
  - 'hillas_width_reco'
  - 'hillas_length_reco'
