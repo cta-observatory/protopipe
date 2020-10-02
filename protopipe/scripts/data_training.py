@@ -217,6 +217,7 @@ def main():
             event,
             reco_image,
             cleaning_mask_reco,
+            cleaning_mask_clusters,
             true_image,
             n_pixel_dict,
             hillas_dict,
@@ -321,6 +322,9 @@ def main():
                             shape=(n_pixels), pos=57
                         )
                         DataTrainingOutput["cleaning_mask_reco"] = tb.BoolCol(
+                            shape=(n_pixels), pos=58
+                        )  # not in ctapipe
+                        DataTrainingOutput["cleaning_mask_clusters"] = tb.BoolCol(
                             shape=(n_pixels), pos=58
                         )  # not in ctapipe
 
@@ -428,6 +432,9 @@ def main():
                     outData[cam_id]["true_image"] = true_image[tel_id]
                     outData[cam_id]["reco_image"] = reco_image[tel_id]
                     outData[cam_id]["cleaning_mask_reco"] = cleaning_mask_reco[tel_id]
+                    outData[cam_id]["cleaning_mask_clusters"] = cleaning_mask_clusters[
+                        tel_id
+                    ]
                 # =======================
 
                 outData[cam_id].append()
