@@ -27,7 +27,11 @@ from ctapipe.reco.reco_algorithms import (
 # Pipeline utilities
 from .image_cleaning import ImageCleaner
 from .utils import bcolors, effective_focal_lengths, camera_radius, CTAMARS_radii
-from .temp import MyCameraGeometry, MyHillasReconstructor
+from .temp import (
+    HillasParametersTelescopeFrameContainer,
+    MyCameraGeometry,
+    MyHillasReconstructor,
+)
 
 # PiWy utilities
 try:
@@ -295,7 +299,7 @@ class EventPreparer:
                 pix_area=geom.pix_area,
                 cam_rotation=geom.cam_rotation,
                 pix_rotation=geom.pix_rotation,
-                frame = CameraFrame(focal_length = focal_length)
+                frame=CameraFrame(focal_length=focal_length),
             ).transform_to(TelescopeFrame())
 
         # =============================================================
@@ -567,26 +571,23 @@ class EventPreparer:
                     good_for_reco[tel_id] = 0  # we record it as BAD
                     cleaned_image_is_good = False
 
+                if debug and (not cleaned_image_is_good):  # BAD image quality
+                    print(
+                        bcolors.WARNING
+                        + "WARNING : The cleaned image didn't pass"
+                        + " preliminary cuts.\n"
+                        + "An attempt to parametrize it will be made,"
+                        + " but the image will NOT be used for"
+                        + " direction reconstruction."
+                        + bcolors.ENDC
+                    )
+
                 # =============================================================
                 #                   IMAGE PARAMETRIZATION
                 # =============================================================
 
                 with np.errstate(invalid="raise", divide="raise"):
                     try:
-
-                        if not cleaned_image_is_good:  # BAD image quality
-                            raise ValueError
-
-                        camera_biggest.pix_id
-                        camera_extended.pix_id
-
-                        # # Parametrize the image
-                        # moments_reco = hillas_parameters(
-                        #     camera_biggest, image_biggest
-                        # )  # for geometry (eg direction)
-                        # moments = hillas_parameters(
-                        #     camera_extended, image_extended
-                        # )  # for discrimination and energy reconstruction
 
                         # Filter the cameras in TelescopeFrame with the same
                         # cleaning masks
@@ -606,8 +607,11 @@ class EventPreparer:
                         )  # for discrimination and energy reconstruction
 
                         if debug:
-                            print("Image parameters:")
+                            print("Image parameters from main cluster cleaning:")
                             print(moments_reco)
+
+                            print("Image parameters from all-clusters cleaning:")
+                            print(moments)
 
                         # ===================================================
                         #             PARAMETRIZED IMAGE SELECTION
@@ -665,20 +669,31 @@ class EventPreparer:
                                 # + "BUT it's information will be recorded."
                                 + bcolors.ENDC
                             )
+
+                        hillas_dict[tel_id] = moments
+                        hillas_dict_reco[tel_id] = moments_reco
+                        n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
+                        leakage_dict[tel_id] = leakages
+
                     except (
                         FloatingPointError,
                         HillasParameterizationError,
                         ValueError,
-                    ):
-                        hillas_dict[tel_id] = HillasParametersContainer()
-                        hillas_dict_reco[tel_id] = HillasParametersContainer()
+                    ) as e:
+                        if debug:
+                            print(
+                                bcolors.FAIL
+                                + "Parametrization error: "
+                                + f"{e}\n"
+                                + "Dummy parameters recorded."
+                                + bcolors.ENDC
+                            )
+                        hillas_dict[tel_id] = HillasParametersTelescopeFrameContainer()
+                        hillas_dict_reco[
+                            tel_id
+                        ] = HillasParametersTelescopeFrameContainer()
                         n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                         leakage_dict[tel_id] = leakages
-
-                hillas_dict[tel_id] = moments
-                hillas_dict_reco[tel_id] = moments_reco
-                n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
-                leakage_dict[tel_id] = leakages
 
                 # END OF THE CYCLE OVER THE TELESCOPES
 

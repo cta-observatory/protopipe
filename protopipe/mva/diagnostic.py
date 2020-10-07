@@ -54,7 +54,7 @@ class ModelDiagnostic(object):
         bin_width = bin_edges[1:] - bin_edges[:-1] - 0.1
 
         ax.bar(bin_edges[:-1], importance, width=bin_width, **kwargs)
-        ax.set_xticks(np.arange(0, len(importance)))
+        ax.set_xticks(np.arange(0, len(importance) + 1))
         ax.set_xticklabels(feature_labels, rotation=75)
 
         return ax
