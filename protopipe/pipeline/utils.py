@@ -168,6 +168,8 @@ def final_array_to_use(sim_array, array, subarrays=None):
         The camera IDs will feed both the estimators and the image cleaning.
         The equivalent focal lengths will be used to calculate the radius of
         the camera on which cut for truncated images.
+    subarray : ctapipe.instrument.SubarrayDescription
+        Complete subarray information of the final array/subarray selected.
 
     """
     if subarrays:
@@ -181,7 +183,7 @@ def final_array_to_use(sim_array, array, subarrays=None):
         tel_types[i].camera.cam_id: tel_types[i].optics.equivalent_focal_length.value
         for i in range(len(tel_types))
     }
-    return set(tel_ids), cams_and_foclens, subarray  # redundant, to improve!
+    return set(tel_ids), cams_and_foclens, subarray
 
 
 def prod3b_array(fileName, site, array):
