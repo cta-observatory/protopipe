@@ -1,19 +1,18 @@
 General:
  model_type: 'regressor'
- # [...] = your analysis local path
- # Please, refer to directory structure shown at Lugano
- data_dir: '[...]/data/DL1/for_energy_estimation'
- data_file: 'dl1_{}_gamma_merged.h5'
+ # [...] = your analysis local full path OUTSIDE the Vagrant box
+ data_dir: '[...]/data/TRAINING/for_energy_estimation'
+ data_file: 'TRAINING_gamma_merged.h5'
  outdir: '[...]/estimators/energy_regressor'
  cam_id_list: ['LSTCam', 'NectarCam']
- table_name_template: 'feature_events_'
+ table_name_template: '' # leave empty (TO BE REMOVED)
 
 Split:
  train_fraction: 0.8
 
 Method:
  name: 'AdaBoostRegressor'
- target_name: 'mc_energy'
+ target_name: 'true_energy'
  tuned_parameters:
   learning_rate: [0.3]
   n_estimators: [100]
@@ -24,14 +23,15 @@ Method:
  cv: 2
 
 FeatureList:
- - 'log10_charge'
+ - 'log10_hillas_intensity_reco'
  - 'log10_impact'
- - 'width'
- - 'length'
+ - 'hillas_width_reco'
+ - 'hillas_width_length'
  - 'h_max'
 
 SigFiducialCuts:
- - 'xi <= 0.5'
+ - 'good_image == 1'
+ - 'is_valid == True'
 
 Diagnostic:
  # Energy binning (used for reco and true energy)

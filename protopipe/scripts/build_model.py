@@ -115,6 +115,10 @@ def main():
                 criterion="gini",
                 class_weight="balanced_subsample",  # Reweight events for each tree
             )
+            
+            # Name of target
+            target_name = cfg["Method"]["target_name"]
+            
         use_same_number_of_sig_and_bkg_for_training = cfg["Split"][
             "use_same_number_of_sig_and_bkg_for_training"
         ]
@@ -154,7 +158,7 @@ def main():
 
             # Init model factory
             factory = TrainModel(
-                case=model_type, target_name="label", feature_name_list=feature_list
+                case=model_type, target_name=target_name, feature_name_list=feature_list
             )
 
             # Split data

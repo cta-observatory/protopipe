@@ -1,12 +1,11 @@
 General:
  model_type: 'classifier'
- # [...] = your analysis local path
- # Please, refer to directory structure shown at Lugano
- data_dir: '[...]/data/DL1/for_classification/'
- data_sig_file: 'dl1_tail_gamma_merged.h5'
- data_bkg_file: 'dl1_tail_proton_merged.h5'
+ # [...] = your analysis local full path OUTSIDE the Vagrant box
+ data_dir: '[...]/data/TRAINING/for_particle_classification/'
+ data_sig_file: 'TRAINING_classification_gamma_tail_merged.h5'
+ data_bkg_file: 'TRAINING_classification_proton_tail_merged.h5'
  cam_id_list: ['LSTCam', 'NectarCam']
- table_name_template: 'feature_events_'  # Will be completed with cam_ids
+ table_name_template: '' # leave empty (TO BE REMOVED)
  outdir: '[...]/estimators/gamma_hadron_classifier'
 
 Split:
@@ -27,15 +26,19 @@ Method:
  calibrate_output: False  # If true calibrate probability
 
 FeatureList:
- - 'log10_reco_energy'
- - 'width'
- - 'length'
- - 'skewness'
- - 'kurtosis'
+ - 'reco_energy'
+ - 'reco_energy_tel'
+ - 'hillas_width'
+ - 'hillas_length'
+ - 'hillas_skewness'
+ - 'hillas_kurtosis'
  - 'h_max'
+ - 'log10_impact'
 
 SigFiducialCuts:
  - 'offset <= 0.5'
+ - 'good_image == 1'
+ - 'is_valid == True'
 
 BkgFiducialCuts:
  - 'offset <= 1.'
@@ -45,4 +48,4 @@ Diagnostic:
  energy:
   nbins: 4
   min: 0.0125
-  max: 125
+  max: 200
