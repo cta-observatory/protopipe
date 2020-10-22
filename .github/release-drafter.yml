@@ -4,7 +4,7 @@ categories:
       - 'enhancement'
   - title: 'Pipeline applications'
     labels:
-      - 'additional tool'
+      - 'pipeline applications'
       - 'divergent pointing'
   - title: 'GRID support'
     labels:
