@@ -13,7 +13,7 @@ from ctapipe.reco.energy_regressor import *
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
     make_argparser,
-    prod3b_tel_ids,
+    prod3b_array,
     str2bool,
     load_config,
     SignalHandler,
@@ -32,10 +32,7 @@ def main():
     )
 
     parser.add_argument(
-        "--estimate_energy",
-        type=str2bool,
-        default=False,
-        help="Make estimation of energy",
+        "--estimate_energy", type=str2bool, default=False, help="Estimate energy"
     )
     parser.add_argument(
         "--regressor_dir", type=str, default="./", help="regressors directory"
@@ -51,10 +48,15 @@ def main():
     # Read configuration file
     cfg = load_config(args.config_file)
 
-    # Read site layout
-    site = cfg["General"]["site"]
-    array = cfg["General"]["array"]
-    cameras = cfg["General"]["cam_id_list"]
+    try:  # If the user didn't specify a site and/or and array...
+        site = cfg["General"]["site"]
+        array = cfg["General"]["array"]
+    except KeyError:  # ...raise an error and exit.
+        print(
+            "\033[91m ERROR: make sure that both 'site' and 'array' are "
+            "specified in the analysis configuration file! \033[0m"
+        )
+        exit()
 
     if args.infile_list:
         filenamelist = []
@@ -70,12 +72,23 @@ def main():
     else:
         print("found {} files".format(len(filenamelist)))
 
+    # Get the IDs of the involved telescopes and associated cameras together
+    # with the equivalent focal lengths from the first event
+    allowed_tels, cams_and_foclens, subarray = prod3b_array(
+        filenamelist[0], site, array
+    )
+
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
     img_cutflow = CutFlow("ImageCutFlow")
 
     preper = EventPreparer(
-        config=cfg, mode=args.mode, event_cutflow=evt_cutflow, image_cutflow=img_cutflow
+        config=cfg,
+        subarray=subarray,
+        cams_and_foclens=cams_and_foclens,
+        mode=args.mode,
+        event_cutflow=evt_cutflow,
+        image_cutflow=img_cutflow,
     )
 
     # catch ctr-c signal to exit current loop and still display results
@@ -99,16 +112,22 @@ def main():
             }
         )
 
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=cameras)
+        regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
 
     # Declaration of the column descriptor for the (possible) images file
     # For the moment works only on LSTCam and NectarCam.
     class StoredImages(tb.IsDescription):
         event_id = tb.Int32Col(dflt=1, pos=0)
         tel_id = tb.Int16Col(dflt=1, pos=1)
+        dl1_phe_image=tb.Float32Col(shape=(1855), pos=2)
+        dl1_phe_image_mask_reco=tb.BoolCol(shape=(1855), pos=3)
+        mc_phe_image = tb.Float32Col(shape=(1855), pos=4)
+        mc_energy = tb.Float32Col(dflt=1, pos=5)
         dl1_phe_image = tb.Float32Col(shape=(1855), pos=2)
-        mc_phe_image = tb.Float32Col(shape=(1855), pos=3)
-        mc_energy = tb.Float32Col(dflt=1, pos=4)
+        dl1_phe_image_1stPass = tb.Float32Col(shape=(1855), pos=3)
+        calibration_status = tb.Int16Col(dflt=1, pos=4)
+        mc_phe_image = tb.Float32Col(shape=(1855), pos=5)
+        mc_energy = tb.Float32Col(dflt=1, pos=6)
 
     # Declaration of the column descriptor for the file containing DL1 data
     class EventFeatures(tb.IsDescription):
@@ -158,6 +177,16 @@ def main():
         psi = tb.Float32Col(dflt=1, pos=42)
         psi_reco = tb.Float32Col(dflt=1, pos=43)
         sum_signal_cam_reco = tb.Float32Col(dflt=1, pos=44)
+        cog_x = tb.Float32Col(dflt=1, pos=45)
+        cog_y = tb.Float32Col(dflt=1, pos=46)
+        phi = tb.Float32Col(dflt=1, pos=47)
+        cog_x_reco = tb.Float32Col(dflt=1, pos=48)
+        cog_y_reco = tb.Float32Col(dflt=1, pos=49)
+        phi_reco = tb.Float32Col(dflt=1, pos=50)
+        leakage_pixels_width_1_reco = tb.Float32Col(dflt=np.nan, pos=51)
+        leakage_pixels_width_2_reco = tb.Float32Col(dflt=np.nan, pos=52)
+        leakage_pixels_width_1 = tb.Float32Col(dflt=np.nan, pos=53)
+        leakage_pixels_width_2 = tb.Float32Col(dflt=np.nan, pos=54)
 
     feature_outfile = tb.open_file(args.outfile, mode="w")
     feature_table = {}
@@ -168,9 +197,6 @@ def main():
         images_outfile = tb.open_file("images.h5", mode="w")
         images_table = {}
         images_phe = {}
-
-    # Telescopes in analysis
-    allowed_tels = set(prod3b_tel_ids(array, site=site))
 
     for i, filename in enumerate(filenamelist):
 
@@ -185,10 +211,14 @@ def main():
         for (
             event,
             dl1_phe_image,
+            dl1_phe_image_mask_reco,
+            dl1_phe_image_1stPass,
+            calibration_status,
             mc_phe_image,
             n_pixel_dict,
             hillas_dict,
             hillas_dict_reco,
+            leakage_dict,
             n_tels,
             tot_signal,
             max_signals,
@@ -292,8 +322,16 @@ def main():
                 feature_events[cam_id]["max_signal_cam"] = max_signals[tel_id]
                 feature_events[cam_id]["sum_signal_cam"] = moments.intensity
                 feature_events[cam_id]["N_LST"] = n_tels["LST_LST_LSTCam"]
-                feature_events[cam_id]["N_MST"] = n_tels["MST_MST_NectarCam"]
-                feature_events[cam_id]["N_SST"] = n_tels["SST"] # will change
+                feature_events[cam_id]["N_MST"] = (
+                    n_tels["MST_MST_NectarCam"]
+                    + n_tels["MST_MST_FlashCam"]
+                    + n_tels["MST_SCT_SCTCam"]
+                )
+                feature_events[cam_id]["N_SST"] = (
+                    n_tels["SST_1M_DigiCam"]
+                    + n_tels["SST_ASTRI_ASTRICam"]
+                    + n_tels["SST_GCT_CHEC"]
+                )
                 feature_events[cam_id]["width"] = moments.width.to("m").value
                 feature_events[cam_id]["length"] = moments.length.to("m").value
                 feature_events[cam_id]["psi"] = moments.psi.to("deg").value
@@ -303,7 +341,11 @@ def main():
                 feature_events[cam_id]["err_est_pos"] = np.nan
                 feature_events[cam_id]["err_est_dir"] = np.nan
                 feature_events[cam_id]["mc_energy"] = event.mc.energy.to("TeV").value
+                feature_events[cam_id]["cog_x"] = moments.x.to("m").value
+                feature_events[cam_id]["cog_y"] = moments.y.to("m").value
+                feature_events[cam_id]["phi"] = moments.phi.to("deg").value
                 feature_events[cam_id]["local_distance"] = moments.r.to("m").value
+
                 feature_events[cam_id]["n_pixel"] = n_pixel_dict[tel_id]
                 feature_events[cam_id]["obs_id"] = event.r0.obs_id
                 feature_events[cam_id]["event_id"] = event.r0.event_id
@@ -312,7 +354,6 @@ def main():
                 feature_events[cam_id]["reco_energy"] = reco_energy
                 feature_events[cam_id]["ellipticity"] = ellipticity.value
                 feature_events[cam_id]["n_cluster"] = n_cluster_dict[tel_id]
-                feature_events[cam_id]["n_tel_reco"] = n_tels["reco"]
                 feature_events[cam_id]["n_tel_discri"] = n_tels["discri"]
                 feature_events[cam_id]["mc_core_x"] = event.mc.core_x.to("m").value
                 feature_events[cam_id]["mc_core_y"] = event.mc.core_y.to("m").value
@@ -327,6 +368,10 @@ def main():
                 feature_events[cam_id]["az"] = reco_result.az.to("deg").value
                 feature_events[cam_id]["reco_energy_tel"] = reco_energy_tel[tel_id]
                 # Variables from hillas_dist_reco
+                feature_events[cam_id]["n_tel_reco"] = n_tels["reco"]
+                feature_events[cam_id]["cog_x_reco"] = moments_reco.x.to("m").value
+                feature_events[cam_id]["cog_y_reco"] = moments_reco.y.to("m").value
+                feature_events[cam_id]["phi_reco"] = moments_reco.phi.to("deg").value
                 feature_events[cam_id]["ellipticity_reco"] = ellipticity_reco.value
                 feature_events[cam_id]["local_distance_reco"] = moments_reco.r.to(
                     "m"
@@ -339,14 +384,34 @@ def main():
                 ).value
                 feature_events[cam_id]["psi_reco"] = moments_reco.psi.to("deg").value
                 feature_events[cam_id]["sum_signal_cam_reco"] = moments_reco.intensity
+                feature_events[cam_id]["leakage_pixels_width_1_reco"] = leakage_dict[
+                    tel_id
+                ]["leak1_reco"]
+                feature_events[cam_id]["leakage_pixels_width_2_reco"] = leakage_dict[
+                    tel_id
+                ]["leak2_reco"]
+                feature_events[cam_id]["leakage_pixels_width_1"] = leakage_dict[tel_id][
+                    "leak1"
+                ]
+                feature_events[cam_id]["leakage_pixels_width_2"] = leakage_dict[tel_id][
+                    "leak2"
+                ]
 
                 feature_events[cam_id].append()
 
                 if args.save_images is True:
                     images_phe[cam_id]["event_id"] = event.r0.event_id
                     images_phe[cam_id]["tel_id"] = tel_id
-                    images_phe[cam_id]["dl1_phe_image"] = dl1_phe_image
-                    images_phe[cam_id]["mc_phe_image"] = mc_phe_image
+                    images_phe[cam_id]["dl1_phe_image"] = dl1_phe_image[tel_id] 
+                    images_phe[cam_id]["dl1_phe_image_mask_reco"] = dl1_phe_image_mask_reco[tel_id] 
+                    images_phe[cam_id]["dl1_phe_image"] = dl1_phe_image[tel_id]
+                    images_phe[cam_id]["dl1_phe_image_1stPass"] = dl1_phe_image_1stPass[
+                        tel_id
+                    ]
+                    images_phe[cam_id]["calibration_status"] = calibration_status[
+                        tel_id
+                    ]
+                    images_phe[cam_id]["mc_phe_image"] = mc_phe_image[tel_id]
                     images_phe[cam_id]["mc_energy"] = event.mc.energy.value  # TeV
 
                     images_phe[cam_id].append()
@@ -363,8 +428,25 @@ def main():
         for table in images_table.values():
             table.flush()
 
-    img_cutflow()
     evt_cutflow()
+
+    # Catch specific cases
+    triggered_events = evt_cutflow.cuts["min2Tels trig"][1]
+    reconstructed_events = evt_cutflow.cuts["min2Tels reco"][1]
+
+    if triggered_events == 0:
+        print(
+            "\033[93mWARNING: No events have been triggered"
+            " by the selected telescopes! \033[0m"
+        )
+    else:
+        img_cutflow()
+        if reconstructed_events == 0:
+            print(
+                "\033[93m WARNING: None of the triggered events have been "
+                "properly reconstructed by the selected telescopes!\n"
+                "DL1 file will be empty! \033[0m"
+            )
 
 
 if __name__ == "__main__":

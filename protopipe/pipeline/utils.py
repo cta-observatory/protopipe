@@ -1,11 +1,13 @@
-import numpy as np
 import yaml
 import argparse
 
 import matplotlib.pyplot as plt
 import os.path as path
 
-def save_fig(outdir, name, fig = None):
+from ctapipe.io import event_source
+
+
+def save_fig(outdir, name, fig=None):
     """Save a figure in multiple formats."""
     for ext in ["pdf", "png"]:
         if fig:
@@ -96,6 +98,7 @@ def make_argparser():
         nargs="*",
         help="give a specific list of files to run on",
     )
+
     parser.add_argument(
         "--cam_ids",
         type=str,
@@ -137,38 +140,188 @@ def make_argparser():
     return parser
 
 
-def prod3b_tel_ids(array, site="south"):
-    """Built-in function ctapipe: subarray.get_tel_ids_for_type"""
-    if array in [None, ""]:
-        return None
+def final_array_to_use(sim_array, array, subarrays=None):
+    """Infer IDs of telescopes and cameras with equivalent focal lengths.
+    This is an helper function for utils.prod3b_array.
 
-    tel_ids = None
+    Parameters
+    ----------
+    subarrays : dict, optional
+        Dictionary of subarray names linked to lists of tel_ids
+        automatically extracted by telescope type.
+        If set, it will extract tel_ids from there, otherwise from the custom
+        list given by 'array'.
+    sim_array : ctapipe.instrument.SubarrayDescription
+        Full simulated array from the first event.
+    array : list, str
+        Custom list of telescope IDs that the user wants to use or name of
+        specific subarray.
 
-    if site.lower() in ["north", "la palma", "lapalma", "spain", "canaries"]:
-        if type(array) == str:
-            if array in "subarray_LSTs":
-                tel_ids = np.arange(1, 4 + 1)
-            elif array in "subarray_MSTs":
-                tel_ids = np.arange(5, 19 + 1)
-            elif array in "full_array":
-                tel_ids = np.arange(1, 19 + 1)
-        else:  # from current config, if it is not str is list
-            tel_ids = np.asarray(array)
+    Returns
+    -------
+    tel_ids : list
+        List of telescope IDs to use in a format readable by ctapipe.
+    cams_and_foclens : dict
+        Dictionary containing the IDs of the involved cameras as inferred from
+        the involved telescopes IDs, together with the equivalent focal lengths
+        of the telescopes.
+        The camera IDs will feed both the estimators and the image cleaning.
+        The equivalent focal lengths will be used to calculate the radius of
+        the camera on which cut for truncated images.
+    subarray : ctapipe.instrument.SubarrayDescription
+        Complete subarray information of the final array/subarray selected.
 
-    elif site.lower() in ["south", "paranal", "chili"]:
-        if type(array) == str:
-            if array in "subarray_LSTs":
-                tel_ids = np.arange(1, 4 + 1)
-            elif array in "subarray_MSTs":
-                tel_ids = np.arange(5, 29 + 1)
-            elif array in "subarray_SSTs":
-                tel_ids = np.arange(30, 99 + 1)
-        else:  # from current config, if it is not str is list
-            tel_ids = np.asarray(array)
+    """
+    if subarrays:
+        tel_ids = subarrays[array]
+        subarray = sim_array.select_subarray("", tel_ids)
     else:
-        raise ValueError("site '{}' not known -- try again".format(site))
+        subarray = sim_array.select_subarray("", array)
+        tel_ids = subarray.tel_ids
+    tel_types = subarray.telescope_types
+    cams_and_foclens = {
+        tel_types[i].camera.cam_id: tel_types[i].optics.equivalent_focal_length.value
+        for i in range(len(tel_types))
+    }
+    return set(tel_ids), cams_and_foclens, subarray
 
-    if tel_ids is None:
-        raise ValueError("array {} not supported".format(array))
 
-    return tel_ids
+def prod3b_array(fileName, site, array):
+    """Return tel IDs and involved cameras from configuration and simtel file.
+
+    The initial check (and the too-high cyclomatic complexity) will disappear
+    with the advent of the final array layouts.
+    Currently not very performant: it is necessary get at least the first event
+    of the simtel file to read the simulated array information.
+
+    Parameters
+    ----------
+    first_fileName : str
+        Name of the first file of the list of files given by the user.
+    array : str or list
+        Name of the subarray or - if not supported - a custom list of telescope
+        IDs that the user wants to use
+    site : str
+        Can be only "north" or "south".
+        Currently relevant only for baseline simulations.
+        For non-baseline simulations only custom lists of IDs matter.
+
+    Returns
+    -------
+    tel_ids : list
+        List of telescope IDs to use in a format readable by ctapipe.
+    cameras : list
+        List of camera types inferred from tel_ids.
+        This will feed both the estimators and the image cleaning.
+
+    """
+    source = event_source(input_url=fileName, max_events=1)
+
+    for event in source:  # get only first event
+        pass
+
+    sim_array = event.inst.subarray  # get simulated array
+
+    # Dictionaries of subarray names for BASELINE simulations
+    subarrays_N = {  # La Palma has only 2 cameras
+        "subarray_LSTs": sim_array.get_tel_ids_for_type("LST_LST_LSTCam"),
+        "subarray_MSTs": sim_array.get_tel_ids_for_type("MST_MST_NectarCam"),
+        "full_array": sim_array.tel_ids,
+    }
+    subarrays_S = {  # Paranal has only 3 cameras
+        "subarray_LSTs": sim_array.get_tel_ids_for_type("LST_LST_LSTCam"),
+        "subarray_MSTs": sim_array.get_tel_ids_for_type("MST_MST_FlashCam"),
+        "subarray_SSTs": sim_array.get_tel_ids_for_type("SST_GCT_CHEC"),
+        "full_array": sim_array.tel_ids,
+    }
+
+    if site.lower() == "north":
+        if sim_array.num_tels > 19:  # this means non-baseline simulation..
+            if (
+                sim_array.num_tels > 125  # Paranal non-baseline
+                or sim_array.num_tels == 99  # Paranal baseline
+                or sim_array.num_tels == 98  # gamma_test_large
+            ):
+                raise ValueError(
+                    "\033[91m ERROR: infile and site uncorrelated! \033[0m"
+                )
+            if type(array) == str and array != "full_array":
+                raise ValueError(
+                    "\033[91m ERROR: Only 'full_array' supported for this production.\n\
+                     Please, use that or define a custom array with a list of tel_ids.  \033[0m"
+                )
+            elif array == "full_array":
+                return final_array_to_use(sim_array, array, subarrays_N)
+            elif (
+                type(array) == list
+            ):  # ..for which only custom lists are currently supported
+                return final_array_to_use(sim_array, array)
+            else:
+                raise ValueError(
+                    f"\033[91m ERROR: array {array} not supported. \033[0m"
+                )
+        else:  # this is a baseline simulation
+            if type(array) == str:
+                if array not in subarrays_N.keys():
+                    raise ValueError(
+                        "\033[91m ERROR: requested missing camera from simtel file. \033[0m"
+                    )
+                else:
+                    return final_array_to_use(sim_array, array, subarrays_N)
+            elif type(array) == list:
+                if any((tel_id < 1 or tel_id > 19) for tel_id in array):
+                    raise ValueError(
+                        "\033[91m ERROR: non-existent telescope ID. \033[0m"
+                    )
+                return final_array_to_use(sim_array, array)
+            else:
+                raise ValueError(
+                    f"\033[91m ERROR: array {array} not supported. \033[0m"
+                )
+    elif site.lower() == "south":
+        if sim_array.num_tels > 99:  # this means non-baseline simulation..
+            if sim_array.num_tels < 126:
+                raise ValueError(
+                    "\033[91m ERROR: infile and site uncorrelated! \033[0m"
+                )
+            if type(array) == str and array != "full_array":
+                raise ValueError(
+                    "\033[91m ERROR: Only 'full_array' supported for this production.\n\
+                     Please, use that or define a custom array with a list of tel_ids. \033[0m"
+                )
+            if array == "full_array":
+                return final_array_to_use(sim_array, array, subarrays_S)
+            elif (
+                type(array) == list
+            ):  # ..for which only custom lists are currently supported
+                return final_array_to_use(sim_array, array)
+            else:
+                raise ValueError(
+                    f"\033[91m ERROR: Array {array} not supported. \033[0m"
+                )
+        else:  # this is a baseline simulation
+            if sim_array.num_tels == 19:
+                raise ValueError(
+                    "\033[91m ERROR: infile and site uncorrelated! \033[0m"
+                )
+            if type(array) == str:
+                if array not in subarrays_S.keys():
+                    raise ValueError(
+                        "\033[91m ERROR: requested missing camera from simtel file. \033[0m"
+                    )
+                else:
+                    if sim_array.num_tels == 98:  # this is gamma_test_large
+                        subarrays_S["subarray_SSTs"] = sim_array.get_tel_ids_for_type(
+                            "SST_ASTRI_ASTRICam"  # in this file SSTs are ASTRI
+                        )
+                    return final_array_to_use(sim_array, array, subarrays_S)
+            elif type(array) == list:
+                if any((tel_id < 1 or tel_id > 99) for tel_id in array):
+                    raise ValueError(
+                        "\033[91m ERROR: non-existent telescope ID. \033[0m"
+                    )
+                return final_array_to_use(sim_array, array)
+            else:
+                raise ValueError(
+                    f"\033[91m ERROR: Array {array} not supported. \033[0m"
+                )

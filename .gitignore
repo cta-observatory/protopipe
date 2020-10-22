@@ -24,6 +24,11 @@ MANIFEST
 docs/api
 docs/_build
 
+# Benchmarks
+benchmarks/DL1/plots*
+benchmarks/DL2/plots*
+benchmarks/DL3/plots*
+
 # Eclipse editor project files
 .project
 .pydevproject
@@ -76,7 +81,9 @@ distribute-*.tar.gz
 *.h5
 *.hdf5
 *.fits
-*.fits.gz
+irf.fits.gz
+table_best_cutoff.fits
+*.pkl.gz
 
 *.pstats
 target
