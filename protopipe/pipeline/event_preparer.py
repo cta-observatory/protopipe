@@ -1118,8 +1118,8 @@ class EventPreparer:
                     except (FloatingPointError, hillas.HillasParameterizationError):
                         continue
 
-                point_azimuth_dict[tel_id] = event.mc.tel[tel_id].azimuth_raw * u.rad
-                point_altitude_dict[tel_id] = event.mc.tel[tel_id].altitude_raw * u.rad
+                point_azimuth_dict[tel_id] = event.mc.tel[tel_id].azimuth_raw.astype(np.float64) * u.rad
+                point_altitude_dict[tel_id] = event.mc.tel[tel_id].altitude_raw.astype(np.float64) * u.rad
 
                 n_tels[tel_type] += 1
                 hillas_dict[tel_id] = moments
