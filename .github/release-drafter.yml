@@ -1,0 +1,28 @@
+categories:
+  - title: '🚀 General features'
+    labels:
+      - 'enhancement'
+  - title: 'Pipeline applications'
+    labels:
+      - 'pipeline applications'
+      - 'divergent pointing'
+  - title: 'GRID support'
+    labels:
+      - 'grid'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'bug'
+      - 'wrong behaviour'
+  - title: '🧰 Maintenance'
+    labels:
+      - 'maintenance'
+      - 'documentation'
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
+template: |
+
+  ### Contributors
+  $CONTRIBUTORS
+
+  ## What is changed since $PREVIOUS_TAG
+  $CHANGES
