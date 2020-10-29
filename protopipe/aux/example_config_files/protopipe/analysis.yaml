@@ -9,7 +9,7 @@ General:
  # WARNING: for simulations containing multiple copies of the telescopes,
  # only 'full_array' or custom list are supported options!
  array: full_array
- cam_id_list : ['LSTCam'] # List of camera IDs to be used
+ cam_id_list : ['LSTCam', 'NectarCam'] # List of camera IDs to be used
 
 # Cleaning for reconstruction
 ImageCleaning:

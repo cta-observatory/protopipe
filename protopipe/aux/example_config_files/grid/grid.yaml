@@ -1,44 +1,52 @@
 General:
- # Path of protopipe configuration file (will be uploaded on the GRID)
- # Please refer to directory structure shown at Lugano
- config_path: $PATH_CONTAINING_ANALYSIS_YAML_CONFIG_FILE
+ # Path to the analysis configuration file
+ # You only need to edit the name of the analysis
+ config_path: '/home/vagrant/shared_folder/analyses/$ANALYSIS_NAME/configs/'
  # Name of the configuration file for the protopipe analysis
  config_file: 'analysis.yaml'
 
- # Type of cleaning (wave - for "wavelets" - or tail - for 'tailcut' - )
+ # Type of cleaning
+ # wave = "wavelets" (not available at the moment)
+ # tail = "tailcut"
  mode: 'tail'
 
  # Type of the particle to process (gamma, proton or electron) - NOT a list!
  particle: 'gamma'
 
- # If 'True' estimate energy (need regressor file)
- estimate_energy: True
+ # If 'True' estimate energy
+ # In this case a regressor file is needed!
+ estimate_energy: False
 
- # Force tailcut cleaning for energy/score estimation
+ # Force reconstruction cleaning also for energy/score estimation
  # possible only if using 'wave' mode - if 'tail', leave 'False'
- force_tailcut_for_extended_cleaning: False  #  only evt level
+ force_tailcut_for_extended_cleaning: False
 
 GRID:
  # Username on GRID
- user_name: '$USERNAME'
+ user_name: ''
 
  # Home on GRID
- home_grid: '/vo.cta.in2p3.fr/user/$INITIAL/$USERNAME/'
+ # 'X' = 'user_name' initial
+ # 'Y' = 'user_name'
+ home_grid: '/vo.cta.in2p3.fr/user/X/Y/'
 
- # Output directories on the GRID home_grid/outdir
- outdir: 'cta/ana/'
+ # Output directory from GRID's home
+ # i.e. "home_grid/outdir"
+ outdir: ''
 
- # Directory for DL1
- dl1_dir_energy: 'dl1_energy'
+ # The following four directories will live inside 'outdir'
 
- # Directory for DL1
- dl1_dir_discrimination: 'dl1_discrimination'
+ # Directory for training data used for energy estimation
+ training_dir_energy: 'data/TRAINING/for_energy_estimation'
 
- # home_grid/outdir/models
+ # Directory for training data used for particle classification
+ training_dir_discrimination: 'data/TRAINING/for_particle_classification'
+
+ # Directory for storage of the two estimators
  model_dir: 'estimators'
 
- # Directory for DL2
- dl2_dir: 'dl2'
+ # Directory for DL2 data
+ dl2_dir: 'data/DL2'
 
  # Number of file per job
  n_file_per_job: 10
@@ -46,28 +54,33 @@ GRID:
  # Maximum number of jobs (-1 is no limit)
  n_jobs_max: -1
 
- # List of banned site
+ # List of banned sites
+ # you can edit this if
+ # - something doesn't work at a certain site (or storage)
+ # - if you want to filter jobs due to technical problems
+ # Some sites that host data are e.g.
+ # LCG.GRIF.fr, LCG.DESY-ZEUTHEN.de, LCG.IN2P3-CC.fr
  banned_sites: ['LCG.CPPM.fr']
 
-# The following DL0 paths refer to directory structure shown at Lugano
-# you will find it together with the rest of the files
-
-# Better use absolute paths to be sure!
+# The following directory paths refer to directory structure of your analysis
+# Here you need to edit only
+# - the name of the analysis
+# - the names of the lists of simtel files (those shown here are descriptive)
 
 EnergyRegressor:
- # This list is used to build an energy regressor, if output_type=DL1 and
- # if estimate_energy is False
- gamma_list: '../../data/DL0/gamma_energy.list'
+ # Events used to train an energy regressor
+ # Used when output_type = TRAINING and estimate_energy is False
+ gamma_list: '/home/vagrant/shared_folder/analyses/$ANALYSIS_NAME/data/simtel/gamma_energy.list'
 
 GammaHadronClassifier:
- # Those lists are used to build a g/h classifier, if output_type=DL1 and
- # if estimate_energy is True
- gamma_list: '../../data/DL0/gamma_classification.list'
- proton_list: '../../data/DL0/proton_classification.list'
+ # Events used to train a gamma-hadron classifier
+ # Used when output_type = TRAINING and estimate_energy is True
+ gamma_list: '/home/vagrant/shared_folder/analyses/$ANALYSIS_NAME/data/simtel/gamma_classification.list'
+ proton_list: '/home/vagrant/shared_folder/analyses/$ANALYSIS_NAME/data/simtel/proton_classification.list'
 
 Performance:
- # Those lists are used to build event lists for performance estimation,
- # if output_type=DL2
- gamma_list: '../../data/DL0/gamma_perf.list'
- proton_list: '../../data/DL0/proton_perf.list'
- electron_list: '../../data/DL0/electron_perf.list'
+ # Events processed directly up to DL2 for DL3 production
+ # Used when output_type = DL2
+ gamma_list: '/home/vagrant/shared_folder/analyses/$ANALYSIS_NAME/data/simtel/gamma_perf.list'
+ proton_list: '/home/vagrant/shared_folder/analyses/$ANALYSIS_NAME/data/simtel/proton_perf.list'
+ electron_list: '/home/vagrant/shared_folder/analyses/$ANALYSIS_NAME/data/simtel/electron_perf.list'
