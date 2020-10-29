@@ -57,7 +57,7 @@ comparison between protopipe and CTA-MARS (see
 references therein for a summary).
 
 For this reason, the
-`MC sample <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`)
+`MC sample <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`_
 to be used for these benchmarks **needs** to be the same.
 
 The benchmarks are organised in 3 folders,
@@ -69,13 +69,13 @@ The benchmarks are organised in 3 folders,
 
 - DL2
 
-  * `direction reconstruction <benchmarks/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
+  .. * `direction reconstruction <benchmarks/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
   * `energy estimation <benchmarks/benchmarks_DL2_energy-estimation.ipynb>`__ | *benchmarks_DL2_energy-estimation.ipynb*
   * `particle classification <benchmarks/benchmarks_DL2_particle_classification.ipynb>`__ | *benchmarks_DL2_particle_classification.ipynb*
 
 - DL3
 
-  * `Point Spread Function <benchmarks/benchmarks_DL3_PSF.ipynb>`__ | *benchmarks_DL3_PSF.ipynb*
+  .. * `Point Spread Function <benchmarks/benchmarks_DL3_PSF.ipynb>`__ | *benchmarks_DL3_PSF.ipynb*
   * `Instrument Response Functions and sensitivity <benchmarks/benchmarks_DL3_IRFs_and_sensitivity.ipynb>`__ | *benchmarks_DL3_IRFs_and_sensitivity.ipynb*
 
 The DL3 folder contains the associate reference data:
