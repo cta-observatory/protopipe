@@ -76,7 +76,7 @@ def main():
 
     # Get the IDs of the involved telescopes and associated cameras together
     # with the equivalent focal lengths from the first event
-    allowed_tels, cams_and_foclens = prod3b_array(filenamelist[0], site, array)
+    allowed_tels, cams_and_foclens, subarray = prod3b_array(filenamelist[0], site, array)
 
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
@@ -86,6 +86,7 @@ def main():
     preper = EventPreparer(
         config=cfg,
         cams_and_foclens=cams_and_foclens,
+        subarray=subarray,
         mode=args.mode,
         event_cutflow=evt_cutflow,
         image_cutflow=img_cutflow,
@@ -206,10 +207,14 @@ def main():
         for (
             event,
             dl1_phe_image,
+            dl1_phe_image_mask_reco,
+            dl1_phe_image_1stPass,
+            calibration_status,
             mc_phe_image,
             n_pixel_dict,
             hillas_dict,
             hillas_dict_reco,
+            leakage_dict,
             n_tels,
             tot_signal,
             max_signals,
