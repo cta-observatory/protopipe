@@ -10,11 +10,10 @@ The following steps describe the basics of protopipe analysis and estimate of th
     it is currently tested using only LSTCam and NectarCam cameras.
   | Note that some generic La Palma files can contain FlashCam cameras.
 
-1. Setup the analysis
+1. Setup the analysis environment
 
-* create an analysis parent folder with the auxiliary script ``create_dir_structure.py``
-* ``python create_dir_structure.py $PATH $NAME``
-* copy and edit the example YAML configuration files in the *config* subfolders
+* create an analysis parent folder with the auxiliary script ``create_analysis_tree.py``
+* edit the configuration files in the *config* subfolder according to your needs
 
 2. Energy estimator
 

@@ -47,6 +47,10 @@ Benchmarks
    :hidden:
 
    benchmarks/benchmarks_DL1_calibration.ipynb
+   benchmarks/benchmarks_DL1_image-cleaning.ipynb
+   benchmarks/benchmarks_DL2_energy-estimation.ipynb
+   benchmarks/benchmarks_DL2_particle-classification.ipynb
+   benchmarks/benchmarks_DL3_IRFs_and_sensitivity.ipynb
 
 *protopipe* contains a folder named *benchmarks* (not a module)
 hosting the notebooks used for benchmarking.
@@ -57,7 +61,7 @@ comparison between protopipe and CTA-MARS (see
 references therein for a summary).
 
 For this reason, the
-`MC sample <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`)
+`MC sample <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`_
 to be used for these benchmarks **needs** to be the same.
 
 The benchmarks are organised in 3 folders,
@@ -69,13 +73,11 @@ The benchmarks are organised in 3 folders,
 
 - DL2
 
-  * `direction reconstruction <benchmarks/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
   * `energy estimation <benchmarks/benchmarks_DL2_energy-estimation.ipynb>`__ | *benchmarks_DL2_energy-estimation.ipynb*
-  * `particle classification <benchmarks/benchmarks_DL2_particle_classification.ipynb>`__ | *benchmarks_DL2_particle_classification.ipynb*
+  * `particle classification <benchmarks/benchmarks_DL2_particle-classification.ipynb>`__ | *benchmarks_DL2_particle_classification.ipynb*
 
 - DL3
 
-  * `Point Spread Function <benchmarks/benchmarks_DL3_PSF.ipynb>`__ | *benchmarks_DL3_PSF.ipynb*
   * `Instrument Response Functions and sensitivity <benchmarks/benchmarks_DL3_IRFs_and_sensitivity.ipynb>`__ | *benchmarks_DL3_IRFs_and_sensitivity.ipynb*
 
 The DL3 folder contains the associate reference data:
@@ -88,14 +90,6 @@ The DL3 folder contains the associate reference data:
    avoid divergences with
    `ctaplot <https://github.com/cta-observatory/ctaplot>`__ and
    `cta-benchmarks <https://github.com/cta-observatory/cta-benchmarks>`__.
-   In particular, the contents of the DL3 folder would be likely the same, so
-   probably we will not do that here at all.
-
-   At the time of this editing (early March 2020), the only limitation to this
-   approach are the missing new DL1/DL2 data formats from *ctapipe*, to be
-   implemented soon (see this
-   `issue <https://github.com/cta-observatory/protopipe/issues/25>`__
-   for news about this).
 
 .. note::
    The storage of static versions of the benchmarks in this documentation is temporary.
@@ -106,6 +100,3 @@ The DL3 folder contains the associate reference data:
    For the moment the purpose of use these tools in the current setup is to help
    early developers and testers to check if their changes improve or degrade
    previous performances.
-
-   Please, find `here <https://indico.cta-observatory.org/event/1995/contributions/19991/attachments/15559/19825/CTAC_Lugano_2019_Peresano.pdf>`__
-   the **latest complete performance**.
