@@ -2,17 +2,18 @@ categories:
   - title: '🚀 General features'
     labels:
       - 'enhancement'
-  - title: 'Pipeline applications'
+  - title: '🔭 Pipeline applications'
     labels:
       - 'pipeline applications'
       - 'divergent pointing'
-  - title: 'GRID support'
+  - title: '🌐 GRID support'
     labels:
       - 'grid'
   - title: '🐛 Bug Fixes'
     labels:
       - 'bug'
       - 'wrong behaviour'
+      - 'fix'
   - title: '🧰 Maintenance'
     labels:
       - 'maintenance'
