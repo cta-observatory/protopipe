@@ -49,6 +49,7 @@ release = f"{__version__}"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx_issues",
     "numpydoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
@@ -102,13 +103,13 @@ todo_include_todos = True
 
 autoclass_content = "both"  # include both class docstring and __init__
 
-autodoc_default_options = {
-    # Make sure that any autodoc declarations show the right members
-    "members": True,
-    "inherited-members": True,
-    "private-members": True,
-    "show-inheritance": True,
-}
+# autodoc_default_options = {
+#     # Make sure that any autodoc declarations show the right members
+#     "members": True,
+#     "inherited-members": True,
+#     "private-members": True,
+#     "show-inheritance": True,
+# }
 
 autosummary_generate = True  # Make _autosummary files and include them
 napoleon_numpy_docstring = False  # Force consistency, leave only Google
@@ -170,6 +171,15 @@ latex_documents = [
     )
 ]
 
+# -- Options for sphinx issues -----
+
+# GitHub repo
+issues_github_path = "sloria/marshmallow"
+
+# equivalent to
+issues_uri = "https://github.com/cta-observatory/protopipe/issues/{issue}"
+issues_pr_uri = "https://github.com/cta-observatory/protopipe/pull/{pr}"
+issues_commit_uri = "https://github.com/cta-observatory/protopipe/commit/{commit}"
 
 # -- Options for manual page output ---------------------------------------
 
@@ -198,3 +208,5 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {"https://docs.python.org/": None}
+
+github_issues_url = "https://github.com/cta-observatory/protopipe/issues"
