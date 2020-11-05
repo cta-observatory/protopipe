@@ -1,11 +1,13 @@
+
 general:
  # Directory with input data file
- # [...] = your analysis local full path OUTSIDE the Vagrant box
+ # [...] = your analysis local path
+ # Please refer to directory structure shown at Lugano
  indir: '[...]/data/DL2'
  # Template name for input file
- template_input_file: 'DL2_{}_{}_merged.h5' # filled with mode and particle type
+ template_input_file: 'dl2_{}_{}_merged.h5' # filled with mode and particle type
  # Directory for output files
- outdir: '[...]/data/DL3'
+ outdir: '[...]/performance'
  # Output table name
  output_table_name: 'table_best_cutoff'
 
@@ -18,7 +20,10 @@ analysis:
 
  # Normalisation between ON and OFF regions
  alpha: 0.2
-
+ 
+ # Radius to use for calculating bg rate
+ max_bg_radius: 1.
+ 
  # Minimimal significance
  min_sigma: 5
 
@@ -42,30 +47,31 @@ analysis:
 
 particle_information:
  gamma:
-  n_events_per_file: 1000000  #  10**5 * 10
+  num_use: 10
+  num_showers: 10**5
   e_min: 0.003
   e_max: 330
   gen_radius: 1400
-  diff_cone: 0
-  gen_gamma: 2
+  gen_gamma: -2
+  diff_cone: 0 
 
  proton:
-  n_events_per_file: 4000000  #  2 * 10**5 * 20
+  num_use: 20
+  num_showers: 2 * 10**5
   e_min: 0.004
   e_max: 600
   gen_radius: 1900
+  gen_gamma: -2
   diff_cone: 10
-  gen_gamma: 2
-  offset_cut: 1.
 
  electron:
-  n_events_per_file: 2000000  #  10**5 * 20
+  num_use: 20
+  num_showers: 10**5
   e_min: 0.003
   e_max: 330
   gen_radius: 1900
+  gen_gamma: -2
   diff_cone: 10
-  gen_gamma: 2
-  offset_cut: 1.
 
 column_definition:
  # Column name for true energy

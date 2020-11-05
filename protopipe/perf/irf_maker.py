@@ -16,7 +16,6 @@ __all__ = ["IrfMaker", "SensitivityMaker", "BkgData", "Irf"]
 class BkgData(object):
     """
     Class storing background data in a NDDataArray object.
-
     It's a bit hacky, but gammapy sensitivity estimator does not take individual IRF,
     it takes a CTAPerf object. So i'm emulating that... We need a bkg format!!!
     """
@@ -44,7 +43,6 @@ class Irf(object):
 class SensitivityMaker(object):
     """
     Class which estimate sensitivity with IRF
-
     Parameters
     ----------
     config: `dict`
@@ -158,7 +156,6 @@ class SensitivityMaker(object):
 class IrfMaker(object):
     """
     Class building IRF for point-like analysis.
-
     Parameters
     ----------
     config: `dict`
@@ -293,7 +290,7 @@ class IrfMaker(object):
                 * (
                     1
                     - np.cos(
-                        self.config["particle_information"]["proton"]["offset_cut"]
+                        self.config["analysis"]["max_bg_radius"]
                         * u.deg.to("rad")
                     )
                 )
@@ -304,7 +301,7 @@ class IrfMaker(object):
                 * (
                     1
                     - np.cos(
-                        self.config["particle_information"]["electron"]["offset_cut"]
+                        self.config["analysis"]["max_bg_radius"]
                         * u.deg.to("rad")
                     )
                 )
@@ -374,11 +371,11 @@ class IrfMaker(object):
 
         # Get simulation infos
         cfg_particule = self.config["particle_information"]["gamma"]
-        simu_index = cfg_particule["gen_gamma"]
+        simu_index = np.absolute(cfg_particule["gen_gamma"])
         index = 1.0 - simu_index  # for futur integration
         nsimu_tot = float(cfg_particule["n_files"]) * float(
-            cfg_particule["n_events_per_file"]
-        )
+            cfg_particule["num_showers"]) * float(
+            cfg_particule["num_use"])
         emin_simu = cfg_particule["e_min"]
         emax_simu = cfg_particule["e_max"]
         area_simu = (np.pi * cfg_particule["gen_radius"] ** 2) * u.Unit("m2")

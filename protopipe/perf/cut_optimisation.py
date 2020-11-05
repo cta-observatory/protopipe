@@ -14,10 +14,8 @@ __all__ = ['CutsOptimisation', 'CutsDiagnostic', 'CutsApplicator']
 class CutsApplicator(object):
     """
     Apply best cut and angular cut to events.
-
     Apply cuts to gamma, proton and electrons that will be further used for
     performance estimation (irf, sensitivity, etc.).
-
     Parameters
     ----------
     config: `dict`
@@ -54,7 +52,6 @@ class CutsApplicator(object):
     def apply_cuts_on_data(self, data):
         """
         Flag particle passing angular cut and the best cutoff
-
         Parameters
         ----------
         data: `pandas.DataFrame`
@@ -103,7 +100,6 @@ class CutsApplicator(object):
 class CutsDiagnostic(object):
     """
     Class used to get some diagnostic related to the optimal working point.
-
     Parameters
     ----------
     config: `dict`
@@ -274,7 +270,6 @@ class CutsOptimisation(object):
     """
     Class used to find best cutoff to obtain minimal
     sensitivity in a given amount of time.
-
     Parameters
     ----------
     config: `dict`
@@ -290,7 +285,6 @@ class CutsOptimisation(object):
     def weight_events(self, model_dict, colname_mc_energy):
         """
         Add a weight column to the files, in order to scale simulated data to reality.
-
         Parameters
         ----------
         model_dict: dict
@@ -320,7 +314,7 @@ class CutsOptimisation(object):
             omega_simu = 1.
 
         nsimu = conf_part['n_simulated']
-        index_simu = conf_part['gen_gamma']
+        index_simu = np.absolute(conf_part['gen_gamma'])
         emin = conf_part['e_min'] * u.TeV
         emax = conf_part['e_max'] * u.TeV
         amplitude = 1. * u.Unit('1 / (cm2 s TeV)')
@@ -349,7 +343,6 @@ class CutsOptimisation(object):
         of energy and theta square cut. Correct the number of events
         according to the ON region which correspond to the angular cut applied to
         the gamma-ray events.
-
         Parameters
         ----------
         energy_values: `astropy.Quantity`
@@ -411,10 +404,10 @@ class CutsOptimisation(object):
                 # Correct number of background due to acceptance
                 acceptance_g = 2 * np.pi * (1 - np.cos(th_cut.to('rad').value))
                 acceptance_p = 2 * np.pi * (
-                        1 - np.cos(self.config['particle_information']['proton']['offset_cut'] * u.deg.to('rad'))
+                        1 - np.cos(self.config["analysis"]["max_bg_radius"] * u.deg.to('rad'))
                 )
                 acceptance_e = 2 * np.pi * (
-                        1 - np.cos(self.config['particle_information']['electron']['offset_cut'] * u.deg.to('rad'))
+                        1 - np.cos(self.config["analysis"]["max_bg_radius"] * u.deg.to('rad'))
                 )
 
                 # Add corrected weight taking into angular cuts applied to gamma-rays
@@ -692,5 +685,3 @@ class CutsOptimisation(object):
         for feature in feature_to_save:
             t[feature[0]] = Column(res_to_save[feature[0]])
         t.write(os.path.join(outdir, outfile), format=format, overwrite=overwrite)
-
-
