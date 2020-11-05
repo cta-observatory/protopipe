@@ -223,8 +223,16 @@ def main():
             impact_dict,
         ) in preper.prepare_event(source):
 
+            # True energy
+            true_energy = event.mc.energy.value
+            
+            # True direction
+            true_az = event.mc.az
+            true_alt = event.mc.alt
+            
             # Angular quantities
             run_array_direction = event.mcheader.run_array_direction
+            pointing_az, pointing_alt = run_array_direction[0], run_array_direction[1]
 
             # Angular separation between true and reco direction
             xi = angular_separation(
@@ -233,8 +241,8 @@ def main():
 
             # Angular separation bewteen the center of the camera and the reco direction.
             offset = angular_separation(
-                run_array_direction[0],  # az
-                run_array_direction[1],  # alt
+                pointing_az,
+                pointing_alt,
                 reco_result.az,
                 reco_result.alt,
             )
@@ -348,6 +356,11 @@ def main():
                     + n_tels["SST_ASTRI_ASTRICam"]
                     + n_tels["SST_GCT_CHEC"]
                 )
+                reco_event["pointing_az"] = pointing_az.to("deg").value
+                reco_event["pointing_alt"] = pointing_alt.to("deg").value
+                reco_event["true_az"] = true_az.to("deg").value
+                reco_event["true_alt"] = true_alt.to("deg").value
+                reco_event["true_energy"] = true_energy
                 reco_event["reco_energy"] = reco_energy
                 reco_event["reco_alt"] = alt.to("deg").value
                 reco_event["reco_az"] = az.to("deg").value
