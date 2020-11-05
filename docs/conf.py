@@ -18,9 +18,8 @@
 #
 import os
 import sys
-from protopipe import __version__
-
 sys.path.insert(0, os.path.abspath(".."))
+from protopipe import __version__
 
 # -- Project information -----------------------------------------------------
 
@@ -34,9 +33,9 @@ author = "Michele Peresano, Julien Lefaucheur"
 # built documents.
 #
 # The short X.Y version.
-version = f"{__version__}"
+version = __version__
 # The full version, including alpha/beta/rc tags.
-release = f"{__version__}"
+release = __version__
 
 # -- General configuration ------------------------------------------------
 
@@ -174,7 +173,7 @@ latex_documents = [
 # -- Options for sphinx issues -----
 
 # GitHub repo
-issues_github_path = "sloria/marshmallow"
+issues_github_path = "cta-observatory/protopipe"
 
 # equivalent to
 issues_uri = "https://github.com/cta-observatory/protopipe/issues/{issue}"
@@ -208,5 +207,3 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {"https://docs.python.org/": None}
-
-github_issues_url = "https://github.com/cta-observatory/protopipe/issues"

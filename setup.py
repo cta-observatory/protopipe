@@ -10,9 +10,9 @@ def readme():
 setup(
     name="protopipe",
     version=__version__,
-    description="Pipeline to process events from DL0 to DL3",
+    description="Prototype pipeline for the Cherenkov Telescope Array (CTA)",
     url="https://github.com/cta-observatory/protopipe",
-    author="Michele Peresano, Karl Kosack, Thierry Stolarczyk, Alice Donini, Thomas Vuillaume",
+    author="Michele Peresano",
     author_email="michele.peresano@cea.fr",
     license="MIT",
     packages=find_packages(),
