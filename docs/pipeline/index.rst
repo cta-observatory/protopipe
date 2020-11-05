@@ -39,6 +39,12 @@ The current calibration is performed using:
 * charge and pulse times extraction via ``ctapipe.image.extractors.TwoPassWindowSum``
 * no integration correction
 
+.. figure:: ./double-pass-image-extraction.png
+  :width: 800
+  :alt: Explanation of ``ctapipe.image.extractors.TwoPassWindowSum``
+
+  Explanation of ``ctapipe.image.extractors.TwoPassWindowSum``
+
 The resulting **optimized cleaning thresholds** for LSTCam and NectarCam
 when requiring 99.7% rejection of the "noise" (0 true phes) are
 (4.2, 2.1) for LSTCam and (4., 2.) for NectarCam.
