@@ -21,9 +21,9 @@ You can fine the latest released version `here <https://github.com/cta-observato
     * - protopipe
       - GRID interface
     * - v0.2.X
-      - v0.3.X
-    * - v0.2.0
-      - v0.2.0
+      - v0.2.X
+    * - v0.3.X
+      - v0.2.X
 
 Getting the development version
 -------------------------------
