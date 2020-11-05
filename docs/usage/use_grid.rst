@@ -10,6 +10,12 @@ Requirements
 * GRID interface (:ref:`install-grid`),
 * be accustomed with the basic pipeline workflow (:ref:`use-pipeline`).
 
+.. figure:: ./GRID_workflow.png
+  :width: 800
+  :alt: Workflow of a full analysis on the GRID with protopipe
+
+  Workflow of a full analysis on the GRID with protopipe.
+
 Usage
 -----
 
