@@ -3,19 +3,17 @@
 The repository
 ==============
 
-Is useful for both basic users and developers to monitor the status of the
-development of *protopipe*.
+Useful for monitoring the development status of of *protopipe*.
 
-Start from the **projects** tab, which currently consists of
+The repository is organized in projects, which you can access from the
+`Projects tab <https://github.com/cta-observatory/protopipe/projects>`_.
 
-- *Next release*,
-- *Development of new algorithms*,
-- *Bugs*.
+They don't come with specific deadlines because they are meant to
+give a continuous overview regardless of software versioning.
 
-They don't come with specific deadlines, because they are meant to
-give a continuous overview regardless of versioning.
-
-Please, if what you have in mind is not already covered open a new issue.
+.. contents:: Current projects
+    :local:
+    :depth: 2
 
 Next release
 ------------
@@ -71,3 +69,18 @@ The project is divided in the following sections:
 - *In progress*, pull-requests opened to solve either of the prioritized issues
   of this project (could be under review or stale),
 - *Done*, are closed issues or approved and merged pull-requests.
+
+Maintenance
+-----------
+
+This project collects all open issues and pull-requests related to the
+work needed to keep everything up-to-date and running in a safe development
+environment, namely
+
+- documentation
+- unit-testing
+- integration testing
+- Continuous Integration (CI)
+- release automation
+
+It is organized as the *Next release* project
