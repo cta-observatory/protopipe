@@ -1,13 +1,13 @@
 
 general:
  # Directory with input data file
- # [...] = your analysis local path
+ # [...] = your analysis local full path OUTSIDE the Vagrant box
  # Please refer to directory structure shown at Lugano
  indir: '[...]/data/DL2'
  # Template name for input file
- template_input_file: 'dl2_{}_{}_merged.h5' # filled with mode and particle type
+ template_input_file: 'DL2_{}_{}_merged.h5' # filled with mode and particle type
  # Directory for output files
- outdir: '[...]/performance'
+ outdir: '[...]/data/DL3'
  # Output table name
  output_table_name: 'table_best_cutoff'
 
@@ -83,3 +83,4 @@ column_definition:
   name: 'gammaness'
   range: [0, 1]
  angular_distance_to_the_src: 'xi'
+ 
