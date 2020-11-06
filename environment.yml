@@ -15,5 +15,4 @@ dependencies:
   - sphinx_rtd_theme
   - vitables
   - pip:
-    - Cython
     - pyirf
