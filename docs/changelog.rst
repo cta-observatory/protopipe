@@ -18,7 +18,7 @@ Changelog
 
 .. _protopipe_0p3_release:
 
-`0.3.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.3.0>`__ (Nov Xth, 2020)
+`0.3.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.3.0>`__ (Nov 9th, 2020)
 --------------------------------------------------------------------------------------------
 
 Summary
