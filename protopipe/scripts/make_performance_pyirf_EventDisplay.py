@@ -117,8 +117,8 @@ def main():
     logging.basicConfig(level=logging.INFO)
     logging.getLogger("pyirf").setLevel(logging.DEBUG)
     
-    for k, p in particles.items():
-        log.info(f"Simulated {k.title()} Events:")
+    for particle_type, p in particles.items():
+        log.info(f"Simulated {particle_type.title()} Events:")
         p["events"], p["simulation_info"] = read_DL2_pyirf(p["file"],p["run_header"])
         
         # Multiplicity cut
@@ -151,7 +151,12 @@ def main():
         [particles["proton"]["events"], particles["electron"]["events"]]
     )
     
+    MAX_GH_CUT_EFFICIENCY = 0.8
+    GH_CUT_EFFICIENCY_STEP = 0.01
+    
+    # gh cut used for first calculation of the binned theta cuts
     INITIAL_GH_CUT_EFFICENCY = 0.4
+    
     INITIAL_GH_CUT = np.quantile(gammas['gh_score'], (1 - INITIAL_GH_CUT_EFFICENCY))
     log.info(f"Using fixed G/H cut of {INITIAL_GH_CUT} to calculate theta cuts")
 
@@ -174,11 +179,6 @@ def main():
         percentile=68,
     )
     
-    # evaluate the theta cut
-    gammas["selected_theta"] = evaluate_binned_cut(
-        gammas["theta"], gammas["reco_energy"], theta_cuts, operator.le
-    )
-
     # same bins as event display uses
     sensitivity_bins = add_overflow_bins(
         create_bins_per_decade(
@@ -187,13 +187,18 @@ def main():
     )
 
     log.info("Optimizing G/H separation cut for best sensitivity")
+    gh_cut_efficiencies = np.arange(
+        GH_CUT_EFFICIENCY_STEP,
+        MAX_GH_CUT_EFFICIENCY + GH_CUT_EFFICIENCY_STEP / 2,
+        GH_CUT_EFFICIENCY_STEP
+    )
     sensitivity_step_2, gh_cuts = optimize_gh_cut(
-        gammas[gammas["selected_theta"]],
+        gammas,
         background,
         reco_energy_bins=sensitivity_bins,
-        gh_cut_values=np.arange(0, 1.0, 0.005),
-        theta_cuts=theta_cuts,
+        gh_cut_values=gh_cut_efficiencies,
         op=operator.ge,
+        theta_cuts=theta_cuts,
         alpha=ALPHA,
         background_radius=MAX_BG_RADIUS,
     )
