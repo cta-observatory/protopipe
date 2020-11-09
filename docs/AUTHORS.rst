@@ -14,7 +14,7 @@ source code folder,
 
 .. code-block:: bash
 
-    git shortlog -sne
+    git shortlog -sne --no-merges
 
 Previous authors which contributed to ``protopipe`` are also Julien Lefacheur, Jeremie Decock and Tino Michael.
 Julien Lefacheur has been also the previous author of the ``GRID interface``.
