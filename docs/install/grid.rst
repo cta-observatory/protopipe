@@ -3,39 +3,52 @@
 Grid environment
 ================
 
-General requirements
---------------------
+Requirements
+------------
 
-Regardless of what operating system you are using, in order to be able to use
-*protopipe* on the grid you will need to be able to interface with it.
+* credentials and certificate for using the GRID (follow `these instructions <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide>`__.)
+* `Vagrant <https://www.vagrantup.com/>`_
 
-Go through the initial steps described
-`here <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide>`__.
+Getting a released version
+--------------------------
 
-In the following it is then assumed that you have:
+You can fine the latest released version `here <https://github.com/cta-observatory/protopipe/releases>`__
 
-* a Grid identity and a CTA VO registration,
-* a certificate and a user key in the hidden folder ``$HOME/.globus``
+.. list-table:: compatibility between *protopipe* and its interface
+    :widths: 25 25
+    :header-rows: 0
 
-Installation instructions
--------------------------
+    * - protopipe
+      - GRID interface
+    * - v0.2.X
+      - v0.2.X
+    * - v0.3.X
+      - v0.2.X
 
-The installation instructions are the following:
+Getting the development version
+-------------------------------
 
-* get the interface code (``git clone https://github.com/HealthyPear/protopipe-grid-interface.git``),
-* create and enter a folder where to work,
-* **(only Windows/macos users)** copy the ``VagrantFile`` from the parent folder of `protopipe-grid-interface`,
-* **(only Windows/macos users)** edit the first arguments of lines from 47 to 50 according to your local setup,
-* create the `data` shared folder to interact externally with the analysis products,
-* **(only Windows/macos users)** enter in the virtual environment (``vagrant up && vagrant ssh``),
-* get the Singularity container (``singularity pull --name CTADIRAC_with_protopipe.sif shub://HealthyPear/CTADIRAC``),
-* enter in it (``singularity shell CTADIRAC_with_protopipe.sif``).
+This version is always compatible with the latest release of *protopipe* and
+its development version.
 
-From here you should be able to activate the DIRAC environment (``dirac-proxy-init``).
-The container provides the latest version of CTADIRAC and the necessary python
-modules for the `protopipe-grid` code to run.
+``git clone https://github.com/HealthyPear/protopipe-grid-interface.git``
+
+Setup the working environment
+-----------------------------
+
+1. create and enter a folder where to work,
+2. copy the ``VagrantFile`` from the interface
+3. edit lines from 48 to 59 according to your local setup
+4. ``vagrant up && vagrant ssh``
+5. ``singularity pull --name CTADIRAC_with_protopipe.sif shub://HealthyPear/CTADIRAC``
+6. ``singularity shell CTADIRAC_with_protopipe.sif``
+
+From here,
+
+- activate the GRID environment with ``dirac-proxy-init``
+- the ``shared_folder`` contains the folders
+
+  - ``analyses`` to store all your analyses
+  - ``productions`` to store lists of simulated files
+
 Now you can proceed with the analysis workflow (:ref:`use-grid`).
-
-.. Note::
-  For Linux users, the host's $HOME coincides with the guests' one by default.
-  For macos/Windows users, this has been set when you edited the VagrantFile.

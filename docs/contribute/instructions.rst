@@ -3,6 +3,10 @@
 Instructions
 ============
 
+.. contents::
+    :local:
+    :depth: 2
+
 These are some guidelines on how to contribute to *protopipe*.
 This of course makes sense only for the development branch, aka the *master*
 branch.
@@ -86,3 +90,11 @@ and updated.
   If your changes are relatively small and
   `you know what you are doing <https://www.atlassian.com/git/tutorials/merging-vs-rebasing>`_,
   you can use ``git rebase master``, instead of merging.
+
+Making your contribution visible
+--------------------------------
+
+Together with your changes, you should check that,
+
+- the email that you want to use is listed in the ``.mailmap``
+- your name appears in the ``CODEOWNERS`` file according to your contribution
