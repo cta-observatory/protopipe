@@ -76,9 +76,8 @@ def main():
     cfg['analysis']['obs_time'] = {'value': float(str_obs_time[0]), 'unit': str(str_obs_time[-1])}
 
     # Create output directory if necessary
-    outdir = os.path.join(cfg['general']['outdir'], 'irf_{}_ThSq_{}_Time{:.2f}{}'.format(
+    outdir = os.path.join(cfg['general']['outdir'], 'irf_{}_Time{:.2f}{}'.format(
         args.mode,
-        cfg['analysis']['thsq_opt']['type'],
         cfg['analysis']['obs_time']['value'],
         cfg['analysis']['obs_time']['unit'])
     )
@@ -196,7 +195,7 @@ def main():
         gammas,
         background,
         reco_energy_bins=sensitivity_bins,
-        gh_cut_values=gh_cut_efficiencies,
+        gh_cut_efficiencies=gh_cut_efficiencies,
         op=operator.ge,
         theta_cuts=theta_cuts,
         alpha=ALPHA,
