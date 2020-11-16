@@ -18,6 +18,7 @@ from ctapipe.reco.event_classifier import EventClassifier
 # Utilities
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
+    bcolors,
     make_argparser,
     prod3b_array,
     str2bool,
@@ -106,11 +107,22 @@ def main():
     use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
 
     if regressor_method in ["None", "none", None]:
+        print(
+            bcolors.OKBLUE
+            + "The energy of the event will NOT be estimated."
+            + bcolors.ENDC
+        )
         use_regressor = False
     else:
         use_regressor = True
 
     if classifier_method in ["None", "none", None]:
+        if args.debug:
+            print(
+                bcolors.OKBLUE
+                + "The particle type of the event will NOT be estimated."
+                + bcolors.ENDC
+            )
         use_classifier = False
     else:
         use_classifier = True
@@ -129,6 +141,14 @@ def main():
             }
         )
         classifier = EventClassifier.load(clf_file, cam_id_list=cams_and_foclens.keys())
+        if args.debug:
+            print(
+                bcolors.OKBLUE
+                + "The particle type of the event will be estimated"
+                + " using the models stored in"
+                + f" {args.classifier_dir}\n"
+                + bcolors.ENDC
+            )
 
     # Regressors
     if use_regressor:
@@ -144,6 +164,13 @@ def main():
             }
         )
         regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
+        print(
+            bcolors.OKBLUE
+            + "The energy of the event will be estimated"
+            + " using the models stored in"
+            + f" {args.regressor_dir}\n"
+            + bcolors.ENDC
+        )
 
     # catch ctr-c signal to exit current loop and still display results
     signal_handler = SignalHandler()
@@ -423,6 +450,13 @@ def main():
             if energy_estimated and particle_type_estimated:
                 reco_event["success"] = True
             else:
+                if args.debug:
+                    print(
+                        bcolors.WARNING
+                        + f"energy_estimated = {energy_estimated}\n"
+                        + f"particle_type_estimated = {particle_type_estimated}\n"
+                        + bcolors.ENDC
+                    )
                 reco_event["success"] = False
 
             # If the user wants to save the images of the run
