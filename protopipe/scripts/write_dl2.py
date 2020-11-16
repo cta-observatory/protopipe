@@ -395,7 +395,7 @@ def main():
 
                 # Try getting the average weighted score or gammaness
                 # If no image had a valid estimated energy record it as nan
-                if len(weight_tel_selected) == 0:
+                if len(weight_tel_selected) > 0:
 
                     # Weight the final decision/proba
                     if use_proba_for_classifier is True:
