@@ -474,7 +474,6 @@ def main():
                 reco_event["gammaness"] = gammaness
             else:
                 reco_event["score"] = score
-            reco_event["success"] = True
             reco_event["ErrEstPos"] = np.nan
             reco_event["ErrEstDir"] = np.nan
 
