@@ -181,6 +181,7 @@ def main():
         reco_core_y = tb.Float32Col(dflt=np.nan, pos=20)
         mc_core_x = tb.Float32Col(dflt=np.nan, pos=21)
         mc_core_y = tb.Float32Col(dflt=np.nan, pos=22)
+        is_valid=tb.BoolCol(dflt=False, pos=23)
 
     reco_outfile = tb.open_file(
         mode="w",
@@ -462,6 +463,8 @@ def main():
                 + n_tels["SST_GCT_CHEC"]
             )
             reco_event["reco_energy"] = reco_energy
+
+            reco_event["is_valid"] = is_valid
             reco_event["reco_alt"] = alt.to("deg").value
             reco_event["reco_az"] = az.to("deg").value
             reco_event["offset"] = offset.to("deg").value
