@@ -172,13 +172,14 @@ def main():
             }
         )
         regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
-        print(
-            bcolors.OKBLUE
-            + "The energy of the event will be estimated"
-            + " using the models stored in"
-            + f" {args.regressor_dir}\n"
-            + bcolors.ENDC
-        )
+        if args.debug:
+            print(
+                bcolors.OKBLUE
+                + "The energy of the event will be estimated"
+                + " using the models stored in"
+                + f" {args.regressor_dir}\n"
+                + bcolors.ENDC
+            )
 
     # catch ctr-c signal to exit current loop and still display results
     signal_handler = SignalHandler()
