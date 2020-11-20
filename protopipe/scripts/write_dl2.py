@@ -56,9 +56,17 @@ def main():
     # Read configuration file
     cfg = load_config(args.config_file)
 
-    # Read site layout
-    site = cfg["General"]["site"]
-    array = cfg["General"]["array"]
+    try:  # If the user didn't specify a site and/or and array...
+        site = cfg["General"]["site"]
+        array = cfg["General"]["array"]
+    except KeyError:  # ...raise an error and exit.
+        print(
+            bcolors.FAIL
+            + "ERROR: make sure that both 'site' and 'array' are "
+            + "specified in the analysis configuration file!"
+            + bcolors.ENDC
+        )
+        exit()
 
     # Add force_tailcut_for_extended_cleaning in configuration
     cfg["General"][
