@@ -4,9 +4,10 @@ channels:
   - conda-forge
   - cta-observatory
 dependencies:
-  - ctapipe=0.8.0
+  - ctapipe=0.9.1
   - gammapy=0.8
   - ipython
+  - jupyterlab
   - nbsphinx
   - notebook
   - numpydoc
