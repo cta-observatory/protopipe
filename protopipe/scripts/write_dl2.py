@@ -391,12 +391,11 @@ def main():
                         [
                             np.log10(reco_energy),
                             np.log10(energy_tel_classifier[tel_id]),
+                            np.log10(moments.intensity),
                             moments.width.value,
                             moments.length.value,
-                            moments.skewness,
-                            moments.kurtosis,
                             h_max.value,
-                            np.log10(impact_dict[tel_id].value),
+                            impact_dict[tel_id].value,
                         ]
                     )
 
