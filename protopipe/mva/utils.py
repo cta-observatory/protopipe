@@ -20,7 +20,7 @@ def load_obj(name):
 def prepare_data(ds, cuts, label=None):
     """Add variables in data frame"""
     ds["log10_hillas_intensity"] = np.log10(ds["hillas_intensity_reco"])
-    ds["log10_impact"] = np.log10(ds["impact_dist"])
+    ds["log10_impact_dist"] = np.log10(ds["impact_dist"])
     ds["log10_true_energy"] = np.log10(ds["true_energy"])
     try:  # for classification
         ds["log10_reco_energy"] = np.log10(ds["reco_energy"])
