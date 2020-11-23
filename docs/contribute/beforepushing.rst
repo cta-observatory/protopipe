@@ -46,45 +46,54 @@ Benchmarks
 .. toctree::
    :hidden:
 
-   benchmarks/benchmarks_DL1_calibration
-   benchmarks/benchmarks_DL1_image-cleaning
-   benchmarks/benchmarks_DL2_direction-reconstruction
-   benchmarks/benchmarks_DL2_energy-estimation
-   benchmarks/benchmarks_DL2_particle-classification
-   benchmarks/benchmarks_DL3_PSF
-   benchmarks/benchmarks_DL3_IRFs_and_sensitivity
+   benchmarks/DL1/benchmarks_DL1_calibration
+   benchmarks/DL1/benchmarks_DL1_image-cleaning
+   benchmarks/MODELS/benchmarks_MODELS_energy
+   benchmarks/MODELS/benchmarks_MODELS_classification
+   benchmarks/DL2/benchmarks_DL2_direction-reconstruction
+   benchmarks/DL2/benchmarks_DL2_energy-estimation
+   benchmarks/DL2/benchmarks_DL2_particle-classification
+   benchmarks/DL3/benchmarks_DL3_PSF
+   benchmarks/DL3/benchmarks_DL3_IRFs_and_sensitivity
 
-*protopipe* contains a folder named *benchmarks* (not a module)
-hosting the notebooks used for benchmarking.
+This documentation hosts a series of notebooks used for benchmarking.
 
-Their contents follow the development triggered by the ongoing
+Their contents follows the development triggered by the ongoing
 comparison between protopipe and CTA-MARS (see
 `this issue <https://github.com/cta-observatory/protopipe/issues/24>`__ and
 references therein for a summary).
 
-For this reason, the
-`MC sample <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`)
-to be used for these benchmarks **needs** to be the same.
+Current simulated reference datasets used for the performance checks:
 
-The benchmarks are organised in 3 folders,
+- Prod3b
+  - `La Palma baseline zd=20deg az=180deg <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`_
+
+The benchmarks are organised as follows,
 
 - DL1
 
-  * `calibration <benchmarks/benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
-  * `image cleaning <benchmarks/benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
+  * `calibration <benchmarks/DL1/benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
+  * `image cleaning <benchmarks/DL1/benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
+
+This folder contains also some reference data from the CTAMARS pipeline.
+
+- MODELS
+
+  * `Energy <benchmarks/MODELS/benchmarks_MODELS_energy.ipynb>`__ | *benchmarks_MODELS_energy.ipynb*
+  * `Particle type <benchmarks/MODELS/benchmarks_MODELS_classification.ipynb>`__ | *benchmarks_MODELS_classification.ipynb*
 
 - DL2
 
-  * `direction reconstruction <benchmarks/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
-  * `energy estimation <benchmarks/benchmarks_DL2_energy-estimation.ipynb>`__ | *benchmarks_DL2_energy-estimation.ipynb*
-  * `particle classification <benchmarks/benchmarks_DL2_particle-classification.ipynb>`__ | *benchmarks_DL2_particle-classification.ipynb*
+  * `direction reconstruction <benchmarks/DL2/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
+  * `energy estimation <benchmarks/DL2/benchmarks_DL2_energy-estimation.ipynb>`__ | *benchmarks_DL2_energy-estimation.ipynb*
+  * `particle classification <benchmarks/DL2/benchmarks_DL2_particle-classification.ipynb>`__ | *benchmarks_DL2_particle-classification.ipynb*
 
 - DL3
 
-  * `Point Spread Function <benchmarks/benchmarks_DL3_PSF.ipynb>`__ | *benchmarks_DL3_PSF.ipynb*
-  * `Instrument Response Functions and sensitivity <benchmarks/benchmarks_DL3_IRFs_and_sensitivity.ipynb>`__ | *benchmarks_DL3_IRFs_and_sensitivity.ipynb*
+  * `Point Spread Function <benchmarks/DL3/benchmarks_DL3_PSF.ipynb>`__ | *benchmarks_DL3_PSF.ipynb*
+  * `Instrument Response Functions and sensitivity <benchmarks/DL3/benchmarks_DL3_IRFs_and_sensitivity.ipynb>`__ | *benchmarks_DL3_IRFs_and_sensitivity.ipynb*
 
-The DL3 folder contains the associate reference data:
+The DL3 folder contains the following reference data:
 
 - the CTA requirements,
 - the ASWG performance (to be updated).
