@@ -85,3 +85,9 @@ Check that,
 
 - ``System clock synchronized: yes``
 - ``systemd-timesyncd.service active: yes``
+
+**After issuing the command ``dirac-proxy-init`` and typing my certificate
+password the process start pending and gets stuck**
+
+One possible reason might be related to your network security settings.
+Some networks might require to add the option ``-L`` to ``dirac-proxy-init``.
