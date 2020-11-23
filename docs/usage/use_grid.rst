@@ -67,3 +67,21 @@ Usage
   * the ``performance`` subfolder in your analysis parent folder should now
     contain a set of 4 folders, each containing the respective IRF information
   * associate benchmark notebooks to be added soon
+
+Troubleshooting
+---------------
+
+**After issuing the command ``dirac-proxy-init`` I get the message
+"Your host clock seems to be off by more than a minute! Thats not good.
+We'll generate the proxy but please fix your system time" (or similar)**
+
+From within the Vagrant Box environment execute these commands:
+
+- ``systemctl status systemd-timesyncd.service``
+- ``sudo systemctl restart systemd-timesyncd.service``
+- ``timedatectl``
+
+Check that,
+
+- ``System clock synchronized: yes``
+- ``systemd-timesyncd.service active: yes``
