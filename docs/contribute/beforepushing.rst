@@ -58,7 +58,7 @@ Benchmarks
 
 This documentation hosts a series of notebooks used for benchmarking.
 
-Their contents follows the development triggered by the ongoing
+Their contents follow the development triggered by the ongoing
 comparison between protopipe and CTA-MARS (see
 `this issue <https://github.com/cta-observatory/protopipe/issues/24>`__ and
 references therein for a summary).
@@ -67,6 +67,10 @@ Current simulated reference datasets used for the performance checks:
 
 - Prod3b
   - `La Palma baseline zd=20deg az=180deg <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`_
+
+In the documentation we show only the actual results for immediate display.
+You can find the details by opening the notebooks with ``jupyter lab``
+from their location at ``docs/contribute/benchmarks``.
 
 The benchmarks are organised as follows,
 
