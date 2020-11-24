@@ -73,7 +73,7 @@ def main():
     # Optimisation parameters
     method_name = cfg["Method"]["name"]
     tuned_parameters = [cfg["Method"]["tuned_parameters"]]
-    scoring = "explained_variance"
+    scoring = cfg["Method"]["scoring"]
     cv = cfg["Method"]["cv"]
 
     # Split fraction
