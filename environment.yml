@@ -6,6 +6,7 @@ channels:
 dependencies:
   - ctapipe=0.9.1
   - gammapy=0.8
+  - astropy=3.2.3
   - ipython
   - jupyterlab
   - nbsphinx
