@@ -26,9 +26,9 @@ docs/api
 docs/_build
 
 # Benchmarks
-docs/contribute/benchmarks/DL1/plots*
-docs/contribute/benchmarks/DL2/plots*
-docs/contribute/benchmarks/DL3/plots*
+docs/contribute/benchmarks/TRAINING/plots/*
+docs/contribute/benchmarks/DL2/plots/*
+docs/contribute/benchmarks/DL3/plots/*
 
 # Eclipse editor project files
 .project
