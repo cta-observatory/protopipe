@@ -71,6 +71,9 @@ Usage
 Troubleshooting
 ---------------
 
+Issues with the login
+^^^^^^^^^^^^^^^^^^^^^
+
 **After issuing the command ``dirac-proxy-init`` I get the message
 "Your host clock seems to be off by more than a minute! Thats not good.
 We'll generate the proxy but please fix your system time" (or similar)**
@@ -91,3 +94,29 @@ password the process start pending and gets stuck**
 
 One possible reason might be related to your network security settings.
 Some networks might require to add the option ``-L`` to ``dirac-proxy-init``.
+
+**After issuing the command ``dirac-proxy-init`` and typing my certificate
+password the process start pending and gets stuck**
+
+One possible reason might be related to your network security settings.
+Some networks might require to add the option ``-L`` to ``dirac-proxy-init``.
+
+Issues with the download
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+**After correctly editing and launching the ``download_and_merge.sh`` script
+I get "UTC Framework/API ERROR: Failures occurred during rm.getFile"**
+
+Something went wrong during the download phase, either because of your network
+connection (check for possible instabilities) or because of a problem
+on the server side (in which case the solution is out of your control).
+
+The best approach is:
+
+- let the process finish and eliminate the incomplete merged file,
+- go to the GRID, copy the list of files and dump it into e.g. ``grid.list``,
+- do the same with the local files into e.g. ``local.list``,
+- do ``diff <(sort local.list) <(sort grid.list)``,
+- download the missing files with ``dirac-dms-get-file``,
+- modify (temporarily) ``download_and_merge.sh`` by commenting the
+  download line and execute it so you just merge them.
