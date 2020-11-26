@@ -46,14 +46,14 @@ Benchmarks
 .. toctree::
    :hidden:
 
-   benchmarks/DL1/benchmarks_DL1_calibration
-   benchmarks/DL1/benchmarks_DL1_image-cleaning
+   benchmarks/TRAINING/benchmarks_DL1_calibration
+   benchmarks/TRAINING/benchmarks_DL1_image-cleaning
+   benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction
+   benchmarks/TRAINING/benchmarks_DL2_energy-estimation
    benchmarks/MODELS/benchmarks_MODELS_energy
    benchmarks/MODELS/benchmarks_MODELS_classification
-   benchmarks/DL2/benchmarks_DL2_direction-reconstruction
-   benchmarks/DL2/benchmarks_DL2_energy-estimation
    benchmarks/DL2/benchmarks_DL2_particle-classification
-   benchmarks/DL3/benchmarks_DL3_PSF
+   benchmarks/DL3/benchmarks_DL3_cuts_optimization.ipynb
    benchmarks/DL3/benchmarks_DL3_IRFs_and_sensitivity
 
 This documentation hosts a series of notebooks used for benchmarking.
@@ -66,7 +66,7 @@ references therein for a summary).
 Current simulated reference datasets used for the performance checks:
 
 - Prod3b
-  - `La Palma baseline zd=20deg az=180deg <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`_
+  - `La Palma baseline zd=20deg az=180deg <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`__
 
 In the documentation we show only the actual results for immediate display.
 You can find the details by opening the notebooks with ``jupyter lab``
@@ -74,28 +74,34 @@ from their location at ``docs/contribute/benchmarks``.
 
 The benchmarks are organised as follows,
 
-- DL1
+- TRAINING
 
-  * `calibration <benchmarks/DL1/benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
-  * `image cleaning <benchmarks/DL1/benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
+  * `Calibration <benchmarks/TRAINING/benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
+  * `Image cleaning <benchmarks/TRAINING/benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
+  * `Direction reconstruction <benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
+  * `Energy estimation <benchmarks/TRAINING/benchmarks_DL2_energy-estimation.ipynb>`__ | *benchmarks_DL2_energy-estimation.ipynb*
 
 This folder contains also some reference data from the CTAMARS pipeline.
 
 - MODELS
+
+These performances are obtained from a *test* portion of the TRAINING data,
 
   * `Energy <benchmarks/MODELS/benchmarks_MODELS_energy.ipynb>`__ | *benchmarks_MODELS_energy.ipynb*
   * `Particle type <benchmarks/MODELS/benchmarks_MODELS_classification.ipynb>`__ | *benchmarks_MODELS_classification.ipynb*
 
 - DL2
 
-  * `direction reconstruction <benchmarks/DL2/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
-  * `energy estimation <benchmarks/DL2/benchmarks_DL2_energy-estimation.ipynb>`__ | *benchmarks_DL2_energy-estimation.ipynb*
-  * `particle classification <benchmarks/DL2/benchmarks_DL2_particle-classification.ipynb>`__ | *benchmarks_DL2_particle-classification.ipynb*
+  * `Particle classification <benchmarks/DL2/benchmarks_DL2_particle-classification.ipynb>`__ | *benchmarks_DL2_particle-classification.ipynb*
 
 - DL3
 
-  * `Point Spread Function <benchmarks/DL3/benchmarks_DL3_PSF.ipynb>`__ | *benchmarks_DL3_PSF.ipynb*
+  * `Cuts optimization <benchmarks/DL3/benchmarks_DL3_cuts_optimization.ipynb`__ | *benchmarks_DL3_cuts_optimization.ipynb*
   * `Instrument Response Functions and sensitivity <benchmarks/DL3/benchmarks_DL3_IRFs_and_sensitivity.ipynb>`__ | *benchmarks_DL3_IRFs_and_sensitivity.ipynb*
+
+  .. warning::
+    Due to a dependency conflict this notebook (as the performance step of the
+    pipeline) requires ``astropy v3.2.3``.
 
 The DL3 folder contains the following reference data:
 
