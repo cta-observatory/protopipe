@@ -8,5 +8,5 @@ conda update -q conda  # get latest conda version
 conda info -a
 
 sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment.yml
-conda env create -n ci --file environment.yml
-conda activate ci
+conda env create -n protopipe --file environment.yml
+conda activate protopipe
