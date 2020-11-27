@@ -6,6 +6,7 @@ def readme():
     with open("README.rst") as f:
         return f.read()
 
+
 extras_require = {
     "docs": [
         "sphinx_rtd_theme",
@@ -40,4 +41,9 @@ setup(
     include_package_data=True,
     install_requires=["ctapipe"],
     zip_safe=False,
+    extras_require={
+        "all": extras_require["all"],
+        "tests": extras_require["tests"],
+        "docs": extras_require["docs"],
+    },
 )
