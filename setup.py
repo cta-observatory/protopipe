@@ -18,7 +18,7 @@ extras_require = {
         "gammapy == 0.8",
         "pytest",
         "numpy",
-        "ctapipe=0.7.0",
+        "ctapipe==0.7.0",
     ],
     "tests": [
         "pytest",
