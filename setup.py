@@ -7,6 +7,29 @@ def readme():
         return f.read()
 
 
+extras_require = {
+    "docs": [
+        "sphinx_rtd_theme",
+        "sphinx-issues",
+        "sphinx_automodapi",
+        "nbsphinx",
+        "numpydoc",
+        "ipython",
+        "gammapy == 0.8",
+        "pytest",
+        "numpy",
+        "ctapipe==0.7.0",
+    ],
+    "tests": [
+        "pytest",
+        "pytest-cov",
+        "codecov",
+    ],
+}
+
+extras_require["all"] = list(set(extras_require["tests"] + extras_require["docs"]))
+
+
 setup(
     name="protopipe",
     version=__version__,
@@ -20,4 +43,9 @@ setup(
     include_package_data=True,
     install_requires=["ctapipe"],
     zip_safe=False,
+    extras_require={
+        "all": extras_require["all"],
+        "tests": extras_require["tests"],
+        "docs": extras_require["docs"],
+    },
 )
