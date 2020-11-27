@@ -1,8 +1,8 @@
 name: protopipe
 channels:
   - defaults
-  - conda-forge
   - cta-observatory
+  - conda-forge
 dependencies:
   - ctapipe=0.9.1
   - gammapy=0.8
