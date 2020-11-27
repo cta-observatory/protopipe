@@ -87,7 +87,6 @@ def main():
         config=cfg,
         subarray=subarray,
         cams_and_foclens=cams_and_foclens,
-        subarray=subarray,
         mode=args.mode,
         event_cutflow=evt_cutflow,
         image_cutflow=img_cutflow,
