@@ -2,7 +2,7 @@ General:
  model_type: 'regressor'
  # [...] = your analysis local full path OUTSIDE the Vagrant box
  data_dir: '[...]/data/TRAINING/for_energy_estimation'
- data_file: 'TRAINING_gamma_merged.h5'
+ data_file: 'TRAINING_energy_{}_gamma_merged.h5'
  outdir: '[...]/estimators/energy_regressor'
  cam_id_list: ['LSTCam', 'NectarCam']
  table_name_template: '' # leave empty (TO BE REMOVED)

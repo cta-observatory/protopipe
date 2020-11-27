@@ -85,6 +85,7 @@ def main():
     # Event preparer
     preper = EventPreparer(
         config=cfg,
+        subarray=subarray,
         cams_and_foclens=cams_and_foclens,
         subarray=subarray,
         mode=args.mode,

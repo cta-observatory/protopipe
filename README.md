@@ -8,14 +8,10 @@ protopipe
 
 [hyperlink1]: https://travis-ci.org/cta-observatory/protopipe
 [image1]: https://travis-ci.org/cta-observatory/protopipe.svg?branch=master
-[hyperlink2]: https://app.codacy.com/manual/HealthyPear/protopipe/dashboard
-[image2]: https://api.codacy.com/project/badge/Grade/32f2fb2df3154fa1838c765d4f9110ba
+[hyperlink2]: https://www.codacy.com/gh/cta-observatory/protopipe?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cta-observatory/protopipe&amp;utm_campaign=Badge_Grade
+[image2]: https://app.codacy.com/project/badge/Grade/cb95f2eee92946f2a68acc7b103f843c
 [hyperlink3]: https://codecov.io/gh/cta-observatory/protopipe
 [image3]: https://codecov.io/gh/cta-observatory/protopipe/branch/master/graph/badge.svg
-<!---
-[hyperlink4]: https://travis-ci.org/cta-observatory/protopipe
-[image4]: https://travis-ci.org/cta-observatory/protopipe.svg?branch=master
---->
 
 A pipeline prototype for the Cherenkov Telescope Array.
 
