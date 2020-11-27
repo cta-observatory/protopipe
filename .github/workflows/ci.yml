@@ -32,7 +32,7 @@ jobs:
           source .github/install.sh
           python --version
           pip install codecov pytest-cov
-          pip install --use-feature=2020-resolver -e .[tests]
+          pip install -e .[tests]
           pip freeze
       - name: Tests
         env:
