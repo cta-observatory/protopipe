@@ -17,6 +17,7 @@ extras_require = {
         "ipython",
         "gammapy == 0.8",
         "pytest",
+        "numpy",
     ],
     "tests": [
         "pytest",
