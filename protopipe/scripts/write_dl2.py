@@ -157,22 +157,26 @@ def main():
         NTels_reco_lst = tb.Int16Col(dflt=0, pos=4)
         NTels_reco_mst = tb.Int16Col(dflt=0, pos=5)
         NTels_reco_sst = tb.Int16Col(dflt=0, pos=6)
-        mc_energy = tb.Float32Col(dflt=np.nan, pos=7)
-        reco_energy = tb.Float32Col(dflt=np.nan, pos=8)
-        reco_alt = tb.Float32Col(dflt=np.nan, pos=9)
-        reco_az = tb.Float32Col(dflt=np.nan, pos=10)
-        offset = tb.Float32Col(dflt=np.nan, pos=11)
-        xi = tb.Float32Col(dflt=np.nan, pos=12)
-        ErrEstPos = tb.Float32Col(dflt=np.nan, pos=13)
-        ErrEstDir = tb.Float32Col(dflt=np.nan, pos=14)
-        gammaness = tb.Float32Col(dflt=np.nan, pos=15)
-        success = tb.BoolCol(dflt=False, pos=16)
-        score = tb.Float32Col(dflt=np.nan, pos=17)
-        h_max = tb.Float32Col(dflt=np.nan, pos=18)
-        reco_core_x = tb.Float32Col(dflt=np.nan, pos=19)
-        reco_core_y = tb.Float32Col(dflt=np.nan, pos=20)
-        mc_core_x = tb.Float32Col(dflt=np.nan, pos=21)
-        mc_core_y = tb.Float32Col(dflt=np.nan, pos=22)
+        pointing_az = tb.Float32Col(dflt=np.nan, pos=7)
+        pointing_alt = tb.Float32Col(dflt=np.nan, pos=8)
+        true_az = tb.Float32Col(dflt=np.nan, pos=9)
+        true_alt = tb.Float32Col(dflt=np.nan, pos=10)
+        true_energy = tb.Float32Col(dflt=np.nan, pos=11)
+        reco_energy = tb.Float32Col(dflt=np.nan, pos=12)
+        reco_alt = tb.Float32Col(dflt=np.nan, pos=13)
+        reco_az = tb.Float32Col(dflt=np.nan, pos=14)
+        offset = tb.Float32Col(dflt=np.nan, pos=15)
+        xi = tb.Float32Col(dflt=np.nan, pos=16)
+        ErrEstPos = tb.Float32Col(dflt=np.nan, pos=17)
+        ErrEstDir = tb.Float32Col(dflt=np.nan, pos=18)
+        gammaness = tb.Float32Col(dflt=np.nan, pos=19)
+        success = tb.BoolCol(dflt=False, pos=20)
+        score = tb.Float32Col(dflt=np.nan, pos=21)
+        h_max = tb.Float32Col(dflt=np.nan, pos=22)
+        reco_core_x = tb.Float32Col(dflt=np.nan, pos=23)
+        reco_core_y = tb.Float32Col(dflt=np.nan, pos=24)
+        mc_core_x = tb.Float32Col(dflt=np.nan, pos=25)
+        mc_core_y = tb.Float32Col(dflt=np.nan, pos=26)
 
     reco_outfile = tb.open_file(
         mode="w",
@@ -382,7 +386,7 @@ def main():
                 reco_event["success"] = False
 
             # save basic event infos
-            reco_event["mc_energy"] = event.mc.energy.to("TeV").value
+            reco_event["true_energy"] = event.mc.energy.to("TeV").value
             reco_event["event_id"] = event.r1.event_id
             reco_event["obs_id"] = event.r1.obs_id
 
