@@ -2,7 +2,6 @@
 
 import os
 import pandas as pd
-import numpy as np
 import argparse
 from os import path
 from sklearn.ensemble import (
@@ -74,7 +73,7 @@ def main():
     # Optimisation parameters
     method_name = cfg["Method"]["name"]
     tuned_parameters = [cfg["Method"]["tuned_parameters"]]
-    scoring = "explained_variance"
+    scoring = cfg["Method"]["scoring"]
     cv = cfg["Method"]["cv"]
 
     # Split fraction
@@ -113,8 +112,12 @@ def main():
                 bootstrap=True,
                 random_state=None,
                 criterion="gini",
-                class_weight="balanced_subsample",  # Reweight events for each tree
+                class_weight="balanced_subsample",  # Tree-wise re-weighting
             )
+
+            # Name of target
+            target_name = cfg["Method"]["target_name"]
+
         use_same_number_of_sig_and_bkg_for_training = cfg["Split"][
             "use_same_number_of_sig_and_bkg_for_training"
         ]
@@ -154,7 +157,7 @@ def main():
 
             # Init model factory
             factory = TrainModel(
-                case=model_type, target_name="label", feature_name_list=feature_list
+                case=model_type, target_name=target_name, feature_name_list=feature_list
             )
 
             # Split data

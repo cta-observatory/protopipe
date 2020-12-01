@@ -1,69 +1,82 @@
 .. _use-grid:
 
-Large scale productions
-=======================
+Large scale analyses
+====================
 
 Requirements
 ------------
 
-* a working installation of both protopipe (:ref:`install`) and its interface on the gris (:ref:`install-grid`),
+* protopipe (:ref:`install`)
+* GRID interface (:ref:`install-grid`),
 * be accustomed with the basic pipeline workflow (:ref:`use-pipeline`).
+
+.. figure:: ./GRID_workflow.png
+  :width: 800
+  :alt: Workflow of a full analysis on the GRID with protopipe
+
+  Workflow of a full analysis on the GRID with protopipe.
 
 Usage
 -----
 
 .. note::
 
-  You will work with two different environments to deal with protopipe
-  (Python >=3.5, conda environment)
-  and the grid utilities (Python 2.7, built-in environment).
+  You will work with two different virtual environments:
 
-1. Setup the analysis (step 1 of :ref:`use-pipeline`) in the shared ``data``
-   folder, so you can access it from outside
+  - protopipe (Python >=3.5, conda environment)
+  - GRID interface (Python 2.7, inside the container).
 
-2. Edit the configuration files according to your GRID user information and
-   your analysis settings
+  Open 1 tab each on you terminal so you can work seamlessly between the 2.
 
-3. Build a model for energy estimation
+  To monitor the jobs you can use the
+  `DIRAC Web Interface <https://ccdcta-web.in2p3.fr/DIRAC/?view=tabs&theme=Crisp&url_state=1|*DIRAC.JobMonitor.classes.JobMonitor:,>`_
 
-  * train the data that will be used to build the model
+1. **Setup analysis** (GRID enviroment)
 
-    - ``python $GRID/submit_jobs_new_scheme.py --config_file=grid.yaml --output_type=DL1``,
-    - copy, edit and execute ``$GRID/download_and_merge.sh`` in order to download such data
-      from the grid path defined in ``grid.yaml`` and merge it into a table hosted
-      in the appropriate path of your analysis folder (``[...]/data/DL1/for_energy_estimation``)
+  1. Enter the container
+  2. ``python $GRID/create_analysis_tree.py --analysis_name myAnalysis``
 
-  * build the model
+  All configuration files for this analysis are stored under ``configs``.
 
-    - open a new tab in your terminal and go to the model folder, activating the protopipe environment,
-    - ``python ./build_model.py --config_file=regressor.yaml --max_events=200000``
+2. **Obtain training data for energy estimation** (GRID enviroment)
 
-  * operate some diagnostics
+  1. edit ``grid.yaml`` to use gammas without energy estimation
+  2. ``python $GRID/submit_jobs.py --config_file=grid.yaml --output_type=TRAINING``
+  3. edit and execute ``$ANALYSIS/data/download_and_merge.sh`` once the files are ready
 
-    - ``python ./model_diagnostic.py --config_file=regressor.yaml``
-    - associate benchmark notebooks to be added soon
+3. **Build the model for energy estimation** (both enviroments)
 
-  * upload the model on the grid
+  1. switch to the ``protopipe environment``
+  2. edit ``regressor.yaml``
+  3. launch the ``build_model.py`` script of protopipe with this configuration file
+  4. you can operate some diagnostics with ``model_diagnostic.py`` using the same configuration file
+  5. diagnostic plots are stored in subfolders together with the model files
+  6. return to the ``GRID environment`` to edit and execute ``upload_models.sh`` from the estimators folder
 
-    - return to the grid environment to edit and execute ``$GRID/upload_models.sh``
+4. **Obtain training data for particle classification** (GRID enviroment)
 
-4. Build a model for particle classification
+  1. edit ``grid.yaml`` to use gammas **with** energy estimation
+  2. ``python $GRID/submit_jobs.py --config_file=grid.yaml --output_type=TRAINING``
+  3. edit and execute ``$ANALYSIS/data/download_and_merge.sh`` once the files are ready
+  4. repeat the first 3 points for protons
 
-  * edit ``grid.yaml`` by setting ``estimate_energy`` to ``True`` in order for the reconstructed energy to
-    be estimated and further used as a discriminant parameters.
-    In addition, this flag also indicates that the file lists should be taken in
-    the ``GammaHadronClassifier`` section.
-  * next steps are analog to Step 3
+4. **Build a model for particle classification** (both enviroments)
 
-5. Create the DL2 dataset
+  1. switch to the ``protopipe environment``
+  2. edit ``classifier.yaml``
+  3. launch the ``build_model.py`` script of protopipe with this configuration file
+  4. you can operate some diagnostics with ``model_diagnostic.py`` using the same configuration file
+  5. diagnostic plots are stored in subfolders together with the model files
+  6. return to the ``GRID environment`` to edit and execute ``upload_models.sh`` from the estimators folder
 
-  * ``python $GRID/submit_jobs_new_scheme.py --config_file=grid.yaml --output_type=DL2``
-  * ``. download_and_merge.sh``
-  * you can now exit the grid environment
+5. **Get DL2 data** (GRID enviroment)
 
-6. Estimate the performance
+Execute points 1 and 2 for gammas, protons, and electrons separately.
 
-  * ``. $PROTOPIPE/protopipe/aux/scripts/multiple_performances.sh``
-  * the ``performance`` subfolder in your analysis parent folder should now
-    contain a set of 4 folders, each containing the respective IRF information
-  * associate benchmark notebooks to be added soon
+  1. ``python $GRID/submit_jobs.py --config_file=grid.yaml --output_type=DL2``
+  2. edit and execute ``download_and_merge.sh``
+
+6. **Estimate the performance** (protopipe enviroment)
+
+  1. edit ``performance.yaml``
+  2. launch ``make_performance.py`` with this configuration file and an observation time

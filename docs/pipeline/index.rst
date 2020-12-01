@@ -26,8 +26,8 @@ Details
 
   The version of *ctapipe* used by *protopipe* is always the last stable version
   packaged on the Anaconda framework.
-  This means that some of the more cutting-edge code needs to be hard-coded. 
-  This code should always be stored in ``protopipe.pipeline.temp`` and 
+  This means that some of the more cutting-edge code needs to be hard-coded.
+  This code should always be stored in ``protopipe.pipeline.temp`` and
   disappear at each newer release of *ctapipe*.
 
 The following is a description of the *default* algorithms and settings, chosen
@@ -42,11 +42,17 @@ The current calibration is performed using:
 * charge and pulse times extraction via ``ctapipe.image.extractors.TwoPassWindowSum``
 * correction for the integration window.
 
+.. figure:: ./double-pass-image-extraction.png
+  :width: 800
+  :alt: Explanation of ``ctapipe.image.extractors.TwoPassWindowSum``
+
+  Explanation of ``ctapipe.image.extractors.TwoPassWindowSum``.
+
 .. note::
 
-  The photoelectron units used later for cleaning the images are those **not** 
+  The photoelectron units used later for cleaning the images are those **not**
   corrected for the average bias. Said this, thanks to the integration correction
-  this effect is now negligible.  
+  this effect is now negligible.
   For details on how these values are obtained, please refer to the calibration
   benchmarks (:ref:`beforepushing`).
 

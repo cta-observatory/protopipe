@@ -3,41 +3,30 @@
 Pipeline
 ========
 
-The following steps describe the basics of protopipe analysis and estimate of the performance of CTA.
+The following steps describe the basics of protopipe analysis and
+estimate of the performance of CTA.
 
-.. warning::
-  | Even though *protopipe* can now support all prod3b simtel Monte Carlo files,
-    it is currently tested using only LSTCam and NectarCam cameras.
-  | Note that some generic La Palma files can contain FlashCam cameras.
+Each of the analysis steps comes with its configuration file stored under
+``aux/example_config_files/protopipe``.
 
-In order to perform a complete analysis with *protopipe*, aside from using the
-scripts that make up the pipeline you will use some auxiliary tools stored
-under ```$PROTOPIPE/protopipe/aux/```,
+1. Energy estimator
 
-- ``scripts``, to ease the creation and management of the analysis products,
-- ``example_config_files``, in YAML format for GRID usage and the pipeline itself.
-
-1. Setup the analysis
-
-* create an analysis folder with the auxiliary script ``create_dir_structure.py``
-* ``python $PROTOPIPE/protopipe/aux/scripts/create_dir_structure.py $PATH $NAME``
-* copy and edit the example YAML configuration files in the *config* subfolders
-
-2. Energy estimator
-
-* produce a table with gamma-ray image information with pipeline utilities (:ref:`data_training`)
+* produce a table with gamma-ray image information
+  with pipeline utilities (:ref:`data_training`)
 * build a model with ``protopipe.mva`` utilities (:ref:`model_building`)
 
-3. Gamma hadron classifier
+2. Gamma hadron classifier
 
-* produce tables of gamma-rays and hadrons with image information with pipeline utilities (:ref:`data_training`)
+* produce tables of gamma-rays and hadrons with image information
+  with pipeline utilities (:ref:`data_training`)
 * build a model with ``protopipe.mva`` utilities (:ref:`model_building`)
 
-4. DL2 production
+3. DL2 production
 
-* produce tables of gamma-rays, hadrons and electrons with event informations with pipeline utilities (:ref:`DL2`)
+* produce tables of gamma-rays, hadrons and electrons with event informations
+  with pipeline utilities (:ref:`DL2`)
 
-5. Estimate performance of the instrument (:ref:`optimization_cuts_IRFs`)
+4. Estimate performance of the instrument (:ref:`optimization_cuts_IRFs`)
 
 * find the best cutoff in gammaness/score, to discriminate between signal
   and background, as well as the angular cut to obtain the best sensitivity
@@ -49,5 +38,4 @@ under ```$PROTOPIPE/protopipe/aux/```,
 
 .. warning::
 
-  * *protopipe* currently is optimized for point-source best-sensitivity,
-  * DL1/DL2 scripts take as input only 1 file at the time.
+  *protopipe* is currently optimized for point-source best-sensitivity

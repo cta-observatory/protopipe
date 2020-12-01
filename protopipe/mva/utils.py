@@ -19,9 +19,9 @@ def load_obj(name):
 
 def prepare_data(ds, cuts, label=None):
     """Add variables in data frame"""
-    ds["log10_charge"] = np.log10(ds["sum_signal_cam"])
-    ds["log10_impact"] = np.log10(ds["impact_dist"])
-    ds["log10_mc_energy"] = np.log10(ds["mc_energy"])
+    ds["log10_hillas_intensity"] = np.log10(ds["hillas_intensity_reco"])
+    ds["log10_impact_dist"] = np.log10(ds["impact_dist"])
+    ds["log10_true_energy"] = np.log10(ds["true_energy"])
     try:  # for classification
         ds["log10_reco_energy"] = np.log10(ds["reco_energy"])
         ds["log10_reco_energy_tel"] = np.log10(ds["reco_energy_tel"])
@@ -99,29 +99,11 @@ def get_evt_subarray_model_output(
     new_data = data[keep_cols].copy(deep=True)
 
     new_data[model_output_name_evt] = np.zeros(len(new_data))
-    # Loop on obs
-    count = 0
-    for iobs in pd.unique(new_data.index.get_level_values(0)):
-        obs_df = new_data.xs(iobs)
+    new_data.set_index(["tel_id"], append=True, inplace=True)
 
-        # Loop on evts
-        for ievt in pd.unique(obs_df.index.get_level_values(0)):
-
-            evt_df = obs_df.xs(ievt)
-
-            try:  # If it fails, last event is truncated (bad split), we set np.inf
-                if weight_name is not None:
-                    weight = evt_df[weight_name]
-                else:
-                    weight = np.ones(len(evt_df))
-
-                average = np.sum(weight * evt_df[model_output_name]) / sum(weight)
-                new_data.at[(iobs, ievt), model_output_name_evt] = np.full(
-                    len(evt_df), average
-                )
-            except:  # Can happen if one badly split the data
-                average = evt_df[[model_output_name]]
-                new_data.at[(iobs, ievt), model_output_name_evt] = average
+    new_data[model_output_name_evt] = new_data.groupby(["obs_id", "event_id"]).apply(
+        lambda g: np.average(g[model_output_name], weights=g[weight_name])
+    )
 
     # Remove columns
     new_data = new_data.drop(columns=[model_output_name])

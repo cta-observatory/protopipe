@@ -12,7 +12,7 @@ Workflow and usage
 
 You should have at least a working installation of protopipe (:ref:`install`).
 
-If you want to perform large scale analyses, please install also the grid interface (:ref:`install-grid`).
+For full scale analyses, you will need also the GRID interface (:ref:`install-grid`).
 
 After this you should,
 

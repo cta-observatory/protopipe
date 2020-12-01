@@ -52,6 +52,7 @@ PreparedEvent = namedtuple(
         "event",
         "dl1_phe_image",
         "dl1_phe_image_mask_reco",
+        "dl1_phe_image_mask_clusters",
         "mc_phe_image",
         "n_pixel_dict",
         "hillas_dict",
@@ -72,7 +73,8 @@ def stub(
     event,
     true_image,
     image,
-    cleaning_mask,
+    cleaning_mask_reco,
+    cleaning_mask_clusters,
     good_for_reco,
     hillas_dict,
     hillas_dict_reco,
@@ -83,7 +85,8 @@ def stub(
     return PreparedEvent(
         event=event,
         dl1_phe_image=image,  # container for the calibrated image in phe
-        dl1_phe_image_mask_reco=cleaning_mask,  # container for the reco cleaning mask
+        dl1_phe_image_mask_reco=cleaning_mask_reco,  # container for the reco cleaning mask
+        dl1_phe_image_mask_clusters=cleaning_mask_clusters,
         mc_phe_image=true_image,  # container for the simulated image in phe
         n_pixel_dict=dict.fromkeys(hillas_dict_reco.keys(), 0),
         good_for_reco=good_for_reco,
@@ -355,6 +358,7 @@ class EventPreparer:
 
             dl1_phe_image = {}
             dl1_phe_image_mask_reco = {}
+            dl1_phe_image_mask_clusters = {}
             mc_phe_image = {}
             max_signals = {}
             n_pixel_dict = {}
@@ -459,11 +463,13 @@ class EventPreparer:
 
                     else:  # if no islands survived use old camera and image
                         camera_biggest = camera
+                        dl1_phe_image_mask_reco[tel_id] = mask_reco
 
                     # Cleaning used for score/energy estimation
                     image_extended, mask_extended = self.cleaner_extended.clean_image(
                         pmt_signal, camera
                     )
+                    dl1_phe_image_mask_clusters[tel_id] = mask_extended
 
                     # calculate the leakage (before filtering)
                     # this part is not well coded, but for the moment it works
@@ -688,6 +694,7 @@ class EventPreparer:
                                 + "Dummy parameters recorded."
                                 + bcolors.ENDC
                             )
+                        good_for_reco[tel_id] = 0
                         hillas_dict[tel_id] = HillasParametersTelescopeFrameContainer()
                         hillas_dict_reco[
                             tel_id
@@ -735,6 +742,7 @@ class EventPreparer:
                         mc_phe_image,
                         dl1_phe_image,
                         dl1_phe_image_mask_reco,
+                        dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
@@ -823,6 +831,7 @@ class EventPreparer:
                         mc_phe_image,
                         dl1_phe_image,
                         dl1_phe_image_mask_reco,
+                        dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
@@ -852,6 +861,7 @@ class EventPreparer:
                         mc_phe_image,
                         dl1_phe_image,
                         dl1_phe_image_mask_reco,
+                        dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
@@ -873,6 +883,7 @@ class EventPreparer:
                 event=event,
                 dl1_phe_image=dl1_phe_image,
                 dl1_phe_image_mask_reco=dl1_phe_image_mask_reco,
+                dl1_phe_image_mask_clusters=dl1_phe_image_mask_clusters,
                 mc_phe_image=mc_phe_image,
                 n_pixel_dict=n_pixel_dict,
                 hillas_dict=hillas_dict,
