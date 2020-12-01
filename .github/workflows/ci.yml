@@ -32,7 +32,7 @@ jobs:
           source .github/install.sh
           python --version
           pip install codecov pytest-cov
-          pip install --use-feature=2020-resolver -e .[tests]
+          pip install -e .[tests]
           pip freeze
       - name: Tests
         env:
@@ -40,6 +40,8 @@ jobs:
         run: |
           source $CONDA/etc/profile.d/conda.sh
           conda activate protopipe
+          conda list
+          ctapipe-info --version
           pytest --cov=protopipe --cov-report=xml
       - uses: codecov/codecov-action@v1
 

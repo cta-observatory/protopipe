@@ -1,0 +1,73 @@
+General:
+ # Path of protopipe configuration file (will be uploaded on the GRID)
+ # Please refer to directory structure shown at Lugano
+ config_path: $PATH_CONTAINING_ANALYSIS_YAML_CONFIG_FILE
+ # Name of the configuration file for the protopipe analysis
+ config_file: 'analysis.yaml'
+
+ # Type of cleaning (wave - for "wavelets" - or tail - for 'tailcut' - )
+ mode: 'tail'
+
+ # Type of the particle to process (gamma, proton or electron) - NOT a list!
+ particle: 'gamma'
+
+ # If 'True' estimate energy (need regressor file)
+ estimate_energy: True
+
+ # Force tailcut cleaning for energy/score estimation
+ # possible only if using 'wave' mode - if 'tail', leave 'False'
+ force_tailcut_for_extended_cleaning: False  #  only evt level
+
+GRID:
+ # Username on GRID
+ user_name: '$USERNAME'
+
+ # Home on GRID
+ home_grid: '/vo.cta.in2p3.fr/user/$INITIAL/$USERNAME/'
+
+ # Output directories on the GRID home_grid/outdir
+ outdir: 'cta/ana/'
+
+ # Directory for DL1
+ dl1_dir_energy: 'dl1_energy'
+
+ # Directory for DL1
+ dl1_dir_discrimination: 'dl1_discrimination'
+
+ # home_grid/outdir/models
+ model_dir: 'estimators'
+
+ # Directory for DL2
+ dl2_dir: 'dl2'
+
+ # Number of file per job
+ n_file_per_job: 10
+
+ # Maximum number of jobs (-1 is no limit)
+ n_jobs_max: -1
+
+ # List of banned site
+ banned_sites: ['LCG.CPPM.fr']
+
+# The following DL0 paths refer to directory structure shown at Lugano
+# you will find it together with the rest of the files
+
+# Better use absolute paths to be sure!
+
+EnergyRegressor:
+ # This list is used to build an energy regressor, if output_type=DL1 and
+ # if estimate_energy is False
+ gamma_list: '../../data/DL0/gamma_energy.list'
+
+GammaHadronClassifier:
+ # Those lists are used to build a g/h classifier, if output_type=DL1 and
+ # if estimate_energy is True
+ gamma_list: '../../data/DL0/gamma_classification.list'
+ proton_list: '../../data/DL0/proton_classification.list'
+
+Performance:
+ # Those lists are used to build event lists for performance estimation,
+ # if output_type=DL2
+ gamma_list: '../../data/DL0/gamma_perf.list'
+ proton_list: '../../data/DL0/proton_perf.list'
+ electron_list: '../../data/DL0/electron_perf.list'

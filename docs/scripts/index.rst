@@ -29,11 +29,6 @@ on disk in HDF5_ format using the PyTables_ Python module.
 This choice has been done considering the potential huge
 volume of data we will be dealing with in a near future.
 
-.. note::
-
-  Probably better to keep training and DL2 pages merged in one, since they
-  share ``EventPreparer``.
-
 Proposals for improvements and/or fixes
 ---------------------------------------
 

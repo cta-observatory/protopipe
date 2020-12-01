@@ -3,10 +3,10 @@
 Production of DL2 data
 ======================
 
-`protopipe.scripts.write_dl2.py` is used to produce DL2 tables with the event
-caracteristics such as the direction, the energy and the score/gammaness.
+`protopipe.scripts.write_dl2.py` is used to produce DL2 tables labeled with
+shower information such as the direction, the energy and the score/gammaness.
 You will need to specify the locations of the models for the energy and
-gammaness estimations.
+gammaness estimations created in the :ref:`model_building` step.
 
 By invoking the help argument, you can get help about how the script works:
 

@@ -1,5 +1,7 @@
 include README.rst
 
+include protopipe/aux/example_config_files/*.yaml
+
 recursive-include protopipe/aux
 recursive-include protopipe/pipeline/*.py
 

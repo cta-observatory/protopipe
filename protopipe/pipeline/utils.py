@@ -1,10 +1,27 @@
 import yaml
 import argparse
 
+import astropy.units as u
 import matplotlib.pyplot as plt
 import os.path as path
 
 from ctapipe.io import event_source
+
+
+class bcolors:
+    """Color definitions for standard and debug printing."""
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    BOLDWARNING = "\033[1m\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    BOLDGREEN = "\033[1m\033[92m"
+    REVERSED = "\033[7m"
+    PURPLE = "\033[95m"
 
 
 def save_fig(outdir, name, fig=None):
@@ -180,7 +197,9 @@ def final_array_to_use(sim_array, array, subarrays=None):
         tel_ids = subarray.tel_ids
     tel_types = subarray.telescope_types
     cams_and_foclens = {
-        tel_types[i].camera.cam_id: tel_types[i].optics.equivalent_focal_length.value
+        tel_types[i]
+        .camera.camera_name: tel_types[i]
+        .optics.equivalent_focal_length.value
         for i in range(len(tel_types))
     }
     return set(tel_ids), cams_and_foclens, subarray
@@ -220,7 +239,7 @@ def prod3b_array(fileName, site, array):
     for event in source:  # get only first event
         pass
 
-    sim_array = event.inst.subarray  # get simulated array
+    sim_array = source.subarray  # get simulated array
 
     # Dictionaries of subarray names for BASELINE simulations
     subarrays_N = {  # La Palma has only 2 cameras
@@ -325,3 +344,113 @@ def prod3b_array(fileName, site, array):
                 raise ValueError(
                     f"\033[91m ERROR: Array {array} not supported. \033[0m"
                 )
+
+
+def effective_focal_lengths(camera_name):
+    """Provide the effective focal length for the required camera.
+
+    Data comes from Konrad's table.
+
+    Parameters
+    ----------
+    camera_name : str
+        Name of the camera from ctapipe.instrument.CameraDescription
+
+    Returns
+    ----------
+    eff_foc_len : float
+        Effective focal length in meters
+
+    """
+
+    effective_focal_lengths = {
+        "LSTCam": 29.30565 * u.m,
+        "NectarCam": 16.44505 * u.m,
+        "FlashCam": 16.44505 * u.m,
+        "ASTRICam": 2.15191 * u.m,
+        "SCTCam": 5.58310 * u.m,
+        "CHEC": 2.30913 * u.m,
+        "DigiCam": 5.69705 * u.m,
+    }
+
+    eff_foc_len = effective_focal_lengths[camera_name]
+
+    return eff_foc_len
+
+
+def camera_radius(camid_to_efl, cam_id="all"):
+    """Get camera radii.
+
+    Inspired from pywi-cta CTAMarsCriteria, CTA Mars like preselection cuts.
+    This should be replaced by a function in ctapipe getting the radius either
+    from  the pixel poisitions or from an external database
+
+    Note
+    ----
+    average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen
+    The average camera radius values are, in degrees :
+    - LST: 2.31
+    - Nectar: 4.05
+    - Flash: 3.95
+    - SST-1M: 4.56
+    - GCT-CHEC-S: 3.93
+    - ASTRI: 4.67
+
+    """
+
+    average_camera_radii_deg = {
+        "ASTRICam": 4.67,
+        "CHEC": 3.93,
+        "DigiCam": 4.56,
+        "FlashCam": 3.95,
+        "NectarCam": 4.05,
+        "LSTCam": 2.31,
+        "SCTCam": 4.0,  # dummy value
+    }
+
+    if cam_id in camid_to_efl.keys():
+        foclen_meters = camid_to_efl[cam_id]
+        average_camera_radius_meters = (
+            math.tan(math.radians(average_camera_radii_deg[cam_id])) * foclen_meters
+        )
+    elif cam_id == "all":
+        print("Available camera radii in meters:")
+        for cam_id in camid_to_efl.keys():
+            print(f"* {cam_id} : {camera_radius(camid_to_efl, cam_id)}")
+        average_camera_radius_meters = 0
+    else:
+        raise ValueError("Unknown camid", cam_id)
+
+    return average_camera_radius_meters
+
+
+def CTAMARS_radii(camera_name):
+
+    """Radii of the cameras as defined in CTA-MARS.
+
+    These values are defined in the code of CTA-MARS.
+    They correspond to the radius of an equivalent FOV covering the same solid
+    angle.
+
+    Parameters
+    ----------
+    camera_name : str
+        Name of the camera.
+
+    Returns
+    ----------
+    average_camera_radii_deg : dict
+        Dictionary containing the hard-coded values.
+    """
+
+    average_camera_radii_deg = {
+        "ASTRICam": 4.67,
+        "CHEC": 3.93,
+        "DigiCam": 4.56,
+        "FlashCam": 3.95,
+        "NectarCam": 4.05,
+        "LSTCam": 2.31,
+        "SCTCam": 4.0,  # dummy value
+    }
+
+    return average_camera_radii_deg[camera_name]

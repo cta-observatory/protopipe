@@ -15,10 +15,10 @@ extras_require = {
         "nbsphinx",
         "numpydoc",
         "ipython",
-        "gammapy == 0.8",
+        "gammapy==0.8",
         "pytest",
         "numpy",
-        "ctapipe==0.7.0",
+        "ctapipe==0.9.1",
     ],
     "tests": [
         "pytest",
