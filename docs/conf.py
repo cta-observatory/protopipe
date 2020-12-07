@@ -66,6 +66,9 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
 ]
 
+# nbsphinx
+nbsphinx_execute = 'never'
+
 # sphinx_automodapi: avoid having methods and attributes of classes being shown
 # multiple times.
 numpydoc_show_class_members = False

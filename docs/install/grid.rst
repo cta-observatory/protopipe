@@ -12,7 +12,7 @@ Requirements
 Getting a released version
 --------------------------
 
-You can fine the latest released version `here <https://github.com/cta-observatory/protopipe/releases>`__
+You can find the latest released version `here <https://github.com/cta-observatory/protopipe/releases>`__
 
 .. list-table:: compatibility between *protopipe* and its interface
     :widths: 25 25
@@ -24,12 +24,16 @@ You can fine the latest released version `here <https://github.com/cta-observato
       - v0.2.X
     * - v0.3.X
       - v0.2.X
+    * - v0.4.X (unreleased)
+      - v0.3.X
+
+The latest released version of the GRID interface is also compatible with
+the development version of *protopipe*.
 
 Getting the development version
 -------------------------------
 
-This version is always compatible with the latest release of *protopipe* and
-its development version.
+This version is always compatible *only* with the development version of *protopipe*.
 
 ``git clone https://github.com/HealthyPear/protopipe-grid-interface.git``
 

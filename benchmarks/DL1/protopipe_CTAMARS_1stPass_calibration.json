@@ -1,0 +1,20 @@
+{
+    "Stage1ProcessorTool": {
+	"output_path": "events_protopipe_CTAMARS_calibration_1stPass.dl1.h5",
+	"overwrite": true,
+        "write_images": true,
+        "write_parameters": false,
+        "progress_bar": true,
+        "log_level": 30,
+        "split_datasets_by": "tel_type",
+        "image_extractor_type": "TwoPassWindowSum"
+    },
+    "TwoPassWindowSum": {
+        "core_threshold" : [
+          ["type", "*", 6.0],
+          ["type", "LST_LST_LSTCam", 6.0],
+          ["type", "MST_MST_NectarCam", 8.0]
+        ],
+        "disable_second_pass": true
+    }
+}
