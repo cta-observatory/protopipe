@@ -1,6 +1,6 @@
 General:
- # Path of protopipe configuration file (will be uploaded on the GRID)
- # Please refer to directory structure shown at Lugano
+ # Path of analysis configuration file (will be uploaded to the GRID)
+ # By default all configuration files are stored together
  config_path: $PATH_CONTAINING_ANALYSIS_YAML_CONFIG_FILE
  # Name of the configuration file for the protopipe analysis
  config_file: 'analysis.yaml'
@@ -12,7 +12,7 @@ General:
  particle: 'gamma'
 
  # If 'True' estimate energy (need regressor file)
- estimate_energy: True
+ estimate_energy: False
 
  # Force tailcut cleaning for energy/score estimation
  # possible only if using 'wave' mode - if 'tail', leave 'False'
@@ -52,7 +52,7 @@ GRID:
 # The following DL0 paths refer to directory structure shown at Lugano
 # you will find it together with the rest of the files
 
-# Better use absolute paths to be sure!
+# In case of errors try with absolute paths
 
 EnergyRegressor:
  # This list is used to build an energy regressor, if output_type=DL1 and

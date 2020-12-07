@@ -26,7 +26,8 @@ which this documentation is linked.
    install/index
    usage/index
    contribute/index
-   changelog
+   AUTHORS
+   CHANGELOG
 
 .. _protopipe_structure:
 .. toctree::

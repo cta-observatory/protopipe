@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from astropy.table import Table, Column
 
-# from sklearn.externals import joblib
 import joblib
 
 from protopipe.pipeline.utils import load_config, save_fig

@@ -102,8 +102,8 @@ def main():
     # Event preparer
     preper = EventPreparer(
         config=cfg,
-        cams_and_foclens=cams_and_foclens,
         subarray=subarray,
+        cams_and_foclens=cams_and_foclens,
         mode=args.mode,
         event_cutflow=evt_cutflow,
         image_cutflow=img_cutflow,
