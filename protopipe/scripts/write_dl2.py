@@ -321,7 +321,7 @@ def main():
                 reco_event["success"] = False
 
             # Estimate particle energy
-            if (use_regressor is True) and is_valid:
+            if use_regressor and is_valid:
                 energy_tel = np.zeros(len(hillas_dict.keys()))
                 energy_tel_classifier = {}
                 weight_tel = np.zeros(len(hillas_dict.keys()))
@@ -374,7 +374,7 @@ def main():
                 energy_estimated = False
 
             # Estimate particle score/gammaness
-            if (use_classifier is True) and is_valid:
+            if use_classifier and is_valid:
                 score_tel = np.zeros(len(hillas_dict.keys()))
                 gammaness_tel = np.zeros(len(hillas_dict.keys()))
                 weight_tel = np.zeros(len(hillas_dict.keys()))
