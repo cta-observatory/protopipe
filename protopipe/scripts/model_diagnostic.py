@@ -198,8 +198,8 @@ def main():
             print("Process test sample...")
             data_test_evt = get_evt_subarray_model_output(
                 data_test,
-                weight_name="sum_signal_cam",
-                keep_cols=["mc_energy"],
+                weight_name="hillas_intensity_reco",
+                keep_cols=["tel_id", "true_energy"],
                 model_output_name="reco_energy_img",
                 model_output_name_evt="reco_energy",
             )
@@ -225,14 +225,14 @@ def main():
                 ax = axes[ibin]
 
                 data = data_test_evt.query(
-                    "mc_energy >= {} and mc_energy < {}".format(
+                    "true_energy >= {} and true_energy < {}".format(
                         energy_edges[ibin], energy_edges[ibin + 1]
                     )
                 )
                 print("Estimate energy for {} evts".format(len(data)))
 
                 er = data["reco_energy"]
-                emc = data["mc_energy"]
+                emc = data["true_energy"]
 
                 opt_hist = {
                     "edgecolor": "black",

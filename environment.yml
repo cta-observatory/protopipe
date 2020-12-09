@@ -1,18 +1,23 @@
 name: protopipe
 channels:
   - defaults
-  - conda-forge
   - cta-observatory
+  - conda-forge
 dependencies:
   - ctapipe=0.9.1
+  - ctapipe-extra
   - gammapy
+  - astropy>=4.0.1
   - ipython
   - nbsphinx
+  - notebook
   - numpydoc
   - pandas
   - pytest
   - sphinx-automodapi
   - sphinx_rtd_theme
+  - sphinx-issues
+  - uproot
   - vitables
   - pip:
     - pyirf
