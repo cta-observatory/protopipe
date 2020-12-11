@@ -14,10 +14,8 @@ __all__ = ["CutsOptimisation", "CutsDiagnostic", "CutsApplicator"]
 class CutsApplicator(object):
     """
     Apply best cut and angular cut to events.
-
     Apply cuts to gamma, proton and electrons that will be further used for
     performance estimation (irf, sensitivity, etc.).
-
     Parameters
     ----------
     config: `dict`
@@ -57,7 +55,6 @@ class CutsApplicator(object):
     def apply_cuts_on_data(self, data):
         """
         Flag particle passing angular cut and the best cutoff
-
         Parameters
         ----------
         data: `pandas.DataFrame`
@@ -128,7 +125,6 @@ class CutsApplicator(object):
 class CutsDiagnostic(object):
     """
     Class used to get some diagnostic related to the optimal working point.
-
     Parameters
     ----------
     config: `dict`
@@ -376,7 +372,6 @@ class CutsOptimisation(object):
     """
     Class used to find best cutoff to obtain minimal
     sensitivity in a given amount of time.
-
     Parameters
     ----------
     config: `dict`
@@ -393,7 +388,6 @@ class CutsOptimisation(object):
     def weight_events(self, model_dict, colname_mc_energy):
         """
         Add a weight column to the files, in order to scale simulated data to reality.
-
         Parameters
         ----------
         model_dict: dict
@@ -417,20 +411,13 @@ class CutsOptimisation(object):
 
         area_simu = (np.pi * conf_part["gen_radius"] ** 2) * u.Unit("m2")
 
-        omega_simu = (
-            2 * np.pi * (1 - np.cos(conf_part["diff_cone"] * np.pi / 180.0)) * u.sr
-        )
-        if particle in "gamma":  # Gamma are point-like
-            omega_simu = 1.0
-
-        nsimu = conf_part["n_simulated"]
-        index_simu = conf_part["gen_gamma"]
-        emin = conf_part["e_min"] * u.TeV
-        emax = conf_part["e_max"] * u.TeV
-        amplitude = 1.0 * u.Unit("1 / (cm2 s TeV)")
-        pwl_integral = PowerLaw(index=index_simu, amplitude=amplitude).integral(
-            emin=emin, emax=emax
-        )
+        nsimu = conf_part['n_simulated']
+        index_simu = np.absolute(conf_part['gen_gamma'])
+        emin = conf_part['e_min'] * u.TeV
+        emax = conf_part['e_max'] * u.TeV
+        amplitude = 1. * u.Unit('1 / (cm2 s TeV)')
+        pwl_integral = PowerLaw(
+            index=index_simu, amplitude=amplitude).integral(emin=emin, emax=emax)
 
         tsimu = nsimu / (area_simu * omega_simu * pwl_integral)
         tobs = self.config["analysis"]["obs_time"]["value"] * u.Unit(
@@ -456,7 +443,6 @@ class CutsOptimisation(object):
         of energy and theta square cut. Correct the number of events
         according to the ON region which correspond to the angular cut applied to
         the gamma-ray events.
-
         Parameters
         ----------
         energy_values: `astropy.Quantity`
@@ -525,30 +511,12 @@ class CutsOptimisation(object):
                 sel_g = g.query(th_query).copy()
 
                 # Correct number of background due to acceptance
-                acceptance_g = 2 * np.pi * (1 - np.cos(th_cut.to("rad").value))
-                acceptance_p = (
-                    2
-                    * np.pi
-                    * (
-                        1
-                        - np.cos(
-                            self.config["particle_information"]["proton"]["offset_cut"]
-                            * u.deg.to("rad")
-                        )
-                    )
+                acceptance_g = 2 * np.pi * (1 - np.cos(th_cut.to('rad').value))
+                acceptance_p = 2 * np.pi * (
+                        1 - np.cos(self.config["analysis"]["max_bg_radius"] * u.deg.to('rad'))
                 )
-                acceptance_e = (
-                    2
-                    * np.pi
-                    * (
-                        1
-                        - np.cos(
-                            self.config["particle_information"]["electron"][
-                                "offset_cut"
-                            ]
-                            * u.deg.to("rad")
-                        )
-                    )
+                acceptance_e = 2 * np.pi * (
+                        1 - np.cos(self.config["analysis"]["max_bg_radius"] * u.deg.to('rad'))
                 )
 
                 # Add corrected weight taking into angular cuts applied to gamma-rays

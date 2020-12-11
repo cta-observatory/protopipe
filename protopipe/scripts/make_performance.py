@@ -83,19 +83,16 @@ def main():
     # Apply offset cut to proton and electron
     for particle in ["electron", "proton"]:
         # print('Initial stat: {} {}'.format(len(evt_dict[particle]), particle))
-        evt_dict[particle] = evt_dict[particle].query(
-            "offset <= {}".format(cfg["particle_information"][particle]["offset_cut"])
+        evt_dict[particle] = evt_dict[particle].query('offset <= {}'.format(
+            cfg['analysis']['max_bg_radius'])
         )
 
     # Add required data in configuration file for future computation
     for particle in particles:
-        cfg["particle_information"][particle]["n_files"] = len(
-            np.unique(evt_dict[particle]["obs_id"])
-        )
-        cfg["particle_information"][particle]["n_simulated"] = (
-            cfg["particle_information"][particle]["n_files"]
-            * cfg["particle_information"][particle]["n_events_per_file"]
-        )
+        cfg['particle_information'][particle]['n_files'] = \
+            len(np.unique(evt_dict[particle]['obs_id']))
+        cfg['particle_information'][particle]['n_simulated'] = \
+            cfg['particle_information'][particle]['n_files'] * cfg['particle_information'][particle]['num_showers'] * cfg['particle_information'][particle]['num_use']
 
     # Define model for the particles
     model_dict = {

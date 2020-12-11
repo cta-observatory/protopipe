@@ -201,23 +201,27 @@ def main():
         NTels_reco_lst = tb.Int16Col(dflt=0, pos=4)
         NTels_reco_mst = tb.Int16Col(dflt=0, pos=5)
         NTels_reco_sst = tb.Int16Col(dflt=0, pos=6)
-        mc_energy = tb.Float32Col(dflt=np.nan, pos=7)
-        reco_energy = tb.Float32Col(dflt=np.nan, pos=8)
-        reco_alt = tb.Float32Col(dflt=np.nan, pos=9)
-        reco_az = tb.Float32Col(dflt=np.nan, pos=10)
-        offset = tb.Float32Col(dflt=np.nan, pos=11)
-        xi = tb.Float32Col(dflt=np.nan, pos=12)
-        ErrEstPos = tb.Float32Col(dflt=np.nan, pos=13)
-        ErrEstDir = tb.Float32Col(dflt=np.nan, pos=14)
-        gammaness = tb.Float32Col(dflt=np.nan, pos=15)
-        success = tb.BoolCol(dflt=False, pos=16)
-        score = tb.Float32Col(dflt=np.nan, pos=17)
-        h_max = tb.Float32Col(dflt=np.nan, pos=18)
-        reco_core_x = tb.Float32Col(dflt=np.nan, pos=19)
-        reco_core_y = tb.Float32Col(dflt=np.nan, pos=20)
-        mc_core_x = tb.Float32Col(dflt=np.nan, pos=21)
-        mc_core_y = tb.Float32Col(dflt=np.nan, pos=22)
-        is_valid=tb.BoolCol(dflt=False, pos=23)
+        pointing_az = tb.Float32Col(dflt=np.nan, pos=7)
+        pointing_alt = tb.Float32Col(dflt=np.nan, pos=8)
+        true_az = tb.Float32Col(dflt=np.nan, pos=9)
+        true_alt = tb.Float32Col(dflt=np.nan, pos=10)
+        true_energy = tb.Float32Col(dflt=np.nan, pos=11)
+        reco_energy = tb.Float32Col(dflt=np.nan, pos=12)
+        reco_alt = tb.Float32Col(dflt=np.nan, pos=13)
+        reco_az = tb.Float32Col(dflt=np.nan, pos=14)
+        offset = tb.Float32Col(dflt=np.nan, pos=15)
+        xi = tb.Float32Col(dflt=np.nan, pos=16)
+        ErrEstPos = tb.Float32Col(dflt=np.nan, pos=17)
+        ErrEstDir = tb.Float32Col(dflt=np.nan, pos=18)
+        gammaness = tb.Float32Col(dflt=np.nan, pos=19)
+        success = tb.BoolCol(dflt=False, pos=20)
+        score = tb.Float32Col(dflt=np.nan, pos=21)
+        h_max = tb.Float32Col(dflt=np.nan, pos=22)
+        reco_core_x = tb.Float32Col(dflt=np.nan, pos=23)
+        reco_core_y = tb.Float32Col(dflt=np.nan, pos=24)
+        true_core_x = tb.Float32Col(dflt=np.nan, pos=25)
+        true_core_y = tb.Float32Col(dflt=np.nan, pos=26)
+        is_valid=tb.BoolCol(dflt=False, pos=27)
 
     reco_outfile = tb.open_file(
         mode="w",
@@ -270,8 +274,16 @@ def main():
             source, save_images=args.save_images, debug=args.debug
         ):
 
+            # True energy
+            true_energy = event.mc.energy.value
+            
+            # True direction
+            true_az = event.mc.az
+            true_alt = event.mc.alt
+            
             # Angular quantities
             run_array_direction = event.mcheader.run_array_direction
+            pointing_az, pointing_alt = run_array_direction[0], run_array_direction[1]
 
             if good_event:  # aka it has been successfully reconstructed
 
@@ -286,8 +298,8 @@ def main():
                 # - center of the array's FoV
                 # - reconstructed direction
                 offset = angular_separation(
-                    run_array_direction[0],  # az
-                    run_array_direction[1],  # alt
+                    pointing_az,
+                    pointing_alt,
                     reco_result.az,
                     reco_result.alt,
                 )
@@ -504,9 +516,9 @@ def main():
                 + n_tels["SST_ASTRI_ASTRICam"]
                 + n_tels["SST_GCT_CHEC"]
             )
+            reco_event["pointing_az"] = pointing_az.to("deg").value
+            reco_event["pointing_alt"] = pointing_alt.to("deg").value
             reco_event["reco_energy"] = reco_energy
-
-            reco_event["is_valid"] = is_valid
             reco_event["reco_alt"] = alt.to("deg").value
             reco_event["reco_az"] = az.to("deg").value
             reco_event["offset"] = offset.to("deg").value
@@ -514,6 +526,7 @@ def main():
             reco_event["h_max"] = h_max.to("m").value
             reco_event["reco_core_x"] = reco_core_x.to("m").value
             reco_event["reco_core_y"] = reco_core_y.to("m").value
+            reco_event["is_valid"] = is_valid
 
             if use_proba_for_classifier is True:
                 reco_event["gammaness"] = gammaness
@@ -526,9 +539,11 @@ def main():
             shower = event.mc
             mc_core_x = shower.core_x
             mc_core_y = shower.core_y
-            reco_event["mc_energy"] = event.mc.energy.to("TeV").value
-            reco_event["mc_core_x"] = mc_core_x.to("m").value
-            reco_event["mc_core_y"] = mc_core_y.to("m").value
+            reco_event["true_energy"] = event.mc.energy.to("TeV").value
+            reco_event["true_az"] = true_az.to("deg").value
+            reco_event["true_alt"] = true_alt.to("deg").value
+            reco_event["true_core_x"] = mc_core_x.to("m").value
+            reco_event["true_core_y"] = mc_core_y.to("m").value
 
             # Fill table
             reco_table.flush()
@@ -557,7 +572,6 @@ def main():
         pass
 
     print("Job done!")
-
 
 if __name__ == "__main__":
     main()
