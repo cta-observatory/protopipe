@@ -6,7 +6,7 @@ channels:
 dependencies:
   - ctapipe=0.9.1
   - ctapipe-extra
-  - gammapy
+  - gammapy=0.8
   - astropy>=4.0.1
   - ipython
   - nbsphinx
@@ -19,5 +19,3 @@ dependencies:
   - sphinx-issues
   - uproot
   - vitables
-  - pip:
-    - pyirf
