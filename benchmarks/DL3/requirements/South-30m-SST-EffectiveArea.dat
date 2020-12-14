@@ -1,0 +1,29 @@
+# CTA Performance Requirements
+# for further details and definitions of the performance indicators, see:
+# www.cta-observatory.org/science/cta-performance/
+# (Document: CTA-SPE-SCI-00000-0001, v1)
+#
+# South site - SST sub system
+# First column: energy log10(E/TeV)
+# Second column: effective area (m^2)
+#
+0.000	93710.742
+0.020	1.169e5
+0.048	1.515e5
+0.080	2.052e5
+0.118	2.634e5
+0.156	3.417e5
+0.219	4.688e5
+0.284	6.331e5
+0.369	8.570e5
+0.369	8.570e5
+0.442	1.052e6
+0.519	1.312e6
+0.626	1.613e6
+0.754	2.035e6
+1.004	2.490e6
+1.311	3.051e6
+1.606	3.501e6
+1.910	3.896e6
+2.159	3.992e6
+2.448	4.046e6

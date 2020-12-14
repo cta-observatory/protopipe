@@ -1,0 +1,32 @@
+# CTA Performance Requirements
+# for further details and definitions of the performance indicators, see:
+# www.cta-observatory.org/science/cta-performance/
+# (Document: CTA-SPE-SCI-00000-0001, v1)
+#
+# North site - full system
+# First column: energy log10(E/TeV)
+# Second column: effective area (m^2)
+#
+-1.701	2538.559
+-1.652	3988.144
+-1.572	7065.223
+-1.488	11042.132
+-1.400	15819.452
+-1.272	24349.576
+-1.149	36891.797
+-0.943	64219.480
+-0.847	78113.797
+-0.722	1.010e5
+-0.612	1.238e5
+-0.507	1.477e5
+-0.378	1.818e5
+-0.201	2.376e5
+-0.030	2.890e5
+0.095	3.383e5
+0.226	3.915e5
+0.358	4.462e5
+0.488	5.065e5
+0.640	5.890e5
+0.787	6.511e5
+0.913	6.815e5
+1.709	6.800e5

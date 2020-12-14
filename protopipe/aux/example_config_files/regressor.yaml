@@ -1,0 +1,41 @@
+General:
+ model_type: 'regressor'
+ # [...] = your analysis local full path OUTSIDE the Vagrant box
+ data_dir: '[...]/data/TRAINING/for_energy_estimation'
+ data_file: 'TRAINING_energy_{}_gamma_merged.h5'
+ outdir: '[...]/estimators/energy_regressor'
+ cam_id_list: ['LSTCam', 'NectarCam']
+ table_name_template: '' # leave empty (TO BE REMOVED)
+
+Split:
+ train_fraction: 0.8
+
+Method:
+ name: 'AdaBoostRegressor'
+ target_name: 'true_energy'
+ tuned_parameters:
+  learning_rate: [0.3]
+  n_estimators: [100]
+  base_estimator__max_depth: [null]  # null is equivalent to None
+  base_estimator__min_samples_split: [2]
+  base_estimator__min_samples_leaf: [10]
+ scoring: 'explained_variance'
+ cv: 2
+
+FeatureList:
+ - 'log10_hillas_intensity_reco'
+ - 'log10_impact'
+ - 'hillas_width_reco'
+ - 'hillas_width_length'
+ - 'h_max'
+
+SigFiducialCuts:
+ - 'good_image == 1'
+ - 'is_valid == True'
+
+Diagnostic:
+ # Energy binning (used for reco and true energy)
+ energy:
+  nbins: 15
+  min: 0.0125
+  max: 125

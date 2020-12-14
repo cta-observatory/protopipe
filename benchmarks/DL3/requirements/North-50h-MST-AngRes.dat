@@ -1,0 +1,38 @@
+# CTA Performance Requirements
+# for further details and definitions of the performance indicators, see:
+# www.cta-observatory.org/science/cta-performance/
+# (Document: CTA-SPE-SCI-00000-0001, v1)
+#
+# North site - MST sub system
+# First column: energy log10(E/TeV)
+# Second column: angular resolution (deg)
+#
+-1.05  0.136276
+-1    0.128996
+-0.9    0.116681
+-0.8    0.10663
+-0.7    0.0982245
+-0.6    0.0910439
+-0.5    0.0847968
+-0.4    0.0792777
+-0.3    0.0743401
+-0.2    0.069878
+-0.1    0.0658136
+0    0.0620891
+0.1    0.0586604
+0.2    0.0554931
+0.3    0.0525602
+0.4    0.0498397
+0.5    0.0473132
+0.6    0.0449653
+0.7    0.0427828
+0.8    0.0407538
+0.9    0.04
+1    0.04
+1.1    0.04
+1.2    0.04
+1.3    0.04
+1.4    0.04
+1.5    0.04
+1.6    0.04
+1.7    0.04
