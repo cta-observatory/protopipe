@@ -90,8 +90,8 @@ def main():
     # Informations from config file
     site = cfg['General']['site']
     config_array = cfg['General']['array']
-    Zd = '20deg' # hard coded
-    pointing =  'south' # hard coded
+    Zd = cfg['General']['zenith_distance']
+    pointing =  cfg['General']['pointing']
     T_OBS = cfg['analysis']['obs_time']['value'] * u.Unit(cfg['analysis']['obs_time']['unit'])
 
     out_name= 'performance_protopipe_CTA'+site+'_'+config_array+'_Zd'+Zd+'_'+pointing+'_'+repr(T_OBS.value)+'h.fits.gz'
