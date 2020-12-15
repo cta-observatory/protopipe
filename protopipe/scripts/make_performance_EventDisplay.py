@@ -87,7 +87,15 @@ def main():
     indir = cfg['general']['indir']
     template_input_file = cfg['general']['template_input_file']
     
+    # Informations from config file
+    site = cfg['General']['site']
+    config_array = cfg['General']['array']
+    Zd = '20deg' # hard coded
+    pointing =  'south' # hard coded
     T_OBS = cfg['analysis']['obs_time']['value'] * u.Unit(cfg['analysis']['obs_time']['unit'])
+
+    out_name= 'performance_protopipe_CTA'+site+'_'+config_array+'_Zd'+Zd+'_'+pointing+'_'+repr(T_OBS.value)+'h.fits.gz'
+    
     # scaling between on and off region.
     # Make off region 5 times larger than on region for better
     # background statistics
@@ -338,7 +346,7 @@ def main():
     hdus.append(fits.BinTableHDU(bias_resolution, name="ENERGY_BIAS_RESOLUTION"))
 
     log.info('Writing outputfile')
-    fits.HDUList(hdus).writeto( outdir + "/pyirf_protopipe.fits.gz", overwrite=True)
+    fits.HDUList(hdus).writeto( outdir + out_file, overwrite=True)
 
 if __name__ == '__main__':
     main()
