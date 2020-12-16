@@ -76,9 +76,10 @@ def main():
     cfg['analysis']['obs_time'] = {'value': float(str_obs_time[0]), 'unit': str(str_obs_time[-1])}
 
     # Create output directory if necessary
-    outdir = os.path.join(cfg['general']['outdir'], 'irf_CTA{}_Zd{}_{}_Time{:.2f}{}'.format(
+    outdir = os.path.join(cfg['general']['outdir'], 'irf_CTA{}_{}_Zd{}_{}_Time{:.2f}{}'.format(
         args.mode,
         cfg['analysis']['general']['site'],
+        cfg['analysis']['general']['array'],
         cfg['analysis']['general']['zenith_distance'],
         cfg['analysis']['general']['pointing'],
         cfg['analysis']['obs_time']['value'],

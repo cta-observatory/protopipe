@@ -4,6 +4,7 @@ general:
  indir: '[...]/data/DL2'
  # Template name for input file
  site: 'north'
+ array: full_array
  zenith_distance: '20deg'
  azimuth: '180deg' # 0deg -> north 180deg -> south
  template_input_file: 'DL2_{}_{}_merged.h5' # filled with mode and particle type
