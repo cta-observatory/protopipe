@@ -3,8 +3,6 @@
 General:
  config_name: 'example'
  site: 'south'  # 'north' or 'south'
- zenith_distance: '20deg'
- pointing: 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
  # - a custom list of telescope IDs

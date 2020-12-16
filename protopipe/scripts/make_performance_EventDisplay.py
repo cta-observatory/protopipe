@@ -76,25 +76,21 @@ def main():
     cfg['analysis']['obs_time'] = {'value': float(str_obs_time[0]), 'unit': str(str_obs_time[-1])}
 
     # Create output directory if necessary
-    outdir = os.path.join(cfg['general']['outdir'], 'irf_{}_Time{:.2f}{}'.format(
+    outdir = os.path.join(cfg['general']['outdir'], 'irf_CTA{}_Zd{}_{}_Time{:.2f}{}'.format(
         args.mode,
+        cfg['analysis']['general']['site'],
+        cfg['analysis']['general']['zenith_distance'],
+        cfg['analysis']['general']['pointing'],
         cfg['analysis']['obs_time']['value'],
-        cfg['analysis']['obs_time']['unit'])
+        cfg['analysis']['obs_time']['unit']),
     )
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
     indir = cfg['general']['indir']
     template_input_file = cfg['general']['template_input_file']
-    
-    # Informations from config file
-    site = cfg['General']['site']
-    config_array = cfg['General']['array']
-    Zd = cfg['General']['zenith_distance']
-    pointing =  cfg['General']['pointing']
-    T_OBS = cfg['analysis']['obs_time']['value'] * u.Unit(cfg['analysis']['obs_time']['unit'])
 
-    out_name= 'performance_protopipe_CTA'+site+'_'+config_array+'_Zd'+Zd+'_'+pointing+'_'+repr(T_OBS.value)+'h.fits.gz'
+    T_OBS = cfg['analysis']['obs_time']['value'] * u.Unit(cfg['analysis']['obs_time']['unit'])
     
     # scaling between on and off region.
     # Make off region 5 times larger than on region for better
@@ -346,7 +342,7 @@ def main():
     hdus.append(fits.BinTableHDU(bias_resolution, name="ENERGY_BIAS_RESOLUTION"))
 
     log.info('Writing outputfile')
-    fits.HDUList(hdus).writeto( outdir + out_file, overwrite=True)
+    fits.HDUList(hdus).writeto( outdir + 'performance_protopipe.fits.gz', overwrite=True)
 
 if __name__ == '__main__':
     main()
