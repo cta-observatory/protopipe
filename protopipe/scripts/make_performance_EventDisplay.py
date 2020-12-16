@@ -81,7 +81,7 @@ def main():
         cfg['analysis']['general']['site'],
         cfg['analysis']['general']['array'],
         cfg['analysis']['general']['zenith_distance'],
-        cfg['analysis']['general']['pointing'],
+        cfg['analysis']['general']['azimuth'],
         cfg['analysis']['obs_time']['value'],
         cfg['analysis']['obs_time']['unit']),
     )
