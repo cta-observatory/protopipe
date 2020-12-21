@@ -5,8 +5,8 @@ channels:
   - conda-forge
 dependencies:
   - ctapipe=0.9.1
+  - gammapy
   - ctapipe-extra
-  - gammapy=0.8
   - astropy>=4.0.1
   - ipython
   - nbsphinx
@@ -19,3 +19,6 @@ dependencies:
   - sphinx-issues
   - uproot
   - vitables
+  - pip:
+    - pyirf
+    - uproot
