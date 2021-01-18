@@ -6,7 +6,6 @@ import astropy.units as u
 from astropy import table
 from astropy.io import fits
 import argparse
-import pandas as pd
 import numpy as np
 import operator
 
@@ -26,7 +25,7 @@ from pyirf.spectral import (
     IRFDOC_ELECTRON_SPECTRUM,
 )
 
-from pyirf.sensitivity import calculate_sensitivity, estimate_background 
+from pyirf.sensitivity import calculate_sensitivity, estimate_background
 
 from pyirf.utils import calculate_theta, calculate_source_fov_offset
 from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
@@ -48,40 +47,32 @@ from pyirf.benchmarks import energy_bias_resolution, angular_resolution
 
 log = logging.getLogger("pyirf")
 
+
 def main():
-    
+
     # Read arguments
     parser = argparse.ArgumentParser(description='Make performance files')
     parser.add_argument('--config_file', type=str, required=True, help='')
-    parser.add_argument(
-        '--obs_time',
-        type=str,
-        required=True,
-        help='Observation time, should be given as a string, value and astropy unit separated by an empty space'
-    )
+
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument('--wave', dest="mode", action='store_const',
                             const="wave", default="tail",
                             help="if set, use wavelet cleaning")
     mode_group.add_argument('--tail', dest="mode", action='store_const',
                             const="tail",
-                            help="if set, use tail cleaning, otherwise wavelets")
+                            help="if set, use tail cleaning (default)")
+
     args = parser.parse_args()
 
     # Read configuration file
     cfg = load_config(args.config_file)
 
-    # Add obs. time in configuration file
-    str_obs_time = args.obs_time.split()
-    cfg['analysis']['obs_time'] = {'value': float(str_obs_time[0]), 'unit': str(str_obs_time[-1])}
-
     # Create output directory if necessary
     outdir = os.path.join(cfg['general']['outdir'], 'irf_CTA{}_{}_Zd{}_{}_Time{:.2f}{}'.format(
-        args.mode,
-        cfg['analysis']['general']['site'],
-        cfg['analysis']['general']['array'],
-        cfg['analysis']['general']['zenith_distance'],
-        cfg['analysis']['general']['azimuth'],
+        cfg['general']['site'],
+        cfg['general']['array'],
+        cfg['general']['zenith'],
+        cfg['general']['azimuth'],
         cfg['analysis']['obs_time']['value'],
         cfg['analysis']['obs_time']['unit']),
     )
@@ -92,14 +83,14 @@ def main():
     template_input_file = cfg['general']['template_input_file']
 
     T_OBS = cfg['analysis']['obs_time']['value'] * u.Unit(cfg['analysis']['obs_time']['unit'])
-    
+
     # scaling between on and off region.
     # Make off region 5 times larger than on region for better
     # background statistics
     ALPHA = cfg['analysis']['alpha']
     # Radius to use for calculating bg rate
     MAX_BG_RADIUS = cfg['analysis']['max_bg_radius'] * u.deg
-    
+
     particles = {
         "gamma": {
             "file": os.path.join(indir, template_input_file.format(args.mode, "gamma")),
@@ -117,14 +108,14 @@ def main():
             "run_header": cfg['particle_information']['electron']
         },
     }
-    
+
     logging.basicConfig(level=logging.INFO)
     logging.getLogger("pyirf").setLevel(logging.DEBUG)
-    
+
     for particle_type, p in particles.items():
         log.info(f"Simulated {particle_type.title()} Events:")
         p["events"], p["simulation_info"] = read_DL2_pyirf(p["file"],p["run_header"])
-        
+
         # Multiplicity cut
         p["events"] = p["events"][p["events"]["multiplicity"] >= cfg['analysis']['cut_on_multiplicity']].copy()
 
@@ -133,11 +124,11 @@ def main():
         p["events"]["weight"] = calculate_event_weights(
             p["events"]["true_energy"], p["target_spectrum"], p["simulated_spectrum"]
         )
-        
+
         for prefix in ('true', 'reco'):
             k = f"{prefix}_source_fov_offset"
             p["events"][k] = calculate_source_fov_offset(p["events"], prefix=prefix)
-        
+
         # calculate theta / distance between reco and assuemd source positoin
         # we handle only ON observations here, so the assumed source pos
         # is the pointing position
@@ -148,19 +139,19 @@ def main():
         )
         log.info(p["simulation_info"])
         log.info("")
-        
+
     gammas = particles["gamma"]["events"]
     # background table composed of both electrons and protons
     background = table.vstack(
         [particles["proton"]["events"], particles["electron"]["events"]]
     )
-    
+
     MAX_GH_CUT_EFFICIENCY = 0.8
     GH_CUT_EFFICIENCY_STEP = 0.01
-    
+
     # gh cut used for first calculation of the binned theta cuts
     INITIAL_GH_CUT_EFFICENCY = 0.4
-    
+
     INITIAL_GH_CUT = np.quantile(gammas['gh_score'], (1 - INITIAL_GH_CUT_EFFICENCY))
     log.info(f"Using fixed G/H cut of {INITIAL_GH_CUT} to calculate theta cuts")
 
@@ -169,7 +160,7 @@ def main():
     theta_bins = add_overflow_bins(
         create_bins_per_decade(10 ** (-1.9) * u.TeV, 10 ** 2.3005 * u.TeV, 50,)
     )
-    
+
     # theta cut is 68 percent containmente of the gammas
     # for now with a fixed global, unoptimized score cut
     mask_theta_cuts = gammas["gh_score"] >= INITIAL_GH_CUT
@@ -182,7 +173,7 @@ def main():
         max_value=0.32 * u.deg,
         percentile=68,
     )
-    
+
     # same bins as event display uses
     sensitivity_bins = add_overflow_bins(
         create_bins_per_decade(
@@ -206,7 +197,7 @@ def main():
         alpha=ALPHA,
         background_radius=MAX_BG_RADIUS,
     )
-    
+
      # now that we have the optimized gh cuts, we recalculate the theta
     # cut as 68 percent containment on the events surviving these cuts.
     log.info('Recalculating theta cut for optimized GH Cuts')
@@ -251,7 +242,7 @@ def main():
         s["flux_sensitivity"] = (
             s["relative_sensitivity"] * spectrum(s['reco_energy_center'])
         )
-        
+
     log.info('Calculating IRFs')
     hdus = [
         fits.PrimaryHDU(),

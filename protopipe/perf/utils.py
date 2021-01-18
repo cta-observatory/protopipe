@@ -68,16 +68,16 @@ def load_obj(name):
     """Load object in binary"""
     with gzip.open(name, 'rb') as f:
         return pickle.load(f)
-    
-    
+
+
 def read_DL2_pyirf(infile, run_header):
     """
-    Read a DL2 HDF5 protopipe file and adapt them to pyirf format 
+    Read a DL2 HDF5 protopipe file and adapt them to pyirf format
     Parameters
     ----------
     infile: str or pathlib.Path
         Path to the input fits file
-        
+
     run_header: dict
         Dictionary with info about simulated particle informations
     Returns
@@ -101,12 +101,12 @@ def read_DL2_pyirf(infile, run_header):
                      list(df['true_alt']) * u.deg,
                      list(df['true_az']) * u.deg,
                      list(df['pointing_alt']) * u.deg,
-                     list(df['pointing_az']) * u.deg,                   
+                     list(df['pointing_az']) * u.deg,
                     ],
                     names=('obs_id',
                            'event_id',
-                           'true_energy', 
-                           'reco_energy', 
+                           'true_energy',
+                           'reco_energy',
                            'gh_score',
                            'multiplicity',
                            'reco_alt',
@@ -114,10 +114,10 @@ def read_DL2_pyirf(infile, run_header):
                            'true_alt',
                            'true_az',
                            'pointing_alt',
-                           'pointing_az',   
+                           'pointing_az',
                           ),
                    )
-    
+
     n_runs = len(set(events['obs_id']))
     log.info(f"Estimated number of runs from obs ids: {n_runs}")
 
