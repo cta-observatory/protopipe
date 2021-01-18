@@ -40,6 +40,12 @@ The current calibration is performed using:
 * charge and pulse times extraction via ``ctapipe.image.extractors.TwoPassWindowSum``
 * correction for the integration window.
 
+.. figure:: ./double-pass-image-extraction.png
+  :width: 800
+  :alt: Explanation of ``ctapipe.image.extractors.TwoPassWindowSum``
+
+  Explanation of ``ctapipe.image.extractors.TwoPassWindowSum``.
+
 .. note::
 
   The photoelectron units used later for cleaning the images are those **not**

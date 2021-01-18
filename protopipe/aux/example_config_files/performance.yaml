@@ -1,80 +1,51 @@
 general:
  # Directory with input data file
- # [...] = your analysis local path
- # Please refer to directory structure shown at Lugano
+ # [...] = your analysis local full path OUTSIDE the Vagrant box
  indir: '[...]/data/DL2'
  # Template name for input file
- template_input_file: 'dl2_{}_{}_merged.h5' # filled with mode and particle type
+ site: 'north'
+ array: full_array
+ zenith: '20deg'
+ azimuth: '180deg' # 0deg -> north 180deg -> south
+ template_input_file: 'DL2_{}_{}_merged.h5' # filled with mode and particle type
  # Directory for output files
- outdir: '[...]/performance'
- # Output table name
- output_table_name: 'table_best_cutoff'
+ outdir: '[...]/data/DL3'
 
 analysis:
-
- # Theta square cut optimisation (opti, fixed, r68)
- thsq_opt:
-  type: 'opti'
-  value: 0.2  # In degree, necessary for type fixed
-
+ obs_time:
+   value: 50
+   unit: 'h'
+ cut_on_multiplicity: 4
  # Normalisation between ON and OFF regions
  alpha: 0.2
-
- # Minimimal significance
- min_sigma: 5
-
- # Minimal number of gamma-ray-like
- min_excess: 10
-
- # Minimal fraction of background events for excess comparison
- bkg_syst: 0.05
-
- # Reco energy binning
- ereco_binning:  # TeV
-  emin: 0.012589254
-  emax: 199.52623
-  nbin: 21
-
- # Reco energy binning
- etrue_binning:  # TeV
-  emin: 0.019952623
-  emax: 199.52623
-  nbin: 42
+ 
+ # Radius to use for calculating bg rate
+ max_bg_radius: 1.
 
 particle_information:
  gamma:
-  n_events_per_file: 1000000  #  10**5 * 10
+  num_use: 10
+  num_showers: 100000
   e_min: 0.003
   e_max: 330
   gen_radius: 1400
-  diff_cone: 0
-  gen_gamma: 2
+  gen_gamma: -2
+  diff_cone: 0 
 
  proton:
-  n_events_per_file: 4000000  #  2 * 10**5 * 20
+  num_use: 20
+  num_showers: 200000
   e_min: 0.004
   e_max: 600
   gen_radius: 1900
+  gen_gamma: -2
   diff_cone: 10
-  gen_gamma: 2
-  offset_cut: 1.
 
  electron:
-  n_events_per_file: 2000000  #  10**5 * 20
+  num_use: 20
+  num_showers: 100000
   e_min: 0.003
   e_max: 330
   gen_radius: 1900
+  gen_gamma: -2
   diff_cone: 10
-  gen_gamma: 2
-  offset_cut: 1.
-
-column_definition:
- # Column name for true energy
- mc_energy: 'mc_energy'
- # Column name for reconstructed energy
- reco_energy: 'reco_energy'
- # Column name for classification output
- classification_output:
-  name: 'gammaness'
-  range: [0, 1]
- angular_distance_to_the_src: 'xi'

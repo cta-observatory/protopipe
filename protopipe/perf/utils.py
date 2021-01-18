@@ -1,7 +1,14 @@
+import logging
+
 import numpy as np
+import pandas as pd
 import pickle
 import gzip
 
+from astropy.table import QTable
+import astropy.units as u
+
+from pyirf.simulations import SimulatedEventsInfo
 
 def percentiles(values, bin_values, bin_edges, percentile):
     # Seems complicated for vector defined as [inf, inf, .., inf]
@@ -59,5 +66,70 @@ def save_obj(obj, name):
 
 def load_obj(name):
     """Load object in binary"""
-    with gzip.open(name, "rb") as f:
+    with gzip.open(name, 'rb') as f:
         return pickle.load(f)
+    
+    
+def read_DL2_pyirf(infile, run_header):
+    """
+    Read a DL2 HDF5 protopipe file and adapt them to pyirf format 
+    Parameters
+    ----------
+    infile: str or pathlib.Path
+        Path to the input fits file
+        
+    run_header: dict
+        Dictionary with info about simulated particle informations
+    Returns
+    -------
+    events: astropy.QTable
+        Astropy Table object containing the reconstructed events information.
+    simulated_events: ``~pyirf.simulations.SimulatedEventsInfo``
+    """
+    log = logging.getLogger("pyirf")
+    log.debug(f"Reading {infile}")
+    df = pd.read_hdf(infile, "/reco_events")
+
+    events = QTable([list(df['obs_id']),
+                     list(df['event_id']),
+                     list(df['true_energy']) * u.TeV, 
+                     list(df['reco_energy']) * u.TeV,
+                     list(df['gammaness']),
+                     list(df['NTels_reco']),
+                     list(df['reco_alt']) * u.deg,
+                     list(df['reco_az']) * u.deg,
+                     list(df['true_alt']) * u.deg,
+                     list(df['true_az']) * u.deg,
+                     list(df['pointing_alt']) * u.deg,
+                     list(df['pointing_az']) * u.deg,                   
+                    ],
+                    names=('obs_id',
+                           'event_id',
+                           'true_energy', 
+                           'reco_energy', 
+                           'gh_score',
+                           'multiplicity',
+                           'reco_alt',
+                           'reco_az',
+                           'true_alt',
+                           'true_az',
+                           'pointing_alt',
+                           'pointing_az',   
+                          ),
+                   )
+    
+    n_runs = len(set(events['obs_id']))
+    log.info(f"Estimated number of runs from obs ids: {n_runs}")
+
+    n_showers = n_runs * run_header["num_use"] * run_header["num_showers"]
+    log.debug(f"Number of events from n_runs and run header: {n_showers}")
+
+    sim_info = SimulatedEventsInfo(
+        n_showers=n_showers,
+        energy_min=u.Quantity(run_header["e_min"], u.TeV),
+        energy_max=u.Quantity(run_header["e_max"], u.TeV),
+        max_impact=u.Quantity(run_header["gen_radius"], u.m),
+        spectral_index=run_header["gen_gamma"],
+        viewcone=u.Quantity(run_header["diff_cone"], u.deg),
+    )
+    return events, sim_info
