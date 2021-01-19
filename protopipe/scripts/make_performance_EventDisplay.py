@@ -68,7 +68,7 @@ def main():
     cfg = load_config(args.config_file)
 
     # Create output directory if necessary
-    outdir = os.path.join(cfg['general']['outdir'], 'irf_CTA{}_{}_Zd{}_{}_Time{:.2f}{}'.format(
+    outdir = os.path.join(cfg['general']['outdir'], 'CTA{}_{}_Zd{}_{}_Time{:.2f}{}'.format(
         cfg['general']['site'],
         cfg['general']['array'],
         cfg['general']['zenith'],
@@ -198,7 +198,7 @@ def main():
         background_radius=MAX_BG_RADIUS,
     )
 
-     # now that we have the optimized gh cuts, we recalculate the theta
+    # now that we have the optimized gh cuts, we recalculate the theta
     # cut as 68 percent containment on the events surviving these cuts.
     log.info('Recalculating theta cut for optimized GH Cuts')
     for tab in (gammas, background):
@@ -279,7 +279,7 @@ def main():
         )
         hdus.append(
             create_aeff2d_hdu(
-                effective_area[..., np.newaxis],  # add one dimension for FOV offset
+                effective_area[..., np.newaxis],  # +1 dimension for FOV offset
                 true_energy_bins,
                 fov_offset_bins,
                 extname="EFFECTIVE_AREA" + label,
@@ -334,7 +334,8 @@ def main():
     hdus.append(fits.BinTableHDU(bias_resolution, name="ENERGY_BIAS_RESOLUTION"))
 
     log.info('Writing outputfile')
-    fits.HDUList(hdus).writeto( outdir + 'performance_protopipe.fits.gz', overwrite=True)
+    fits.HDUList(hdus).writeto('performance_protopipe' + outdir + '.fits.gz', overwrite=True)
+
 
 if __name__ == '__main__':
     main()
