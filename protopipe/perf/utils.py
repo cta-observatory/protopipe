@@ -10,6 +10,7 @@ import astropy.units as u
 
 from pyirf.simulations import SimulatedEventsInfo
 
+
 def percentiles(values, bin_values, bin_edges, percentile):
     # Seems complicated for vector defined as [inf, inf, .., inf]
     percentiles_binned = np.squeeze(
@@ -92,7 +93,7 @@ def read_DL2_pyirf(infile, run_header):
 
     events = QTable([list(df['obs_id']),
                      list(df['event_id']),
-                     list(df['true_energy']) * u.TeV, 
+                     list(df['true_energy']) * u.TeV,
                      list(df['reco_energy']) * u.TeV,
                      list(df['gammaness']),
                      list(df['NTels_reco']),
@@ -102,7 +103,8 @@ def read_DL2_pyirf(infile, run_header):
                      list(df['true_az']) * u.deg,
                      list(df['pointing_alt']) * u.deg,
                      list(df['pointing_az']) * u.deg,
-                    ],
+                     list(df['success']),
+                     ],
                     names=('obs_id',
                            'event_id',
                            'true_energy',
@@ -115,8 +117,13 @@ def read_DL2_pyirf(infile, run_header):
                            'true_az',
                            'pointing_alt',
                            'pointing_az',
-                          ),
-                   )
+                           'success'
+                           ),
+                    )
+
+    # Select only DL2 events marked as fully reconstructed
+    mask = events['success']
+    events = events[mask]
 
     n_runs = len(set(events['obs_id']))
     log.info(f"Estimated number of runs from obs ids: {n_runs}")
