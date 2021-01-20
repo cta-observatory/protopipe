@@ -43,7 +43,8 @@ from pyirf.io import (
     create_rad_max_hdu,
     create_background_2d_hdu,
 )
-from pyirf.benchmarks import energy_bias_resolution, angular_resolution
+# from pyirf.benchmarks import energy_bias_resolution, angular_resolution
+from protopipe.perf.temp import energy_bias_resolution, angular_resolution
 
 log = logging.getLogger("pyirf")
 
@@ -301,10 +302,22 @@ def main():
             )
         )
 
+    # Here we use reconstructed energy instead of true energy for the sake of
+    # current pipelines comparisons
     bias_resolution = energy_bias_resolution(
-        gammas[gammas["selected"]], true_energy_bins,
-    )
-    ang_res = angular_resolution(gammas[gammas["selected_gh"]], true_energy_bins,)
+        gammas[gammas["selected"]],
+        reco_energy_bins,
+        energy_type="reco"
+        )
+
+    # Here we use reconstructed energy instead of true energy for the sake of
+    # current pipelines comparisons
+    ang_res = angular_resolution(
+        gammas[gammas["selected_gh"]],
+        reco_energy_bins,
+        energy_type="reco"
+        )
+
     psf = psf_table(
         gammas[gammas["selected_gh"]],
         true_energy_bins,
