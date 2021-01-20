@@ -69,7 +69,8 @@ def main():
     cfg = load_config(args.config_file)
 
     # Create output directory if necessary
-    outdir = os.path.join(cfg['general']['outdir'], 'CTA{}_{}_Zd{}_{}_Time{:.2f}{}'.format(
+    outdir = os.path.join(cfg['general']['outdir'], 'performance_protopipe_{}_CTA{}_{}_Zd{}_{}_Time{:.2f}{}'.format(
+        cfg['general']['prod'],
         cfg['general']['site'],
         cfg['general']['array'],
         cfg['general']['zenith'],
@@ -77,8 +78,6 @@ def main():
         cfg['analysis']['obs_time']['value'],
         cfg['analysis']['obs_time']['unit']),
     )
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)
 
     indir = cfg['general']['indir']
     template_input_file = cfg['general']['template_input_file']
@@ -347,7 +346,7 @@ def main():
     hdus.append(fits.BinTableHDU(bias_resolution, name="ENERGY_BIAS_RESOLUTION"))
 
     log.info('Writing outputfile')
-    fits.HDUList(hdus).writeto('performance_protopipe' + outdir + '.fits.gz', overwrite=True)
+    fits.HDUList(hdus).writeto(outdir + '.fits.gz', overwrite=True)
 
 
 if __name__ == '__main__':
