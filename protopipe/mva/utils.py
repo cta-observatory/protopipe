@@ -18,17 +18,52 @@ def load_obj(name):
 
 
 def prepare_data(ds, cuts, label=None):
-    """Add variables in data frame"""
-    ds["log10_hillas_intensity"] = np.log10(
-        ds["hillas_intensity_reco"]
-    )  # THIS SHOULDN'T BE HARDCODED!!!
+    """Add variables to the input data.
+
+    This is done in order to allow the use modified or more complex features.
+
+    Parameters
+    ----------
+    ds : pandas.DataFrame
+        Input data not yet selected.
+    cuts: str
+        Fiducial cuts from protopipe.mva.utils.make_cut_list
+    label: str
+        Name of the classifier target label if any.
+
+    Returns
+    -------
+    ds : pandas.DataFrame
+        Input data selected for the fiducial cuts and integrated with more
+        possible features.
+    """
+    width = ds["hillas_width_reco"]
+    length = ds["hillas_length_reco"]
+    intensity = ds["hillas_intensity_reco"]
+    cog_x = ds["hillas_x_reco"]
+    cog_y = ds["hillas_y_reco"]
+
+    # reconstructed event direction on the camera
+    # this works because we do image parametriation in the TelescopeFrame
+    # WARNING: check case of e.g. divergent pointing
+    dir_x = ds["az"]
+    dir_y = ds["alt"]
+
+    ds["log10_hillas_intensity"] = np.log10(intensity)
     ds["log10_impact_dist"] = np.log10(ds["impact_dist"])
     ds["log10_true_energy"] = np.log10(ds["true_energy"])
-    try:  # for classification
+    ds["log10(width*length/intensity)"] = np.log10(width*length/intensity)
+
+    # square of distance from Image c.o.g. to the reconstructed event direction on the camera (dir_x, dir_y)
+    ds["CTAMARS_1"] = np.power(np.sqrt(np.power((cog_x - dir_x), 2) + np.power((cog_y - dir_y), 2)), 2)
+
+    ds["CTAMARS_2"] = np.arctan2(cog_y - dir_y, cog_x - dir_x)
+
+    try:  # additional parameters for classification
         ds["log10_reco_energy"] = np.log10(ds["reco_energy"])
         ds["log10_reco_energy_tel"] = np.log10(ds["reco_energy_tel"])
         ds["label"] = np.full(len(ds), label)
-    except:
+    except KeyError:
         pass
 
     ds = ds.query(cuts)
