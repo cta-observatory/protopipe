@@ -1,0 +1,6 @@
+make_argparser
+==============
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: make_argparser

@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Large scale analyses &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="How to contribute" href="../contribute/index.html" />
+    <link rel="prev" title="Pipeline" href="use_pipeline.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Workflow and usage</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="use_pipeline.html">Pipeline</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Large scale analyses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#issues-with-the-login">Issues with the login</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#issues-with-the-download">Issues with the download</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/index.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Workflow and usage</a> &raquo;</li>
+        
+      <li>Large scale analyses</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/usage/use_grid.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="large-scale-analyses">
+<span id="use-grid"></span><h1>Large scale analyses<a class="headerlink" href="#large-scale-analyses" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>protopipe (<a class="reference internal" href="../install/index.html#install"><span class="std std-ref">Installation</span></a>)</p></li>
+<li><p>GRID interface (<a class="reference internal" href="../install/grid.html#install-grid"><span class="std std-ref">Grid environment</span></a>),</p></li>
+<li><p>be accustomed with the basic pipeline workflow (<a class="reference internal" href="use_pipeline.html#use-pipeline"><span class="std std-ref">Pipeline</span></a>).</p></li>
+</ul>
+<div class="figure align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/GRID_workflow.png"><img alt="Workflow of a full analysis on the GRID with protopipe" src="../_images/GRID_workflow.png" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text">Workflow of a full analysis on the GRID with protopipe.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You will work with two different virtual environments:</p>
+<ul class="simple">
+<li><p>protopipe (Python &gt;=3.5, conda environment)</p></li>
+<li><p>GRID interface (Python 2.7, inside the container).</p></li>
+</ul>
+<p>Open 1 tab each on you terminal so you can work seamlessly between the 2.</p>
+<p>To monitor the jobs you can use the
+<a class="reference external" href="https://ccdcta-web.in2p3.fr/DIRAC/?view=tabs&amp;theme=Crisp&amp;url_state=1|*DIRAC.JobMonitor.classes.JobMonitor:,">DIRAC Web Interface</a></p>
+</div>
+<ol class="arabic simple">
+<li><p><strong>Setup analysis</strong> (GRID enviroment)</p></li>
+</ol>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Enter the container</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">$GRID/create_analysis_tree.py</span> <span class="pre">--analysis_name</span> <span class="pre">myAnalysis</span></code></p></li>
+</ol>
+<p>All configuration files for this analysis are stored under <code class="docutils literal notranslate"><span class="pre">configs</span></code>.</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p><strong>Obtain training data for energy estimation</strong> (GRID enviroment)</p></li>
+</ol>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">grid.yaml</span></code> to use gammas without energy estimation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">$GRID/submit_jobs.py</span> <span class="pre">--config_file=grid.yaml</span> <span class="pre">--output_type=TRAINING</span></code></p></li>
+<li><p>edit and execute <code class="docutils literal notranslate"><span class="pre">$ANALYSIS/data/download_and_merge.sh</span></code> once the files are ready</p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p><strong>Build the model for energy estimation</strong> (both enviroments)</p></li>
+</ol>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>switch to the <code class="docutils literal notranslate"><span class="pre">protopipe</span> <span class="pre">environment</span></code></p></li>
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">regressor.yaml</span></code></p></li>
+<li><p>launch the <code class="docutils literal notranslate"><span class="pre">build_model.py</span></code> script of protopipe with this configuration file</p></li>
+<li><p>you can operate some diagnostics with <code class="docutils literal notranslate"><span class="pre">model_diagnostic.py</span></code> using the same configuration file</p></li>
+<li><p>diagnostic plots are stored in subfolders together with the model files</p></li>
+<li><p>return to the <code class="docutils literal notranslate"><span class="pre">GRID</span> <span class="pre">environment</span></code> to edit and execute <code class="docutils literal notranslate"><span class="pre">upload_models.sh</span></code> from the estimators folder</p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p><strong>Obtain training data for particle classification</strong> (GRID enviroment)</p></li>
+</ol>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">grid.yaml</span></code> to use gammas <strong>with</strong> energy estimation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">$GRID/submit_jobs.py</span> <span class="pre">--config_file=grid.yaml</span> <span class="pre">--output_type=TRAINING</span></code></p></li>
+<li><p>edit and execute <code class="docutils literal notranslate"><span class="pre">$ANALYSIS/data/download_and_merge.sh</span></code> once the files are ready</p></li>
+<li><p>repeat the first 3 points for protons</p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p><strong>Build a model for particle classification</strong> (both enviroments)</p></li>
+</ol>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>switch to the <code class="docutils literal notranslate"><span class="pre">protopipe</span> <span class="pre">environment</span></code></p></li>
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">classifier.yaml</span></code></p></li>
+<li><p>launch the <code class="docutils literal notranslate"><span class="pre">build_model.py</span></code> script of protopipe with this configuration file</p></li>
+<li><p>you can operate some diagnostics with <code class="docutils literal notranslate"><span class="pre">model_diagnostic.py</span></code> using the same configuration file</p></li>
+<li><p>diagnostic plots are stored in subfolders together with the model files</p></li>
+<li><p>return to the <code class="docutils literal notranslate"><span class="pre">GRID</span> <span class="pre">environment</span></code> to edit and execute <code class="docutils literal notranslate"><span class="pre">upload_models.sh</span></code> from the estimators folder</p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p><strong>Get DL2 data</strong> (GRID enviroment)</p></li>
+</ol>
+<p>Execute points 1 and 2 for gammas, protons, and electrons separately.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">$GRID/submit_jobs.py</span> <span class="pre">--config_file=grid.yaml</span> <span class="pre">--output_type=DL2</span></code></p></li>
+<li><p>edit and execute <code class="docutils literal notranslate"><span class="pre">download_and_merge.sh</span></code></p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="6">
+<li><p><strong>Estimate the performance</strong> (protopipe enviroment)</p></li>
+</ol>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">performance.yaml</span></code></p></li>
+<li><p>launch the performance script with this configuration file and an observation time</p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="issues-with-the-login">
+<h3>Issues with the login<a class="headerlink" href="#issues-with-the-login" title="Permalink to this headline">¶</a></h3>
+<p><strong>After issuing the command ``dirac-proxy-init`` I get the message
+“Your host clock seems to be off by more than a minute! Thats not good.
+We’ll generate the proxy but please fix your system time” (or similar)</strong></p>
+<p>From within the Vagrant Box environment execute these commands:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">systemctl</span> <span class="pre">status</span> <span class="pre">systemd-timesyncd.service</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">restart</span> <span class="pre">systemd-timesyncd.service</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timedatectl</span></code></p></li>
+</ul>
+<p>Check that,</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">System</span> <span class="pre">clock</span> <span class="pre">synchronized:</span> <span class="pre">yes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">systemd-timesyncd.service</span> <span class="pre">active:</span> <span class="pre">yes</span></code></p></li>
+</ul>
+<p><strong>After issuing the command ``dirac-proxy-init`` and typing my certificate
+password the process start pending and gets stuck</strong></p>
+<p>One possible reason might be related to your network security settings.
+Some networks might require to add the option <code class="docutils literal notranslate"><span class="pre">-L</span></code> to <code class="docutils literal notranslate"><span class="pre">dirac-proxy-init</span></code>.</p>
+<p><strong>After issuing the command ``dirac-proxy-init`` and typing my certificate
+password the process start pending and gets stuck</strong></p>
+<p>One possible reason might be related to your network security settings.
+Some networks might require to add the option <code class="docutils literal notranslate"><span class="pre">-L</span></code> to <code class="docutils literal notranslate"><span class="pre">dirac-proxy-init</span></code>.</p>
+</div>
+<div class="section" id="issues-with-the-download">
+<h3>Issues with the download<a class="headerlink" href="#issues-with-the-download" title="Permalink to this headline">¶</a></h3>
+<p><strong>After correctly editing and launching the ``download_and_merge.sh`` script
+I get “UTC Framework/API ERROR: Failures occurred during rm.getFile”</strong></p>
+<p>Something went wrong during the download phase, either because of your network
+connection (check for possible instabilities) or because of a problem
+on the server side (in which case the solution is out of your control).</p>
+<p>The best approach is:</p>
+<ul class="simple">
+<li><p>let the process finish and eliminate the incomplete merged file,</p></li>
+<li><p>go to the GRID, copy the list of files and dump it into e.g. <code class="docutils literal notranslate"><span class="pre">grid.list</span></code>,</p></li>
+<li><p>do the same with the local files into e.g. <code class="docutils literal notranslate"><span class="pre">local.list</span></code>,</p></li>
+<li><p>do <code class="docutils literal notranslate"><span class="pre">diff</span> <span class="pre">&lt;(sort</span> <span class="pre">local.list)</span> <span class="pre">&lt;(sort</span> <span class="pre">grid.list)</span></code>,</p></li>
+<li><p>download the missing files with <code class="docutils literal notranslate"><span class="pre">dirac-dms-get-file</span></code>,</p></li>
+<li><p>modify (temporarily) <code class="docutils literal notranslate"><span class="pre">download_and_merge.sh</span></code> by commenting the
+download line and execute it so you just merge them.</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../contribute/index.html" class="btn btn-neutral float-right" title="How to contribute" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="use_pipeline.html" class="btn btn-neutral float-left" title="Pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

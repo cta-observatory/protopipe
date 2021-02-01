@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ModelDiagnostic &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="RegressorDiagnostic" href="protopipe.mva.RegressorDiagnostic.html" />
+    <link rel="prev" title="ClassifierDiagnostic" href="protopipe.mva.ClassifierDiagnostic.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/index.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../mva/index.html">mva</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../mva/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mva/index.html#details">Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mva/index.html#proposals-for-improvements-and-or-fixes">Proposals for improvements and/or fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mva/index.html#reference-api">Reference/API</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../mva/index.html#module-protopipe.mva">protopipe.mva Package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../mva/index.html#functions">Functions</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../mva/index.html#classes">Classes</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="protopipe.mva.BoostedDecisionTreeDiagnostic.html">BoostedDecisionTreeDiagnostic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="protopipe.mva.ClassifierDiagnostic.html">ClassifierDiagnostic</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">ModelDiagnostic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="protopipe.mva.RegressorDiagnostic.html">RegressorDiagnostic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="protopipe.mva.TrainModel.html">TrainModel</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../mva/index.html">mva</a> &raquo;</li>
+        
+      <li>ModelDiagnostic</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/protopipe.mva.ModelDiagnostic.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="modeldiagnostic">
+<h1>ModelDiagnostic<a class="headerlink" href="#modeldiagnostic" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="protopipe.mva.ModelDiagnostic">
+<em class="property">class </em><code class="sig-prename descclassname">protopipe.mva.</code><code class="sig-name descname">ModelDiagnostic</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">feature_name_list</em>, <em class="sig-param">target_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/protopipe/mva/diagnostic.html#ModelDiagnostic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protopipe.mva.ModelDiagnostic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base class for model diagnostics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model: `~sklearn.base.BaseEstimator`</strong></dt><dd><p>Best model</p>
+</dd>
+<dt><strong>feature_name_list: list</strong></dt><dd><p>List of the features used to buil the model</p>
+</dd>
+<dt><strong>target_name: str</strong></dt><dd><p>Name of the target (e.g. score, gamaness, energy, etc.)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods Summary</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#protopipe.mva.ModelDiagnostic.add_image_model_output" title="protopipe.mva.ModelDiagnostic.add_image_model_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_image_model_output</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#protopipe.mva.ModelDiagnostic.plot_feature_importance" title="protopipe.mva.ModelDiagnostic.plot_feature_importance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_feature_importance</span></code></a>(ax, **kwargs)</p></td>
+<td><p>Plot importance of features</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#protopipe.mva.ModelDiagnostic.plot_features" title="protopipe.mva.ModelDiagnostic.plot_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_features</span></code></a>(data_list[, nbin, …])</p></td>
+<td><p>Plot model features for different data set (e.g.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Documentation</p>
+<dl class="method">
+<dt id="protopipe.mva.ModelDiagnostic.add_image_model_output">
+<code class="sig-name descname">add_image_model_output</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/protopipe/mva/diagnostic.html#ModelDiagnostic.add_image_model_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protopipe.mva.ModelDiagnostic.add_image_model_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protopipe.mva.ModelDiagnostic.plot_feature_importance">
+<code class="sig-name descname">plot_feature_importance</code><span class="sig-paren">(</span><em class="sig-param">ax</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/protopipe/mva/diagnostic.html#ModelDiagnostic.plot_feature_importance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protopipe.mva.ModelDiagnostic.plot_feature_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot importance of features</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ax: `~matplotlib.axes.Axes`</strong></dt><dd><p>Axis</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protopipe.mva.ModelDiagnostic.plot_features">
+<code class="sig-name descname">plot_features</code><span class="sig-paren">(</span><em class="sig-param">data_list</em>, <em class="sig-param">nbin=30</em>, <em class="sig-param">hist_kwargs_list={}</em>, <em class="sig-param">error_kw_list={}</em>, <em class="sig-param">ncols=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/protopipe/mva/diagnostic.html#ModelDiagnostic.plot_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protopipe.mva.ModelDiagnostic.plot_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot model features for different data set (e.g. training and test samples).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_list: list</strong></dt><dd><p>List of data</p>
+</dd>
+<dt><strong>nbin: int</strong></dt><dd><p>Number of bin</p>
+</dd>
+<dt><strong>hist_kwargs_list: dict</strong></dt><dd><p>Dictionary with histogram options</p>
+</dd>
+<dt><strong>error_kw_list: dict</strong></dt><dd><p>Dictionary with error bar options</p>
+</dd>
+<dt><strong>ncols: int</strong></dt><dd><p>Number of columns</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="protopipe.mva.RegressorDiagnostic.html" class="btn btn-neutral float-right" title="RegressorDiagnostic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="protopipe.mva.ClassifierDiagnostic.html" class="btn btn-neutral float-left" title="ClassifierDiagnostic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

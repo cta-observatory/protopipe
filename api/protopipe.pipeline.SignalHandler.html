@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>SignalHandler &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bcolors" href="protopipe.pipeline.bcolors.html" />
+    <link rel="prev" title="ImageCleaner" href="protopipe.pipeline.ImageCleaner.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/index.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../pipeline/index.html">pipeline</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/index.html#details">Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/index.html#proposals-for-improvements-and-or-fixes">Proposals for improvements and/or fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/index.html#reference-api">Reference/API</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../pipeline/index.html#module-protopipe.pipeline">protopipe.pipeline Package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/index.html#functions">Functions</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../pipeline/index.html#classes">Classes</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="protopipe.pipeline.EventPreparer.html">EventPreparer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="protopipe.pipeline.ImageCleaner.html">ImageCleaner</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">SignalHandler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="protopipe.pipeline.bcolors.html">bcolors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../pipeline/index.html">pipeline</a> &raquo;</li>
+        
+      <li>SignalHandler</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/protopipe.pipeline.SignalHandler.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="signalhandler">
+<h1>SignalHandler<a class="headerlink" href="#signalhandler" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="protopipe.pipeline.SignalHandler">
+<em class="property">class </em><code class="sig-prename descclassname">protopipe.pipeline.</code><code class="sig-name descname">SignalHandler</code><a class="reference internal" href="../_modules/protopipe/pipeline/utils.html#SignalHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protopipe.pipeline.SignalHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>handles ctrl+c signals; set up via
+<cite>signal_handler = SignalHandler()
+`signal.signal(signal.SIGINT, signal_handler)</cite>
+# or for two step interupt:
+<cite>signal.signal(signal.SIGINT, signal_handler.stop_drawing)</cite></p>
+<p class="rubric">Methods Summary</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#protopipe.pipeline.SignalHandler.__call__" title="protopipe.pipeline.SignalHandler.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(signal, frame)</p></td>
+<td><p>Call self as a function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#protopipe.pipeline.SignalHandler.stop_drawing" title="protopipe.pipeline.SignalHandler.stop_drawing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop_drawing</span></code></a>(signal, frame)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Documentation</p>
+<dl class="method">
+<dt id="protopipe.pipeline.SignalHandler.__call__">
+<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">frame</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/protopipe/pipeline/utils.html#SignalHandler.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protopipe.pipeline.SignalHandler.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="protopipe.pipeline.SignalHandler.stop_drawing">
+<code class="sig-name descname">stop_drawing</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">frame</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/protopipe/pipeline/utils.html#SignalHandler.stop_drawing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protopipe.pipeline.SignalHandler.stop_drawing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="protopipe.pipeline.bcolors.html" class="btn btn-neutral float-right" title="bcolors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="protopipe.pipeline.ImageCleaner.html" class="btn btn-neutral float-left" title="ImageCleaner" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+load_config
+===========
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: load_config

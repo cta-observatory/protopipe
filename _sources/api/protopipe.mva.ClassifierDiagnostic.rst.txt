@@ -1,0 +1,19 @@
+ClassifierDiagnostic
+====================
+
+.. currentmodule:: protopipe.mva
+
+.. autoclass:: ClassifierDiagnostic
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ClassifierDiagnostic.add_image_model_output
+      ~ClassifierDiagnostic.plot_image_model_output_distribution
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: add_image_model_output
+   .. automethod:: plot_image_model_output_distribution

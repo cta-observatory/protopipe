@@ -1,0 +1,21 @@
+ModelDiagnostic
+===============
+
+.. currentmodule:: protopipe.mva
+
+.. autoclass:: ModelDiagnostic
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ModelDiagnostic.add_image_model_output
+      ~ModelDiagnostic.plot_feature_importance
+      ~ModelDiagnostic.plot_features
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: add_image_model_output
+   .. automethod:: plot_feature_importance
+   .. automethod:: plot_features

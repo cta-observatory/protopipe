@@ -1,0 +1,19 @@
+SignalHandler
+=============
+
+.. currentmodule:: protopipe.pipeline
+
+.. autoclass:: SignalHandler
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SignalHandler.__call__
+      ~SignalHandler.stop_drawing
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: stop_drawing

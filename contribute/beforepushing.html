@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Code and performance checks &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Calibration" href="benchmarks/TRAINING/benchmarks_DL1_calibration.html" />
+    <link rel="prev" title="Instructions" href="instructions.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How to contribute</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gitrepo.html">The repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instructions.html">Instructions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Code and performance checks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tests-and-unit-tests">Tests and unit-tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#benchmarks">Benchmarks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL1_calibration.html">Calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL1_image-cleaning.html">Image cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction.html">Direction reconstruction (TRAINING)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL2_to_energy-estimation.html">Energy estimation (TRAINING)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL2_to_classification.html">Energy estimation for classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/MODELS/benchmarks_MODELS_energy.html">Energy reconstruction (MODEL)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/MODELS/benchmarks_MODELS_classification.html">Particle classification (MODEL)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/DL2/benchmarks_DL2_particle-classification.html">Particle classification (DL2)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/DL2/benchmarks_DL2_direction-reconstruction.html">Direction recontruction (DL2)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/DL3/benchmarks_DL3_cuts_optimization.html">Optimization cuts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks/DL3/benchmarks_DL3_IRFs_and_sensitivity.html">Instrument Response Functions (IRFs) and sensitivity</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">How to contribute</a> &raquo;</li>
+        
+      <li>Code and performance checks</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/contribute/beforepushing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="code-and-performance-checks">
+<span id="beforepushing"></span><h1>Code and performance checks<a class="headerlink" href="#code-and-performance-checks" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="index">
+<p class="topic-title">Index</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#documentation" id="id3">Documentation</a></p></li>
+<li><p><a class="reference internal" href="#tests-and-unit-tests" id="id4">Tests and unit-tests</a></p></li>
+<li><p><a class="reference internal" href="#benchmarks" id="id5">Benchmarks</a></p></li>
+</ul>
+</div>
+<div class="section" id="documentation">
+<h2><a class="toc-backref" href="#id3">Documentation</a><a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>Each Pull Request should come with its own documentation updates, according to
+what are the changes to be merged into master.</p>
+<p>The documentation is generated by <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a>
+with <a class="reference external" href="https://docutils.sourceforge.io/rst.html">reStructuredText</a> syntax.</p>
+<p>To build and check your documentation locally,</p>
+<ul class="simple">
+<li><p>cd <code class="docutils literal notranslate"><span class="pre">docs</span></code></p></li>
+<li><p>for big changes (or just to be sure), <code class="docutils literal notranslate"><span class="pre">rm</span> <span class="pre">api/*</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">clean</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">html</span></code></p></li>
+<li><p>for small changes, <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code></p></li>
+</ul>
+<p>The built documentation will be stored under <code class="docutils literal notranslate"><span class="pre">docs/_build/html</span></code> from which you
+can open <code class="docutils literal notranslate"><span class="pre">index.html</span></code> with your favorite browser.</p>
+<p>Please, try to fix any warning that could appear during documentation building.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The Continuous Integration (CI) pipeline takes care of building the documentation
+once it is in master, but not for the Pull Request.</p>
+<p>Currently the documentation is built on GitHub Pages with Travis CI.
+There doesn’t seem to be a way to see the documentation related to the PR
+online.</p>
+<p>For a next release, PR (<a class="reference external" href="https://github.com/cta-observatory/protopipe/pull/62">#62</a>) will add the documentation also on
+<a class="reference external" href="https://readthedocs.org/">readthedocs</a> which allows this functionality.</p>
+</div>
+</div>
+<div class="section" id="tests-and-unit-tests">
+<h2><a class="toc-backref" href="#id4">Tests and unit-tests</a><a class="headerlink" href="#tests-and-unit-tests" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a maintenance activity which has being long overdue and we need
+manpower for it, so if you have experience on this or you want to contribute
+please feel free to do so.</p>
+</div>
+<p>Being <em>protopipe</em> based on <em>ctapipe</em>, all the tools imported from the latter
+have been already tested and approved (remember that <em>protopipe</em> uses always the
+latest version of <em>ctapipe</em> which has been released in the Anaconda framework).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is not true for,</p>
+<ul class="simple">
+<li><p>hard-coded parts that had to be modified from ctapipe,</p></li>
+<li><p>protopipe functions themselves (which will eventually migrate to ctapipe)</p></li>
+</ul>
+<p>Regarding the first point: given the difference in versions between the
+imported ctapipe and its development version, sometimes it’s possible that, in
+order to code a new feature, this has to be pull-requested to ctapipe and at
+the same time hardcoded in protopipe, until the new version of ctapipe is released.</p>
+</div>
+<p>For the moment there is only one test, that is more than a unit-test.</p>
+<p>This test is in charge to detect if changes in
+<cite>protopipe.pipeline.event_preparer</cite> or <cite>protopipe.scripts.write_dl1</cite> produce any
+fatal behaviour or crash.</p>
+<p>It uses the <cite>gamma_test_large</cite> file of ctapipe (a Prod2 CTA South array composed of
+LSTCam, FlashCam and ASTRICam with about ~100 simulated showers).
+It is expected that an HDF5 file named <cite>test_dl1.h5</cite> is produced and is non-empty.</p>
+<p>The test can be executed directly from the main folder of protopipe by launching
+<cite>pytest</cite>. It is also automatically triggered by the continuous integration
+everytime a new pull-request is pushed to the repository, and its correct
+execution is a mandatory condition for merging.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For the moment, in this test the shower images are not saved, so the
+correct production of the <cite>images.h5</cite> file is not automatically tested.</p>
+</div>
+</div>
+<div class="section" id="benchmarks">
+<h2><a class="toc-backref" href="#id5">Benchmarks</a><a class="headerlink" href="#benchmarks" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<p>This documentation hosts a series of notebooks used for benchmarking.</p>
+<p>Their contents follow the development triggered by the ongoing
+comparison between protopipe and CTA-MARS (see
+<a class="reference external" href="https://github.com/cta-observatory/protopipe/issues/24">this issue</a> and
+references therein for a summary).</p>
+<p>Current simulated reference datasets used for the performance checks:</p>
+<ul class="simple">
+<li><p>Prod3b
+- <a class="reference external" href="https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip">La Palma baseline zd=20deg az=180deg</a></p></li>
+</ul>
+<p>In the documentation we show only the actual results for immediate display.
+You can find the details by opening the notebooks with <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>
+from their location at <code class="docutils literal notranslate"><span class="pre">docs/contribute/benchmarks</span></code>.</p>
+<p>The benchmarks are organised as follows,</p>
+<ul class="simple">
+<li><p>TRAINING</p>
+<ul>
+<li><p><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL1_calibration.html"><span class="doc">Calibration</span></a> | <em>benchmarks_DL1_calibration.ipynb</em></p></li>
+<li><p><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL1_image-cleaning.html"><span class="doc">Image cleaning</span></a> | <em>benchmarks_DL1_image-cleaning.ipynb</em></p></li>
+<li><p><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction.html"><span class="doc">Direction reconstruction</span></a> | <em>benchmarks_DL2_direction-reconstruction.ipynb</em></p></li>
+<li><p><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL2_to_energy-estimation.html"><span class="doc">to energy estimator</span></a> | <em>benchmarks_DL2_to_energy-estimation.ipynb</em></p></li>
+<li><p><a class="reference internal" href="benchmarks/TRAINING/benchmarks_DL2_to_classification.html"><span class="doc">to classifier</span></a> | <em>benchmarks_DL2_to_classification.ipynb</em></p></li>
+</ul>
+</li>
+</ul>
+<p>This folder contains also some reference data from the CTAMARS pipeline.</p>
+<ul class="simple">
+<li><p>MODELS</p></li>
+</ul>
+<p>These performances are obtained from a <em>test</em> portion of the TRAINING data,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="benchmarks/MODELS/benchmarks_MODELS_energy.html"><span class="doc">Energy</span></a> | <em>benchmarks_MODELS_energy.ipynb</em></p></li>
+<li><p><a class="reference internal" href="benchmarks/MODELS/benchmarks_MODELS_classification.html"><span class="doc">Particle type</span></a> | <em>benchmarks_MODELS_classification.ipynb</em></p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>DL2</p>
+<ul>
+<li><p><a class="reference internal" href="benchmarks/DL2/benchmarks_DL2_particle-classification.html"><span class="doc">Particle classification</span></a> | <em>benchmarks_DL2_particle-classification.ipynb</em></p></li>
+<li><p><a class="reference internal" href="benchmarks/DL2/benchmarks_DL2_direction-reconstruction.html"><span class="doc">Direction reconstruction</span></a> | <em>benchmarks_DL2_direction-reconstruction.ipynb</em></p></li>
+</ul>
+</li>
+<li><p>DL3</p>
+<ul>
+<li><p><a href="#id1"><span class="problematic" id="id2">`Cuts optimization &lt;benchmarks/DL3/benchmarks_DL3_cuts_optimization.ipynb`__</span></a> | <em>benchmarks_DL3_cuts_optimization.ipynb</em></p></li>
+<li><p><a class="reference external" href="https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data">Instrument Response Functions and sensitivity (internal)</a> | <em>benchmarks_DL3_IRFs_and_sensitivity</em></p></li>
+</ul>
+</li>
+</ul>
+<p>The DL3 folder contains also the CTA requirements, while the ASWG performance
+data is left to the user, being internal.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This part of protopipe is not meant to be kept here in the end, in order to
+avoid divergences with
+<a class="reference external" href="https://github.com/cta-observatory/ctaplot">ctaplot</a> and
+<a class="reference external" href="https://github.com/cta-observatory/cta-benchmarks">cta-benchmarks</a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The storage of static versions of the benchmarks in this documentation is temporary.
+It it is planned to run such benchmarks in the
+future via an external resource which will deal automatically with the
+pipeline code, the reference files and related output.</p>
+<p>For the moment the purpose of use these tools in the current setup is to help
+early developers and testers to check if their changes improve or degrade
+previous performances.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="benchmarks/TRAINING/benchmarks_DL1_calibration.html" class="btn btn-neutral float-right" title="Calibration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="instructions.html" class="btn btn-neutral float-left" title="Instructions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

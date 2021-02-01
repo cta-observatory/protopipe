@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>perf &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="scripts" href="../scripts/index.html" />
+    <link rel="prev" title="TrainModel" href="../api/protopipe.mva.TrainModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/index.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mva/index.html">mva</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">perf</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#details">Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#responses">Responses</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#effective-area">Effective area</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#energy-migration-matrix">Energy migration matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#point-spread-function">Point spread function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#background-rate">Background rate</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#sensitivity">Sensitivity</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#proposals-for-improvements-and-or-fixes">Proposals for improvements and/or fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reference-api">Reference/API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-protopipe.perf">protopipe.perf Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>perf</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/perf/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="perf">
+<span id="id1"></span><h1>perf<a class="headerlink" href="#perf" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">protopipe.perf</span></code> module contains tools used to,</p>
+<ul class="simple">
+<li><p>handle the determination of the best-cutoffs to separate gamma and
+the background (protons + electrons),</p></li>
+<li><p>produce the instrument response functions (IRFs),</p></li>
+<li><p>estimate the sensitivity.</p></li>
+</ul>
+</div>
+<div class="section" id="details">
+<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<p>The following responses are computed:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Effective area as a function of true energy</p></li>
+<li><p>Migration matrix as a function of true and reconstructed energy</p></li>
+<li><p>Point spread function computed with a 68 % radius containment as a function of reconstructed energy</p></li>
+<li><p>Background rate as a function of reconstructed energy</p></li>
+</ul>
+</div></blockquote>
+<div class="section" id="responses">
+<h3>Responses<a class="headerlink" href="#responses" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="effective-area">
+<h4>Effective area<a class="headerlink" href="#effective-area" title="Permalink to this headline">¶</a></h4>
+<p>The collection area, which is proportional to the gamma-ray efficiency
+of detection, is computed as a function of the true energy. The events which
+are considered are the one passing the threshold of the best cutoff plus
+the angular cuts.</p>
+</div>
+<div class="section" id="energy-migration-matrix">
+<h4>Energy migration matrix<a class="headerlink" href="#energy-migration-matrix" title="Permalink to this headline">¶</a></h4>
+<p>The migration matrix, ratio of the reconstructed energy over the true energy
+as a function of the true energy, is computed with the events passing the
+threshold of the best cutoff plus the angular cuts.
+In order to be able to use the energy dispersion with <a class="reference external" href="https://gammapy.org/">Gammapy</a>
+to compute the sensitvity we artificially created fake offset bins.
+I guess that <a class="reference external" href="https://gammapy.org/">Gammapy</a> should be able to reaf IRF with single offset.</p>
+</div>
+<div class="section" id="point-spread-function">
+<h4>Point spread function<a class="headerlink" href="#point-spread-function" title="Permalink to this headline">¶</a></h4>
+<p>Here we do not really need the PSF to compute the sensitivity, since the angular
+cuts are already applied to the effective area, the energy migration matrix
+and the background.
+I chose to represent the PSF with a containment radius of 68 % as a function
+of reconstructed energy as a simple HDU.
+The events which are considered are the one passing the threshold of
+the best cutoff.</p>
+</div>
+<div class="section" id="background-rate">
+<h4>Background rate<a class="headerlink" href="#background-rate" title="Permalink to this headline">¶</a></h4>
+<p>The question to consider whether the bakground is an IRF or not. Since here it
+is needed to estimate the sensitivity of the instrument we consider it is included
+in the IRFs.
+Here a simple HDU containing the background (protons + electrons) rate as a
+function of the reconstructed energy is generated.
+The events which are considered are the one passing the threshold of
+the best cutoff and the angular cuts.</p>
+</div>
+</div>
+<div class="section" id="sensitivity">
+<h3>Sensitivity<a class="headerlink" href="#sensitivity" title="Permalink to this headline">¶</a></h3>
+<p>The sensitivity is computed using <a class="reference external" href="https://gammapy.org/">Gammapy</a>.</p>
+</div>
+</div>
+<div class="section" id="proposals-for-improvements-and-or-fixes">
+<h2>Proposals for improvements and/or fixes<a class="headerlink" href="#proposals-for-improvements-and-or-fixes" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This section has to be moved to the repository as a set of issues.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some of these points are relevant for the recently established
+<a class="reference external" href="https://forge.in2p3.fr/projects/instrument-response-functions/wiki">IRF working group</a>
+of the CTA/ASWG consortium section.</p>
+</div>
+<ul class="simple">
+<li><p><a class="reference external" href="https://gamma-astro-data-formats.readthedocs.io/">Data format for IRFs</a></p></li>
+<li><p>Propagation and reading SIMTEL informations (meta-data, histograms)
+directly in the DL2</p></li>
+<li><p>Implement optimisation on the number of telescopes to consider an event</p></li>
+<li><p>We should generate the recommended IRF, e.g. parametrised as what? Apparently
+there are multiple solutions
+(see <a class="reference external" href="https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/psf/index.html">here,</a>),</p></li>
+<li><p>implement the <a class="reference external" href="https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/point_like/index.html">Angular cut values,</a></p></li>
+</ul>
+</div>
+<div class="section" id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-protopipe.perf">
+<span id="protopipe-perf-package"></span><h2>protopipe.perf Package<a class="headerlink" href="#module-protopipe.perf" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../scripts/index.html" class="btn btn-neutral float-right" title="scripts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../api/protopipe.mva.TrainModel.html" class="btn btn-neutral float-left" title="TrainModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,1050 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Direction reconstruction (TRAINING) &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Energy estimation (TRAINING)" href="benchmarks_DL2_to_energy-estimation.html" />
+    <link rel="prev" title="Image cleaning" href="benchmarks_DL1_image-cleaning.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">How to contribute</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../gitrepo.html">The repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../instructions.html">Instructions</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../beforepushing.html">Code and performance checks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../beforepushing.html#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../beforepushing.html#tests-and-unit-tests">Tests and unit-tests</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../beforepushing.html#benchmarks">Benchmarks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="benchmarks_DL1_calibration.html">Calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks_DL1_image-cleaning.html">Image cleaning</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Direction reconstruction (TRAINING)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks_DL2_to_energy-estimation.html">Energy estimation (TRAINING)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks_DL2_to_classification.html">Energy estimation for classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../MODELS/benchmarks_MODELS_energy.html">Energy reconstruction (MODEL)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../MODELS/benchmarks_MODELS_classification.html">Particle classification (MODEL)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../DL2/benchmarks_DL2_particle-classification.html">Particle classification (DL2)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../DL2/benchmarks_DL2_direction-reconstruction.html">Direction recontruction (DL2)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../DL3/benchmarks_DL3_cuts_optimization.html">Optimization cuts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../DL3/benchmarks_DL3_IRFs_and_sensitivity.html">Instrument Response Functions (IRFs) and sensitivity</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">How to contribute</a> &raquo;</li>
+        
+          <li><a href="../../beforepushing.html">Code and performance checks</a> &raquo;</li>
+        
+      <li>Direction reconstruction (TRAINING)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../_sources/contribute/benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Remove input cells at runtime (nbsphinx)</span>
+<span class="kn">import</span> <span class="nn">IPython.core.display</span> <span class="k">as</span> <span class="nn">d</span>
+<span class="n">d</span><span class="o">.</span><span class="n">display_html</span><span class="p">(</span><span class="s1">&#39;&lt;script&gt;jQuery(function() {if (jQuery(&quot;body.notebook_app&quot;).length == 0) { jQuery(&quot;.input_area&quot;).toggle(); jQuery(&quot;.prompt&quot;).toggle();}});&lt;/script&gt;&#39;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<script>jQuery(function() {if (jQuery("body.notebook_app").length == 0) { jQuery(".input_area").toggle(); jQuery(".prompt").toggle();}});</script></div>
+</div>
+<div class="section" id="Direction-reconstruction-(TRAINING)">
+<h1>Direction reconstruction (TRAINING)<a class="headerlink" href="#Direction-reconstruction-(TRAINING)" title="Permalink to this headline">¶</a></h1>
+<p><strong>Author(s):</strong> - Dr. Michele Peresano (CEA-Saclay/IRFU/DAp/LEPCHE), 2020</p>
+<p><strong>Description:</strong></p>
+<div class="line-block">
+<div class="line">This notebook contains plots and benchmarks proposals from the <em>protopipe</em> pipeline related to shower reconstruction.</div>
+<div class="line">It uses the training dataset used to train the energy model, which is when this information is used for the first time within the current pipeline workflow. This was mainly triggered by the step-by-step comparison against <em>CTA-MARS</em>, but it can be extended to other pipelines as well.</div>
+</div>
+<p><strong>NOTES:</strong></p>
+<ul class="simple">
+<li><p>these benchmarks will be cross-validated and migrated in cta-benchmarks/ctaplot</p></li>
+<li><p>Let’s try to follow <a class="reference external" href="https://www.overleaf.com/16933164ghbhvjtchknf">this</a> document by adding those benchmarks or proposing new ones.</p></li>
+</ul>
+<p><strong>Requirements:</strong></p>
+<div class="line-block">
+<div class="line">To run this notebook you will need a TRAINING file generated using <em>protopipe.scripts.data_training.py</em> .</div>
+<div class="line">Reference simtel-files, plots, values and settings can be found <a class="reference external" href="https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Comparisons_between_pipelines">here (please, always refer to the latest version)</a>.</div>
+</div>
+<p>The data format required to run the notebook is the current one used by <em>protopipe</em> . Soon it will be the same as in <em>ctapipe</em> (1 full DL1 file + 1 DL2 file with only shower geometry information).</p>
+<p><strong>Development and testing:</strong></p>
+<div class="line-block">
+<div class="line">As with any other part of <em>protopipe</em> and being part of the official repository, this notebook can be further developed by any interested contributor.</div>
+<div class="line">Though I will soon start a cross-validation with <a class="reference external" href="https://github.com/cta-observatory/ctaplot">ctaplot</a>), so if you want to add something and it’s already there, please import those functions instead of creating new ones. The execution of this notebook is not currently automatic due to lack of proper test data, it must be done locally by the user - preferably <em>before</em> pushing a pull-request.</div>
+</div>
+<p><strong>TODO:</strong></p>
+<ul class="simple">
+<li><p>…</p></li>
+</ul>
+<div class="section" id="Table-of-contents">
+<h2>Table of contents<a class="headerlink" href="#Table-of-contents" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="#Angular-resolution">Angular resolution vs true energy</a></p></li>
+<li><p><a class="reference external" href="#Reconstruction-efficiency">Reconstruction efficiency vs true energy</a></p></li>
+<li><p><a class="reference external" href="#Distribution-of-true-core-positions-for-reconstructed-events">Distribution of true core positions for reconstructed events</a></p></li>
+<li><p><a class="reference external" href="#Shower-maximum-height-reconstruction">Shower maximum height reconstruction</a></p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">tables</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">get_camera_names</span><span class="p">(</span><span class="n">inputPath</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read the names of the cameras.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    infile : str</span>
+<span class="sd">        Full path of the input DL1 file.</span>
+<span class="sd">    fileName : str</span>
+<span class="sd">        Name of the input DL1 file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    camera_names : list(str)</span>
+<span class="sd">        Table names as a list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">inputPath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">fileName</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: check input&quot;</span><span class="p">)</span>
+    <span class="n">h5file</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inputPath</span><span class="p">,</span> <span class="n">fileName</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">h5file</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="n">camera_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">_f_list_nodes</span><span class="p">()]</span>
+    <span class="n">h5file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">camera_names</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">load_reset_infile_protopipe</span><span class="p">(</span><span class="n">inputPath</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">camera_names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;(Re)load the file containing DL1(a) data and extract the data per telescope type.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ==========</span>
+<span class="sd">    infile : str</span>
+<span class="sd">        Full path of the input DL1 file.</span>
+<span class="sd">    fileName : str</span>
+<span class="sd">        Name of the input DL1 file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    =======</span>
+<span class="sd">    dataFrames : dict(pandas.DataFrame)</span>
+<span class="sd">        Dictionary of tables per camera.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">inputPath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">fileName</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: check input&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">camera_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: no cameras specified&quot;</span><span class="p">)</span>
+    <span class="c1"># load DL1 images</span>
+    <span class="n">dataFrames</span> <span class="o">=</span> <span class="p">{</span><span class="n">camera</span> <span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inputPath</span><span class="p">,</span> <span class="n">fileName</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{camera}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">camera</span> <span class="ow">in</span> <span class="n">camera_names</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">dataFrames</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">add_stats</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add a textbox containing statistical information.&quot;&quot;&quot;</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">textstr</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span>
+        <span class="sa">r</span><span class="s1">&#39;$\mu=</span><span class="si">%.2f</span><span class="s1">$&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="p">),</span>
+        <span class="sa">r</span><span class="s1">&#39;$\mathrm</span><span class="si">{median}</span><span class="s1">=</span><span class="si">%.2f</span><span class="s1">$&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">median</span><span class="p">,</span> <span class="p">),</span>
+        <span class="sa">r</span><span class="s1">&#39;$\sigma=</span><span class="si">%.2f</span><span class="s1">$&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="p">)))</span>
+
+    <span class="c1"># these are matplotlib.patch.Patch properties</span>
+    <span class="n">props</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;wheat&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="c1"># place a text box in upper left in axes coords</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span>
+            <span class="n">textstr</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+            <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+            <span class="n">bbox</span><span class="o">=</span><span class="n">props</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Modify these variables according to your local setup outside of the Vagrant Box</span>
+<span class="n">parentDir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># path to &#39;shared_folder&#39;</span>
+<span class="n">analysisName</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">indir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parentDir</span><span class="p">,</span>
+                      <span class="s2">&quot;shared_folder/analyses&quot;</span><span class="p">,</span>
+                      <span class="n">analysisName</span><span class="p">,</span>
+                      <span class="s2">&quot;data/TRAINING/for_energy_estimation&quot;</span><span class="p">)</span>
+<span class="n">infile</span> <span class="o">=</span> <span class="s2">&quot;TRAINING_energy_tail_gamma_merged.h5&quot;</span>
+
+<span class="n">cameras</span> <span class="o">=</span> <span class="n">get_camera_names</span><span class="p">(</span><span class="n">inputPath</span> <span class="o">=</span> <span class="n">indir</span><span class="p">,</span>
+                                   <span class="n">fileName</span> <span class="o">=</span> <span class="n">infile</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">load_reset_infile_protopipe</span><span class="p">(</span><span class="n">inputPath</span> <span class="o">=</span> <span class="n">indir</span><span class="p">,</span>
+                                   <span class="n">fileName</span> <span class="o">=</span> <span class="n">infile</span><span class="p">,</span>
+                                   <span class="n">camera_names</span><span class="o">=</span><span class="n">cameras</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># select only successfully reconstructed showers</span>
+<span class="n">reconstructed_showers</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">camera</span> <span class="ow">in</span> <span class="n">cameras</span><span class="p">:</span>
+    <span class="n">reconstructed_showers</span><span class="p">[</span><span class="n">camera</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">camera</span><span class="p">][(</span><span class="n">data</span><span class="p">[</span><span class="n">camera</span><span class="p">][</span><span class="s2">&quot;is_valid&quot;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># TODO</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># TODO</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># First we check if a _plots_ folder exists already.</span>
+<span class="c1"># If not, we create it.</span>
+<span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./plots&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>Note</strong></div>
+<div class="line">In ctapipe/protopipe we are not yet applying the Direction LUT, so that is for sure something that plays a difference here.</div>
+</div>
+<div class="section" id="Angular-resolution">
+<h3>Angular resolution<a class="headerlink" href="#Angular-resolution" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="line-block">
+<div class="line"><strong>Note</strong></div>
+<div class="line">This benchmark uses all events with &gt;=2 valid images, and requiring LST-subarray stereo trigger, i.e. either 0 or &gt;=2 triggered LSTs - since LST-subarray hardware trigger was not required in the simulation</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># define an energy binning in TeV</span>
+<span class="n">log_lower</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+<span class="n">log_upper</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">bins_per_decade</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">true_energy_bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">log_lower</span><span class="p">,</span> <span class="n">log_upper</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">bins_per_decade</span><span class="p">)</span>
+<span class="n">true_energy_bin_centers</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">true_energy_bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">true_energy_bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">reco_showers_stereo_LST</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">camera</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cameras</span><span class="p">):</span>
+    <span class="c1"># for each camera select only images corresponing to events seen by either None or at least 2 LSTs (LST stereo trigger condition)</span>
+    <span class="n">reco_showers_stereo_LST</span><span class="p">[</span><span class="n">camera</span><span class="p">]</span> <span class="o">=</span> <span class="n">reconstructed_showers</span><span class="p">[</span><span class="n">camera</span><span class="p">][(</span><span class="n">reconstructed_showers</span><span class="p">[</span><span class="n">camera</span><span class="p">][</span><span class="s2">&quot;N_LST&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">reconstructed_showers</span><span class="p">[</span><span class="n">camera</span><span class="p">][</span><span class="s2">&quot;N_LST&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="c1"># then merge the tables</span>
+    <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">all_reco_showers_stereo_LST</span> <span class="o">=</span> <span class="n">reco_showers_stereo_LST</span><span class="p">[</span><span class="n">camera</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">all_reco_showers_stereo_LST</span> <span class="o">=</span> <span class="n">all_reco_showers_stereo_LST</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reco_showers_stereo_LST</span><span class="p">[</span><span class="n">camera</span><span class="p">])</span>
+<span class="c1"># Finally drop duplicate showers (stereo information is the same for each event ID)</span>
+<span class="n">unique_all_reco_showers_stereo_LST</span> <span class="o">=</span> <span class="n">all_reco_showers_stereo_LST</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(True energy) [TeV]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Angular distribution 68</span><span class="si">% c</span><span class="s2">ontainment [deg]&quot;</span><span class="p">)</span>
+
+<span class="n">theta</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">ang_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">true_energy_bin_centers</span><span class="p">))</span>
+
+<span class="n">true_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">unique_all_reco_showers_stereo_LST</span><span class="p">[</span><span class="s2">&quot;true_energy&quot;</span><span class="p">])</span>
+<span class="n">offset</span> <span class="o">=</span> <span class="n">unique_all_reco_showers_stereo_LST</span><span class="p">[</span><span class="s2">&quot;offset&quot;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">true_energy_bin_centers</span><span class="p">)):</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_energy</span> <span class="o">&gt;</span> <span class="n">true_energy_bin_edges</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">true_energy</span> <span class="o">&lt;=</span> <span class="n">true_energy_bin_edges</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">selected_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">offset</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+    <span class="n">ang_res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">selected_offsets</span><span class="p">,</span> <span class="mf">68.0</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">true_energy_bin_centers</span><span class="p">,</span> <span class="n">ang_res</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/training_angular_resolution_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_26_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_26_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Reconstruction-efficiency">
+<h3>Reconstruction efficiency<a class="headerlink" href="#Reconstruction-efficiency" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="line-block">
+<div class="line"><strong>Note</strong></div>
+<div class="line">This benchmark uses all events with &gt;=2 valid images, and requiring LST-subarray stereo trigger, i.e. either 0 or &gt;=2 triggered LSTs - since LST-subarray hardware trigger was not required in the simulation</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">all_showers_stereo_LST</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">camera</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cameras</span><span class="p">):</span>
+    <span class="c1"># for each camera select only images corresponing to events seen by either None or at least 2 LSTs (LST stereo trigger condition)</span>
+    <span class="n">all_showers_stereo_LST</span><span class="p">[</span><span class="n">camera</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">camera</span><span class="p">][(</span><span class="n">data</span><span class="p">[</span><span class="n">camera</span><span class="p">][</span><span class="s2">&quot;N_LST&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">camera</span><span class="p">][</span><span class="s2">&quot;N_LST&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="c1"># then merge the tables</span>
+    <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">allcameras_allshowers_stereo_LST</span> <span class="o">=</span> <span class="n">all_showers_stereo_LST</span><span class="p">[</span><span class="n">camera</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">allcameras_allshowers_stereo_LST</span> <span class="o">=</span> <span class="n">allcameras_allshowers_stereo_LST</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_showers_stereo_LST</span><span class="p">[</span><span class="n">camera</span><span class="p">])</span>
+<span class="c1"># Finally drop duplicate showers (stereo information is the same for each event ID)</span>
+<span class="n">unique_allcameras_allshowers_stereo_LST</span> <span class="o">=</span> <span class="n">allcameras_allshowers_stereo_LST</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(True energy) [TeV]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Fraction of reconstructed showers&quot;</span><span class="p">)</span>
+
+<span class="n">true_energy_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">unique_allcameras_allshowers_stereo_LST</span><span class="p">[</span><span class="s2">&quot;true_energy&quot;</span><span class="p">])</span>
+<span class="n">true_energy_reco</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">unique_all_reco_showers_stereo_LST</span><span class="p">[</span><span class="s2">&quot;true_energy&quot;</span><span class="p">])</span>
+<span class="n">eff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">true_energy_bin_centers</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">true_energy_bin_centers</span><span class="p">)):</span>
+
+    <span class="n">mask_all</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_energy_all</span> <span class="o">&gt;</span> <span class="n">true_energy_bin_edges</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">true_energy_all</span> <span class="o">&lt;=</span> <span class="n">true_energy_bin_edges</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">mask_reco</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_energy_reco</span> <span class="o">&gt;</span> <span class="n">true_energy_bin_edges</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">true_energy_reco</span> <span class="o">&lt;=</span> <span class="n">true_energy_bin_edges</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">all_showers_per_energy_bin</span> <span class="o">=</span> <span class="n">unique_allcameras_allshowers_stereo_LST</span><span class="p">[</span><span class="n">mask_all</span><span class="p">]</span>
+    <span class="n">reco_showers_per_energy_bin</span> <span class="o">=</span> <span class="n">unique_all_reco_showers_stereo_LST</span><span class="p">[</span><span class="n">mask_reco</span><span class="p">]</span>
+    <span class="n">eff</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reco_showers_per_energy_bin</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">all_showers_per_energy_bin</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">true_energy_bin_centers</span><span class="p">,</span> <span class="n">eff</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">true_energy_bin_edges</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/training_reconstruction_efficiency_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_30_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_30_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Distribution-of-true-core-positions-for-reconstructed-events">
+<h3>Distribution of true core positions for reconstructed events<a class="headerlink" href="#Distribution-of-true-core-positions-for-reconstructed-events" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="line-block">
+<div class="line"><strong>Note</strong></div>
+<div class="line">This benchmark uses all events with &gt;=2 valid images, and requiring LST-subarray stereo trigger, i.e. either 0 or &gt;=2 triggered LSTs - since LST-subarray hardware trigger was not required in the simulation</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+
+<span class="n">nbins</span> <span class="o">=</span> <span class="mi">450</span>
+
+<span class="n">core_distribution</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">unique_all_reco_showers_stereo_LST</span><span class="p">[</span><span class="s2">&quot;mc_core_x&quot;</span><span class="p">],</span>
+           <span class="n">y</span> <span class="o">=</span> <span class="n">unique_all_reco_showers_stereo_LST</span><span class="p">[</span><span class="s2">&quot;mc_core_y&quot;</span><span class="p">],</span>
+           <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nbins</span><span class="p">],</span>
+           <span class="nb">range</span><span class="o">=</span><span class="p">[[</span><span class="o">-</span><span class="mf">1.e3</span><span class="p">,</span> <span class="mf">1.e3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.e3</span><span class="p">,</span> <span class="mf">1.e3</span><span class="p">]],</span>
+           <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span><span class="p">,</span>
+           <span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">core_distribution</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">())</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;True core X [m]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;True core Y [m]&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/training_true_cores_distro_reco_events_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_33_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_33_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Shower-core-reconstruction">
+<h3>Shower core reconstruction<a class="headerlink" href="#Shower-core-reconstruction" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<p>All showers reconstructed by any 2 telescopes</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">reco_showers_stereo</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">camera</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cameras</span><span class="p">):</span>
+    <span class="c1"># for each camera table select only rows corresponing to events seen by any &gt;=2 telescopes</span>
+    <span class="n">reco_showers_stereo</span><span class="p">[</span><span class="n">camera</span><span class="p">]</span> <span class="o">=</span> <span class="n">reconstructed_showers</span><span class="p">[</span><span class="n">camera</span><span class="p">][</span><span class="n">reconstructed_showers</span><span class="p">[</span><span class="n">camera</span><span class="p">][</span><span class="s2">&quot;n_tel_reco&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="c1"># then merge the tables</span>
+    <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">allcameras_reco_showers_stereo</span> <span class="o">=</span> <span class="n">reco_showers_stereo</span><span class="p">[</span><span class="n">camera</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">allcameras_reco_showers_stereo</span> <span class="o">=</span> <span class="n">allcameras_reco_showers_stereo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reco_showers_stereo</span><span class="p">[</span><span class="n">camera</span><span class="p">])</span>
+<span class="c1"># Finally drop duplicate showers (stereo information is the same for each event ID)</span>
+<span class="n">unique_allcameras_reco_showers_stereo</span> <span class="o">=</span> <span class="n">allcameras_reco_showers_stereo</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">core_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">true_energy_bin_centers</span><span class="p">))</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(True energy) [TeV]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Reconstructed cores sigma 68% [m]&quot;</span><span class="p">)</span>
+
+<span class="n">true_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">unique_allcameras_reco_showers_stereo</span><span class="p">[</span><span class="s2">&quot;true_energy&quot;</span><span class="p">])</span>
+
+<span class="n">true_core_x</span> <span class="o">=</span> <span class="n">unique_allcameras_reco_showers_stereo</span><span class="p">[</span><span class="s2">&quot;mc_core_x&quot;</span><span class="p">]</span>
+<span class="n">true_core_y</span> <span class="o">=</span> <span class="n">unique_allcameras_reco_showers_stereo</span><span class="p">[</span><span class="s2">&quot;mc_core_y&quot;</span><span class="p">]</span>
+<span class="n">reco_core_x</span> <span class="o">=</span> <span class="n">unique_allcameras_reco_showers_stereo</span><span class="p">[</span><span class="s2">&quot;reco_core_x&quot;</span><span class="p">]</span>
+<span class="n">reco_core_y</span> <span class="o">=</span> <span class="n">unique_allcameras_reco_showers_stereo</span><span class="p">[</span><span class="s2">&quot;reco_core_y&quot;</span><span class="p">]</span>
+
+<span class="n">core_distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">true_core_x</span> <span class="o">-</span> <span class="n">reco_core_x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">true_core_y</span> <span class="o">-</span> <span class="n">reco_core_y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">true_energy_bin_centers</span><span class="p">)):</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_energy</span> <span class="o">&gt;</span> <span class="n">true_energy_bin_edges</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">true_energy</span> <span class="o">&lt;=</span> <span class="n">true_energy_bin_edges</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">selected_core_distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">core_distances</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+    <span class="n">core_res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">selected_core_distances</span><span class="p">,</span> <span class="mf">68.0</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">true_energy_bin_centers</span><span class="p">,</span> <span class="n">core_res</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/training_shower_core_reco_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_37_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_37_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Shower-maximum-height-reconstruction">
+<h3>Shower maximum height reconstruction<a class="headerlink" href="#Shower-maximum-height-reconstruction" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<p>All showers reconstructed by at least 2 telescopes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">h_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">unique_allcameras_reco_showers_stereo</span><span class="p">[</span><span class="s2">&quot;h_max&quot;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">h_max</span><span class="p">,</span>
+         <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+         <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+         <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(H_max) [m]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Number of showers&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/training_hmax_distro_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_40_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL2_direction-reconstruction_40_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="benchmarks_DL2_to_energy-estimation.html" class="btn btn-neutral float-right" title="Energy estimation (TRAINING)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="benchmarks_DL1_image-cleaning.html" class="btn btn-neutral float-left" title="Image cleaning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

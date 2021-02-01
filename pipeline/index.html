@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pipeline &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CTAMARS_radii" href="../api/protopipe.pipeline.CTAMARS_radii.html" />
+    <link rel="prev" title="Authors" href="../AUTHORS.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/index.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#details">Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calibration">Calibration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#imaging">Imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#direction-reconstruction">Direction reconstruction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#proposals-for-improvements-and-or-fixes">Proposals for improvements and/or fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reference-api">Reference/API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-protopipe.pipeline">protopipe.pipeline Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.CTAMARS_radii.html">CTAMARS_radii</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.camera_radius.html">camera_radius</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.effective_focal_lengths.html">effective_focal_lengths</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.final_array_to_use.html">final_array_to_use</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.load_config.html">load_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.make_argparser.html">make_argparser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.prod3b_array.html">prod3b_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.save_fig.html">save_fig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.str2bool.html">str2bool</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.EventPreparer.html">EventPreparer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.ImageCleaner.html">ImageCleaner</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.SignalHandler.html">SignalHandler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/protopipe.pipeline.bcolors.html">bcolors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>pipeline</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/pipeline/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="pipeline">
+<span id="id1"></span><h1>pipeline<a class="headerlink" href="#pipeline" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p><cite>protopipe.pipeline</cite> contains classes that are used in scripts to produce</p>
+<ul class="simple">
+<li><p>tables with images information (DL1), typically for g/h classifier and energy regressor,</p></li>
+<li><p>tables with event information, typically used for performance estimation (DL2).</p></li>
+</ul>
+<p>Two classes from the sub-module are used to process the events:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">EventPreparer</span></code> class, which loops on events and to provide event parameters</dt><dd><p>(e.g. impact parameter) and image parameters (e.g. Hillas parameters),</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ImageCleaner</span></code>, cleans the images according to different options.</p></li>
+</ul>
+</div>
+<div class="section" id="details">
+<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The version of <em>ctapipe</em> used by <em>protopipe</em> is always the last stable version
+packaged on the Anaconda framework.
+This means that some of the more cutting-edge code needs to be hard-coded.
+This code should always be stored in <code class="docutils literal notranslate"><span class="pre">protopipe.pipeline.temp</span></code> and
+disappear at each newer release of <em>ctapipe</em>.</p>
+</div>
+<p>The following is a description of the <em>default</em> algorithms and settings, chosen
+to mimic the CTA-MARS pipeline.</p>
+<div class="section" id="calibration">
+<h3>Calibration<a class="headerlink" href="#calibration" title="Permalink to this headline">¶</a></h3>
+<p>The current calibration is performed using:</p>
+<ul class="simple">
+<li><p>automatic gain channel selection (when more than one) above 4000 ADC counts at RO level,</p></li>
+<li><p>charge and pulse times extraction via <code class="docutils literal notranslate"><span class="pre">ctapipe.image.extractors.TwoPassWindowSum</span></code></p></li>
+<li><p>correction for the integration window.</p></li>
+</ul>
+<div class="figure align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/double-pass-image-extraction.png"><img alt="Explanation of ``ctapipe.image.extractors.TwoPassWindowSum``" src="../_images/double-pass-image-extraction.png" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text">Explanation of <code class="docutils literal notranslate"><span class="pre">ctapipe.image.extractors.TwoPassWindowSum</span></code>.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The photoelectron units used later for cleaning the images are those <strong>not</strong>
+corrected for the average bias. Said this, thanks to the integration correction
+this effect is now negligible.
+For details on how these values are obtained, please refer to the calibration
+benchmarks (<a class="reference internal" href="../contribute/beforepushing.html#beforepushing"><span class="std std-ref">Code and performance checks</span></a>).</p>
+</div>
+</div>
+<div class="section" id="imaging">
+<h3>Imaging<a class="headerlink" href="#imaging" title="Permalink to this headline">¶</a></h3>
+<p><strong>Cleaning</strong> is performed using <code class="docutils literal notranslate"><span class="pre">ctapipe.image.cleaning.mars_cleaning_1st_pass</span></code>,
+but the settings are user-dependent.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To replicate CTA-MARS behaviour it is sufficient to fix a minimum number of 1
+core neighbour while using the cleaning thresholds shown above.</p>
+</div>
+<p><strong>Selection</strong> is performed by the following requirements:</p>
+<ul class="simple">
+<li><p>at least 50 phe (still biased units),</p></li>
+<li><p>image’s center of gravity (COG) within 80% of camera radius (radii stored in <code class="docutils literal notranslate"><span class="pre">protopipe.pipeline.utils</span></code>),</p></li>
+<li><p>ellipticity between 0.1 and 0.6,</p></li>
+<li><p>at least 3 surviving pixels.</p></li>
+</ul>
+<p><strong>Parametrization</strong> is performed by <code class="docutils literal notranslate"><span class="pre">ctapipe.image.hillas.hillas_parameters</span></code>
+in the <code class="docutils literal notranslate"><span class="pre">ctapipe.coordinates.TelescopeFrame</span></code> using the effective focal lenghts
+values stored in <code class="docutils literal notranslate"><span class="pre">protopipe.pipeline.utils</span></code>.</p>
+</div>
+<div class="section" id="direction-reconstruction">
+<h3>Direction reconstruction<a class="headerlink" href="#direction-reconstruction" title="Permalink to this headline">¶</a></h3>
+<p>Performed via <code class="docutils literal notranslate"><span class="pre">ctapipe.reco.HillasReconstructor</span></code> with a minimum number of 2 surviving images
+per event.</p>
+<p>The camera corrections correspond to those of <em>ctapipe</em> and are performed inside
+the reconstructor.</p>
+</div>
+</div>
+<div class="section" id="proposals-for-improvements-and-or-fixes">
+<h2>Proposals for improvements and/or fixes<a class="headerlink" href="#proposals-for-improvements-and-or-fixes" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This section will be moved to the repository as a issues.
+Any further update will appear there.</p>
+</div>
+<ul class="simple">
+<li><p>The EventPreparer class is a bit messy: it should return the event and one container
+with several results (hillas parameters, reconstructed shower, etc.). In addition
+some things are hard-coded , e.g. for now calibration is done in the same way
+(not a problem since only LSTCam and NectarCam have been considered until now),
+camera radius is also hard-coded for LST and MST, and computation of the impact
+parameters in the frame of the shower system should be better implemented.</p></li>
+</ul>
+</div>
+<div class="section" id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-protopipe.pipeline">
+<span id="protopipe-pipeline-package"></span><h2>protopipe.pipeline Package<a class="headerlink" href="#module-protopipe.pipeline" title="Permalink to this headline">¶</a></h2>
+<p>Classes to process and write events with ctapipe</p>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.pipeline.CTAMARS_radii.html#protopipe.pipeline.CTAMARS_radii" title="protopipe.pipeline.CTAMARS_radii"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CTAMARS_radii</span></code></a>(camera_name)</p></td>
+<td><p>Radii of the cameras as defined in CTA-MARS.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.pipeline.camera_radius.html#protopipe.pipeline.camera_radius" title="protopipe.pipeline.camera_radius"><code class="xref py py-obj docutils literal notranslate"><span class="pre">camera_radius</span></code></a>(camid_to_efl[, cam_id])</p></td>
+<td><p>Get camera radii.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.pipeline.effective_focal_lengths.html#protopipe.pipeline.effective_focal_lengths" title="protopipe.pipeline.effective_focal_lengths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">effective_focal_lengths</span></code></a>(camera_name)</p></td>
+<td><p>Provide the effective focal length for the required camera.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.pipeline.final_array_to_use.html#protopipe.pipeline.final_array_to_use" title="protopipe.pipeline.final_array_to_use"><code class="xref py py-obj docutils literal notranslate"><span class="pre">final_array_to_use</span></code></a>(sim_array, array[, subarrays])</p></td>
+<td><p>Infer IDs of telescopes and cameras with equivalent focal lengths.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.pipeline.load_config.html#protopipe.pipeline.load_config" title="protopipe.pipeline.load_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_config</span></code></a>(name)</p></td>
+<td><p>Load YAML configuration file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.pipeline.make_argparser.html#protopipe.pipeline.make_argparser" title="protopipe.pipeline.make_argparser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_argparser</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.pipeline.prod3b_array.html#protopipe.pipeline.prod3b_array" title="protopipe.pipeline.prod3b_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod3b_array</span></code></a>(fileName, site, array)</p></td>
+<td><p>Return tel IDs and involved cameras from configuration and simtel file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.pipeline.save_fig.html#protopipe.pipeline.save_fig" title="protopipe.pipeline.save_fig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_fig</span></code></a>(outdir, name[, fig])</p></td>
+<td><p>Save a figure in multiple formats.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.pipeline.str2bool.html#protopipe.pipeline.str2bool" title="protopipe.pipeline.str2bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str2bool</span></code></a>(v)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.pipeline.EventPreparer.html#protopipe.pipeline.EventPreparer" title="protopipe.pipeline.EventPreparer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventPreparer</span></code></a>(config, subarray, …[, …])</p></td>
+<td><p>Class which loop on events and returns results stored in container.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.pipeline.ImageCleaner.html#protopipe.pipeline.ImageCleaner" title="protopipe.pipeline.ImageCleaner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageCleaner</span></code></a>(config, cameras[, mode])</p></td>
+<td><p>Class applying image cleaning.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.pipeline.SignalHandler.html#protopipe.pipeline.SignalHandler" title="protopipe.pipeline.SignalHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SignalHandler</span></code></a>()</p></td>
+<td><p>handles ctrl+c signals; set up via <cite>signal_handler = SignalHandler() `signal.signal(signal.SIGINT, signal_handler)</cite> # or for two step interupt: <cite>signal.signal(signal.SIGINT, signal_handler.stop_drawing)</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.pipeline.bcolors.html#protopipe.pipeline.bcolors" title="protopipe.pipeline.bcolors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bcolors</span></code></a></p></td>
+<td><p>Color definitions for standard and debug printing.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../api/protopipe.pipeline.CTAMARS_radii.html" class="btn btn-neutral float-right" title="CTAMARS_radii" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../AUTHORS.html" class="btn btn-neutral float-left" title="Authors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

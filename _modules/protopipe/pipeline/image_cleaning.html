@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>protopipe.pipeline.image_cleaning &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute/index.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>protopipe.pipeline.image_cleaning</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for protopipe.pipeline.image_cleaning</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ctapipe.image.cleaning</span> <span class="kn">import</span> <span class="n">mars_cleaning_1st_pass</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pywicta.denoising.wavelets_mrtransform</span> <span class="kn">import</span> <span class="n">WaveletTransform</span>
+    <span class="kn">from</span> <span class="nn">pywicta.denoising</span> <span class="kn">import</span> <span class="n">cdf</span>
+    <span class="kn">from</span> <span class="nn">pywicta.denoising.inverse_transform_sampling</span> <span class="kn">import</span> <span class="n">EmpiricalDistribution</span>
+    <span class="kn">from</span> <span class="nn">pywicta.io</span> <span class="kn">import</span> <span class="n">geometry_converter</span>
+    <span class="kn">from</span> <span class="nn">pywi.processing.filtering.pixel_clusters</span> <span class="kn">import</span> <span class="n">filter_pixels_clusters</span>
+    <span class="kn">from</span> <span class="nn">pywi.processing.filtering</span> <span class="kn">import</span> <span class="n">pixel_clusters</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pywicta package could not be imported&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;wavelet cleaning will not work&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ImageCleaner&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ImageCleaner"><a class="viewcode-back" href="../../../api/protopipe.pipeline.ImageCleaner.html#protopipe.pipeline.ImageCleaner">[docs]</a><span class="k">class</span> <span class="nc">ImageCleaner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class applying image cleaning. It can handle wavelet or tail-cuts-based methods.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config: dict</span>
+<span class="sd">        Configuration file with sections corresponding to wave or tail</span>
+<span class="sd">    mode: str</span>
+<span class="sd">        Model corresponding to `wave` or `tail`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">cameras</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;tail&quot;</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialise_clean_opt</span><span class="p">(</span><span class="n">cameras</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImageCleaner.initialise_clean_opt"><a class="viewcode-back" href="../../../api/protopipe.pipeline.ImageCleaner.html#protopipe.pipeline.ImageCleaner.initialise_clean_opt">[docs]</a>    <span class="k">def</span> <span class="nf">initialise_clean_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cameras</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialise cleaner according to the different camera type&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleaners</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Function for cleaning for corresp. camera</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_opts</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Options for cleaners for corresp. camera</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="s2">&quot;tail&quot;</span><span class="p">:</span>
+
+            <span class="c1"># Initialise cleaner per camera type</span>
+            <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;thresholds&quot;</span><span class="p">]:</span>  <span class="c1"># cycle through all the cameras...</span>
+                <span class="n">cam_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">type</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="n">cameras</span><span class="p">:</span>
+                    <span class="c1"># ...but initialize the cleaner only for the once in use</span>
+                    <span class="n">cuts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">type</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">clean_opts</span><span class="p">[</span><span class="n">cam_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;picture_thresh&quot;</span><span class="p">:</span> <span class="n">cuts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="s2">&quot;boundary_thresh&quot;</span><span class="p">:</span> <span class="n">cuts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="s2">&quot;keep_isolated_pixels&quot;</span><span class="p">:</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;keep_isolated_pixels&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;min_number_picture_neighbors&quot;</span><span class="p">:</span> <span class="n">opt</span><span class="p">[</span>
+                            <span class="s2">&quot;min_number_picture_neighbors&quot;</span>
+                        <span class="p">],</span>
+                    <span class="p">}</span>
+
+                    <span class="c1"># Select the CTA-MARS 1st pass as cleaning algorithm</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cleaners</span><span class="p">[</span>
+                        <span class="n">cam_id</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">img</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="n">mars_cleaning_1st_pass</span><span class="p">(</span>
+                        <span class="n">image</span><span class="o">=</span><span class="n">img</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">opt</span>
+                    <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="s2">&quot;wave&quot;</span><span class="p">:</span>
+
+            <span class="c1"># Initialise cleaner per camera type</span>
+            <span class="k">for</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">]:</span>
+                <span class="n">opt_type</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">][</span><span class="n">cam_id</span><span class="p">]</span>
+
+                <span class="c1"># WARNING WARNING WARNING</span>
+                <span class="c1"># camera models for noise injection</span>
+                <span class="c1"># Need to be updated if calib/signal integration is changed!!!!</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">noise_model</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;ASTRICam&quot;</span><span class="p">:</span> <span class="n">EmpiricalDistribution</span><span class="p">(</span><span class="n">cdf</span><span class="o">.</span><span class="n">ASTRI_CDF_FILE</span><span class="p">),</span>
+                    <span class="s2">&quot;DigiCam&quot;</span><span class="p">:</span> <span class="n">EmpiricalDistribution</span><span class="p">(</span><span class="n">cdf</span><span class="o">.</span><span class="n">DIGICAM_CDF_FILE</span><span class="p">),</span>
+                    <span class="s2">&quot;FlashCam&quot;</span><span class="p">:</span> <span class="n">EmpiricalDistribution</span><span class="p">(</span><span class="n">cdf</span><span class="o">.</span><span class="n">FLASHCAM_CDF_FILE</span><span class="p">),</span>
+                    <span class="s2">&quot;NectarCam&quot;</span><span class="p">:</span> <span class="n">EmpiricalDistribution</span><span class="p">(</span><span class="n">cdf</span><span class="o">.</span><span class="n">NECTARCAM_CDF_FILE</span><span class="p">),</span>
+                    <span class="s2">&quot;LSTCam&quot;</span><span class="p">:</span> <span class="n">EmpiricalDistribution</span><span class="p">(</span><span class="n">cdf</span><span class="o">.</span><span class="n">LSTCAM_CDF_FILE</span><span class="p">),</span>
+                    <span class="s2">&quot;CHEC&quot;</span><span class="p">:</span> <span class="n">EmpiricalDistribution</span><span class="p">(</span><span class="n">cdf</span><span class="o">.</span><span class="n">DIGICAM_CDF_FILE</span><span class="p">),</span>
+                <span class="p">}</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">clean_opts</span><span class="p">[</span><span class="n">cam_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;type_of_filtering&quot;</span><span class="p">:</span> <span class="n">opt_type</span><span class="p">[</span><span class="s2">&quot;type_of_filtering&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;filter_thresholds&quot;</span><span class="p">:</span> <span class="n">opt_type</span><span class="p">[</span><span class="s2">&quot;filter_thresholds&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;last_scale_treatment&quot;</span><span class="p">:</span> <span class="n">opt_type</span><span class="p">[</span><span class="s2">&quot;last_scale_treatment&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;kill_isolated_pixels&quot;</span><span class="p">:</span> <span class="n">opt_type</span><span class="p">[</span><span class="s2">&quot;kill_isolated_pixels&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;detect_only_positive_structures&quot;</span><span class="p">:</span> <span class="n">opt_type</span><span class="p">[</span>
+                        <span class="s2">&quot;detect_only_positive_structures&quot;</span>
+                    <span class="p">],</span>
+                    <span class="s2">&quot;tmp_files_directory&quot;</span><span class="p">:</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;tmp_files_directory&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;clusters_threshold&quot;</span><span class="p">:</span> <span class="n">opt_type</span><span class="p">[</span><span class="s2">&quot;clusters_threshold&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;noise_distribution&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_model</span><span class="p">[</span><span class="n">cam_id</span><span class="p">],</span>
+                <span class="p">}</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">cleaners</span><span class="p">[</span><span class="n">cam_id</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">img</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="n">WaveletTransform</span><span class="p">()</span><span class="o">.</span><span class="n">clean_image</span><span class="p">(</span>
+                    <span class="n">input_image</span><span class="o">=</span><span class="n">img</span><span class="p">,</span> <span class="o">**</span><span class="n">opt</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageCleaner.clean_image"><a class="viewcode-back" href="../../../api/protopipe.pipeline.ImageCleaner.html#protopipe.pipeline.ImageCleaner.clean_image">[docs]</a>    <span class="k">def</span> <span class="nf">clean_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">geom</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clean image according to configuration</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        img: array</span>
+<span class="sd">            Calibrated image</span>
+<span class="sd">        geom: `~ctapipe.XXX`</span>
+<span class="sd">            Camera geometry</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_img: `np.array`</span>
+<span class="sd">            Cleaned image</span>
+<span class="sd">        mask: `np.array`</span>
+<span class="sd">            Boolean array which corresponds to the cleaned pixels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">new_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">cam_id</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">camera_name</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="s2">&quot;tail&quot;</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaners</span><span class="p">[</span><span class="n">cam_id</span><span class="p">](</span><span class="n">new_img</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_opts</span><span class="p">[</span><span class="n">cam_id</span><span class="p">])</span>
+            <span class="n">new_img</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># this is still the full camera, but the non-surviving pixels are</span>
+            <span class="c1"># set to 0: this is not a problem for the number_of_islands</span>
+            <span class="c1"># ctapipe function used later</span>
+
+            <span class="k">return</span> <span class="n">new_img</span><span class="p">,</span> <span class="n">mask</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="s2">&quot;wave&quot;</span><span class="p">:</span>
+            <span class="n">image_2d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">new_img</span><span class="p">,</span> <span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">image_2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaners</span><span class="p">[</span><span class="n">cam_id</span><span class="p">](</span><span class="n">image_2d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_opts</span><span class="p">[</span><span class="n">cam_id</span><span class="p">])</span>
+            <span class="n">new_img</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">image_2d</span><span class="p">,</span> <span class="n">cam_id</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_img</span><span class="p">,</span> <span class="n">mask</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

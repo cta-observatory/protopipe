@@ -1,0 +1,19 @@
+BoostedDecisionTreeDiagnostic
+=============================
+
+.. currentmodule:: protopipe.mva
+
+.. autoclass:: BoostedDecisionTreeDiagnostic
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BoostedDecisionTreeDiagnostic.plot_error_rate
+      ~BoostedDecisionTreeDiagnostic.plot_tree_error_rate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: plot_error_rate
+   .. automethod:: plot_tree_error_rate

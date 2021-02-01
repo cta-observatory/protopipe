@@ -1,0 +1,19 @@
+TrainModel
+==========
+
+.. currentmodule:: protopipe.mva
+
+.. autoclass:: TrainModel
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~TrainModel.get_optimal_model
+      ~TrainModel.split_data
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_optimal_model
+   .. automethod:: split_data

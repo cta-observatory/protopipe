@@ -1,0 +1,19 @@
+ImageCleaner
+============
+
+.. currentmodule:: protopipe.pipeline
+
+.. autoclass:: ImageCleaner
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ImageCleaner.clean_image
+      ~ImageCleaner.initialise_clean_opt
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: clean_image
+   .. automethod:: initialise_clean_opt

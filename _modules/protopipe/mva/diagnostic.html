@@ -1,0 +1,717 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>protopipe.mva.diagnostic &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute/index.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>protopipe.mva.diagnostic</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for protopipe.mva.diagnostic</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">plot_hist</span><span class="p">,</span> <span class="n">plot_distributions</span><span class="p">,</span> <span class="n">plot_roc_curve</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;ModelDiagnostic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RegressorDiagnostic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassifierDiagnostic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BoostedDecisionTreeDiagnostic&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="ModelDiagnostic"><a class="viewcode-back" href="../../../api/protopipe.mva.ModelDiagnostic.html#protopipe.mva.ModelDiagnostic">[docs]</a><span class="k">class</span> <span class="nc">ModelDiagnostic</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for model diagnostics.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model: `~sklearn.base.BaseEstimator`</span>
+<span class="sd">        Best model</span>
+<span class="sd">    feature_name_list: list</span>
+<span class="sd">        List of the features used to buil the model</span>
+<span class="sd">    target_name: str</span>
+<span class="sd">        Name of the target (e.g. score, gamaness, energy, etc.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">feature_name_list</span><span class="p">,</span> <span class="n">target_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span> <span class="o">=</span> <span class="n">feature_name_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">target_name</span>
+
+<div class="viewcode-block" id="ModelDiagnostic.plot_feature_importance"><a class="viewcode-back" href="../../../api/protopipe.mva.ModelDiagnostic.html#protopipe.mva.ModelDiagnostic.plot_feature_importance">[docs]</a>    <span class="k">def</span> <span class="nf">plot_feature_importance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot importance of features</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ax: `~matplotlib.axes.Axes`</span>
+<span class="sd">            Axis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+        <span class="n">importance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">feature_importances_</span>
+        <span class="n">importance</span><span class="p">,</span> <span class="n">feature_labels</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">importance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">importance</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">bin_width</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.1</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">importance</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">bin_width</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">importance</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">feature_labels</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+<div class="viewcode-block" id="ModelDiagnostic.plot_features"><a class="viewcode-back" href="../../../api/protopipe.mva.ModelDiagnostic.html#protopipe.mva.ModelDiagnostic.plot_features">[docs]</a>    <span class="k">def</span> <span class="nf">plot_features</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data_list</span><span class="p">,</span> <span class="n">nbin</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">hist_kwargs_list</span><span class="o">=</span><span class="p">{},</span> <span class="n">error_kw_list</span><span class="o">=</span><span class="p">{},</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot model features for different data set (e.g. training and test samples).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_list: list</span>
+<span class="sd">            List of data</span>
+<span class="sd">        nbin: int</span>
+<span class="sd">            Number of bin</span>
+<span class="sd">        hist_kwargs_list: dict</span>
+<span class="sd">            Dictionary with histogram options</span>
+<span class="sd">        error_kw_list: dict</span>
+<span class="sd">            Dictionary with error bar options</span>
+<span class="sd">        ncols: int</span>
+<span class="sd">            Number of columns</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">plot_distributions</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span><span class="p">,</span>
+            <span class="n">data_list</span><span class="p">,</span>
+            <span class="n">nbin</span><span class="p">,</span>
+            <span class="n">hist_kwargs_list</span><span class="p">,</span>
+            <span class="n">error_kw_list</span><span class="p">,</span>
+            <span class="n">ncols</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelDiagnostic.add_image_model_output"><a class="viewcode-back" href="../../../api/protopipe.mva.ModelDiagnostic.html#protopipe.mva.ModelDiagnostic.add_image_model_output">[docs]</a>    <span class="k">def</span> <span class="nf">add_image_model_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please Implement this method&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RegressorDiagnostic"><a class="viewcode-back" href="../../../api/protopipe.mva.RegressorDiagnostic.html#protopipe.mva.RegressorDiagnostic">[docs]</a><span class="k">class</span> <span class="nc">RegressorDiagnostic</span><span class="p">(</span><span class="n">ModelDiagnostic</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to plot several diagnostic plot for regression</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model: sklearn.base.BaseEstimator</span>
+<span class="sd">        Scikit model</span>
+<span class="sd">    feature_name_list: str</span>
+<span class="sd">        List of features</span>
+<span class="sd">    target_name: str</span>
+<span class="sd">        Name of target (e.g. `mc_energy`)</span>
+<span class="sd">    data_train: `~pandas.DataFrame`</span>
+<span class="sd">        Data frame</span>
+<span class="sd">    data_test: `~pandas.DataFrame`</span>
+<span class="sd">        Data frame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">feature_name_list</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">data_train</span><span class="p">,</span> <span class="n">data_test</span><span class="p">,</span> <span class="n">output_name</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">feature_name_list</span><span class="p">,</span> <span class="n">target_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span> <span class="o">=</span> <span class="n">data_train</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span> <span class="o">=</span> <span class="n">data_test</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_estimation_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_name</span> <span class="o">=</span> <span class="n">output_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_name_img</span> <span class="o">=</span> <span class="n">output_name</span> <span class="o">+</span> <span class="s2">&quot;_img&quot;</span>
+
+        <span class="c1"># Compute and add target estimation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_image_model_output</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_name_img</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_image_model_output</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_name_img</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="RegressorDiagnostic.plot_resolution_distribution"><a class="viewcode-back" href="../../../api/protopipe.mva.RegressorDiagnostic.html#protopipe.mva.RegressorDiagnostic.plot_resolution_distribution">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">plot_resolution_distribution</span><span class="p">(</span>
+        <span class="n">ax</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_reco</span><span class="p">,</span> <span class="n">nbin</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">fit_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">hist_kwargs</span><span class="o">=</span><span class="p">{}</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute bias and resolution with a gaussian fit</span>
+<span class="sd">        and returns a plot with the fit results and the migration distribution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">gauss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ampl</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ampl</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+        <span class="n">migration</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_reco</span> <span class="o">-</span> <span class="n">y_true</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_true</span>
+        <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">fit_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fit_range</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">nbin</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">,</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">migration</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">param</span><span class="p">,</span> <span class="n">cov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">gauss</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">cov</span> <span class="o">=</span> <span class="p">[[]]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Not enough stat ? (#evts=</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">)))</span>
+
+        <span class="n">plot_hist</span><span class="p">(</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">migration</span><span class="p">,</span>
+            <span class="n">nbin</span><span class="o">=</span><span class="n">nbin</span><span class="p">,</span>
+            <span class="n">yerr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">norm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">limit</span><span class="o">=</span><span class="n">fit_range</span><span class="p">,</span>
+            <span class="n">hist_kwargs</span><span class="o">=</span><span class="n">hist_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">gauss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">param</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">param</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">param</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="o">**</span><span class="n">fit_kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ax</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">cov</span></div>
+
+<div class="viewcode-block" id="RegressorDiagnostic.add_image_model_output"><a class="viewcode-back" href="../../../api/protopipe.mva.RegressorDiagnostic.html#protopipe.mva.RegressorDiagnostic.add_image_model_output">[docs]</a>    <span class="k">def</span> <span class="nf">add_image_model_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">data</span></div></div>
+
+
+<div class="viewcode-block" id="ClassifierDiagnostic"><a class="viewcode-back" href="../../../api/protopipe.mva.ClassifierDiagnostic.html#protopipe.mva.ClassifierDiagnostic">[docs]</a><span class="k">class</span> <span class="nc">ClassifierDiagnostic</span><span class="p">(</span><span class="n">ModelDiagnostic</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to plot several diagnostic plot for classification. Assume that positives and</span>
+<span class="sd">    negatives are respectively labeled as 1 and 0.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model: sklearn.base.BaseEstimator</span>
+<span class="sd">        Scikit model</span>
+<span class="sd">    feature_name_list: list</span>
+<span class="sd">        List of features</span>
+<span class="sd">    model_output_name: str</span>
+<span class="sd">        Name of output</span>
+<span class="sd">    is_output_proba: bool</span>
+<span class="sd">        If false, `decision_function` will be called, otherwise, predict_proba.</span>
+<span class="sd">        In the last case we only consider the probability for signal event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">feature_name_list</span><span class="p">,</span>
+        <span class="n">target_name</span><span class="p">,</span>
+        <span class="n">data_train</span><span class="p">,</span>
+        <span class="n">data_test</span><span class="p">,</span>
+        <span class="n">model_output_name</span><span class="o">=</span><span class="s2">&quot;score&quot;</span><span class="p">,</span>
+        <span class="n">is_output_proba</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">feature_name_list</span><span class="p">,</span> <span class="n">target_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span> <span class="o">=</span> <span class="n">data_train</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span> <span class="o">=</span> <span class="n">data_test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_output_name</span> <span class="o">=</span> <span class="n">model_output_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_output_proba</span> <span class="o">=</span> <span class="n">is_output_proba</span>
+
+        <span class="c1"># Compute and add model output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_image_model_output</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_output_name</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_image_model_output</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_output_name</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ClassifierDiagnostic.add_image_model_output"><a class="viewcode-back" href="../../../api/protopipe.mva.ClassifierDiagnostic.html#protopipe.mva.ClassifierDiagnostic.add_image_model_output">[docs]</a>    <span class="k">def</span> <span class="nf">add_image_model_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add model output column&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_output_proba</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Interested in signal probability</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span><span class="p">])[</span>
+                <span class="p">:,</span> <span class="mi">1</span>
+            <span class="p">]</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="ClassifierDiagnostic.plot_image_model_output_distribution"><a class="viewcode-back" href="../../../api/protopipe.mva.ClassifierDiagnostic.html#protopipe.mva.ClassifierDiagnostic.plot_image_model_output_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">plot_image_model_output_distribution</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nbin</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">hist_kwargs_list</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Gamma training sample&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+                <span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lw&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Gamma test sample&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lw&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Proton training sample&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+                <span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lw&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Proton test sample&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lw&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+        <span class="n">error_kw_list</span><span class="o">=</span><span class="p">[</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">ecolor</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">capthick</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">ecolor</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">capthick</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">ecolor</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">capthick</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">ecolor</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">capthick</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot output distribution. Need more output column&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">cut</span><span class="p">)</span>
+            <span class="n">data_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">cut</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span>
+            <span class="n">data_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span>
+
+        <span class="k">return</span> <span class="n">plot_distributions</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model_output_name</span><span class="p">],</span>
+            <span class="p">[</span>
+                <span class="n">data_train</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;label==1&quot;</span><span class="p">),</span>
+                <span class="n">data_test</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;label==1&quot;</span><span class="p">),</span>
+                <span class="n">data_train</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;label==0&quot;</span><span class="p">),</span>
+                <span class="n">data_test</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;label==0&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">nbin</span><span class="p">,</span>
+            <span class="n">hist_kwargs_list</span><span class="p">,</span>
+            <span class="n">error_kw_list</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+    <span class="c1"># def plot_evt_model_output_distribution(self,</span>
+    <span class="c1">#                                 data_train,</span>
+    <span class="c1">#                                 data_test,</span>
+    <span class="c1">#                                 nbin=30,</span>
+    <span class="c1">#                                 hist_kwargs_list=[</span>
+    <span class="c1">#             {&#39;edgecolor&#39;: &#39;blue&#39;, &#39;color&#39;: &#39;blue&#39;, &#39;label&#39;: &#39;Gamma training sample&#39;,</span>
+    <span class="c1">#             &#39;alpha&#39;: 0.2, &#39;fill&#39;: True, &#39;ls&#39;: &#39;-&#39;, &#39;lw&#39;: 2},</span>
+    <span class="c1">#             {&#39;edgecolor&#39;: &#39;blue&#39;, &#39;color&#39;: &#39;blue&#39;, &#39;label&#39;: &#39;Gamma test sample&#39;,</span>
+    <span class="c1">#             &#39;alpha&#39;: 1, &#39;fill&#39;: False, &#39;ls&#39;: &#39;--&#39;, &#39;lw&#39;: 2},</span>
+    <span class="c1">#             {&#39;edgecolor&#39;: &#39;red&#39;, &#39;color&#39;: &#39;red&#39;, &#39;label&#39;: &#39;Proton training sample&#39;,</span>
+    <span class="c1">#             &#39;alpha&#39;: 0.2, &#39;fill&#39;: True, &#39;ls&#39;: &#39;-&#39;, &#39;lw&#39;: 2},</span>
+    <span class="c1">#             {&#39;edgecolor&#39;: &#39;red&#39;, &#39;color&#39;: &#39;red&#39;, &#39;label&#39;: &#39;Proton test sample&#39;,</span>
+    <span class="c1">#             &#39;alpha&#39;: 1, &#39;fill&#39;: False, &#39;ls&#39;: &#39;--&#39;, &#39;lw&#39;: 2}</span>
+    <span class="c1">#         ],</span>
+    <span class="c1">#                                 error_kw_list=[</span>
+    <span class="c1">#             dict(ecolor=&#39;blue&#39;, lw=2, capsize=3, capthick=2, alpha=0.2),</span>
+    <span class="c1">#             dict(ecolor=&#39;blue&#39;, lw=2, capsize=3, capthick=2, alpha=1),</span>
+    <span class="c1">#             dict(ecolor=&#39;red&#39;, lw=2, capsize=3, capthick=2, alpha=0.2),</span>
+    <span class="c1">#             dict(ecolor=&#39;red&#39;, lw=2, capsize=3, capthick=2, alpha=1)</span>
+    <span class="c1"># ]):</span>
+    <span class="c1">#     return plot_distributions(</span>
+    <span class="c1">#         [self.model_output_name],</span>
+    <span class="c1">#         [data_train.query(&#39;label==1&#39;), data_test.query(&#39;label==1&#39;),</span>
+    <span class="c1">#          data_train.query(&#39;label==0&#39;), data_test.query(&#39;label==0&#39;)],</span>
+    <span class="c1">#         nbin,</span>
+    <span class="c1">#         hist_kwargs_list,</span>
+    <span class="c1">#         error_kw_list,</span>
+    <span class="c1">#         1</span>
+    <span class="c1">#     )</span>
+    <span class="c1">#</span>
+    <span class="c1"># def plot_evt_model_output_distribution_variation(self, data_train, data_test, cut_list,</span>
+    <span class="c1">#                                                  nbin=30, ncols=2, hist_kwargs_list={},</span>
+    <span class="c1">#                                                  error_kw_list={}):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Plot model output distribution for several data set for a list of cut</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     data_train: `~pandas.DataFrame`</span>
+    <span class="c1">#         Data frame for training sample</span>
+    <span class="c1">#     data_test:`~pandas.DataFrame`</span>
+    <span class="c1">#         Data frame for test sample</span>
+    <span class="c1">#     cut_list: list</span>
+    <span class="c1">#         List of cuts</span>
+    <span class="c1">#     nbin: int</span>
+    <span class="c1">#         Number of bins</span>
+    <span class="c1">#     ncols: int</span>
+    <span class="c1">#         Number of column to display variation</span>
+    <span class="c1">#     hist_kwargs_list: list</span>
+    <span class="c1">#         list of kwargs</span>
+    <span class="c1">#     error_kw_list:</span>
+    <span class="c1">#         list of error_dict</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+    <span class="c1">#     fig: `matplotlib.figure.Figure`</span>
+    <span class="c1">#         Figure object</span>
+    <span class="c1">#     axes: list</span>
+    <span class="c1">#         List of `~matplotlib.axes.Axes`</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     import matplotlib.pyplot as plt</span>
+    <span class="c1">#     n_feature = len(cut_list)</span>
+    <span class="c1">#     nrows = int(n_feature / ncols) if n_feature % ncols == 0 else int(</span>
+    <span class="c1">#         (n_feature + 1) / ncols)</span>
+    <span class="c1">#     fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5 * ncols, 3 * nrows))</span>
+    <span class="c1">#     if nrows == 1 and ncols == 1:</span>
+    <span class="c1">#         axes = [axes]</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         axes = axes.flatten()</span>
+    <span class="c1">#</span>
+    <span class="c1">#     data_list = [data_train.query(&#39;label==1&#39;), data_test.query(&#39;label==1&#39;),</span>
+    <span class="c1">#                  data_train.query(&#39;label==0&#39;), data_test.query(&#39;label==0&#39;)]</span>
+    <span class="c1">#</span>
+    <span class="c1">#     for i, colname in enumerate(cut_list):</span>
+    <span class="c1">#         ax = axes[i]</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # Range for binning</span>
+    <span class="c1">#         range_min = np.array([data.query(cut_list[i])[self.model_output_name].min() for data in data_list])</span>
+    <span class="c1">#         range_min = range_min[np.where(np.isfinite(range_min))[0]]</span>
+    <span class="c1">#         range_min = min(range_min)</span>
+    <span class="c1">#</span>
+    <span class="c1">#         range_max = np.array([data.query(cut_list[i])[self.model_output_name].max() for data in data_list])</span>
+    <span class="c1">#         range_max = range_max[np.where(np.isfinite(range_max))[0]]</span>
+    <span class="c1">#         range_max = min(range_max)</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # myrange = [range_min, range_max]</span>
+    <span class="c1">#         myrange = [0,1]</span>
+    <span class="c1">#</span>
+    <span class="c1">#         for j, data in enumerate(data_list):</span>
+    <span class="c1">#             if len(data) == 0:</span>
+    <span class="c1">#                 continue</span>
+    <span class="c1">#</span>
+    <span class="c1">#             ax = plot_hist(</span>
+    <span class="c1">#                 ax=ax, data=data.query(cut_list[i])[self.model_output_name],</span>
+    <span class="c1">#                 nbin=nbin, limit=myrange,</span>
+    <span class="c1">#                 norm=True, yerr=True,</span>
+    <span class="c1">#                 hist_kwargs=hist_kwargs_list[j],</span>
+    <span class="c1">#                 error_kw=error_kw_list[j]</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#</span>
+    <span class="c1">#         ax.set_xlim(myrange)</span>
+    <span class="c1">#         ax.set_xlabel(self.model_output_name)</span>
+    <span class="c1">#         ax.set_ylabel(&#39;Arbitrary units&#39;)</span>
+    <span class="c1">#         ax.legend(loc=&#39;best&#39;, fontsize=&#39;x-small&#39;)</span>
+    <span class="c1">#         ax.set_title(cut_list[i])</span>
+    <span class="c1">#         ax.grid()</span>
+    <span class="c1">#     plt.tight_layout()</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return fig, axes</span>
+    <span class="c1">#</span>
+    <span class="c1"># def plot_evt_roc_curve_variation(self, ax, data_test, cut_list):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     ax: `~matplotlib.axes.Axes`</span>
+    <span class="c1">#         Axis</span>
+    <span class="c1">#     data_test: `~pd.DataFrame`</span>
+    <span class="c1">#         Test data</span>
+    <span class="c1">#     cut_list: `list`</span>
+    <span class="c1">#         Cut list</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+    <span class="c1">#     ax:  `~matplotlib.axes.Axes`</span>
+    <span class="c1">#         Axis</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     color = 1.</span>
+    <span class="c1">#     step_color = 1. / (len(cut_list))</span>
+    <span class="c1">#     for i, cut in enumerate(cut_list):</span>
+    <span class="c1">#         c = color - (i + 1) * step_color</span>
+    <span class="c1">#</span>
+    <span class="c1">#         data = data_test.query(cut)</span>
+    <span class="c1">#         if len(data) == 0:</span>
+    <span class="c1">#             continue</span>
+    <span class="c1">#</span>
+    <span class="c1">#         opt = dict(color=str(c), lw=2, label=&#39;{}&#39;.format(cut.replace(&#39;reco_energy&#39;, &#39;E&#39;)))</span>
+    <span class="c1">#         plot_roc_curve(ax, data[self.model_output_name], data[&#39;label&#39;], **opt)</span>
+    <span class="c1">#     ax.plot([0, 1], [0, 1], color=&#39;navy&#39;, lw=2, linestyle=&#39;--&#39;)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return ax</span>
+
+
+<div class="viewcode-block" id="BoostedDecisionTreeDiagnostic"><a class="viewcode-back" href="../../../api/protopipe.mva.BoostedDecisionTreeDiagnostic.html#protopipe.mva.BoostedDecisionTreeDiagnostic">[docs]</a><span class="k">class</span> <span class="nc">BoostedDecisionTreeDiagnostic</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class producing diagnostic plot for the BDT method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BoostedDecisionTreeDiagnostic.plot_error_rate"><a class="viewcode-back" href="../../../api/protopipe.mva.BoostedDecisionTreeDiagnostic.html#protopipe.mva.BoostedDecisionTreeDiagnostic.plot_error_rate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">plot_error_rate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data_scikit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Diagnostic plot showing error rate as a function of the specialisation&quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+        <span class="n">test_errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">test_predict</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">staged_predict</span><span class="p">(</span><span class="n">data_scikit</span><span class="p">[</span><span class="s2">&quot;X_test&quot;</span><span class="p">]):</span>
+            <span class="n">test_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="mf">1.0</span> <span class="o">-</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">test_predict</span><span class="p">,</span> <span class="n">data_scikit</span><span class="p">[</span><span class="s2">&quot;y_test&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+
+        <span class="n">ntrees</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ntrees</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">test_errors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Number of Trees&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Error rate&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+<div class="viewcode-block" id="BoostedDecisionTreeDiagnostic.plot_tree_error_rate"><a class="viewcode-back" href="../../../api/protopipe.mva.BoostedDecisionTreeDiagnostic.html#protopipe.mva.BoostedDecisionTreeDiagnostic.plot_tree_error_rate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">plot_tree_error_rate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Diagnostic plot showing tree error rate&quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+        <span class="n">ntrees</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">estimator_errors</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">estimator_errors_</span><span class="p">[:</span><span class="n">ntrees</span><span class="p">]</span>
+
+        <span class="n">ntrees</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ntrees</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">estimator_errors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Tree number&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Error rate / tree&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ax</span></div></div>
+
+
+<span class="c1"># class RandomForestDiagnostic(object):</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     Class producing diagnostic plot for the RF method</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#     @classmethod</span>
+<span class="c1">#     def plot_error_rate</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

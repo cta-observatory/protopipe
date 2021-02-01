@@ -1,0 +1,380 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Optimized cuts and IRFs &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Production of DL2 data" href="DL2.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/index.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../perf/index.html">perf</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#details">Details</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="data_training.html">Data training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_building.html">Building the models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_diagnostics.html">Models diagnostics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DL2.html">Production of DL2 data</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Optimized cuts and IRFs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#proposals-for-improvements-and-or-fixes">Proposals for improvements and/or fixes</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">scripts</a> &raquo;</li>
+        
+      <li>Optimized cuts and IRFs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/scripts/optimization_cuts_IRFs.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="optimized-cuts-and-irfs">
+<span id="optimization-cuts-irfs"></span><h1>Optimized cuts and IRFs<a class="headerlink" href="#optimized-cuts-and-irfs" title="Permalink to this headline">¶</a></h1>
+<p>In order to estimate performance, you need lists of events at the
+DL2 level produced at the step <a class="reference internal" href="DL2.html#dl2"><span class="std std-ref">Production of DL2 data</span></a>, e.g. events with a minimal number of information:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Direction</p></li>
+<li><p>True energy</p></li>
+<li><p>Reconstructed energy</p></li>
+<li><p>Score/gammaness</p></li>
+</ul>
+</div></blockquote>
+<p>Three different tables of events, in <a class="reference external" href="https://www.hdfgroup.org/solutions/hdf5/">HDF5</a> format, are needed in order to estimate
+the performance of the instruments:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Gamma-rays, considered as signal</p></li>
+<li><p>Protons, considered as a source of diffuse background</p></li>
+<li><p>Electrons, considered as a source of diffuse background</p></li>
+</ul>
+</div></blockquote>
+<p>The script <code class="docutils literal notranslate"><span class="pre">protopipe.scripts.make_performance.py</span></code> is used as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">make_performance</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">--</span><span class="n">config_file</span> <span class="n">CONFIG_FILE</span> <span class="o">--</span><span class="n">obs_time</span> <span class="n">OBS_TIME</span>
+                           <span class="p">[</span><span class="o">--</span><span class="n">wave</span> <span class="o">|</span> <span class="o">--</span><span class="n">tail</span><span class="p">]</span>
+
+<span class="n">Make</span> <span class="n">performance</span> <span class="n">files</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">--</span><span class="n">config_file</span> <span class="n">CONFIG_FILE</span>
+  <span class="o">--</span><span class="n">obs_time</span> <span class="n">OBS_TIME</span>   <span class="n">Observation</span> <span class="n">time</span><span class="p">,</span> <span class="n">should</span> <span class="n">be</span> <span class="n">given</span> <span class="k">as</span> <span class="n">a</span> <span class="n">string</span><span class="p">,</span> <span class="n">value</span>
+                        <span class="ow">and</span> <span class="n">astropy</span> <span class="n">unit</span> <span class="n">separated</span> <span class="n">by</span> <span class="n">an</span> <span class="n">empty</span> <span class="n">space</span>
+  <span class="o">--</span><span class="n">wave</span>                <span class="k">if</span> <span class="nb">set</span><span class="p">,</span> <span class="n">use</span> <span class="n">wavelet</span> <span class="n">cleaning</span>
+  <span class="o">--</span><span class="n">tail</span>                <span class="k">if</span> <span class="nb">set</span><span class="p">,</span> <span class="n">use</span> <span class="n">tail</span> <span class="n">cleaning</span><span class="p">,</span> <span class="n">otherwise</span> <span class="n">wavelets</span>
+</pre></div>
+</div>
+<p>You can use <code class="docutils literal notranslate"><span class="pre">protopipe/aux/scripts/multiple_performances.sh</span></code> to produce
+multiple IRFs for different observation times.</p>
+<p>The configuration file for this step is <code class="docutils literal notranslate"><span class="pre">performance.yaml</span></code>, here shown with some comments:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">general</span><span class="p">:</span>
+ <span class="c1"># Directory with input data file</span>
+ <span class="nt">indir</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
+ <span class="c1"># Template name for input file</span>
+ <span class="nt">template_input_file</span><span class="p">:</span> <span class="s">&#39;dl2_{}_{}_merged.h5&#39;</span>  <span class="c1"># will be filled with mode and particle type</span>
+ <span class="c1"># Directory for output files</span>
+ <span class="nt">outdir</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
+ <span class="c1"># Output table name</span>
+ <span class="nt">output_table_name</span><span class="p">:</span> <span class="s">&#39;table_best_cutoff&#39;</span>
+
+<span class="nt">analysis</span><span class="p">:</span>
+ <span class="c1"># Additional cut on data</span>
+ <span class="nt">cut_on_data</span><span class="p">:</span> <span class="s">&#39;NTels_reco</span><span class="nv"> </span><span class="s">&gt;=</span><span class="nv"> </span><span class="s">3&#39;</span>
+ <span class="c1"># Theta square cut optimisation (opti, fixed, r68)</span>
+ <span class="nt">thsq_opt</span><span class="p">:</span>
+  <span class="nt">type</span><span class="p">:</span> <span class="s">&#39;r68&#39;</span>
+  <span class="nt">value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>  <span class="c1"># In degree, necessary for type fixed</span>
+ <span class="c1"># Normalisation between ON and OFF regions</span>
+ <span class="nt">alpha</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>
+ <span class="c1"># Observation time to estimate best cuts corresponding to best sensitivity</span>
+ <span class="nt">obs_time</span><span class="p">:</span>
+  <span class="nt">value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50</span>
+  <span class="nt">unit</span><span class="p">:</span> <span class="s">&#39;h&#39;</span>
+ <span class="nt">min_sigma</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>  <span class="c1"># minimal number of sigma</span>
+ <span class="nt">min_excess</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>  <span class="c1"># minimal number of excess events (nsig &gt; min_excess)</span>
+ <span class="nt">bkg_syst</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.05</span>  <span class="c1"># percentage of bkg sytematics (nsig &gt; bkg_syst * n_bkg)</span>
+ <span class="c1"># Binning in reco energy (bkg rate, migration matrix)</span>
+ <span class="nt">ereco_binning</span><span class="p">:</span>  <span class="c1"># TeV</span>
+  <span class="nt">emin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.012589254</span>
+  <span class="nt">emax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">199.52623</span>
+  <span class="nt">nbin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">21</span>
+ <span class="c1"># Binning for true energy (eff area, migration matrix, PSF)</span>
+ <span class="nt">etrue_binning</span><span class="p">:</span>  <span class="c1"># TeV</span>
+  <span class="nt">emin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.019952623</span>
+  <span class="nt">emax</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">199.52623</span>
+  <span class="nt">nbin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">42</span>
+
+<span class="c1"># Information about simulation. In the future, everything should be store</span>
+<span class="c1"># in the input files (as meta data and as histogram)</span>
+<span class="nt">particle_information</span><span class="p">:</span>
+ <span class="c1"># Simulated gamma-rays</span>
+ <span class="nt">gamma</span><span class="p">:</span>
+  <span class="nt">n_events_per_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000000</span>  <span class="c1">#  number of files, 10**5 * 10</span>
+  <span class="nt">e_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.003</span>  <span class="c1"># energy min in TeV</span>
+  <span class="nt">e_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">330</span>  <span class="c1"># energy max in TeV</span>
+  <span class="nt">gen_radius</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1400</span>  <span class="c1"># maximal impact parameter in meter</span>
+  <span class="nt">diff_cone</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>  <span class="c1"># diffuse cone, 0 or point-like, in degree</span>
+  <span class="nt">gen_gamma</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>  <span class="c1"># spectral index for input spectra</span>
+ <span class="c1"># Simulated protons</span>
+ <span class="nt">proton</span><span class="p">:</span>
+  <span class="nt">n_events_per_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4000000</span>  <span class="c1">#  number of files, 2 * 10**5 * 20</span>
+  <span class="nt">e_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.004</span>  <span class="c1"># energy min in TeV</span>
+  <span class="nt">e_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">600</span>  <span class="c1"># energy max in TeV</span>
+  <span class="nt">gen_radius</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1900</span>  <span class="c1"># maximal impact parameter in meter</span>
+  <span class="nt">diff_cone</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>  <span class="c1"># diffuse cone, 0 or point-like, in degree</span>
+  <span class="nt">gen_gamma</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>  <span class="c1"># spectral index for input spectra</span>
+  <span class="nt">offset_cut</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.</span>  <span class="c1"># maximum offset to consider particles</span>
+ <span class="c1"># Simulated electrons</span>
+ <span class="nt">electron</span><span class="p">:</span>
+  <span class="nt">n_events_per_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2000000</span>  <span class="c1">#  number of files, 10**5 * 20</span>
+  <span class="nt">e_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.003</span>  <span class="c1"># energy min in TeV</span>
+  <span class="nt">e_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">330</span>  <span class="c1"># energy max in TeV</span>
+  <span class="nt">gen_radius</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1900</span>  <span class="c1"># maximal impact parameter in meter</span>
+  <span class="nt">diff_cone</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>  <span class="c1"># diffuse cone, 0 or point-like, in degree</span>
+  <span class="nt">gen_gamma</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>  <span class="c1"># spectral index for input spectra</span>
+  <span class="nt">offset_cut</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.</span>  <span class="c1"># maximum offset to consider particles</span>
+
+<span class="nt">column_definition</span><span class="p">:</span>
+ <span class="c1"># Column name for true energy</span>
+ <span class="nt">mc_energy</span><span class="p">:</span> <span class="s">&#39;mc_energy&#39;</span>
+ <span class="c1"># Column name for reconstructed energy</span>
+ <span class="nt">reco_energy</span><span class="p">:</span> <span class="s">&#39;reco_energy&#39;</span>
+ <span class="c1"># Column name for the angular distance in the camera between the true</span>
+ <span class="c1"># position and the reconstructed position</span>
+ <span class="nt">angular_distance_to_the_src</span><span class="p">:</span> <span class="s">&#39;xi&#39;</span>
+ <span class="c1"># Column name for classification output</span>
+ <span class="nt">classification_output</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="s">&#39;gammaness&#39;</span>
+  <span class="nt">range</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span> <span class="nv">1</span><span class="p p-Indicator">]</span>  <span class="c1"># needed to bin data and for diagnostic plots</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="DL2.html" class="btn btn-neutral float-left" title="Production of DL2 data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

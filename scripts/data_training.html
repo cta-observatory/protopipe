@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Data training &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Building the models" href="model_building.html" />
+    <link rel="prev" title="scripts" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/index.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../perf/index.html">perf</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#details">Details</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Data training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_building.html">Building the models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_diagnostics.html">Models diagnostics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DL2.html">Production of DL2 data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="optimization_cuts_IRFs.html">Optimized cuts and IRFs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#proposals-for-improvements-and-or-fixes">Proposals for improvements and/or fixes</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">scripts</a> &raquo;</li>
+        
+      <li>Data training</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/scripts/data_training.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="data-training">
+<span id="id1"></span><h1>Data training<a class="headerlink" href="#data-training" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">protopipe.scripts.data_training</span></code> is used to build tables of image and shower
+parameters that will be further used to build energy and particle classification
+estimators for camera type.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">In the current version of the pipeline, the particle classification model
+needs uses the estimate of the particle’s energy as one of the parameters.</div>
+<div class="line">When training the data for that model you will need to specify the boolean
+<code class="docutils literal notranslate"><span class="pre">estimate_energy</span></code> parameter as well as the directory where the model is
+saved via the <code class="docutils literal notranslate"><span class="pre">regressor_dir</span></code> option.</div>
+</div>
+</div>
+<p>By invoking the help argument, you can get help about how the script works:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>usage: data_training.py [-h] --config_file CONFIG_FILE -o OUTFILE
+                    [-m MAX_EVENTS] [-i INDIR]
+                    [-f [INFILE_LIST [INFILE_LIST ...]]]
+                    [--cam_ids [CAM_IDS [CAM_IDS ...]]]
+                    [--wave_dir WAVE_DIR] [--wave_temp_dir WAVE_TEMP_DIR]
+                    [--wave | --tail] [--debug] [--save_images]
+                    [--estimate_energy ESTIMATE_ENERGY]
+                    [--regressor_dir REGRESSOR_DIR]
+
+optional arguments:
+-h, --help            show this help message and exit
+--config_file CONFIG_FILE
+-o OUTFILE, --outfile OUTFILE
+-m MAX_EVENTS, --max_events MAX_EVENTS
+                      maximum number of events considered per file
+-i INDIR, --indir INDIR
+-f [INFILE_LIST [INFILE_LIST ...]], --infile_list [INFILE_LIST [INFILE_LIST ...]]
+                      give a specific list of files to run on
+--cam_ids [CAM_IDS [CAM_IDS ...]]
+                      give the specific list of camera types to run on
+--wave_dir WAVE_DIR   directory where to find mr_filter. if not set look in
+                      $PATH
+--wave_temp_dir WAVE_TEMP_DIR
+                      directory where mr_filter to store the temporary fits
+                      files
+--wave                if set, use wavelet cleaning -- default
+--tail                if set, use tail cleaning, otherwise wavelets
+--debug               Print debugging information
+--save_images         Save also all images
+--estimate_energy ESTIMATE_ENERGY
+                      Estimate the events&#39; energy with a regressor from
+                      protopipe.scripts.build_model
+--regressor_dir REGRESSOR_DIR
+                      regressors directory
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="model_building.html" class="btn btn-neutral float-right" title="Building the models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="scripts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

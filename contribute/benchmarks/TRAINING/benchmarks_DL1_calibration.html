@@ -1,0 +1,1858 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Calibration &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Image cleaning" href="benchmarks_DL1_image-cleaning.html" />
+    <link rel="prev" title="Code and performance checks" href="../../beforepushing.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">How to contribute</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../gitrepo.html">The repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../instructions.html">Instructions</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../beforepushing.html">Code and performance checks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../beforepushing.html#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../beforepushing.html#tests-and-unit-tests">Tests and unit-tests</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../beforepushing.html#benchmarks">Benchmarks</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks_DL1_image-cleaning.html">Image cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks_DL2_direction-reconstruction.html">Direction reconstruction (TRAINING)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks_DL2_to_energy-estimation.html">Energy estimation (TRAINING)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="benchmarks_DL2_to_classification.html">Energy estimation for classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../MODELS/benchmarks_MODELS_energy.html">Energy reconstruction (MODEL)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../MODELS/benchmarks_MODELS_classification.html">Particle classification (MODEL)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../DL2/benchmarks_DL2_particle-classification.html">Particle classification (DL2)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../DL2/benchmarks_DL2_direction-reconstruction.html">Direction recontruction (DL2)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../DL3/benchmarks_DL3_cuts_optimization.html">Optimization cuts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../DL3/benchmarks_DL3_IRFs_and_sensitivity.html">Instrument Response Functions (IRFs) and sensitivity</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">How to contribute</a> &raquo;</li>
+        
+          <li><a href="../../beforepushing.html">Code and performance checks</a> &raquo;</li>
+        
+      <li>Calibration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../_sources/contribute/benchmarks/TRAINING/benchmarks_DL1_calibration.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Remove input cells at runtime (nbsphinx)</span>
+<span class="kn">import</span> <span class="nn">IPython.core.display</span> <span class="k">as</span> <span class="nn">d</span>
+<span class="n">d</span><span class="o">.</span><span class="n">display_html</span><span class="p">(</span><span class="s1">&#39;&lt;script&gt;jQuery(function() {if (jQuery(&quot;body.notebook_app&quot;).length == 0) { jQuery(&quot;.input_area&quot;).toggle(); jQuery(&quot;.prompt&quot;).toggle();}});&lt;/script&gt;&#39;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<script>jQuery(function() {if (jQuery("body.notebook_app").length == 0) { jQuery(".input_area").toggle(); jQuery(".prompt").toggle();}});</script></div>
+</div>
+<div class="section" id="Calibration">
+<h1>Calibration<a class="headerlink" href="#Calibration" title="Permalink to this headline">¶</a></h1>
+<p><strong>Author(s):</strong> - Dr. Michele Peresano (CEA-Saclay/IRFU/DAp/LEPCHE), 2020</p>
+<p><strong>Description:</strong></p>
+<p>This notebook contains plots and benchmarks at calibration level (i.e. from <em>simtel</em> to <em>DL0</em>).</p>
+<p>It currently follows the step-by-step comparison against <em>CTA-MARS</em> , but:</p>
+<ul class="simple">
+<li><p>it can be extended to other pipelines,</p></li>
+<li><p>it can be applied to all cameras from Prod3b.</p></li>
+</ul>
+<p><strong>NOTE</strong> <a class="reference external" href="https://www.overleaf.com/16933164ghbhvjtchknf">This</a> document is supposed to be the official one regarding benchmarks, so we can use this notebook to add and/or propose modifications.</p>
+<p><strong>Requirements:</strong></p>
+<p>Due to recent code migration from <em>protopipe</em> to <em>ctapipe</em>, to run this notebook you will need 1 or 2 HDF5 files produced with <em>ctapipe-stage1-process</em> (depending on the image extractor of your choice - if it doesn’t require a 2nd pass, you’ll have to comment-out those lines!).</p>
+<ins><p>Comparison between protopipe and CTA-MARS</p>
+</ins><ul class="simple">
+<li><p>simtel file to be used _gamma_20deg_180deg_run100__<em>cta-prod3-demo-2147m-LaPalma-baseline.simtel.gz</em></p></li>
+<li><p><em>ctapipe-stage1-process</em> should be configured to mimic CTA-MARS according to the analysis details (see documentation).</p></li>
+<li><p>reference production <a class="reference external" href="https://forge.in2p3.fr/projects/step-by-step-reference-mars-analysis/wiki#The-MC-sample">here</a>.</p></li>
+</ul>
+<p><strong>Development and testing:</strong></p>
+<div class="line-block">
+<div class="line">All Prod3b cameras will be read by the notebook, but some of them are not optimized yet in <em>ctapipe</em> (e.g. FlashCam).</div>
+<div class="line">The execution of this notebook is not currently automatic, it must be done locally by the user - preferably <em>before</em> pushing a pull-request, in order to check that the performance didn’t decrease.</div>
+</div>
+<p><strong>IMPORTANT:</strong> Please, if you wish to contribute to this notebook, before pushing anything to your branch (better even before opening the PR) clear all the output and remove any local directory paths that you used for testing (leave empty strings).</p>
+<p><strong>TODO:</strong></p>
+<ul class="simple">
+<li><p>calibScale is applied only here, not in ctapipe</p></li>
+<li><p>…</p></li>
+</ul>
+<div class="section" id="Table-of-contents">
+<h2>Table of contents<a class="headerlink" href="#Table-of-contents" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="#R1-level-information">R1-level information</a></p>
+<ul>
+<li><p><a class="reference external" href="#Pedestals">Pedestals</a></p></li>
+<li><p><a class="reference external" href="#DC-to-PHE">DC to PHE</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#Correlation-between-the-reconstructed-and-true-number-of-photoelectrons">Correlation between the reconstructed and true number of photoelectrons</a></p></li>
+<li><p><a class="reference external" href="#Charge-resolution">Charge resolution</a></p></li>
+<li><p><a class="reference external" href="#Calculation-of-the-residual-average-bias">Calculation of the residual average bias</a></p></li>
+<li><p><a class="reference external" href="#Charge-resolution-corrected-for-residual-average-bias">Charge resolution corrected for residual average bias</a></p></li>
+<li><p><a class="reference external" href="#RMS-of-charge-resolution-(around-1)">RMS of charge resolution (around 1)</a></p></li>
+<li><p><a class="reference external" href="#Single-pixel-spectra">Single-pixel spectra</a></p></li>
+<li><p><a class="reference external" href="#Optimized-cleaning-thesholds">Optimized cleaning thesholds</a></p>
+<ul>
+<li><p><a class="reference external" href="#Method-1:-99.7%-of-%22noise%22-rejection">Method 1: 99.7% of “noise” rejection (obsolete)</a></p></li>
+<li><p><a class="reference external" href="#Method-2:-fix-relative-frequency-of-charge">Method 2: fix relative frequency of charge (current standard)</a></p></li>
+</ul>
+</li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[65]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">percentileofscore</span>
+<span class="kn">import</span> <span class="nn">tables</span>
+<span class="kn">import</span> <span class="nn">uproot</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">join</span>
+
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">LogNorm</span>
+
+<span class="kn">from</span> <span class="nn">ctapipe.io</span> <span class="kn">import</span> <span class="n">event_source</span>
+<span class="kn">from</span> <span class="nn">ctapipe.io.astropy_helpers</span> <span class="kn">import</span> <span class="n">h5_table_to_astropy</span> <span class="k">as</span> <span class="n">read_table</span>
+<span class="kn">from</span> <span class="nn">ctapipe.instrument</span> <span class="kn">import</span> <span class="n">CameraGeometry</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[67]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">apply_weight_BTEL1010</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define the weights from requirement B-TEL-1010-Intensity Resolution.&quot;&quot;&quot;</span>
+    <span class="n">target_slope</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.62</span> <span class="c1"># this is the spectral slope as required by the B-TEL-1010 &quot;Intensity Resolution&quot; doc</span>
+    <span class="n">spec_slope</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.0</span> <span class="c1"># this is the spectral slope in the simtel files</span>
+    <span class="n">energies</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;true_energy&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">1.e3</span> <span class="c1"># GeV</span>
+    <span class="c1"># each pixel of the same image (row of data table) needs the same weight</span>
+    <span class="n">n_pixels</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;true_image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">energies</span><span class="o">/</span><span class="mf">200.</span><span class="p">,</span> <span class="n">target_slope</span> <span class="o">-</span> <span class="n">spec_slope</span><span class="p">),</span> <span class="n">n_pixels</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">weights</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">calc_bias</span><span class="p">(</span><span class="n">x_bin_edges</span><span class="p">,</span> <span class="n">y_bin_edges</span><span class="p">,</span> <span class="n">hist</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the average bias of charge resolution from 50 to 500 true photoeletrons.</span>
+<span class="sd">    These limits are chosen in order to be safely away from saturation and from NSB noise.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x_bin_edges : 1D array</span>
+<span class="sd">        Bin edges in true photoelectrons.</span>
+<span class="sd">    y_bin_edges : 1D array</span>
+<span class="sd">        Bin edges in reconstructed/true photoelectrons.</span>
+<span class="sd">    hist : 2D array</span>
+<span class="sd">        The full histogram of reconstructed/true against true photoelectrons.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bias : float</span>
+<span class="sd">        Average bias of charge resolution from 50 to 500 true photoelectrons.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">min_edge_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="mf">1.7</span><span class="p">,</span> <span class="n">x_bin_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">max_edge_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="mf">2.7</span><span class="p">,</span> <span class="n">x_bin_edges</span><span class="p">)</span>
+
+    <span class="n">proj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">600</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_edge_index</span><span class="p">,</span> <span class="n">max_edge_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">proj</span> <span class="o">=</span> <span class="n">proj</span> <span class="o">+</span> <span class="n">hist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="n">y_bin_centers</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">y_bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">y_bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">bias</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_bin_centers</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">proj</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bias</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[69]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">calc_rms</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Root Mean Square around 1 as proposed from comparison with CTA-MARS.</span>
+
+<span class="sd">    The input values are vertical slices of the 2D histogram showing the bias-corrected charge resolution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    values : 1D array</span>
+<span class="sd">        Values in reconstructed / true photoelectrons corrected for average bias.</span>
+<span class="sd">    weights : 1D array</span>
+<span class="sd">        Counts in a cell from the weigthed histogram.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    rms : float</span>
+<span class="sd">        Root Mean Square of around 1 for a vertical slice.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">average</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">variance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">((</span><span class="n">values</span><span class="o">-</span><span class="n">average</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">standard_deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">standard_deviation</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">average</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rms</span>
+
+<span class="c1"># missing errors (err_rms)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[70]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">load_reset_images</span><span class="p">(</span><span class="n">indir</span> <span class="o">=</span> <span class="s2">&quot;./&quot;</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">=</span> <span class="s2">&quot;images.h5&quot;</span><span class="p">,</span> <span class="n">tel</span> <span class="o">=</span> <span class="s2">&quot;LST_LST_LSTCam&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;(Re)load the file containing the images and extract the data per telescope type.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    indir : str</span>
+<span class="sd">        Path of the folder containing the HDF5 file to be used.</span>
+<span class="sd">    fileName : str</span>
+<span class="sd">        Name the HDF5 file to be used.</span>
+<span class="sd">    tel : str</span>
+<span class="sd">        Complete identifier of the telescope+camera system to use.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    true_images :</span>
+<span class="sd">        Table containing basic information about the true images.</span>
+<span class="sd">    reco_images :</span>
+<span class="sd">        Table containing basic information about the reconstructed images.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">indir</span><span class="p">)</span> <span class="o">/</span> <span class="n">fileName</span>
+
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+        <span class="n">true_images</span> <span class="o">=</span> <span class="n">read_table</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;/simulation/event/telescope/images/</span><span class="si">{tel}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">reco_images</span> <span class="o">=</span> <span class="n">read_table</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;/dl1/event/telescope/images/</span><span class="si">{tel}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">true_images</span><span class="p">,</span> <span class="n">reco_images</span>
+
+<span class="k">def</span> <span class="nf">load_reset_showers</span><span class="p">(</span><span class="n">indir</span> <span class="o">=</span> <span class="s2">&quot;./&quot;</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">=</span> <span class="s2">&quot;images.h5&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;(Re)load information regarding the simulated showers from the HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    indir : str</span>
+<span class="sd">        Path of the folder containing the HDF5 file to be used.</span>
+<span class="sd">    fileName : str</span>
+<span class="sd">        Name the HDF5 file to be used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    showers :</span>
+<span class="sd">        Table containing basic information about the showers.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">indir</span><span class="p">)</span> <span class="o">/</span> <span class="n">fileName</span>
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+        <span class="n">showers</span> <span class="o">=</span><span class="n">read_table</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;/simulation/event/subarray/shower&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">showers</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[71]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># First we check if a _plots_ folder exists already.</span>
+<span class="c1"># If not, we create it.</span>
+<span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./plots&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[72]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># NOTE: converted in photolectrons, this requirement takes into account Poissonian fluctuations, which in turn are not taken into account in this version of the benchmarks.</span>
+<span class="n">photons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">4.08996</span><span class="p">,</span> <span class="mf">4.27598</span> <span class="p">,</span> <span class="mf">4.47047</span> <span class="p">,</span> <span class="mf">4.67381</span> <span class="p">,</span> <span class="mf">4.88639</span> <span class="p">,</span> <span class="mf">5.10864</span> <span class="p">,</span> <span class="mf">5.341</span>   <span class="p">,</span> <span class="mf">5.58393</span> <span class="p">,</span> <span class="mf">5.83791</span> <span class="p">,</span> <span class="mf">6.10344</span> <span class="p">,</span> <span class="mf">6.38105</span> <span class="p">,</span> <span class="mf">6.67128</span> <span class="p">,</span> <span class="mf">6.97472</span> <span class="p">,</span> <span class="mf">7.29196</span> <span class="p">,</span> <span class="mf">7.62362</span> <span class="p">,</span> <span class="mf">7.97038</span> <span class="p">,</span> <span class="mf">8.3329</span>  <span class="p">,</span> <span class="mf">8.71191</span> <span class="p">,</span> <span class="mf">9.10816</span> <span class="p">,</span> <span class="mf">9.52244</span> <span class="p">,</span> <span class="mf">9.95555</span> <span class="p">,</span> <span class="mf">10.4084</span> <span class="p">,</span> <span class="mf">10.8818</span> <span class="p">,</span> <span class="mf">11.3767</span> <span class="p">,</span> <span class="mf">11.8942</span> <span class="p">,</span> <span class="mf">12.4352</span> <span class="p">,</span> <span class="mf">13.0008</span> <span class="p">,</span> <span class="mf">13.5921</span> <span class="p">,</span> <span class="mf">14.2103</span> <span class="p">,</span> <span class="mf">14.8567</span> <span class="p">,</span> <span class="mf">15.5324</span> <span class="p">,</span> <span class="mf">16.2389</span> <span class="p">,</span> <span class="mf">16.9775</span> <span class="p">,</span> <span class="mf">17.7497</span> <span class="p">,</span> <span class="mf">18.557</span>  <span class="p">,</span> <span class="mf">19.4011</span> <span class="p">,</span> <span class="mf">20.2835</span> <span class="p">,</span> <span class="mf">21.2061</span> <span class="p">,</span> <span class="mf">22.1706</span> <span class="p">,</span> <span class="mf">23.179</span>  <span class="p">,</span> <span class="mf">24.2333</span> <span class="p">,</span> <span class="mf">25.3355</span> <span class="p">,</span> <span class="mf">26.4879</span> <span class="p">,</span> <span class="mf">27.6926</span> <span class="p">,</span> <span class="mf">28.9522</span> <span class="p">,</span> <span class="mf">30.2691</span> <span class="p">,</span> <span class="mf">31.6458</span> <span class="p">,</span> <span class="mf">33.0852</span> <span class="p">,</span> <span class="mf">34.59</span>   <span class="p">,</span> <span class="mf">36.1633</span> <span class="p">,</span> <span class="mf">37.8082</span> <span class="p">,</span> <span class="mf">39.5278</span> <span class="p">,</span> <span class="mf">41.3257</span> <span class="p">,</span> <span class="mf">43.2054</span> <span class="p">,</span> <span class="mf">45.1705</span> <span class="p">,</span> <span class="mf">47.225</span>  <span class="p">,</span> <span class="mf">49.373</span>  <span class="p">,</span> <span class="mf">51.6187</span> <span class="p">,</span> <span class="mf">53.9665</span> <span class="p">,</span> <span class="mf">56.4211</span> <span class="p">,</span> <span class="mf">58.9874</span> <span class="p">,</span> <span class="mf">61.6704</span> <span class="p">,</span> <span class="mf">64.4754</span> <span class="p">,</span> <span class="mf">67.4079</span> <span class="p">,</span> <span class="mf">70.4739</span> <span class="p">,</span> <span class="mf">73.6793</span> <span class="p">,</span> <span class="mf">77.0306</span> <span class="p">,</span> <span class="mf">80.5342</span> <span class="p">,</span> <span class="mf">84.1972</span> <span class="p">,</span> <span class="mf">88.0268</span> <span class="p">,</span> <span class="mf">92.0306</span> <span class="p">,</span> <span class="mf">96.2166</span> <span class="p">,</span> <span class="mf">100.593</span> <span class="p">,</span> <span class="mf">105.168</span> <span class="p">,</span> <span class="mf">109.952</span> <span class="p">,</span> <span class="mf">114.953</span> <span class="p">,</span> <span class="mf">120.181</span> <span class="p">,</span> <span class="mf">125.648</span> <span class="p">,</span> <span class="mf">131.362</span> <span class="p">,</span> <span class="mf">137.337</span> <span class="p">,</span> <span class="mf">143.584</span> <span class="p">,</span> <span class="mf">150.115</span> <span class="p">,</span> <span class="mf">156.943</span> <span class="p">,</span> <span class="mf">164.081</span> <span class="p">,</span> <span class="mf">171.544</span> <span class="p">,</span> <span class="mf">179.346</span> <span class="p">,</span> <span class="mf">187.504</span> <span class="p">,</span> <span class="mf">196.032</span> <span class="p">,</span> <span class="mf">204.948</span> <span class="p">,</span> <span class="mf">214.27</span>  <span class="p">,</span> <span class="mf">224.016</span> <span class="p">,</span> <span class="mf">234.205</span> <span class="p">,</span> <span class="mf">244.858</span> <span class="p">,</span> <span class="mf">255.995</span> <span class="p">,</span> <span class="mf">267.639</span> <span class="p">,</span> <span class="mf">279.812</span> <span class="p">,</span> <span class="mf">292.539</span> <span class="p">,</span> <span class="mf">305.844</span> <span class="p">,</span> <span class="mf">319.755</span> <span class="p">,</span> <span class="mf">334.299</span> <span class="p">,</span> <span class="mf">349.504</span> <span class="p">,</span> <span class="mf">365.401</span> <span class="p">,</span> <span class="mf">382.021</span> <span class="p">,</span> <span class="mf">399.397</span> <span class="p">,</span> <span class="mf">417.563</span> <span class="p">,</span> <span class="mf">436.555</span> <span class="p">,</span> <span class="mf">456.412</span> <span class="p">,</span> <span class="mf">477.171</span> <span class="p">,</span> <span class="mf">498.875</span> <span class="p">,</span> <span class="mf">521.565</span> <span class="p">,</span> <span class="mf">545.288</span> <span class="p">,</span> <span class="mf">570.09</span>  <span class="p">,</span> <span class="mf">596.02</span>  <span class="p">,</span> <span class="mf">623.129</span> <span class="p">,</span> <span class="mf">651.472</span> <span class="p">,</span> <span class="mf">681.103</span> <span class="p">,</span> <span class="mf">712.082</span> <span class="p">,</span> <span class="mf">744.47</span>  <span class="p">,</span> <span class="mf">778.332</span> <span class="p">,</span> <span class="mf">813.733</span> <span class="p">,</span> <span class="mf">850.745</span> <span class="p">,</span> <span class="mf">889.44</span>  <span class="p">,</span> <span class="mf">929.896</span> <span class="p">,</span> <span class="mf">972.191</span> <span class="p">,</span> <span class="mf">1016.41</span> <span class="p">,</span> <span class="mf">1062.64</span> <span class="p">,</span> <span class="mf">1110.97</span> <span class="p">,</span> <span class="mf">1161.5</span>  <span class="p">,</span> <span class="mf">1214.33</span> <span class="p">,</span> <span class="mf">1269.57</span> <span class="p">,</span> <span class="mf">1327.31</span> <span class="p">,</span> <span class="mf">1387.68</span> <span class="p">,</span> <span class="mf">1450.8</span>  <span class="p">,</span> <span class="mf">1516.79</span> <span class="p">,</span> <span class="mf">1585.78</span> <span class="p">,</span> <span class="mf">1657.9</span>  <span class="p">,</span> <span class="mf">1733.31</span> <span class="p">,</span> <span class="mf">1812.15</span> <span class="p">,</span> <span class="mf">1894.57</span> <span class="p">,</span> <span class="mf">1980.75</span> <span class="p">,</span> <span class="mf">2070.84</span> <span class="p">,</span> <span class="mf">2165.03</span> <span class="p">,</span> <span class="mf">2263.5</span>  <span class="p">,</span> <span class="mf">2366.46</span> <span class="p">,</span> <span class="mf">2474.09</span> <span class="p">,</span> <span class="mf">2586.62</span> <span class="p">,</span> <span class="mf">2704.27</span> <span class="p">,</span> <span class="mf">2827.27</span> <span class="p">,</span> <span class="mf">2955.87</span> <span class="p">,</span> <span class="mf">3090.31</span> <span class="p">,</span> <span class="mf">3230.87</span> <span class="p">,</span> <span class="mf">3377.82</span> <span class="p">,</span> <span class="mf">3531.46</span> <span class="p">,</span> <span class="mf">3692.09</span> <span class="p">,</span> <span class="mf">3860.02</span> <span class="p">,</span> <span class="mf">4035.58</span><span class="p">])</span>
+<span class="n">req</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.98387</span><span class="p">,</span> <span class="mf">1.91316</span><span class="p">,</span> <span class="mf">1.84541</span><span class="p">,</span> <span class="mf">1.78049</span><span class="p">,</span> <span class="mf">1.71827</span><span class="p">,</span> <span class="mf">1.65863</span><span class="p">,</span> <span class="mf">1.60145</span><span class="p">,</span> <span class="mf">1.54663</span><span class="p">,</span> <span class="mf">1.49407</span><span class="p">,</span> <span class="mf">1.44366</span><span class="p">,</span> <span class="mf">1.3953</span><span class="p">,</span> <span class="mf">1.34892</span><span class="p">,</span> <span class="mf">1.30441</span><span class="p">,</span> <span class="mf">1.26169</span><span class="p">,</span> <span class="mf">1.22069</span><span class="p">,</span> <span class="mf">1.18133</span><span class="p">,</span> <span class="mf">1.14354</span><span class="p">,</span> <span class="mf">1.10725</span><span class="p">,</span> <span class="mf">1.07238</span><span class="p">,</span> <span class="mf">1.03889</span><span class="p">,</span> <span class="mf">1.0067</span><span class="p">,</span> <span class="mf">0.975761</span><span class="p">,</span> <span class="mf">0.946017</span><span class="p">,</span> <span class="mf">0.917414</span><span class="p">,</span> <span class="mf">0.889904</span><span class="p">,</span> <span class="mf">0.863438</span><span class="p">,</span> <span class="mf">0.83797</span><span class="p">,</span> <span class="mf">0.813457</span><span class="p">,</span> <span class="mf">0.789858</span><span class="p">,</span> <span class="mf">0.767131</span><span class="p">,</span> <span class="mf">0.745241</span><span class="p">,</span> <span class="mf">0.72415</span><span class="p">,</span> <span class="mf">0.703825</span><span class="p">,</span> <span class="mf">0.684233</span><span class="p">,</span> <span class="mf">0.665342</span><span class="p">,</span> <span class="mf">0.647122</span><span class="p">,</span> <span class="mf">0.629546</span><span class="p">,</span> <span class="mf">0.612586</span><span class="p">,</span> <span class="mf">0.596217</span><span class="p">,</span> <span class="mf">0.580413</span><span class="p">,</span> <span class="mf">0.565152</span><span class="p">,</span> <span class="mf">0.550412</span><span class="p">,</span> <span class="mf">0.53617</span><span class="p">,</span> <span class="mf">0.522407</span><span class="p">,</span> <span class="mf">0.509103</span><span class="p">,</span> <span class="mf">0.49624</span><span class="p">,</span> <span class="mf">0.483801</span><span class="p">,</span> <span class="mf">0.471769</span><span class="p">,</span> <span class="mf">0.460128</span><span class="p">,</span> <span class="mf">0.448862</span><span class="p">,</span> <span class="mf">0.437958</span><span class="p">,</span> <span class="mf">0.427401</span><span class="p">,</span> <span class="mf">0.417179</span><span class="p">,</span> <span class="mf">0.407278</span><span class="p">,</span> <span class="mf">0.397688</span><span class="p">,</span> <span class="mf">0.388395</span><span class="p">,</span> <span class="mf">0.379391</span><span class="p">,</span> <span class="mf">0.370664</span><span class="p">,</span> <span class="mf">0.362204</span><span class="p">,</span> <span class="mf">0.354003</span><span class="p">,</span> <span class="mf">0.34605</span><span class="p">,</span> <span class="mf">0.338337</span><span class="p">,</span> <span class="mf">0.330857</span><span class="p">,</span> <span class="mf">0.323601</span><span class="p">,</span> <span class="mf">0.316561</span><span class="p">,</span> <span class="mf">0.309732</span><span class="p">,</span> <span class="mf">0.303104</span><span class="p">,</span> <span class="mf">0.296673</span><span class="p">,</span> <span class="mf">0.290432</span><span class="p">,</span> <span class="mf">0.284375</span><span class="p">,</span> <span class="mf">0.278496</span><span class="p">,</span> <span class="mf">0.272789</span><span class="p">,</span> <span class="mf">0.267249</span><span class="p">,</span> <span class="mf">0.261872</span><span class="p">,</span> <span class="mf">0.256651</span><span class="p">,</span> <span class="mf">0.251584</span><span class="p">,</span> <span class="mf">0.246664</span><span class="p">,</span> <span class="mf">0.241888</span><span class="p">,</span> <span class="mf">0.237252</span><span class="p">,</span> <span class="mf">0.232751</span><span class="p">,</span> <span class="mf">0.228382</span><span class="p">,</span> <span class="mf">0.224141</span><span class="p">,</span> <span class="mf">0.220025</span><span class="p">,</span> <span class="mf">0.21603</span><span class="p">,</span> <span class="mf">0.212152</span><span class="p">,</span> <span class="mf">0.208389</span><span class="p">,</span> <span class="mf">0.204737</span><span class="p">,</span> <span class="mf">0.201193</span><span class="p">,</span> <span class="mf">0.197755</span><span class="p">,</span> <span class="mf">0.19442</span><span class="p">,</span> <span class="mf">0.191185</span><span class="p">,</span> <span class="mf">0.188047</span><span class="p">,</span> <span class="mf">0.185003</span><span class="p">,</span> <span class="mf">0.182052</span><span class="p">,</span> <span class="mf">0.179191</span><span class="p">,</span> <span class="mf">0.176417</span><span class="p">,</span> <span class="mf">0.173729</span><span class="p">,</span> <span class="mf">0.171124</span><span class="p">,</span> <span class="mf">0.168599</span><span class="p">,</span> <span class="mf">0.166153</span><span class="p">,</span> <span class="mf">0.163784</span><span class="p">,</span> <span class="mf">0.16149</span><span class="p">,</span> <span class="mf">0.159268</span><span class="p">,</span> <span class="mf">0.157117</span><span class="p">,</span> <span class="mf">0.155035</span><span class="p">,</span> <span class="mf">0.15302</span><span class="p">,</span> <span class="mf">0.151071</span><span class="p">,</span> <span class="mf">0.149185</span><span class="p">,</span> <span class="mf">0.147361</span><span class="p">,</span> <span class="mf">0.145597</span><span class="p">,</span> <span class="mf">0.143892</span><span class="p">,</span> <span class="mf">0.142244</span><span class="p">,</span> <span class="mf">0.140651</span><span class="p">,</span> <span class="mf">0.139112</span><span class="p">,</span> <span class="mf">0.137625</span><span class="p">,</span> <span class="mf">0.13619</span><span class="p">,</span> <span class="mf">0.134804</span><span class="p">,</span> <span class="mf">0.133465</span><span class="p">,</span> <span class="mf">0.132174</span><span class="p">,</span> <span class="mf">0.130928</span><span class="p">,</span> <span class="mf">0.129726</span><span class="p">,</span> <span class="mf">0.128566</span><span class="p">,</span> <span class="mf">0.127448</span><span class="p">,</span> <span class="mf">0.12637</span><span class="p">,</span> <span class="mf">0.125331</span><span class="p">,</span> <span class="mf">0.124329</span><span class="p">,</span> <span class="mf">0.123364</span><span class="p">,</span> <span class="mf">0.122435</span><span class="p">,</span> <span class="mf">0.12154</span><span class="p">,</span> <span class="mf">0.120678</span><span class="p">,</span> <span class="mf">0.119848</span><span class="p">,</span> <span class="mf">0.119049</span><span class="p">,</span> <span class="mf">0.11828</span><span class="p">,</span> <span class="mf">0.117541</span><span class="p">,</span> <span class="mf">0.116829</span><span class="p">,</span> <span class="mf">0.116145</span><span class="p">,</span> <span class="mf">0.115487</span><span class="p">,</span> <span class="mf">0.114854</span><span class="p">,</span> <span class="mf">0.114245</span><span class="p">,</span> <span class="mf">0.113661</span><span class="p">,</span> <span class="mf">0.113099</span><span class="p">,</span> <span class="mf">0.112559</span><span class="p">,</span> <span class="mf">0.11204</span><span class="p">,</span> <span class="mf">0.111542</span><span class="p">,</span> <span class="mf">0.111063</span><span class="p">,</span> <span class="mf">0.110604</span><span class="p">,</span> <span class="mf">0.110162</span><span class="p">,</span> <span class="mf">0.109739</span><span class="p">,</span> <span class="mf">0.109332</span><span class="p">,</span> <span class="mf">0.108942</span><span class="p">,</span> <span class="mf">0.108567</span><span class="p">,</span> <span class="mf">0.108208</span><span class="p">,</span> <span class="mf">0.107863</span><span class="p">,</span> <span class="mf">0.107532</span><span class="p">,</span> <span class="mf">0.107215</span><span class="p">,</span> <span class="mf">0.106911</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>IMPORTANT Basic information about the reference simtel file</strong></div>
+<div class="line">When referring to the comparison with CTA-MARS, the file used in these benchmarks is</div>
+<div class="line">_gamma_20deg_180deg_run100__<em>cta-prod3-demo-2147m-LaPalma-baseline.simtel.gz</em></div>
+<div class="line">and has the following basic features when NO selection is applied, * number of simulated showers = 9793 * number of images (LST + MST) = 44401 * min number of triggered telescopes per shower = 2</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[73]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># load every time you want to plot simtel-related information....</span>
+
+<span class="n">indir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="c1"># path of the simtel file to be used</span>
+<span class="n">infile</span> <span class="o">=</span> <span class="s2">&quot;gamma_20deg_180deg_run100___cta-prod3-demo-2147m-LaPalma-baseline.simtel.gz&quot;</span> <span class="c1"># name of the simtel file to be used</span>
+
+<span class="k">with</span> <span class="n">event_source</span><span class="p">(</span><span class="n">indir</span> <span class="o">/</span> <span class="n">infile</span><span class="p">)</span> <span class="k">as</span> <span class="n">source</span><span class="p">:</span>
+
+    <span class="n">camera_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">camera_description</span><span class="o">.</span><span class="n">camera_name</span> <span class="k">for</span> <span class="n">camera_description</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">camera_types</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This simtel file contains the following cameras : </span><span class="si">{camera_names}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Find first event that triggeres all cameras</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
+
+        <span class="n">tels_with_data</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tels_with_data</span>
+        <span class="n">camera_names_triggered</span> <span class="o">=</span> <span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">tels</span><span class="p">[</span><span class="n">tel</span><span class="p">]</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">camera_name</span> <span class="k">for</span> <span class="n">tel</span> <span class="ow">in</span> <span class="n">tels_with_data</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">camera_name</span> <span class="ow">in</span> <span class="n">camera_names_triggered</span> <span class="k">for</span> <span class="n">camera_name</span> <span class="ow">in</span> <span class="n">camera_names</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Event #</span><span class="si">{event.count}</span><span class="s2"> is the first event which triggers all camera types and will be used for the simtel benchmarks.&quot;</span><span class="p">)</span>
+            <span class="k">break</span>
+
+    <span class="c1"># Get minimum number of telescope to plot from</span>
+    <span class="n">tels_to_use</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">camera_name</span> <span class="ow">in</span> <span class="n">camera_names</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">tel</span> <span class="ow">in</span> <span class="n">tels_with_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">tels</span><span class="p">[</span><span class="n">tel</span><span class="p">]</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">camera_name</span> <span class="o">==</span> <span class="n">camera_name</span><span class="p">:</span>
+                <span class="n">tels_to_use</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tel</span><span class="p">)</span>
+                <span class="k">break</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Telescopes that will be used for pedestals and dc_to_phe = </span><span class="si">{tels_to_use}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+This simtel file contains the following cameras : [&#39;NectarCam&#39;, &#39;LSTCam&#39;]
+Event #1 is the first event which triggers all camera types and will be used for the simtel benchmarks.
+Telescopes that will be used for pedestals and dc_to_phe = [6, 1]
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[74]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Basic information</span>
+<span class="n">analysisName</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># a suffix for all the plots</span>
+<span class="n">indir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="c1"># path of the DL1 file produced with ctapipe</span>
+
+<span class="n">fileName_1stPass</span><span class="o">=</span><span class="s2">&quot;events_protopipe_CTAMARS_calibration_1stPass.dl1.h5&quot;</span> <span class="c1"># name of the DL1 file with 2nd pass integration DISABLED</span>
+<span class="n">fileName_2ndPass</span><span class="o">=</span><span class="s2">&quot;events_protopipe_CTAMARS_calibration_2ndPass.dl1.h5&quot;</span> <span class="c1"># name of the DL1 file file with 2nd pass integration ENABLED</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[75]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">table</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">indir</span> <span class="o">/</span> <span class="n">fileName_1stPass</span><span class="p">)</span> <span class="c1"># 1st or 2nd pass is the same here</span>
+<span class="n">all_mc_images</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="s2">&quot;/simulation/event/telescope/images&quot;</span><span class="p">)</span>
+<span class="n">tel_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_mc_images</span><span class="o">.</span><span class="n">_f_list_nodes</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_mc_images</span><span class="o">.</span><span class="n">_f_list_nodes</span><span class="p">()))]</span>
+<span class="n">table</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The calibration benchmarks will be produced for the following telescope types:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - </span><span class="si">{tel_type}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The calibration benchmarks will be produced for the following telescope types:
+
+ - LST_LST_LSTCam
+
+ - MST_MST_NectarCam
+
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[76]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Initialize empty dictionaries for camera-wise information</span>
+<span class="n">true_images</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">reco1stPass</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">reco2ndPass</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1"># Load subarray-wise information</span>
+<span class="n">showers</span> <span class="o">=</span> <span class="n">load_reset_showers</span><span class="p">(</span><span class="n">indir</span> <span class="o">=</span> <span class="n">indir</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">=</span> <span class="n">fileName_1stPass</span><span class="p">)</span> <span class="c1"># 1st or 2nd pass is the same here</span>
+<span class="n">showers</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">showers</span><span class="p">[:])[</span><span class="s1">&#39;event_id&#39;</span><span class="p">,</span> <span class="s1">&#39;true_energy&#39;</span><span class="p">]</span>
+
+<span class="c1"># Load camera-wise information</span>
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+    <span class="n">true</span><span class="p">,</span> <span class="n">reco1</span> <span class="o">=</span> <span class="n">load_reset_images</span><span class="p">(</span><span class="n">indir</span> <span class="o">=</span> <span class="n">indir</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">=</span> <span class="n">fileName_1stPass</span><span class="p">,</span> <span class="n">tel</span> <span class="o">=</span> <span class="n">tel_type</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">reco2</span> <span class="o">=</span> <span class="n">load_reset_images</span><span class="p">(</span><span class="n">indir</span> <span class="o">=</span> <span class="n">indir</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">=</span> <span class="n">fileName_2ndPass</span><span class="p">,</span> <span class="n">tel</span> <span class="o">=</span> <span class="n">tel_type</span><span class="p">)</span>
+
+    <span class="n">true_images</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">true</span>
+    <span class="n">reco1stPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco1</span>
+    <span class="n">reco2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco2</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[77]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Get one table per telescope type</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+
+    <span class="c1"># Convert to astropy tables, filtering out useless information</span>
+    <span class="n">true_images</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">true_images</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:])[</span><span class="s1">&#39;event_id&#39;</span><span class="p">,</span><span class="s1">&#39;tel_id&#39;</span><span class="p">,</span><span class="s1">&#39;true_image&#39;</span><span class="p">]</span>
+    <span class="n">reco1stPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">reco1stPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:])[</span><span class="s1">&#39;event_id&#39;</span><span class="p">,</span><span class="s1">&#39;tel_id&#39;</span><span class="p">,</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
+    <span class="n">reco2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">reco2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:])[</span><span class="s1">&#39;event_id&#39;</span><span class="p">,</span><span class="s1">&#39;tel_id&#39;</span><span class="p">,</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
+
+    <span class="n">images</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">true_images</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">reco1stPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">,</span> <span class="s1">&#39;tel_id&#39;</span><span class="p">],</span> <span class="n">join_type</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+
+    <span class="c1"># merge each telescope type table of images with the shower information</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">showers</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">],</span> <span class="n">join_type</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[78]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Check that all the images have been recorded</span>
+<span class="c1"># WARNING: this works only on the specific simtel file used for these benchmarks! Please, use the same file.</span>
+
+<span class="n">missing_images</span> <span class="o">=</span> <span class="mi">44401</span>
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+    <span class="n">missing_images</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">tel_type</span><span class="p">])</span>
+
+<span class="k">if</span> <span class="n">missing_images</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOTE: if you are NOT using the simtel file specific for the protopipe - CTA-MARS comparison, ignore the following warning.&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: it appears you are missing </span><span class="si">{missing_images}</span><span class="s2"> images!&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This corresponds to about {missing_images*100/44401:.0f}</span><span class="si">% o</span><span class="s2">f the total statistics.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please, check that:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;* either you have enabled some cuts in analysis.yaml,&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;* or you are not considering some events in your analysis when you write to file.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[79]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># This value scales the overall amount of estimated photoelectrons</span>
+<span class="c1"># It is use by the CTAMARS pipeline, but not in ctapipe</span>
+<span class="c1"># For this reason it is used here a-posteriori</span>
+<span class="n">calibscale</span> <span class="o">=</span> <span class="mf">0.92</span>
+
+<span class="c1"># initialize empty lists to store camera-wise information</span>
+<span class="n">true</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">reco_1</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">reco_2</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1"># cycle through recognized cameras and fill the required information</span>
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+
+    <span class="n">true</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="s2">&quot;true_image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">reco_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">/</span> <span class="n">calibscale</span>
+    <span class="n">reco_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">/</span> <span class="n">calibscale</span>
+    <span class="n">weights</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">apply_weight_BTEL1010</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">tel_type</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[80]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total number of pixel-wise values read from simtel file and stored in DL1 files without cuts&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{tel_type}</span><span class="s2"> = {len(true[tel_type])}&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;pixel-wise values&#39; means #pixels * #cameras * #events&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;In this phase all single-telescope images are considered.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Total number of pixel-wise values read from simtel file and stored in DL1 files without cuts
+LST_LST_LSTCam = 39381650
+MST_MST_NectarCam = 42982205
+&#39;pixel-wise values&#39; means #pixels * #cameras * #events
+In this phase all single-telescope images are considered.
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[81]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">indir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/Volumes/DataCEA_PERESANO/Data/CTA/ASWG/Prod3b/CTAMARS_reference_data/DL1/&quot;</span><span class="p">)</span>
+<span class="n">fileName</span> <span class="o">=</span> <span class="s2">&quot;CTA_check_dl1a.root&quot;</span>
+<span class="n">path_mars_hists</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">indir</span><span class="o">/</span><span class="n">fileName</span><span class="p">)</span>
+
+<span class="n">fileName</span> <span class="o">=</span> <span class="s2">&quot;IntensityResolution_graphs.root&quot;</span>
+<span class="n">path_mars_rms</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">indir</span><span class="o">/</span><span class="n">fileName</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[82]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># from CTA_check_dl1a.root</span>
+<span class="n">file_hists</span> <span class="o">=</span> <span class="n">uproot</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path_mars_hists</span><span class="p">)</span>
+<span class="n">hist2</span> <span class="o">=</span> <span class="n">file_hists</span><span class="p">[</span><span class="s2">&quot;hist2_type00&quot;</span><span class="p">]</span>
+<span class="n">H2</span> <span class="o">=</span> <span class="n">hist2</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="c1"># from IntensityResolution_graphs</span>
+<span class="n">file_rms</span> <span class="o">=</span> <span class="n">uproot</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path_mars_rms</span><span class="p">)</span>
+<span class="n">rms</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">rms</span><span class="p">[</span><span class="s2">&quot;LST_LST_LSTCam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_rms</span><span class="p">[</span><span class="s2">&quot;IntensityResolution_LST&quot;</span><span class="p">]</span>
+<span class="n">rms</span><span class="p">[</span><span class="s2">&quot;MST_MST_NectarCam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_rms</span><span class="p">[</span><span class="s2">&quot;IntensityResolution_MST&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="R1-level-information">
+<h3>R1-level information<a class="headerlink" href="#R1-level-information" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="section" id="Pedestals">
+<h4>Pedestals<a class="headerlink" href="#Pedestals" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[83]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">for</span> <span class="n">tel_id</span> <span class="ow">in</span> <span class="n">tels_to_use</span><span class="p">:</span>
+
+    <span class="n">cam_id</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">camera_name</span>
+    <span class="n">pix_ids</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">pix_id</span>
+    <span class="n">pedestals</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">pedestal</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Pixel ID&quot;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Pedestal ADC counts&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pedestals</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pix_ids</span><span class="p">,</span> <span class="n">pedestals</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;High gain&quot;</span><span class="p">)</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pix_ids</span><span class="p">,</span> <span class="n">pedestals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Low gain&quot;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">pedestals</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bins</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;pedestals HG&quot;</span><span class="p">)</span>
+        <span class="n">add_stats</span><span class="p">(</span><span class="n">pedestals</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="mf">0.55</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">0.10</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_color</span><span class="p">())</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">pedestals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;pedestals LG&quot;</span><span class="p">)</span>
+        <span class="n">add_stats</span><span class="p">(</span><span class="n">pedestals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="mf">0.55</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_color</span><span class="p">())</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pix_ids</span><span class="p">,</span> <span class="n">pedestals</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">pedestals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">)</span>
+        <span class="n">add_stats</span><span class="p">(</span><span class="n">pedestals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="mf">0.55</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">0.10</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_color</span><span class="p">())</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/calibration_pedestalsVSpixelids_</span><span class="si">{cam_id}</span><span class="s2">_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_39_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_39_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_39_1.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_39_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="DC-to-PHE">
+<h4>DC to PHE<a class="headerlink" href="#DC-to-PHE" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[84]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># plot channel-wise</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">gain</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s2">&quot;Low&quot;</span><span class="p">,</span> <span class="s2">&quot;High&quot;</span><span class="p">]):</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{gain}</span><span class="s2"> channel&quot;</span> <span class="k">if</span> <span class="n">gain</span> <span class="o">==</span> <span class="s2">&quot;High&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{gain}</span><span class="s2"> channel (or single channel case)&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Pixel ID&quot;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DC to PHE&quot;</span><span class="p">)</span>
+
+    <span class="n">delta</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">for</span> <span class="n">tel_id</span> <span class="ow">in</span> <span class="n">tels_to_use</span><span class="p">:</span>
+
+        <span class="n">cam_id</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">camera_name</span>
+        <span class="n">pix_ids</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">pix_id</span>
+        <span class="n">dc_to_pe</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">dc_to_pe</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dc_to_pe</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">i</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pix_ids</span><span class="p">,</span> <span class="n">dc_to_pe</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">dc_to_pe</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">bins</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">)</span>
+        <span class="n">add_stats</span><span class="p">(</span><span class="n">dc_to_pe</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="mf">0.55</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">0.30</span> <span class="o">+</span> <span class="n">delta</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_color</span><span class="p">())</span>
+        <span class="n">delta</span><span class="o">+=</span><span class="mf">0.15</span>
+
+    <span class="n">delta</span><span class="o">=</span><span class="mi">0</span>
+
+    <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/calibration_dcTophe_</span><span class="si">{gain}</span><span class="s2">Gain_VS_pixelids_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_41_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_41_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_41_1.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_41_1.png" />
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Correlation-between-the-reconstructed-and-true-number-of-photoelectrons">
+<h3>Correlation between the reconstructed and true number of photoelectrons<a class="headerlink" href="#Correlation-between-the-reconstructed-and-true-number-of-photoelectrons" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[85]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">mc</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># true phes</span>
+<span class="n">reco</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># reconstructed phes</span>
+<span class="n">w</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># weigths from requirement B-TEL-1010</span>
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+    <span class="c1"># filter positive number of photoelectrons (because it&#39;s a log-log plot)</span>
+    <span class="n">good_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">true</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">reco_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">))</span>
+    <span class="c1"># combine cameras</span>
+    <span class="n">mc</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">true</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">good_values</span><span class="p">]</span>
+    <span class="n">reco</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">good_values</span><span class="p">]</span>
+    <span class="c1"># filter also weights</span>
+    <span class="n">w</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">good_values</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[86]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">nbins_x</span> <span class="o">=</span> <span class="mi">400</span>
+<span class="n">nbins_y</span> <span class="o">=</span> <span class="mi">400</span>
+
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tel_type</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">tel_type</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(true #p.e)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;log10(reco #p.e)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># This is just to count the real number of events given to the histogram</span>
+    <span class="n">h_no_weights</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mc</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">reco</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span>
+                   <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="n">nbins_x</span><span class="p">,</span> <span class="n">nbins_y</span><span class="p">],</span>
+                   <span class="nb">range</span><span class="o">=</span><span class="p">[[</span><span class="o">-</span><span class="mf">7.</span><span class="p">,</span><span class="mf">5.</span><span class="p">],[</span><span class="o">-</span><span class="mf">7.</span><span class="p">,</span><span class="mf">5.</span><span class="p">]],</span>
+                   <span class="n">norm</span><span class="o">=</span><span class="n">LogNorm</span><span class="p">(),</span>
+                  <span class="p">)</span>
+
+    <span class="c1"># This histogram has the weights applied, so the number of events there is biased by this</span>
+    <span class="c1"># This is what is plot</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mc</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">reco</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span>
+                   <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="n">nbins_x</span><span class="p">,</span> <span class="n">nbins_y</span><span class="p">],</span>
+                   <span class="nb">range</span><span class="o">=</span><span class="p">[[</span><span class="o">-</span><span class="mf">7.</span><span class="p">,</span><span class="mf">5.</span><span class="p">],[</span><span class="o">-</span><span class="mf">7.</span><span class="p">,</span><span class="mf">5.</span><span class="p">]],</span>
+                   <span class="n">norm</span><span class="o">=</span><span class="n">LogNorm</span><span class="p">(),</span>
+                   <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span><span class="p">,</span>
+                   <span class="n">weights</span><span class="o">=</span><span class="n">w</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span>
+                  <span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span> <span class="c1"># line showing perfect correlation</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">4.2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">4.</span><span class="p">,</span><span class="mf">4.</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">h</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                 <span class="n">ax</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+                <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/calibration_recoPhesVsTruePhes_</span><span class="si">{tel_type}</span><span class="s2">_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Print some debug/benchmarking information</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total number of events in the plot of </span><span class="si">{tel_type}</span><span class="s2"> (before re-weighting) = {h_no_weights[0].sum()}&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+LST_LST_LSTCam
+Total number of events in the plot of LST_LST_LSTCam (before re-weighting) = 1258881.0
+MST_MST_NectarCam
+Total number of events in the plot of MST_MST_NectarCam (before re-weighting) = 1417649.0
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_44_1.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_44_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_44_2.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_44_2.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Charge-resolution">
+<h3>Charge resolution<a class="headerlink" href="#Charge-resolution" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[87]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">mc</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># true phes</span>
+<span class="n">reco</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># reconstructed phes</span>
+<span class="n">w</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># weigths from requirement B-TEL-1010</span>
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+    <span class="c1"># filter positive number of photoelectrons (because it&#39;s a log-log plot)</span>
+    <span class="n">good_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">true</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">))</span>
+    <span class="c1"># combine cameras</span>
+    <span class="n">mc</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">true</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">good_values</span><span class="p">]</span>
+    <span class="n">reco</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">good_values</span><span class="p">]</span>
+    <span class="c1"># filter also weights</span>
+    <span class="n">w</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">good_values</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[88]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">nbins_x</span> <span class="o">=</span> <span class="mi">800</span>
+<span class="n">nbins_y</span> <span class="o">=</span> <span class="mi">600</span>
+
+<span class="n">histogram</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># camera-wise un-zoomes histogram for calculating bias later on</span>
+
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">tel_type</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(true #p.e)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;reconstructed #p.e / true #p.e&quot;</span><span class="p">)</span>
+
+    <span class="n">h</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mc</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span> <span class="p">(</span><span class="n">reco</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">/</span><span class="n">mc</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span>
+                   <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="n">nbins_x</span><span class="p">,</span> <span class="n">nbins_y</span><span class="p">],</span>
+                   <span class="nb">range</span><span class="o">=</span><span class="p">[[</span><span class="o">-</span><span class="mf">7.</span><span class="p">,</span><span class="mf">15.</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">13</span><span class="p">]],</span>
+                   <span class="n">norm</span><span class="o">=</span><span class="n">LogNorm</span><span class="p">(),</span>
+                   <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span><span class="p">,</span>
+                   <span class="n">weights</span><span class="o">=</span><span class="n">w</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span>
+                  <span class="p">)</span>
+
+    <span class="n">histogram</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span> <span class="c1"># line showing perfect correlation</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">h</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+                 <span class="c1">#, format=ticker.FuncFormatter(fmt)</span>
+                <span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">4.2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span><span class="mf">6.</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/calibration_chargeResolution_1stPass_</span><span class="si">{tel_type}</span><span class="s2">_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_47_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_47_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_47_1.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_47_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Calculation-of-the-residual-average-bias">
+<h3>Calculation of the residual average bias<a class="headerlink" href="#Calculation-of-the-residual-average-bias" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[89]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">corr</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Correction factors for residual average bias : &quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+    <span class="n">corr</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_bias</span><span class="p">(</span><span class="n">histogram</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">histogram</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="n">histogram</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{tel_type}</span><span class="s2"> = </span><span class="si">{corr[tel_type]:.2f}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Correction factors for residual average bias :
+- LST_LST_LSTCam = 0.97
+- MST_MST_NectarCam = 1.01
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Charge-resolution-corrected-for-residual-average-bias">
+<h3>Charge resolution corrected for residual average bias<a class="headerlink" href="#Charge-resolution-corrected-for-residual-average-bias" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[90]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">nbins_x</span> <span class="o">=</span> <span class="mi">800</span>
+<span class="n">nbins_y</span> <span class="o">=</span> <span class="mi">600</span>
+
+<span class="n">histogram</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># camera-wise un-zoomes histogram for calculating RMS later on</span>
+
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">tel_type</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(true #p.e)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">*(reconstructed #p.e / true #p.e)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">corr</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]))</span>
+
+    <span class="n">h</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">mc</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span> <span class="n">corr</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">reco</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">/</span><span class="n">mc</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span>
+                   <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="n">nbins_x</span><span class="p">,</span> <span class="n">nbins_y</span><span class="p">],</span>
+                   <span class="nb">range</span><span class="o">=</span><span class="p">[[</span><span class="o">-</span><span class="mf">7.</span><span class="p">,</span><span class="mf">15.</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">13</span><span class="p">]],</span>
+                   <span class="n">norm</span><span class="o">=</span><span class="n">LogNorm</span><span class="p">(),</span>
+                   <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span><span class="p">,</span>
+                   <span class="n">weights</span><span class="o">=</span><span class="n">w</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span>
+                  <span class="p">)</span>
+
+    <span class="n">histogram</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span> <span class="c1"># line showing perfect correlation</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">h</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">())</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">4.2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span><span class="mf">6.</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/calibration_chargeResolution_1stPass_</span><span class="si">{tel_type}</span><span class="s2">_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_51_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_51_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_51_1.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_51_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="RMS-of-charge-resolution-(around-1)">
+<h3>RMS of charge resolution (around 1)<a class="headerlink" href="#RMS-of-charge-resolution-(around-1)" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<p><strong>WARNING:</strong> the following comparison makes sense only if the provided simtel file is the one used in the comparison between <em>protopipe</em> and <em>CTA-MARS</em>. <em>protopipe</em> data from other cameras is anyway shown.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[91]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">bin_edges_true</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">bincenters_true</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">bin_edges_true</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">+</span><span class="n">bin_edges_true</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># mean value of each bin in true photoelectrons</span>
+    <span class="n">bin_edges_y</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># bin edges in reconstructed photoelectrons</span>
+    <span class="n">bincenters_y</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">bin_edges_y</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">+</span><span class="n">bin_edges_y</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># mean value of each bin in reconstructed photoelectrons</span>
+
+    <span class="c1"># cycle over bins in true photoelectrons:</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">true_bin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bincenters_true</span><span class="p">)):</span>
+        <span class="c1"># if the bin center is over 3.2</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">bincenters_true</span><span class="p">[</span><span class="n">true_bin</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">3.2</span><span class="p">):</span>
+            <span class="k">break</span> <span class="c1"># stop</span>
+        <span class="c1"># if it&#39;s before -0.5</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">bincenters_true</span><span class="p">[</span><span class="n">true_bin</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">):</span>
+            <span class="k">continue</span> <span class="c1"># check the next bin</span>
+        <span class="c1"># else proceed with the calculation</span>
+        <span class="c1"># take the profile at this X bin along the Y axis</span>
+        <span class="n">profile_y</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">true_bin</span><span class="p">]</span> <span class="c1"># this is the sequence of weights (aka the heights of the 600 bins)</span>
+        <span class="c1"># if there is data falling in this X-axis bin,</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">profile_y</span><span class="p">):</span>
+            <span class="n">ref</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_bin</span><span class="p">)</span>
+            <span class="c1"># get the resolution the way Abelardo does</span>
+            <span class="c1"># to do this we need also the bin centers along the Y axis</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">calc_rms</span><span class="p">(</span><span class="n">bincenters_y</span><span class="p">,</span> <span class="n">profile_y</span><span class="p">)</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+            <span class="c1"># error bars TO DO</span>
+
+            <span class="n">n</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># otherwise go to the next bin in true photoelectrons</span>
+            <span class="k">continue</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="c1"># errors = np.asarray(errors)</span>
+
+    <span class="c1"># protopipe</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bincenters_true</span><span class="p">[</span><span class="n">ref</span><span class="p">],</span> <span class="n">values</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;protopipe&quot;</span><span class="p">)</span>
+    <span class="c1"># plt.errorbar(bincenters_true[ref], values, yerr=errors, fmt=&#39;o&#39;,markersize=2, label=&quot;protopipe&quot;)</span>
+
+    <span class="c1"># CTA-MARS</span>
+
+    <span class="c1"># only for LSTCam and NectarCam (comparison between pipelines)</span>
+    <span class="k">if</span> <span class="n">tel_type</span> <span class="o">==</span> <span class="s2">&quot;LST_LST_LSTCam&quot;</span> <span class="ow">or</span> <span class="n">tel_type</span> <span class="o">==</span> <span class="s2">&quot;MST_MST_NectarCam&quot;</span><span class="p">:</span>
+        <span class="n">rms</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">.</span><span class="n">matplotlib</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CTA-MARS&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">4.2</span><span class="p">)</span>
+
+    <span class="c1"># superimose requirement converted in p.e. from abelardo script</span>
+    <span class="c1"># NOTE: the provided requirement is not directly comparable to the data.</span>
+    <span class="c1"># see the *Requirements* section</span>
+    <span class="c1"># plt.plot(np.log10(photons), req, label=&quot;requirement&quot;)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">tel_type</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(true #p.e)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Bias-corrected charge resolution RMS around 1&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># this is to prevent low statistics errors in other simtel files</span>
+    <span class="k">if</span> <span class="n">tel_type</span> <span class="o">==</span> <span class="s2">&quot;LST_LST_LSTCam&quot;</span> <span class="ow">or</span> <span class="n">tel_type</span> <span class="o">==</span> <span class="s2">&quot;MST_MST_NectarCam&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rms</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">.</span><span class="n">yvalues</span><span class="p">)):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rms</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">.</span><span class="n">yvalues</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)))</span>
+
+    <span class="c1"># only for LSTCam and NectarCam (comparison between pipelines)</span>
+    <span class="k">if</span> <span class="n">tel_type</span> <span class="o">==</span> <span class="s2">&quot;LST_LST_LSTCam&quot;</span> <span class="ow">or</span> <span class="n">tel_type</span> <span class="o">==</span> <span class="s2">&quot;MST_MST_NectarCam&quot;</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rms</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">.</span><span class="n">xvalues</span><span class="p">,</span> <span class="n">values</span><span class="o">/</span><span class="n">rms</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">.</span><span class="n">yvalues</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ratio protopipe/CTA-MARS&quot;</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">xlims</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">xlims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;expectation&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(true #p.e)&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/calibration_chargeResolution_RMSaround1_1stPass_</span><span class="si">{tel_type}</span><span class="s2">_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_54_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_54_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_54_1.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_54_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Single-pixel-spectra">
+<h3>Single-pixel spectra<a class="headerlink" href="#Single-pixel-spectra" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[92]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">reco_1stPass</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># reconstructed phes from the 1st pass</span>
+<span class="n">reco_2ndPass</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># reconstructed phes from the 2nd pass</span>
+
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+    <span class="c1"># filter positive number of photoelectrons (because it&#39;s a log-log plot)</span>
+    <span class="n">good_values_1stPass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">reco_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">good_values_2ndPass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">reco_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># combine cameras</span>
+    <span class="n">reco_1stPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">good_values_1stPass</span><span class="p">]</span>
+    <span class="n">reco_2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">good_values_2ndPass</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[93]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">nbins</span> <span class="o">=</span> <span class="mi">250</span>
+<span class="n">xrange</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+
+<span class="c1"># dictionaries to store the spectra information for different methods</span>
+<span class="n">core_thresholds</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">tot_entries</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">noise_2ndPass</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">signal_2ndPass</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">hist_1</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">xbins_1</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">hist_2</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">xbins_2</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">hist_3</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">xbins_3</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">spectra</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">tel_type</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(reconstructed #p.e)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Relative frequency of pixels with &gt; x phe&quot;</span><span class="p">)</span>
+
+    <span class="c1"># all the original simulated events</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">true</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span>
+    <span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="c1"># events * telescopes * pixels</span>
+    <span class="c1"># 1st pass: no cut, all 1st pass images are saved by the image extractor TwoPassWindowSum</span>
+    <span class="c1"># 2nd pass: only images which survived 1st pass and which preliminary image fit was non-patological</span>
+    <span class="c1"># WARNING: no way to know in ctapipe 0.8</span>
+    <span class="n">t_2ndPass</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">reco_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)]</span>
+
+    <span class="c1"># Since we are working only with simulated data,</span>
+    <span class="c1"># &quot;signal&quot; is when a pixel has at least 1 simulated photoelectron</span>
+    <span class="c1"># &quot;noise&quot;  is when a pixel has no simulated photoelectron</span>
+    <span class="n">signal_2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">t_2ndPass</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)]</span>
+    <span class="n">noise_2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">t_2ndPass</span><span class="o">==</span><span class="mi">0</span><span class="p">)]</span>
+    <span class="c1"># noise_2ndPass = reco_2[tel_types[i]][np.where(t==0)]</span>
+    <span class="c1"># signal_2ndPass = reco_2[tel_types[i]][np.where(t&gt;0)]</span>
+
+    <span class="c1"># Plot 1st-Pass</span>
+
+    <span class="n">hist_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">xbins_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">reco_1stPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">xrange</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">xbins_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hist_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s2">&quot;steps-post&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;1st-pass signal + noise&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plot 2nd-Pass</span>
+
+    <span class="n">hist_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">xbins_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">reco_2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">xrange</span><span class="p">)</span>
+    <span class="n">spectra</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">xbins_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hist_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s2">&quot;steps-post&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;2nd-pass signal + noise&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+
+     <span class="c1"># Plot 2nd-Pass noise</span>
+
+    <span class="n">hist_3</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">xbins_3</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">noise_2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">xrange</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">xbins_3</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hist_3</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s2">&quot;steps-post&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;2nd-pass noise&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+
+    <span class="c1"># common style options</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xrange</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">xrange</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">xrange</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/calibration_singlePixelSpectrum_</span><span class="si">{tel_types}</span><span class="s2">_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_57_0.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_57_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_57_1.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_57_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Optimized-cleaning-thesholds">
+<h3>Optimized cleaning thesholds<a class="headerlink" href="#Optimized-cleaning-thesholds" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<p><strong>WARNING:</strong> since the pipeline doesn’t know about the residual bias calculated before (at least for now), regardless of the method you choose, you need to use the BIASED units to setup the image cleaning (i.e. the values to be put in the analysis configuration file of protopipe).</p>
+<p><strong>NOTE:</strong> If the pipeline corrected perfectly everything, you would expect the bias to be almost 0, so in that case the final biased and unbiased values should be very similar.</p>
+<div class="section" id="Method-1:-99.7%-of-“noise”-rejection">
+<h4>Method 1: 99.7% of “noise” rejection<a class="headerlink" href="#Method-1:-99.7%-of-“noise”-rejection" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<p><strong>WARNING</strong>:</p>
+<p>The 99.7% cut we were using before seems to have been a fortuitous choice given by the fact that in protopipe 0.2.1-dev we were mimicking the CTA-MARS analysis almost at perfection.</p>
+<p>In ctapipe 0.8.0 some changes have been introduced for which the <em>intrinsic</em> or <em>biased</em> spectra are now different. Consequently, that cut is not reliable anymore (and indeed it gives way higher values - you can see it from the fact that the decoupling between “noise” and signal happens way before than where the line cut ends up).</p>
+<p>For CTA-MARS the transistion happens at ~4 biased phe (0.6 in these plots)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[94]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">tel_type</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(reconstructed #p.e)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Relative frequency of pixels with &gt; x phe&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Plot 1st-Pass</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">xbins_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hist_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s2">&quot;steps-post&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;1st-pass signal + noise&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plot 2nd-Pass</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">xbins_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hist_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s2">&quot;steps-post&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;2nd-pass signal + noise&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plot 2nd-Pass noise</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">xbins_3</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hist_3</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s2">&quot;steps-post&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;2nd-pass noise&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+
+    <span class="c1"># common style options</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xrange</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">xrange</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">xrange</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="c1"># Find best cut</span>
+    <span class="n">cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">noise_2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="mf">0.997</span><span class="p">)</span>
+    <span class="n">core_thresholds</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">cut</span>
+    <span class="n">signal_saved</span> <span class="o">=</span> <span class="n">percentileofscore</span><span class="p">(</span><span class="n">signal_2ndPass</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">cut</span><span class="p">)</span>
+
+    <span class="n">biased</span> <span class="o">=</span> <span class="n">core_thresholds</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span>
+    <span class="n">unbiased</span> <span class="o">=</span> <span class="n">core_thresholds</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span> <span class="o">*</span> <span class="n">corr</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span>
+
+    <span class="c1"># Update plot</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">cut</span><span class="p">),</span> <span class="n">ymin</span><span class="o">=</span><span class="mf">1.e-7</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{cut:.2f}</span><span class="s2"> (biased) photoelectrons&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="c1"># Print info about threshold cuts</span>
+    <span class="c1"># This is information related to 2nd pass (the one that ends up into image cleaning)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{tel_type}</span><span class="se">\n</span><span class="s2">&quot;</span>
+         <span class="s2">&quot;=================&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cutting at ~</span><span class="si">{cut:.5f}</span><span class="s2"> biased photoelectrons rejects 99.7</span><span class="si">% o</span><span class="s2">f the noise and saves </span><span class="si">{signal_saved:.1f}% o</span><span class="s2">f the signal&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This corresponds to </span><span class="si">{unbiased:.2f}</span><span class="s2"> **unbiased** photoelectrons.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimized image cleaning thresholds to be used in the analysis:</span><span class="se">\n</span><span class="s2">&quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;(core, boundary): (</span><span class="si">{biased:.2f}</span><span class="s2">, {biased/2:.2f})&quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;--&gt; ({int(round(biased))}, {int(round(biased/2))})</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/calibration_singlePixelSpectrum_</span><span class="si">{tel_types}</span><span class="s2">_cleaningMethod1_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+LST_LST_LSTCam
+=================
+Cutting at ~13.63396 biased photoelectrons rejects 99.7% of the noise and saves 90.2% of the signal
+This corresponds to 13.22 **unbiased** photoelectrons.
+Optimized image cleaning thresholds to be used in the analysis:
+(core, boundary): (13.63, 6.82)--&gt; (14, 7)
+
+MST_MST_NectarCam
+=================
+Cutting at ~26.47049 biased photoelectrons rejects 99.7% of the noise and saves 95.8% of the signal
+This corresponds to 26.77 **unbiased** photoelectrons.
+Optimized image cleaning thresholds to be used in the analysis:
+(core, boundary): (26.47, 13.24)--&gt; (26, 13)
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_62_1.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_62_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_62_2.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_62_2.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Method-2:-fix-relative-frequency-of-charge">
+<h4>Method 2: fix relative frequency of charge<a class="headerlink" href="#Method-2:-fix-relative-frequency-of-charge" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference external" href="#Table-of-contents">back to top</a></p>
+<div class="line-block">
+<div class="line">The y-axis describes how often (relative to all events) a pixel has a signal above the charge value given by the x-axis.</div>
+<div class="line">We fix a relative frequency of 1% to define the point at which noise is dominated by the shower’s signal.</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[95]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">for</span> <span class="n">tel_type</span> <span class="ow">in</span> <span class="n">tel_types</span><span class="p">:</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">tel_type</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;log10(reconstructed #p.e)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Relative frequency of pixels with &gt; x phe&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Plot 1st-Pass</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">xbins_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hist_1</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s2">&quot;steps-post&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;1st-pass signal + noise&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plot 2nd-Pass</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">xbins_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hist_2</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s2">&quot;steps-post&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;2nd-pass signal + noise&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plot 2nd-Pass noise</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">xbins_3</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hist_3</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">tot_entries</span><span class="p">[</span><span class="n">tel_type</span><span class="p">],</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s2">&quot;steps-post&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;2nd-pass noise&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+
+    <span class="c1"># common style options</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xrange</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">xrange</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">xrange</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="c1"># Find best cut</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">spectra</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_xdata</span><span class="p">()</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">spectra</span><span class="p">[</span><span class="n">tel_type</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()</span>
+
+    <span class="n">y_t_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y</span><span class="o">&lt;</span><span class="mf">1.e-2</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">x_t</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">y_t_idx</span><span class="p">]</span>
+
+    <span class="n">biased</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="n">x_t</span>
+    <span class="n">unbiased</span> <span class="o">=</span> <span class="n">biased</span> <span class="o">*</span> <span class="n">corr</span><span class="p">[</span><span class="n">tel_type</span><span class="p">]</span>
+
+    <span class="c1"># Update plot</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">x_t</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="mf">1.e-7</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;optimized threshold cut&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="c1"># Print info about threshold cuts</span>
+    <span class="c1"># This is information related to 2nd pass (the one that ends up into image cleaning)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{tel_type}</span><span class="se">\n</span><span class="s2">&quot;</span>
+         <span class="s2">&quot;=================&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transition from noise to signal happens at </span><span class="si">{biased:.2f}</span><span class="s2"> reconstructed **biased** phe&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This corresponds to </span><span class="si">{unbiased:.2f}</span><span class="s2"> **unbiased** photoelectrons.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimized image cleaning thresholds to be used in the analysis:</span><span class="se">\n</span><span class="s2">&quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;(core, boundary): (</span><span class="si">{biased:.2f}</span><span class="s2">, {biased/2:.2f})&quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;--&gt; ({int(round(biased))}, {int(round(biased/2))})</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./plots/calibration_singlePixelSpectrum_</span><span class="si">{tel_types[i]}</span><span class="s2">_cleaningMethod2_protopipe_</span><span class="si">{analysisName}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+LST_LST_LSTCam
+=================
+Transition from noise to signal happens at 7.24 reconstructed **biased** phe
+This corresponds to 7.02 **unbiased** photoelectrons.
+Optimized image cleaning thresholds to be used in the analysis:
+(core, boundary): (7.24, 3.62)--&gt; (7, 4)
+
+MST_MST_NectarCam
+=================
+Transition from noise to signal happens at 6.92 reconstructed **biased** phe
+This corresponds to 7.00 **unbiased** photoelectrons.
+Optimized image cleaning thresholds to be used in the analysis:
+(core, boundary): (6.92, 3.46)--&gt; (7, 3)
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_65_1.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_65_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_65_2.png" src="../../../_images/contribute_benchmarks_TRAINING_benchmarks_DL1_calibration_65_2.png" />
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="benchmarks_DL1_image-cleaning.html" class="btn btn-neutral float-right" title="Image cleaning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../../beforepushing.html" class="btn btn-neutral float-left" title="Code and performance checks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

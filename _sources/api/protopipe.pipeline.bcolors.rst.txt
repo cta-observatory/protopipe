@@ -1,0 +1,39 @@
+bcolors
+=======
+
+.. currentmodule:: protopipe.pipeline
+
+.. autoclass:: bcolors
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~bcolors.BOLD
+      ~bcolors.BOLDGREEN
+      ~bcolors.BOLDWARNING
+      ~bcolors.ENDC
+      ~bcolors.FAIL
+      ~bcolors.HEADER
+      ~bcolors.OKBLUE
+      ~bcolors.OKGREEN
+      ~bcolors.PURPLE
+      ~bcolors.REVERSED
+      ~bcolors.UNDERLINE
+      ~bcolors.WARNING
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: BOLD
+   .. autoattribute:: BOLDGREEN
+   .. autoattribute:: BOLDWARNING
+   .. autoattribute:: ENDC
+   .. autoattribute:: FAIL
+   .. autoattribute:: HEADER
+   .. autoattribute:: OKBLUE
+   .. autoattribute:: OKGREEN
+   .. autoattribute:: PURPLE
+   .. autoattribute:: REVERSED
+   .. autoattribute:: UNDERLINE
+   .. autoattribute:: WARNING

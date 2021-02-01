@@ -1,0 +1,6 @@
+camera_radius
+=============
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: camera_radius

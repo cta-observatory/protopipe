@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Instructions &mdash; protopipe 0.4.0-dev documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Code and performance checks" href="beforepushing.html" />
+    <link rel="prev" title="The repository" href="gitrepo.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> protopipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0-dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Workflow and usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How to contribute</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="gitrepo.html">The repository</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Instructions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#open-an-issue">Open an issue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#prepare-and-open-a-pull-request">Prepare and open a pull-request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#making-your-contribution-visible">Making your contribution visible</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="beforepushing.html">Code and performance checks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mva/index.html">mva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../perf/index.html">perf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">protopipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">How to contribute</a> &raquo;</li>
+        
+      <li>Instructions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/contribute/instructions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="instructions">
+<span id="id1"></span><h1>Instructions<a class="headerlink" href="#instructions" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#open-an-issue" id="id2">Open an issue</a></p></li>
+<li><p><a class="reference internal" href="#prepare-and-open-a-pull-request" id="id3">Prepare and open a pull-request</a></p></li>
+<li><p><a class="reference internal" href="#making-your-contribution-visible" id="id4">Making your contribution visible</a></p></li>
+</ul>
+</div>
+<p>These are some guidelines on how to contribute to <em>protopipe</em>.
+This of course makes sense only for the development branch, aka the <em>master</em>
+branch.</p>
+<p>This is usually done is 4 steps:</p>
+<ol class="arabic simple">
+<li><p>you start using protopipe</p></li>
+<li><p>you find that either there is problem or <em>protopipe</em>
+is missing a feature that is important for your research</p></li>
+<li><p>you open an issue (or pull-request, if you already have a solution)</p></li>
+</ol>
+<div class="section" id="open-an-issue">
+<h2><a class="toc-backref" href="#id2">Open an issue</a><a class="headerlink" href="#open-an-issue" title="Permalink to this headline">¶</a></h2>
+<p>It is always preferable to open an issue first, in order to warn others and
+trigger a discussion.
+This will be useful also to identify more precisely what needs to be done.</p>
+<p>If you are not able to do it, the administrators of the repository should <strong>label
+your issue</strong> depending on its nature.</p>
+<p>The labels normally used are quite self-explanatory:</p>
+<ul class="simple">
+<li><p>bug</p></li>
+<li><p>fix</p></li>
+<li><p>wrong behaviour</p></li>
+<li><p>enhancement</p></li>
+<li><p>documentation</p></li>
+<li><p>dependency update</p></li>
+<li><p>summary</p></li>
+</ul>
+<p>An issue can have multiple labels.
+If you find that these are limited, you can propose new ones.</p>
+</div>
+<div class="section" id="prepare-and-open-a-pull-request">
+<h2><a class="toc-backref" href="#id3">Prepare and open a pull-request</a><a class="headerlink" href="#prepare-and-open-a-pull-request" title="Permalink to this headline">¶</a></h2>
+<p>This section assumes that you went through the installation for developers.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>update your <strong>local</strong> <em>master</em> branch with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">upstream</span> <span class="pre">master</span></code></p></li>
+<li><p>create and move to a new <strong>local</strong> branch from your <strong>local</strong> <em>master</em> with
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">-b</span> <span class="pre">your_branch</span></code></p></li>
+<li><p>develop inside it</p></li>
+<li><p>push it to <em>origin</em>, thereby creating a copy of your branch also there</p></li>
+<li><p>before pushing, please go through some checks (<a class="reference internal" href="beforepushing.html#beforepushing"><span class="std std-ref">Code and performance checks</span></a>)</p></li>
+<li><p>start a <em>pull request</em> using the web interface from <em>origin/your_branch</em>
+to <em>upstream/master</em></p></li>
+</ol>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>wait for an outcome</p></li>
+<li><p>if necessary, you can update or fix things in your branch because now
+everything is traced!
+(<strong>local/your_branch</strong> –&gt; <strong>origin/your_branch</strong> –&gt; <strong>pull request</strong>)</p></li>
+</ol>
+</div></blockquote>
+</div></blockquote>
+<p>If your pull-request targets an issue, it should:</p>
+<ul class="simple">
+<li><p>have the same labels of that issue,</p></li>
+<li><p>if related to one ore more opened issues, its description should contain,</p></li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><p>the phrase <cite>Closes #X #Y …</cite> where X is the number associated to the issue(s) if any,</p></li>
+<li><p>a reference to the issue, e.g. “as reported in #X …” or similar</p></li>
+</ul>
+</div></blockquote>
+<p>This will keep things clean and organized, so when you or
+someone else land on the Projects page, the information is readily available
+and updated.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If your developments take a relatively long time, consider to update
+periodically your <strong>local</strong> <em>master</em> branch.</p>
+<p>If while doing this you see that the files on which you are working have been
+modified <em>upstream</em>,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>move into your <strong>local</strong> branch,</p></li>
+<li><p>merge the new master into your branch <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">merge</span> <span class="pre">master</span></code>,</p></li>
+<li><p>resolve eventual conflicts</p></li>
+<li><p>push to origin</p></li>
+</ul>
+</div></blockquote>
+<p>In this way, your pull request will be up-to-date with the master branch into
+which you want to merge your changes.
+If your changes are relatively small and
+<a class="reference external" href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">you know what you are doing</a>,
+you can use <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">rebase</span> <span class="pre">master</span></code>, instead of merging.</p>
+</div>
+</div>
+<div class="section" id="making-your-contribution-visible">
+<h2><a class="toc-backref" href="#id4">Making your contribution visible</a><a class="headerlink" href="#making-your-contribution-visible" title="Permalink to this headline">¶</a></h2>
+<p>Together with your changes, you should check that,</p>
+<ul class="simple">
+<li><p>the email that you want to use is listed in the <code class="docutils literal notranslate"><span class="pre">.mailmap</span></code></p></li>
+<li><p>your name appears in the <code class="docutils literal notranslate"><span class="pre">CODEOWNERS</span></code> file according to your contribution</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="beforepushing.html" class="btn btn-neutral float-right" title="Code and performance checks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="gitrepo.html" class="btn btn-neutral float-left" title="The repository" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Michele Peresano.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

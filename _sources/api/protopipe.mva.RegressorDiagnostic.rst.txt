@@ -1,0 +1,19 @@
+RegressorDiagnostic
+===================
+
+.. currentmodule:: protopipe.mva
+
+.. autoclass:: RegressorDiagnostic
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~RegressorDiagnostic.add_image_model_output
+      ~RegressorDiagnostic.plot_resolution_distribution
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: add_image_model_output
+   .. automethod:: plot_resolution_distribution

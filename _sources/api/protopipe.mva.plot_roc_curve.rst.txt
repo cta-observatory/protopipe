@@ -1,0 +1,6 @@
+plot_roc_curve
+==============
+
+.. currentmodule:: protopipe.mva
+
+.. autofunction:: plot_roc_curve
