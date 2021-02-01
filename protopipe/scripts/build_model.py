@@ -54,7 +54,7 @@ def main():
     # Read configuration file
     cfg = load_config(args.config_file)
 
-    # Type of model (regression or classification)
+    # Type of model (regressor or classifier)
     model_type = cfg["General"]["model_type"]
 
     # Import parameters

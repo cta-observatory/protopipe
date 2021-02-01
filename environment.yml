@@ -1,24 +1,26 @@
-name: protopipe
+name: protopipe-devtest
 channels:
   - defaults
   - cta-observatory
-  - conda-forge
 dependencies:
+  - pip
   - ctapipe=0.9.1
-  - gammapy
+  - conda-forge::gammapy
   - ctapipe-extra
   - astropy>=4.0.1
+  - h5py=2
   - ipython
-  - nbsphinx
+  - jupyterlab
+  - conda-forge::nbsphinx
   - notebook
   - numpydoc
   - pandas
   - pytest
-  - sphinx-automodapi
+  - conda-forge::sphinx-automodapi
   - sphinx_rtd_theme
-  - sphinx-issues
-  - uproot
-  - vitables
+  - conda-forge::sphinx-issues
+  - conda-forge::uproot
+  - conda-forge::vitables
   - pip:
     - pyirf
     - uproot

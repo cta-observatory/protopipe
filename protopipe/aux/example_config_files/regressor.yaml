@@ -23,19 +23,19 @@ Method:
  cv: 2
 
 FeatureList:
- - 'log10_hillas_intensity_reco'
- - 'log10_impact'
+ - 'log10_hillas_intensity' # NOTE: this is using hillas_intensity_reco internally....
+ - 'log10_impact_dist'
  - 'hillas_width_reco'
- - 'hillas_width_length'
+ - 'hillas_length_reco'
  - 'h_max'
 
 SigFiducialCuts:
- - 'good_image == 1'
- - 'is_valid == True'
+ - 'good_image == 1'  # image survived the quality cuts
+ - 'is_valid == True' # shower correctly reconstructed
 
 Diagnostic:
- # Energy binning (used for reco and true energy)
+ # Energy binning in TeV (used for reco and true energy)
  energy:
-  nbins: 15
+  nbins: 21
   min: 0.0125
-  max: 125
+  max: 200.0

@@ -19,7 +19,9 @@ def load_obj(name):
 
 def prepare_data(ds, cuts, label=None):
     """Add variables in data frame"""
-    ds["log10_hillas_intensity"] = np.log10(ds["hillas_intensity_reco"])
+    ds["log10_hillas_intensity"] = np.log10(
+        ds["hillas_intensity_reco"]
+    )  # THIS SHOULDN'T BE HARDCODED!!!
     ds["log10_impact_dist"] = np.log10(ds["impact_dist"])
     ds["log10_true_energy"] = np.log10(ds["true_energy"])
     try:  # for classification
@@ -86,7 +88,7 @@ def get_evt_subarray_model_output(
         List of variables to keep in resulting data frame
     model_output_name: `str`, optional
         Name of model output (image level)
-    model_output_name: `str`, optional
+    model_output_name_evt: `str`, optional
         Name of averaged model output (event level)
     Returns
     --------

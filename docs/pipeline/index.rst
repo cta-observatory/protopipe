@@ -8,15 +8,13 @@ Introduction
 
 `protopipe.pipeline` contains classes that are used in scripts to produce
 
-- tables with images information (DL1), typically for g/h classifier and
-energy regressor,
-- tables with event information, typically used for
-performance estimation (DL2).
+- tables with images information (DL1), typically for g/h classifier and energy regressor,
+- tables with event information, typically used for performance estimation (DL2).
 
-Two classes from the sub-module are used to process the events.
-- ``EventPreparer`` class, which loops on events and to provide event
-parameters (e.g. impact parameter) and
-image parameters (e.g. Hillas parameters),
+Two classes from the sub-module are used to process the events:
+
+- ``EventPreparer`` class, which loops on events and to provide event parameters
+   (e.g. impact parameter) and image parameters (e.g. Hillas parameters),
 - ``ImageCleaner``, cleans the images according to different options.
 
 Details

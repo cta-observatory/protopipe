@@ -10,6 +10,7 @@ import astropy.units as u
 
 from pyirf.simulations import SimulatedEventsInfo
 
+
 def percentiles(values, bin_values, bin_edges, percentile):
     # Seems complicated for vector defined as [inf, inf, .., inf]
     percentiles_binned = np.squeeze(
@@ -68,16 +69,16 @@ def load_obj(name):
     """Load object in binary"""
     with gzip.open(name, 'rb') as f:
         return pickle.load(f)
-    
-    
+
+
 def read_DL2_pyirf(infile, run_header):
     """
-    Read a DL2 HDF5 protopipe file and adapt them to pyirf format 
+    Read a DL2 HDF5 protopipe file and adapt them to pyirf format
     Parameters
     ----------
     infile: str or pathlib.Path
         Path to the input fits file
-        
+
     run_header: dict
         Dictionary with info about simulated particle informations
     Returns
@@ -92,7 +93,7 @@ def read_DL2_pyirf(infile, run_header):
 
     events = QTable([list(df['obs_id']),
                      list(df['event_id']),
-                     list(df['true_energy']) * u.TeV, 
+                     list(df['true_energy']) * u.TeV,
                      list(df['reco_energy']) * u.TeV,
                      list(df['gammaness']),
                      list(df['NTels_reco']),
@@ -101,12 +102,13 @@ def read_DL2_pyirf(infile, run_header):
                      list(df['true_alt']) * u.deg,
                      list(df['true_az']) * u.deg,
                      list(df['pointing_alt']) * u.deg,
-                     list(df['pointing_az']) * u.deg,                   
-                    ],
+                     list(df['pointing_az']) * u.deg,
+                     list(df['success']),
+                     ],
                     names=('obs_id',
                            'event_id',
-                           'true_energy', 
-                           'reco_energy', 
+                           'true_energy',
+                           'reco_energy',
                            'gh_score',
                            'multiplicity',
                            'reco_alt',
@@ -114,10 +116,15 @@ def read_DL2_pyirf(infile, run_header):
                            'true_alt',
                            'true_az',
                            'pointing_alt',
-                           'pointing_az',   
-                          ),
-                   )
-    
+                           'pointing_az',
+                           'success'
+                           ),
+                    )
+
+    # Select only DL2 events marked as fully reconstructed
+    mask = events['success']
+    events = events[mask]
+
     n_runs = len(set(events['obs_id']))
     log.info(f"Estimated number of runs from obs ids: {n_runs}")
 

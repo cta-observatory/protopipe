@@ -149,7 +149,12 @@ def main():
         ax = plt.gca()
         ax = diagnostic[cam_id].plot_feature_importance(
             ax,
-            **{"alpha": 0.7, "edgecolor": "black", "linewidth": 2, "color": "darkgreen"}
+            **{
+                "alpha": 0.7,
+                "edgecolor": "black",
+                "linewidth": 2,
+                "color": "darkgreen",
+            },
         )
         ax.set_ylabel("Feature importance")
         ax.grid()
@@ -424,13 +429,13 @@ def main():
                 ax,
                 diagnostic[cam_id].data_train[diagnostic[cam_id].model_output_name],
                 diagnostic[cam_id].data_train["label"],
-                **dict(color="darkgreen", lw=2, label="Training sample")
+                **dict(color="darkgreen", lw=2, label="Training sample"),
             )
             plot_roc_curve(
                 ax,
                 data_test[diagnostic[cam_id].model_output_name],
                 diagnostic[cam_id].data_test["label"],
-                **dict(color="darkorange", lw=2, label="Test sample")
+                **dict(color="darkorange", lw=2, label="Test sample"),
             )
             ax.set_xlabel("False Positive Rate")
             ax.set_ylabel("True Positive Rate")
