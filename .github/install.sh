@@ -8,5 +8,6 @@ conda update -q conda  # get latest conda version
 conda info -a
 
 sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment.yml
-conda env create -n protopipe --file environment.yml
+conda install -c conda-forge mamba
+mamba env create -n protopipe --file environment.yml
 conda activate protopipe
