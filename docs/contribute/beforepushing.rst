@@ -108,8 +108,7 @@ references therein for a summary).
 
 Current simulated reference datasets used for the performance checks:
 
-- Prod3b
-  - `La Palma baseline zd=20deg az=180deg <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`__
+- Prod3b La Palma baseline zd=20deg az=180deg `(simtel files lists) <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`__
 
 In the documentation we show only the actual results for immediate display.
 You can find the details by opening the notebooks with ``jupyter lab``
@@ -142,7 +141,7 @@ These performances are obtained from a *test* portion of the TRAINING data,
 
 - DL3
 
-  * `Cuts optimization <benchmarks/DL3/benchmarks_DL3_cuts_optimization.ipynb`__ | *benchmarks_DL3_cuts_optimization.ipynb*
+  * `Cuts optimization <benchmarks/DL3/benchmarks_DL3_cuts_optimization.ipynb>`__ | *benchmarks_DL3_cuts_optimization.ipynb*
   * `Instrument Response Functions and sensitivity (internal) <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__ | *benchmarks_DL3_IRFs_and_sensitivity*
 
 The DL3 folder contains also the CTA requirements, while the ASWG performance
