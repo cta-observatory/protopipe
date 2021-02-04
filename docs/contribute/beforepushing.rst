@@ -1,7 +1,7 @@
 .. _beforepushing:
 
-Code and performance checks
-===========================
+Mandatory checks
+================
 
 .. contents:: Index
     :local:

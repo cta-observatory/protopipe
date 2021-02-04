@@ -1,7 +1,7 @@
 .. _gitrepo:
 
-The repository
-==============
+Code repository layout
+======================
 
 Useful for monitoring the development status of of *protopipe*.
 
