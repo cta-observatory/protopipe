@@ -109,12 +109,6 @@ password the process start pending and gets stuck**
 One possible reason might be related to your network security settings.
 Some networks might require to add the option ``-L`` to ``dirac-proxy-init``.
 
-**After issuing the command ``dirac-proxy-init`` and typing my certificate
-password the process start pending and gets stuck**
-
-One possible reason might be related to your network security settings.
-Some networks might require to add the option ``-L`` to ``dirac-proxy-init``.
-
 Issues with the download
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
