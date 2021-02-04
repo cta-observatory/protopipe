@@ -217,6 +217,7 @@ def main():
             event,
             reco_image,
             cleaning_mask_reco,
+            cleaning_mask_clusters,
             true_image,
             n_pixel_dict,
             hillas_dict,
@@ -276,11 +277,22 @@ def main():
 
             # Not optimal at all, two loop on tel!!!
             # For energy estimation
-            if args.estimate_energy is True:
+            # Estimate energy only if the shower was reconstructed
+            if (args.estimate_energy is True) and is_valid:
                 weight_tel = np.zeros(len(hillas_dict.keys()))
                 energy_tel = np.zeros(len(hillas_dict.keys()))
 
                 for idx, tel_id in enumerate(hillas_dict.keys()):
+
+                    # use only images that survived cleaning and
+                    # parametrization
+                    if not good_for_reco[tel_id]:
+                        # bad images will get an undetermined energy
+                        # this is a per-telescope energy
+                        # NOT the estimated energy for the shower
+                        reco_energy_tel[tel_id] = np.nan
+                        continue
+
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
                     model = regressor.model_dict[cam_id]
@@ -321,6 +333,9 @@ def main():
                             shape=(n_pixels), pos=57
                         )
                         DataTrainingOutput["cleaning_mask_reco"] = tb.BoolCol(
+                            shape=(n_pixels), pos=58
+                        )  # not in ctapipe
+                        DataTrainingOutput["cleaning_mask_clusters"] = tb.BoolCol(
                             shape=(n_pixels), pos=58
                         )  # not in ctapipe
 
@@ -428,6 +443,9 @@ def main():
                     outData[cam_id]["true_image"] = true_image[tel_id]
                     outData[cam_id]["reco_image"] = reco_image[tel_id]
                     outData[cam_id]["cleaning_mask_reco"] = cleaning_mask_reco[tel_id]
+                    outData[cam_id]["cleaning_mask_clusters"] = cleaning_mask_clusters[
+                        tel_id
+                    ]
                 # =======================
 
                 outData[cam_id].append()

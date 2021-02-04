@@ -1,5 +1,7 @@
 .pytest_cache
 
+.DS_Store
+
 # Compiled files
 *.py[co]
 *.pyc
@@ -26,9 +28,9 @@ docs/api
 docs/_build
 
 # Benchmarks
-benchmarks/DL1/plots*
-benchmarks/DL2/plots*
-benchmarks/DL3/plots*
+docs/contribute/benchmarks/TRAINING/plots/*
+docs/contribute/benchmarks/DL2/plots/*
+docs/contribute/benchmarks/DL3/plots/*
 
 # Eclipse editor project files
 .project
