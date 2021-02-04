@@ -38,6 +38,10 @@ Usage
 
   All configuration files for this analysis are stored under ``configs``.
 
+  .. figure:: ./AnalysisTree.png
+    :width: 250
+    :alt: Directory tree of a full analysis performed with protopipe.
+
 2. **Obtain training data for energy estimation** (GRID enviroment)
 
   1. edit ``grid.yaml`` to use gammas without energy estimation
