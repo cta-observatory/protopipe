@@ -27,10 +27,8 @@ MANIFEST
 docs/api
 docs/_build
 
-# Benchmarks
-docs/contribute/benchmarks/TRAINING/plots/*
-docs/contribute/benchmarks/DL2/plots/*
-docs/contribute/benchmarks/DL3/plots/*
+# Benchmark plots
+**/plots
 
 # Eclipse editor project files
 .project
