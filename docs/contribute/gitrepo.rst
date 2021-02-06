@@ -15,19 +15,19 @@ give a continuous overview regardless of software versioning.
     :local:
     :depth: 2
 
-Next release
-------------
+Pipeline features and enhancements
+----------------------------------
 
-This project collects all open issues and pull-requests related to the
-work needed for releasing a new version of the pipeline.
-It is organized in 4 sections:
+This project collects all open issues and pull-requests related to addition of
+new features or improvement of existing ones.
+It is organised in 4 sections:
 
 - *Summary issues*, lists of issues all related to a particular subject,
 - *To Do*, open issues that should trigger pull-requests (some can be as simple as a question),
 - *In progress*, pull-requests pushed by a user to the repository,
 - *Review in progress*, one or some of the maintainers started reviewing
   the pull-request(s) and/or discussing with the authors,
-- *Reviewer approved*, the pull-request has been approved by the mantainers,
+- *Reviewer approved*, the pull-request has been approved by the maintainers,
   but not yet merged into the master branch,
 - *Done*, the pull-request has been accepted and merged; any linked issue
   in the "To Do" column will automatically disappear.
@@ -35,8 +35,8 @@ It is organized in 4 sections:
 At any point, if an issue or pull-request gets re-opened it will automatically
 reappear in the corresponding section of this project.
 
-Development of new algorithms
------------------------------
+Pipeline applications
+---------------------
 
 Features that, even if not vital for the
 next release, are still needed by some working groups and can be
@@ -48,12 +48,12 @@ the same way.
 
 In particular,
 
-- relevant issues and pull-requests should be labelled as ``additional tool``,
-- the "Summary issues" column are expected to
-  be isolated from each other (each one referring to a different algorithm).
+- relevant issues and pull-requests should be labelled as ``pipeline applications``,
+- the "Summary issues" are expected to
+  be isolated from each other (each one referring to a different algorithm/project/application).
 
-Bugs
-----
+Bugs and wrong behaviours
+-------------------------
 
 A tracker for bugs, but also for situations in which
 the code works (so technically not a bug), but either a limitation or degradation
@@ -83,4 +83,4 @@ environment, namely
 - Continuous Integration (CI)
 - release automation
 
-It is organized as the *Next release* project
+It is organized as the *Pipeline features and enhancements* project
