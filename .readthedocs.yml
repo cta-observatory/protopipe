@@ -5,7 +5,7 @@ version: 2
 sphinx:
   configuration: docs/conf.py
   builder: html
-  fail_on_warning: false
+  fail_on_warning: true
 
 conda:
   environment: environment.yml
