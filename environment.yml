@@ -3,6 +3,7 @@ channels:
   - defaults
   - cta-observatory
 dependencies:
+  - python=3.7
   - pip
   - ctapipe=0.9.1
   #- conda-forge::gammapy
