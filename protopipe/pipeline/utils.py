@@ -387,8 +387,8 @@ def camera_radius(camid_to_efl, cam_id="all"):
     This should be replaced by a function in ctapipe getting the radius either
     from  the pixel poisitions or from an external database
 
-    Note
-    ----
+    Notes
+    -----
     average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen
     The average camera radius values are, in degrees :
     - LST: 2.31
