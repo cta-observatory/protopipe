@@ -9,7 +9,7 @@ Current contributors are listed
 - Michele Peresano for the ``GRID interface``
 
 
-A full list can be obtained also by issuing the following command from each
+A full list can be obtained also by issuing the following command from any
 source code folder,
 
 .. code-block:: bash
