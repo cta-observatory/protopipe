@@ -3,13 +3,11 @@
 Code repository layout
 ======================
 
-Useful for monitoring the development status of of *protopipe*.
-
-The repository is organized in projects, which you can access from the
-`Projects tab <https://github.com/cta-observatory/protopipe/projects>`_.
-
-They don't come with specific deadlines because they are meant to
-give a continuous overview regardless of software versioning.
+| The repository can be used to monitor the development status of *protopipe*.  
+| It is organized in projects, which you can access from the
+  `Projects tab <https://github.com/cta-observatory/protopipe/projects>`_.  
+| They don't come with specific deadlines because they are meant to give a 
+  continuous overview regardless of software versioning.
 
 .. contents:: Current projects
     :local:
@@ -18,9 +16,9 @@ give a continuous overview regardless of software versioning.
 Pipeline features and enhancements
 ----------------------------------
 
-This project collects all open issues and pull-requests related to addition of
-new features or improvement of existing ones.
-It is organised in 4 sections:
+| This project collects all open issues and pull-requests related to addition of
+  new features or improvement of existing ones.
+| It is organised in 4 sections:
 
 - *Summary issues*, lists of issues all related to a particular subject,
 - *To Do*, open issues that should trigger pull-requests (some can be as simple as a question),
@@ -38,13 +36,13 @@ reappear in the corresponding section of this project.
 Pipeline applications
 ---------------------
 
-Features that, even if not vital for the
-next release, are still needed by some working groups and can be
-tested with this pipeline.
-An example of this is the support for the divergent pointing technique.
+| Features that, even if not vital for the
+  next release, are still needed by some working groups and can be
+  tested with this pipeline.
+| An example of this is the support for the divergent pointing technique.
 
-This project has the same structure of the "Next release" project and works in
-the same way.
+This project has the same structure of the *Pipeline features and enhancements*
+project and works in the same way.
 
 In particular,
 
@@ -66,7 +64,7 @@ The project is divided in the following sections:
 - *High priority*, open issues that previously needed triage, but that have been
   recognized to be fatal or urgent,
 - *Low prioriy*, same but for issues related to non-urgent performance / non-fatal bugs,
-- *In progress*, pull-requests opened to solve either of the prioritized issues
+- *In progress*, pull-requests opened to solve either of the prioritised issues
   of this project (could be under review or stale),
 - *Done*, are closed issues or approved and merged pull-requests.
 

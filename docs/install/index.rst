@@ -15,7 +15,7 @@ There are two different ways to install `protopipe`,
   For both types of installation the use of `mamba <https://github.com/mamba-org/mamba#readme>`__
   might provide improved speed during the creation of the `conda` environment.
 
-In both cases, if you want to perform a full analysis, will need some
+In both cases, if you want to perform a full analysis, you will need some
 computational power in order to produce enough
 data files for model and performance estimation.
 This can be accomplished through the use of a GRID environment.
