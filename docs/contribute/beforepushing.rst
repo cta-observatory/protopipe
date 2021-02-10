@@ -87,8 +87,10 @@ Benchmarks
 
    benchmarks/TRAINING/benchmarks_DL1_calibration
    benchmarks/TRAINING/benchmarks_DL1_image-cleaning
+   benchmarks/TRAINING/benchmarks_DL1_image-cleaning-with-true-phes.ipynb
    benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction
    benchmarks/TRAINING/benchmarks_DL2_to_energy-estimation
+   benchmarks/TRAINING/benchmarks_DL2_EnergyLUT.ipynb
    benchmarks/TRAINING/benchmarks_DL2_to_classification
    benchmarks/MODELS/benchmarks_MODELS_energy
    benchmarks/MODELS/benchmarks_MODELS_classification
@@ -174,16 +176,18 @@ The benchmarks are organised as follows,
 
   * `Calibration <benchmarks/TRAINING/benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
   * `Image cleaning <benchmarks/TRAINING/benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
+  * `Parameters vs true information <benchmarks/TRAINING/benchmarks_DL1_image-cleaning-with-true-phes.ipynb>`__ | *benchmarks_DL1_image-cleaning-with-true-phes.ipynb*
   * `Direction reconstruction <benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
   * `to energy estimator <benchmarks/TRAINING/benchmarks_DL2_to_energy-estimation.ipynb>`__ | *benchmarks_DL2_to_energy-estimation.ipynb*
+  * `Energy Look-Up Table <benchmarks/TRAINING/benchmarks_DL2_EnergyLUT.ipynb>`__ | *benchmarks_DL2_EnergyLUT.ipynb*
   * `to classifier <benchmarks/TRAINING/benchmarks_DL2_to_classification.ipynb>`__ | *benchmarks_DL2_to_classification.ipynb*
 
 In particular:
 
   * calibration requires *ctapipe* DL1a output (images without parameters),
-  * image cleaning and direction reconstruction benchmarks use *protopipe*
+  * all image cleaning and direction reconstruction benchmarks use *protopipe*
     TRAINING data **without** estimated energy,
-  * benchmarks for the energy estimator use *protopipe* TRAINING data **without** estimated energy,
+  * all benchmarks for the energy estimator use *protopipe* TRAINING data **without** estimated energy,
   * benchmarks for the classifier use *protopipe* TRAINING data **with** energy as the only estimated DL2b parameter.
 
 - MODELS
