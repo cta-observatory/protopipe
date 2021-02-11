@@ -1,5 +1,4 @@
 """Calibrate, clean the image, and reconstruct the direction of an event."""
-import math
 import numpy as np
 
 from astropy import units as u
@@ -9,7 +8,7 @@ from traitlets.config import Config
 from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
-from ctapipe.containers import HillasParametersContainer, ReconstructedShowerContainer
+from ctapipe.containers import ReconstructedShowerContainer
 from ctapipe.calib import CameraCalibrator
 from ctapipe.image.extractor import TwoPassWindowSum
 from ctapipe.image import leakage, number_of_islands, largest_island
@@ -18,7 +17,6 @@ from ctapipe.coordinates import GroundFrame, TelescopeFrame, CameraFrame
 
 # from ctapipe.image.timing_parameters import timing_parameters
 from ctapipe.image.hillas import hillas_parameters, HillasParameterizationError
-from ctapipe.reco.HillasReconstructor import HillasReconstructor
 from ctapipe.reco.reco_algorithms import (
     TooFewTelescopesException,
     InvalidWidthException,
