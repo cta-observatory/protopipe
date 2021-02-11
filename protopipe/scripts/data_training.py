@@ -60,7 +60,7 @@ def main():
             "\033[91m ERROR: make sure that both 'site' and 'array' are "
             "specified in the analysis configuration file! \033[0m"
         )
-        sis_exit()
+        sys_exit(-1)
 
     if args.infile_list:
         filenamelist = []
