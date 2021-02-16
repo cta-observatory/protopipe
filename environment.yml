@@ -5,21 +5,27 @@ channels:
 dependencies:
   - pip
   - ctapipe=0.9.1
-  - conda-forge::gammapy
+  #- conda-forge::gammapy
   - ctapipe-extra
   - astropy>=4.0.1
   - h5py=2
   - ipython
   - jupyterlab
-  - conda-forge::nbsphinx
+  #- conda-forge::nbsphinx
   - notebook
   - numpydoc
   - pandas
   - pytest
-  - conda-forge::sphinx-automodapi
+  #- conda-forge::sphinx-automodapi
   - sphinx_rtd_theme
-  - conda-forge::sphinx-issues
-  - conda-forge::uproot
+  #- conda-forge::sphinx-issues
+  #- conda-forge::uproot
   - conda-forge::vitables
   - pip:
+    - gammapy
+    - nbsphinx
     - pyirf
+    - sphinx-automodapi
+    - sphinx-issues
+    - uproot
+    #- vitables
