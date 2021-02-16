@@ -98,6 +98,7 @@ Benchmarks
    benchmarks/DL2/benchmarks_DL2_direction-reconstruction
    benchmarks/DL3/benchmarks_DL3_cuts_optimization
    benchmarks/DL3/benchmarks_DL3_IRFs_and_sensitivity
+   benchmarks/DL3/overall_performance_plot_CTA.ipynb
 
 This documentation hosts a series of notebooks used for benchmarking.
 
@@ -206,6 +207,7 @@ These performances are obtained from a *test* portion of the TRAINING data,
 
   * `Cuts optimization <benchmarks/DL3/benchmarks_DL3_cuts_optimization.ipynb>`__ | *benchmarks_DL3_cuts_optimization.ipynb*
   * `Instrument Response Functions and sensitivity (internal) <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__ | *benchmarks_DL3_IRFs_and_sensitivity*
+  * `Performance poster (internal) <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__ | *overall_performance_plot_CTA.ipynb*  
 
 The DL3 folder contains also the CTA requirements, while the ASWG performance
 data is left to the user, being internal.
