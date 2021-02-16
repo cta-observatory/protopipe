@@ -34,7 +34,7 @@ Citing this software
 If you use a released version of this software for a publication,
 please cite it by using the corresponding DOI.
 
-Please, check the development version of this file for the very latest links.
+Please, check the development version of this file for up-to-date links.
 
 - v0.3.0 : |doilatest|
 - v0.4.0 : TBD

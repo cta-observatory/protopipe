@@ -5,16 +5,100 @@
 .. _@kosack: https://github.com/kosack
 .. _@tstolarczyk: https://github.com/tstolarczyk
 .. _@vuillaut: https://github.com/vuillaut
+.. _@adonini: https://github.com/adonini
 
 Changelog
 =========
 
-.. _protopipe_0p4_release:
+.. _protopipe_0p5_release:
 
-`0.4.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.4.0>`__ (TBD)
-----------------------------------------------------------------------------------
+**0.5.0** (TBD)
+---------------
 
 . . .
+
+.. _protopipe_0p4_release:
+
+`0.4.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.4.0>`__ (Feb Xth, 2021)
+--------------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+This release brings many improvements of which the most relevant are summarized
+here depending on their scope within the pipeline workflow.
+
+Performance-wise, ``protopipe`` catched up with the ``EventDisplay`` and ``CTAMARS``
+historical pipelines starting from about 500 GeV onwards.
+Below this threshold, even if compatible with requirements, the sensitivity
+diverges. The cause seems to be a low-energy effect delimited to
+the steps before model training.
+
+- All pipeline
+
+  - upgrade to the API of ``ctapipe 0.9.1``
+  - documentation also on ``readthedocs`` and link to ``Zenodo``
+  - Continuous Integration is now performed on ``GitHub``
+  - Reference analysis and benchmarks have been updated
+  - various bug-fixes
+
+- Data training
+
+  - calibration benchmarks need only ``ctapipe-stage1-process`` 
+  - ``write_dl1`` has become ``data_training``
+  - DL1 parameters and (optionally) images are merged in a single file
+  - DL1 parameters names as in ``ctapipe`` and they are in degrees (``TelescopeFrame``)
+  - scale correction with the effective focal length
+
+- Modeling and DL2 production
+
+  - Bug fixes
+  - Added missing features to get closer to ``CTAMARS``
+
+- DL3
+
+  - the performance step is now based on the `pyirf <https://cta-observatory.github.io/pyirf/>`_ library
+  - performance results are stored `here <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`_
+
+Contributors
+++++++++++++
+
+- Michele Peresano (`@HealthyPear`_)
+- Gaia Verna (`@gaia-verna`_)
+- Alice Donini (`@adonini`_)
+
+Changes from previous release
++++++++++++++++++++++++++++++
+
+Pull-requests which contain changes belonging to multiple classes are repeated.
+
+🚀 General features
+^^^^^^^^^^^^^^^^^^^
+
+- Performance using Pyirf (#83) @gaia-verna & @adonini
+- Towards using Pyirf (#79) @gaia-verna & @adonini
+- Upgrade of DL2 production (#77) @HealthyPear
+- Upgrade calibration benchmarks (#59) @HealthyPear
+- Upgrade of data training (#58) @HealthyPear
+
+🐛 Bug Fixes
+^^^^^^^^^^^^
+
+- Fix calibration benchmarking settings (#100) @HealthyPear
+- Fix plot of simulated signal and noise of 2nd pass image extraction (#99) @HealthyPear
+- Upgrade of DL2 production (#77) @HealthyPear
+- Upgrade of data training (#58) @HealthyPear
+
+🧰 Maintenance
+^^^^^^^^^^^^^^
+
+- Use mamba to create virtual enviroment for the CI (#101) @HealthyPear
+- Upgrade all other notebooks and their docs version (#76) @HealthyPear
+- Upgrade calibration benchmarks (#59) @HealthyPear
+- Upgrade of data training (#58) @HealthyPear
+- Enable CI from GitHub actions (#84) @HealthyPear
+- Update documentation + general maintenance (#62) @HealthyPear
+
 
 .. _protopipe_0p3_release:
 
