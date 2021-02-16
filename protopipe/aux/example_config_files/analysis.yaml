@@ -1,8 +1,8 @@
 # General informations
 # NOTE: only Prod3b simulations are currently supported.
 General:
- config_name: 'example'
- site: 'south'  # 'north' or 'south'
+ config_name: 'v0.4.0_dev1'
+ site: 'north'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
  # - a custom list of telescope IDs
@@ -18,15 +18,15 @@ ImageCleaning:
  biggest:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6, 3]  # TBC
-    - NectarCam: [8, 4]  # TBC
+    - LSTCam: [6.61, 3.30]  # TBC
+    - NectarCam: [5.75, 2.88]  # TBC
     - FlashCam: [4,2] # dummy values for reliable unit-testing
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies
     - CHEC: [0,0] # values left unset for future studies
     - SCTCam: [0,0] # values left unset for future studies
    keep_isolated_pixels: False
-   min_number_picture_neighbors: 2
+   min_number_picture_neighbors: 1
 
   wave:
    # Directory to write temporary files
@@ -52,15 +52,15 @@ ImageCleaning:
  extended:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6, 3]  # TBC
-    - NectarCam: [8, 4]  # TBC
+    - LSTCam: [6.61, 3.30]  # TBC
+    - NectarCam: [5.75, 2.88]  # TBC
     - FlashCam: [4,2] # dummy values for reliable unit-testing
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies
     - CHEC: [0,0] # values left unset for future studies
     - SCTCam: [0,0] # values left unset for future studies
    keep_isolated_pixels: False
-   min_number_picture_neighbors: 2
+   min_number_picture_neighbors: 1
 
   wave:
    # Directory to write temporary files

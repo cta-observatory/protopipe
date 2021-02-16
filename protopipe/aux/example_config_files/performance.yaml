@@ -1,7 +1,7 @@
 general:
  # Directory with input data file
  # [...] = your analysis local full path OUTSIDE the Vagrant box
- indir: '[...]/data/DL2'
+ indir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/DL2'
  # Template name for output file
  prod: 'Prod3b'
  site: 'North'
@@ -10,7 +10,7 @@ general:
  azimuth: '180deg' # 0deg -> north 180deg -> south
  template_input_file: 'DL2_{}_{}_merged.h5' # filled with mode and particle type
  # Directory for output files
- outdir: '[...]/data/DL3'
+ outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/DL3'
 
 analysis:
  obs_time:
