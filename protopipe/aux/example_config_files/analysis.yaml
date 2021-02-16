@@ -2,14 +2,14 @@
 # NOTE: only Prod3b simulations are currently supported.
 General:
  config_name: 'v0.4.0_dev1'
- site: 'north'  # 'north' or 'south'
+ site: 'south'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
  # - a custom list of telescope IDs
  # WARNING: for simulations containing multiple copies of the telescopes,
  # only 'full_array' or custom list are supported options!
  array: full_array
- cam_id_list : ['LSTCam', 'NectarCam'] # List of camera IDs to be used
+ cam_id_list : ['LSTCam', 'NectarCam'] # Selected cameras (disabled option)
 
 # Cleaning for reconstruction
 ImageCleaning:
