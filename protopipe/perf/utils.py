@@ -73,14 +73,15 @@ def load_obj(name):
 
 def read_DL2_pyirf(infile, run_header):
     """
-    Read a DL2 HDF5 protopipe file and adapt them to pyirf format
+    Read a DL2 HDF5 protopipe file and adapt them to pyirf format.
+
     Parameters
     ----------
     infile: str or pathlib.Path
         Path to the input fits file
-
     run_header: dict
         Dictionary with info about simulated particle informations
+
     Returns
     -------
     events: astropy.QTable

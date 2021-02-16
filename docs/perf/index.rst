@@ -25,6 +25,10 @@ Provided that a performance script makes used of
 ``protopipe.perf.utils.read_DL2_pyirf``, *protopipe* supports the addition and 
 testing of multiple scripts based on pyirf.
 
+.. note::
+  Some functions are discontinued or will be with the next release
+  and they will be removed.
+
 The current approach is based on the EventDisplay historical pipeline for which
 the following main points apply,
 
@@ -44,5 +48,6 @@ Reference/API
 .. automodapi:: protopipe.perf
     :no-inheritance-diagram:
     :include-all-objects:
+    :skip: calculate_bin_indices, inter_quantile_distance
 
 .. _Gammapy: https://gammapy.org/
