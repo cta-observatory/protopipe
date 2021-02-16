@@ -27,6 +27,8 @@ The following is a summary of ist usage required arguments and options.
       --wave                if set, use wavelet cleaning
       --tail                if set, use tail cleaning, otherwise wavelets
 
+The last two options can be ignored.
+
 The script takes along its arguments a configuration file which depends on what
 type of estimator needs to be trained:
 
@@ -45,44 +47,47 @@ The following is a commented example of the required configuration file
 
 .. code-block:: yaml
 
-    General:
-     model_type: 'regressor'  # regressor or classifier
-     data_dir: 'absolute_data_path'  # Directory with the data
-     data_file: 'dl1_{}_gamma_merged.h5'  # Name of the data file ({} will be completed with the mode (tail,wave))
-     outdir: 'absolute_output_path'  # Output directory
-     cam_id_list: ['LSTCam', 'NectarCam']  # List of the cameras to be used
-     table_name_template: 'feature_events_'  # Template name of table in DF5 (will be completed with cam_ids)
+  General:
+   model_type: 'regressor'
+   # [...] = your analysis local full path OUTSIDE the Vagrant box
+   data_dir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/TRAINING/for_energy_estimation'
+   data_file: 'TRAINING_energy_tail_gamma_merged.h5'
+   outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/estimators/energy_regressor'
+   cam_id_list: ['LSTCam', 'NectarCam']
+   table_name_template: '' # leave empty (TO BE REMOVED)
 
-    Split:
-     train_fraction: 0.8  # Fraction of events use to train the regressor
+  Split:
+   train_fraction: 0.8
 
-    Method:
-     name: 'AdaBoostRegressor'  # Scikit-learn model name
-     target_name: 'mc_energy'  # Name of the regression target
-     tuned_parameters:  # List of hyperparameters to be optimized
-      learning_rate: [0.1, 0.2, 0.3]
-      n_estimators: [100, 200]
-      base_estimator__max_depth: [null]  # null is equivalent to None
-      base_estimator__min_samples_split: [2]  # minimal number to split a node
-      base_estimator__min_samples_leaf: [10]  # minimal number of events to form an external node
-     scoring: 'explained_variance'  # Metrics to choose the best regressor
-     cv: 2  # k in k-cross-validation
+  Method:
+   name: 'AdaBoostRegressor'
+   target_name: 'true_energy'
+   tuned_parameters:
+    learning_rate: [0.3]
+    n_estimators: [100]
+    base_estimator__max_depth: [null]  # null is equivalent to None
+    base_estimator__min_samples_split: [2]
+    base_estimator__min_samples_leaf: [10]
+   scoring: 'explained_variance'
+   cv: 2
 
-    FeatureList:  # List of feature to build the energy regressor
-     - 'log10_charge'
-     - 'log10_impact'
-     - 'width'
-     - 'length'
-     - 'h_max'
+  FeatureList:
+   - 'log10_hillas_intensity'
+   - 'log10_impact_dist'
+   - 'hillas_width_reco'
+   - 'hillas_length_reco'
+   - 'h_max'
 
-    SigFiducialCuts:  # Fiducial cuts that will be applied on data
-     - 'xi <= 0.5'
+  SigFiducialCuts:
+   - 'good_image == 1'
+   - 'is_valid == True'
 
-    Diagnostic:  #  For diagnostic plots
-     energy:  # Energy binning (used for reco and true energy)
-      nbins: 10
-      min: 0.01
-      max: 100
+  Diagnostic:
+   # Energy binning (used for reco and true energy)
+   energy:
+    nbins: 15
+    min: 0.0125
+    max: 125
 
 To estimate the energy of a gamma-ray, one wants to use the relation between
 the charge measured in one camera and the impact distance of the event measured
@@ -119,50 +124,57 @@ as a contamination).
 
 .. code-block:: yaml
 
-    General:
-     model_type: 'classifier'  # regressor or classifier
-     data_dir: 'absolute_data_path'  # Directory with the data
-     data_sig_file: 'dl1_tail_gamma_merged.h5'  # Name of the signal file ({} will be completed with the mode (tail,wave))
-     data_bkg_file: 'dl1_tail_proton_merged.h5'  # Name of the bkg file ({} will be completed with the mode (tail,wave))
-     outdir: 'absolute_output_path'  # Output directory
-     cam_id_list: ['LSTCam', 'NectarCam']  # List of camera
-     table_name_template: 'feature_events_'  # Template name of table in DF5 (will be completed with cam_ids)
+  General:
+   model_type: 'classifier'
+   # [...] = your analysis local full path OUTSIDE the Vagrant box
+   data_dir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/TRAINING/for_particle_classification/'
+   data_sig_file: 'TRAINING_classification_tail_gamma_merged.h5'
+   data_bkg_file: 'TRAINING_classification_tail_proton_merged.h5'
+   cam_id_list: ['LSTCam', 'NectarCam']
+   table_name_template: '' # leave empty (TO BE REMOVED)
+   outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/estimators/gamma_hadron_classifier'
 
-    Split:
-     train_fraction: 0.8  # Fraction of events use to train the regressor
-     use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+  Split:
+   train_fraction: 0.8
+   use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
 
-    Method:
-     name: 'RandomForestClassifier'  # AdaBoostClassifier or RandomForestClassifier
-     target_name: 'label'  # Name of the labels
-     tuned_parameters:  # List of hyper-parameters to be optimized
-      n_estimators: [200]
-      max_depth: [null]
-      min_samples_split: [2]
-     scoring: 'roc_auc'  # Metrics to choose the best regressor
-     cv: 2  # k in k-cross-validation
-     use_proba: True  # If not, output is score
-     calibrate_output: False  # If true calibrate probability (not tested)
+  Method:
+   name: 'RandomForestClassifier'  # AdaBoostClassifier or RandomForestClassifier
+   target_name: 'label'
+   tuned_parameters: # these are lists of values used by the GridSearchCV algorithm
+    n_estimators: [200]
+    max_depth: [10]  # null for None
+    max_features: [3] # possible choices are “auto”, “sqrt”, “log2”, int or float
+    min_samples_split: [10]
+    min_samples_leaf: [10]
+   scoring: 'roc_auc' # possible choices are 'roc_auc', 'explained_variance'
+   cv: 2
+   use_proba: True  # If not output is score
+   calibrate_output: False  # If true calibrate probability
 
-    FeatureList:  # List of feature to build the g/h classifier
-     - 'log10_reco_energy'
-     - 'width'
-     - 'length'
-     - 'skewness'
-     - 'kurtosis'
-     - 'h_max'
+  FeatureList:
+   - 'log10_reco_energy'
+   - 'log10_reco_energy_tel'
+   - 'log10_hillas_intensity'
+   - 'hillas_width'
+   - 'hillas_length'
+   - 'h_max'
+   - 'impact_dist'
 
-    SigFiducialCuts:  # Fiducial cuts that will be applied on signal data
-     - 'offset <= 0.5'
+  SigFiducialCuts:
+   - 'good_image == 1'
+   - 'is_valid == True'
 
-    BkgFiducialCuts:  # Fidicual cuts that will be applied on bkg data
-     - 'offset <= 1.'
+  BkgFiducialCuts:
+   - 'good_image == 1'
+   - 'is_valid == True'
 
-    Diagnostic:  #  For diagnostic plots
-     energy:  # Energy binning (used for reco and true energy)
-      nbins: 10
-      min: 0.01
-      max: 100
+  Diagnostic:
+   # Energy binning (used for reco and true energy)
+   energy:
+    nbins: 4
+    min: 0.02
+    max: 200
 
 We want to exploit parameters showing statistical differences in the shower
 developments between gamma-ray induced showers and hadron induced shower.
