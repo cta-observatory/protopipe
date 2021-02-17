@@ -16,17 +16,21 @@ protopipe |CI| |codacy| |coverage| |documentation|
 A pipeline prototype for the `Cherenkov Telescope Array (CTA) <www.cta-observatory.org>`_.
 
 - based on the `ctapipe <https://cta-observatory.github.io/ctapipe/>`_ and
-  `pyirf <https://cta-observatory.github.io/pyirf/>`__ libraries plus
-   original code
+  `pyirf <https://cta-observatory.github.io/pyirf/>`__ libraries plus original code
 - successfully tested code migrated and imported from each new release
-- full-scale analyses on the *DIRAC* computing grid
+- allows for full-scale analyses on the `DIRAC <http://diracgrid.org/>`__ computing grid
 
 Resources
 ---------
 
-- **Source code: ** https://github.com/cta-observatory/protopipe
-- **Documentation: ** https://cta-observatory.github.io/protopipe
-- **Current performance (CTA internal link): ** https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data
+- Source code: `GitHub repository <https://github.com/cta-observatory/protopipe>`__
+- Documentation (master branch): `GitHub Pages <https://cta-observatory.github.io/protopipe>`__
+- Current performance: `RedMine <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__
+
+- Slack channels:
+  - `#protopipe <https://cta-aswg.slack.com/archives/CPTN4U7U7>`__
+  - `#protopipe_github <https://cta-aswg.slack.com/archives/CPUSPPHST>`__
+  - `#protopipe-grid <https://cta-aswg.slack.com/archives/C01FWH8E0TT>`__
 
 Citing this software
 --------------------
