@@ -25,10 +25,10 @@ Changelog
 Summary
 +++++++
 
-This release brings many improvements of which the most relevant are summarized
+This release brings many improvements of which the most relevant are summarised
 here depending on their scope within the pipeline workflow.
 
-Performance-wise, ``protopipe`` catched up with the ``EventDisplay`` and ``CTAMARS``
+Performance-wise, ``protopipe`` caught up with the ``EventDisplay`` and ``CTAMARS``
 historical pipelines starting from about 500 GeV onwards.
 Below this threshold, even if compatible with requirements, the sensitivity
 diverges. The cause seems to be a low-energy effect delimited to
@@ -39,8 +39,8 @@ the steps before model training.
   - upgrade to the API of ``ctapipe 0.9.1``
   - documentation also on ``readthedocs`` and link to ``Zenodo``
   - Continuous Integration is now performed on ``GitHub``
-  - Reference analysis and benchmarks have been updated
-  - various bug-fixes
+  - New benchmarks have been added
+  - Reference analysis and benchmarks results have been updated
 
 - Data training
 
@@ -49,10 +49,11 @@ the steps before model training.
   - DL1 parameters and (optionally) images are merged in a single file
   - DL1 parameters names as in ``ctapipe`` and they are in degrees (``TelescopeFrame``)
   - scale correction with the effective focal length
+  - fixed bugs and wrong behaviors
 
 - Modeling and DL2 production
 
-  - Bug fixes
+  - fixed bugs and wrong behaviors
   - Added missing features to get closer to ``CTAMARS``
 
 - DL3
@@ -70,7 +71,7 @@ Contributors
 Changes from previous release
 +++++++++++++++++++++++++++++
 
-Pull-requests which contain changes belonging to multiple classes are repeated.
+Pull-requests that contain changes belonging to multiple classes are repeated.
 
 🚀 General features
 ^^^^^^^^^^^^^^^^^^^
