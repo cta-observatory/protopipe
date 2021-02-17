@@ -87,10 +87,11 @@ Benchmarks
 
    benchmarks/TRAINING/benchmarks_DL1_calibration
    benchmarks/TRAINING/benchmarks_DL1_image-cleaning
-   benchmarks/TRAINING/benchmarks_DL1_image-cleaning-with-true-phes.ipynb
+   benchmarks/TRAINING/benchmarks_DL1_image-cleaning-with-true-phes
+   benchmarks/TRAINING/benchmarks_DL1_DirectionLUT
    benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction
    benchmarks/TRAINING/benchmarks_DL2_to_energy-estimation
-   benchmarks/TRAINING/benchmarks_DL2_EnergyLUT.ipynb
+   benchmarks/TRAINING/benchmarks_DL2_EnergyLUT
    benchmarks/TRAINING/benchmarks_DL2_to_classification
    benchmarks/MODELS/benchmarks_MODELS_energy
    benchmarks/MODELS/benchmarks_MODELS_classification
@@ -98,7 +99,7 @@ Benchmarks
    benchmarks/DL2/benchmarks_DL2_direction-reconstruction
    benchmarks/DL3/benchmarks_DL3_cuts_optimization
    benchmarks/DL3/benchmarks_DL3_IRFs_and_sensitivity
-   benchmarks/DL3/overall_performance_plot_CTA.ipynb
+   benchmarks/DL3/overall_performance_plot_CTA
 
 This documentation hosts a series of notebooks used for benchmarking.
 
@@ -178,9 +179,10 @@ The benchmarks are organised as follows,
   * `Calibration <benchmarks/TRAINING/benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
   * `Image cleaning <benchmarks/TRAINING/benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
   * `Parameters vs true information <benchmarks/TRAINING/benchmarks_DL1_image-cleaning-with-true-phes.ipynb>`__ | *benchmarks_DL1_image-cleaning-with-true-phes.ipynb*
+  * `Direction Look-Up Tables <benchmarks/TRAINING/benchmarks_DL1_DirectionLUT.ipynb>`__ | *benchmarks_DL1_DirectionLUT.ipynb*
   * `Direction reconstruction <benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
   * `to energy estimator <benchmarks/TRAINING/benchmarks_DL2_to_energy-estimation.ipynb>`__ | *benchmarks_DL2_to_energy-estimation.ipynb*
-  * `Energy Look-Up Table <benchmarks/TRAINING/benchmarks_DL2_EnergyLUT.ipynb>`__ | *benchmarks_DL2_EnergyLUT.ipynb*
+  * `Energy Look-Up Tables <benchmarks/TRAINING/benchmarks_DL2_EnergyLUT.ipynb>`__ | *benchmarks_DL2_EnergyLUT.ipynb*
   * `to classifier <benchmarks/TRAINING/benchmarks_DL2_to_classification.ipynb>`__ | *benchmarks_DL2_to_classification.ipynb*
 
 In particular:
