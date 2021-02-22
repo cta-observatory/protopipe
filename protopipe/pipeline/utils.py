@@ -1,5 +1,6 @@
 import yaml
 import argparse
+import math
 
 import astropy.units as u
 import matplotlib.pyplot as plt
@@ -10,6 +11,7 @@ from ctapipe.io import event_source
 
 class bcolors:
     """Color definitions for standard and debug printing."""
+
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
     OKGREEN = "\033[92m"
@@ -385,8 +387,8 @@ def camera_radius(camid_to_efl, cam_id="all"):
     This should be replaced by a function in ctapipe getting the radius either
     from  the pixel poisitions or from an external database
 
-    Note
-    ----
+    Notes
+    -----
     average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen
     The average camera radius values are, in degrees :
     - LST: 2.31

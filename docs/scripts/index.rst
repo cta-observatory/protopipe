@@ -29,21 +29,6 @@ on disk in HDF5_ format using the PyTables_ Python module.
 This choice has been done considering the potential huge
 volume of data we will be dealing with in a near future.
 
-Proposals for improvements and/or fixes
----------------------------------------
-
-TO UPDATE
-
-.. note::
-
-  This section has to be moved to the repository as a set of issues.
-
-* Features for regression and classification are hard-coded in the two scripts
-  `write_dl1.py` and `write_dl2.py` **TO DO**
-* The fields of the output tables do not follow any DL1 or DL2
-  data format specified in the `gamma astro data format`_
-  initiative **NEW FORMAT WITH NEXT RELEASE OF CTAPIPE**
-
 .. Reference/API
 .. -------------
 ..

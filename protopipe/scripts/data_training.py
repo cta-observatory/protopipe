@@ -4,7 +4,7 @@
 import numpy as np
 import astropy.units as u
 from astropy.coordinates.angle_utilities import angular_separation
-from sys import exit
+from sys import exit as sys_exit
 from glob import glob
 import signal
 import tables as tb
@@ -60,7 +60,7 @@ def main():
             "\033[91m ERROR: make sure that both 'site' and 'array' are "
             "specified in the analysis configuration file! \033[0m"
         )
-        exit()
+        sys_exit(-1)
 
     if args.infile_list:
         filenamelist = []
@@ -72,7 +72,7 @@ def main():
 
     if not filenamelist:
         print("no files found; check indir: {}".format(args.indir))
-        exit(-1)
+        sys_exit(-1)
     else:
         print("found {} files".format(len(filenamelist)))
 

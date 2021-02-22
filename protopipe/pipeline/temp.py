@@ -14,7 +14,7 @@ import numpy as np
 from numpy import nan
 from scipy.sparse import lil_matrix, csr_matrix
 import astropy.units as u
-from astropy.coordinates import Angle, SkyCoord
+from astropy.coordinates import SkyCoord
 
 from ctapipe.core import Container, Field
 from ctapipe.coordinates import CameraFrame, TelescopeFrame

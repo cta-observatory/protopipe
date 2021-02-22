@@ -4,9 +4,9 @@ Development version
 ===================
 
   1. `fork <https://help.github.com/en/articles/fork-a-repo>`__ the `repository <https://github.com/cta-observatory/protopipe>`_
-  3. ``conda env create -f environment.yml``
-  4. ``conda activate protopipe``
-  5. ``pip install -e .``
+  2. ``conda env create -f environment.yml``
+  3. ``conda activate protopipe``
+  4. ``pip install -e .``
 
 In this way, you will always use the version of the source code on which you
 are working.

@@ -6,10 +6,7 @@ from scipy.stats import norm
 import astropy.units as u
 
 from pyirf.binning import calculate_bin_indices
-from pyirf.benchmarks.energy_bias_resolution import energy_resolution_absolute_68, inter_quantile_distance
-
-
-ONE_SIGMA_PERCENTILE = norm.cdf(1) - norm.cdf(-1)
+from pyirf.benchmarks.energy_bias_resolution import inter_quantile_distance
 
 
 def energy_bias_resolution(
@@ -114,6 +111,7 @@ def angular_resolution(
     by_bin = table.group_by("bin_index")
 
     index = by_bin.groups.keys["bin_index"]
+    ONE_SIGMA_PERCENTILE = norm.cdf(1) - norm.cdf(-1)
     result["angular_resolution"][index] = by_bin["theta"].groups.aggregate(
         lambda x: np.percentile(x, 100 * ONE_SIGMA_PERCENTILE)
     )

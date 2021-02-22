@@ -3,10 +3,11 @@
 Models diagnostics
 ==================
 
-.. note::
+.. warning::
 
-  This script contitutes basically the benchmarks for the estimator models.
-  As such it will be moved/translated in a DL2 benchmark notebook.
+  This script constituted basically the benchmarks for the estimator models.
+  It is still available, but its contents have been migrated to the benchmark notebooks
+  and it is now progressively discontinued.
 
 To get diagnostic plots in order to control the robustness and the performance
 of the models you can use the script `model_diagnostic.py`. It takes as arguments
