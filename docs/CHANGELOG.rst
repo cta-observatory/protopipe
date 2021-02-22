@@ -93,12 +93,14 @@ Pull-requests that contain changes belonging to multiple classes are repeated.
 🧰 Maintenance
 ^^^^^^^^^^^^^^
 
+- Fix zenodo configuration file and add LICENSE file (#106) @HealthyPear
+- Update documentation + general maintenance (#62) @HealthyPear
 - Use mamba to create virtual enviroment for the CI (#101) @HealthyPear
 - Upgrade all other notebooks and their docs version (#76) @HealthyPear
 - Upgrade calibration benchmarks (#59) @HealthyPear
 - Upgrade of data training (#58) @HealthyPear
 - Enable CI from GitHub actions (#84) @HealthyPear
-- Update documentation + general maintenance (#62) @HealthyPear
+
 
 
 .. _protopipe_0p3_release:
