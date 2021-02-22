@@ -19,7 +19,7 @@ Changelog
 
 .. _protopipe_0p4_release:
 
-`0.4.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.4.0>`__ (Feb 20th, 2021)
+`0.4.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.4.0>`__ (Feb 22th, 2021)
 ---------------------------------------------------------------------------------------------
 
 Summary
