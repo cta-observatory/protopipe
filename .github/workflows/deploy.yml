@@ -7,7 +7,7 @@ on: [pull_request]
     #   - 'v*'
 
 jobs:
-  tests:
+  deployment:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
