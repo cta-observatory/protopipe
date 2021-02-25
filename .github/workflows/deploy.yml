@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    tags:
-      - 'v*'
+    # tags:
+    #   - 'v*'
 
 jobs:
   tests:
@@ -28,4 +28,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
-          password: ${{ secrets.pypi_password }}
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+          verbose: true
+          skip_existing: true
