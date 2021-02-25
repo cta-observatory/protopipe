@@ -17,4 +17,4 @@ except Exception:
     del warnings
     version = "0.0.0"
 
-__version__ = version
+__version__ = version.split(".dev")[0]
