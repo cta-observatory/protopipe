@@ -55,7 +55,6 @@ setup(
     zip_safe=False,
     use_scm_version={"write_to": os.path.join("protopipe", "_version.py")},
     tests_require=extras_require["tests"],
-    setup_requires=["pytest_runner", "setuptools_scm"],
     classifiers=[
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Astronomy',
