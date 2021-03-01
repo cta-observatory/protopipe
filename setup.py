@@ -47,12 +47,14 @@ setup(
     install_requires=[
             "astropy>=4.0.1,<5",
             "ctapipe==0.9.1",
+            "jupyterlab",
             "pyirf",
             "scikit-learn",
             "setuptools_scm>=3.4",
             # needed for astropy hdf5 io. Version 3 breaks copying those tables
             # with pytables du to variable length strings.
             "h5py~=2.0",
+            "vitables",
     ],
     zip_safe=False,
     use_scm_version={"write_to": os.path.join("protopipe", "_version.py")},
