@@ -25,6 +25,7 @@ extras_require = {
         "pytest",
         "pytest-cov",
         "codecov",
+        "ctapipe-extra @ https://github.com/cta-observatory/ctapipe-extra/archive/v0.3.1.tar.gz",
     ],
 }
 
@@ -42,7 +43,7 @@ setup(
     packages=find_packages(),
     package_data={"protopipe": ["aux/example_config_files/protopipe/analysis.yaml"]},
     include_package_data=True,
-    install_requires=["ctapipe"],
+    install_requires=["ctapipe==0.9.1", "jupyterlab", "pyirf", "vitables"],
     zip_safe=False,
     extras_require={
         "all": extras_require["all"],
