@@ -19,6 +19,8 @@ extras_require = {
         "pytest",
         "pytest-cov",
         "codecov",
+        "ctapipe-extra @ https://github.com/cta-observatory/ctapipe-extra/archive/v0.3.1.tar.gz",
+
     ],
 }
 
