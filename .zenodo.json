@@ -1,11 +1,11 @@
 {
   "metadata":  {
     "title" : "protopipe",
-    "description": "A ctapipe-based pipeline prototype for the Cherenkov Telescope Array (CTA).",
+    "description": "Pipeline prototype for the Cherenkov Telescope Array (CTA).",
     "license":  {
       "id": "CECILL-B"
     },
-    "version": "v0.4.0",
+    "doi": "10.5281/zenodo.4303995",
     "keywords": [
       "gamma-ray astronomy",
       "Imaging Atmospheric Cherenkov Telescope",
