@@ -1,5 +1,4 @@
 {
-  "metadata":  {
     "title" : "protopipe",
     "description": "Pipeline prototype for the Cherenkov Telescope Array (CTA).",
     "license":  {
@@ -68,4 +67,3 @@
         }
       ]
   }
-}
