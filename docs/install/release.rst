@@ -3,8 +3,6 @@
 Released version
 ================
 
-You can find all released versions .
-
 To install a released version >= ``0.4.0`` it is sufficient to install the
 package from ``PyPI`` with ``pip install protopipe``.
 

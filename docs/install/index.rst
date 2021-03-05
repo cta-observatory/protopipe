@@ -21,10 +21,14 @@ There are two different ways to install ``protopipe``,
 * if you just want to use it as it is (:ref:`install-release`),
 * or if you also want to develop it (:ref:`install-development`).
 
-In both cases, if you want to perform a full analysis, you will need some
-computational power in order to produce enough
-data files for model and performance estimation.
-This can be accomplished through the use of a GRID environment.
+In both cases it is suggested to integrate the virtual environment with
+
+- ``jupyterlab`` to execute the benchmarking notebooks and optionally 
+- ``vitables`` to open data files stored as HDF5 tables.
+
+To perform full analyses, you will need some computational power in order to 
+produce enough data files for model and performance estimation.
+This can be accomplished through the use of the DIRAC computing grid.
 
 After installing ``protopipe``,
 

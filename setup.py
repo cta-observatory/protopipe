@@ -43,7 +43,7 @@ setup(
     packages=find_packages(),
     package_data={"protopipe": ["aux/example_config_files/protopipe/analysis.yaml"]},
     include_package_data=True,
-    install_requires=["ctapipe==0.9.1", "jupyterlab", "pyirf", "vitables"],
+    install_requires=["ctapipe==0.9.1", "pyirf"],
     zip_safe=False,
     extras_require={
         "all": extras_require["all"],
