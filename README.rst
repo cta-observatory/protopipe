@@ -1,6 +1,6 @@
-==================================================
-protopipe |CI| |codacy| |coverage| |documentation|
-==================================================
+==============================================================
+protopipe |CI| |codacy| |coverage| |documentation| |doilatest|
+==============================================================
 
 .. |CI| image:: https://github.com/cta-observatory/protopipe/workflows/CI/badge.svg?branch=master
   :target: https://github.com/cta-observatory/protopipe/actions?query=workflow%3ACI
@@ -10,7 +10,9 @@ protopipe |CI| |codacy| |coverage| |documentation|
   :target: https://codecov.io/gh/cta-observatory/protopipe
 .. |documentation| image:: https://readthedocs.org/projects/protopipe/badge/?version=latest
   :target: https://protopipe.readthedocs.io/en/latest/?badge=latest
-.. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4303996.svg
+.. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4303995.svg
+  :target: https://doi.org/10.5281/zenodo.4303995
+.. |doi_v0.3.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4303996.svg
   :target: https://doi.org/10.5281/zenodo.4303996
 
 A pipeline prototype for the `Cherenkov Telescope Array (CTA) <www.cta-observatory.org>`_.
@@ -28,6 +30,7 @@ Resources
 - Current performance: `RedMine <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__
 
 - Slack channels:
+
   - `#protopipe <https://cta-aswg.slack.com/archives/CPTN4U7U7>`__
   - `#protopipe_github <https://cta-aswg.slack.com/archives/CPUSPPHST>`__
   - `#protopipe-grid <https://cta-aswg.slack.com/archives/C01FWH8E0TT>`__
@@ -38,7 +41,7 @@ Citing this software
 If you use a released version of this software for a publication,
 please cite it by using the corresponding DOI.
 
-Please, check the development version of this file for up-to-date links.
-
-- v0.3.0 : |doilatest|
+- latest : |doilatest|
 - v0.4.0 : TBD
+- v0.3.0 : |doi_v0.3.0|
+

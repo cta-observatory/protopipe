@@ -1,11 +1,9 @@
 {
-  "metadata":  {
     "title" : "protopipe",
-    "description": "A ctapipe-based pipeline prototype for the Cherenkov Telescope Array (CTA).",
+    "description": "Pipeline prototype for the Cherenkov Telescope Array (CTA).",
     "license":  {
       "id": "CECILL-B"
     },
-    "version": "v0.4.0",
     "keywords": [
       "gamma-ray astronomy",
       "Imaging Atmospheric Cherenkov Telescope",
@@ -30,24 +28,14 @@
           "name": "Lefaucheur, Julien"
         },
         {
-          "affiliation": "AIM, CEA, CNRS, Universite Paris-Saclay, Universite Paris Diderot, Sorbonne Paris Cite, F-91191 Gif-sur-Yvette, France",
-          "type": "Other",
-          "name": "Stolarczyk, Thierry"
-        },
-        {
-          "affiliation": "AIM, CEA, CNRS, Universite Paris-Saclay, Universite Paris Diderot, Sorbonne Paris Cite, F-91191 Gif-sur-Yvette, France",
-          "type": "Other",
-          "name": "Kosack, Karl"
-        },
-        {
           "affiliation": "Aix Marseille Univ, CNRS/IN2P3, CPPM, Marseille, France",
           "type": "Other",
           "name": "Verna, Gaia"
         },
         {
-          "affiliation": "Universit\u00e0 di Udine & INFN Trieste",
+          "affiliation": "AIM, CEA, CNRS, Universite Paris-Saclay, Universite Paris Diderot, Sorbonne Paris Cite, F-91191 Gif-sur-Yvette, France",
           "type": "Other",
-          "name": "Donini, Alice"
+          "name": "Stolarczyk, Thierry"
         },
         {
           "orcid": "0000-0002-5686-2078",
@@ -58,14 +46,23 @@
         {
           "affiliation": "AIM, CEA, CNRS, Universite Paris-Saclay, Universite Paris Diderot, Sorbonne Paris Cite, F-91191 Gif-sur-Yvette, France",
           "type": "Other",
-          "name": "Landriu, David"
+          "name": "Kosack, Karl"
+        },
+        {
+          "affiliation": "Universit\u00e0 di Udine & INFN Trieste",
+          "type": "Other",
+          "name": "Donini, Alice"
         },
         {
           "orcid": "0000-0003-2224-4594",
           "affiliation": "Laboratoire d'Annecy de Physique des Particules, Univ. Grenoble Alpes, Univ. Savoie Mont Blanc, CNRS, LAPP, 74000 Annecy, France",
           "type": "Other",
           "name": "Garcia, Enrique"
+        },
+        {
+          "affiliation": "AIM, CEA, CNRS, Universite Paris-Saclay, Universite Paris Diderot, Sorbonne Paris Cite, F-91191 Gif-sur-Yvette, France",
+          "type": "Other",
+          "name": "Landriu, David"
         }
-      ]
+    ]
   }
-}
