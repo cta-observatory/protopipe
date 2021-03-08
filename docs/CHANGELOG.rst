@@ -17,6 +17,38 @@ Changelog
 
 . . .
 
+.. _protopipe_0p4p4post1_release:
+
+`0.4.0.post1 <https://github.com/cta-observatory/protopipe/releases/tag/v0.4.0.post1>`__ (Mar 5th, 2021)
+---------------------------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+This is a post-release that takes care of project maintenance, so it doesn't change the performance of the code.
+
+Contributors
+++++++++++++
+
+- Michele Peresano (`@HealthyPear`_)
+
+Changes from previous release
++++++++++++++++++++++++++++++
+
+Pull-requests that contain changes belonging to multiple classes are repeated.
+
+🐛 Bug Fixes
+^^^^^^^^^^^^
+
+- Fix zenodo configuration file and add LICENSE file (:pr:`106`) `@HealthyPear`_
+
+🧰 Maintenance
+^^^^^^^^^^^^^^
+
+- Update CHANGELOG (:pr:`108`) `@HealthyPear`_
+- Fix zenodo configuration file and add LICENSE file (:pr:`106`) `@HealthyPear`_
+- Prepare first upload to PyPI (:pr:`107`) `@HealthyPear`_
+
 .. _protopipe_0p4_release:
 
 `0.4.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.4.0>`__ (Feb 22th, 2021)
@@ -76,30 +108,30 @@ Pull-requests that contain changes belonging to multiple classes are repeated.
 🚀 General features
 ^^^^^^^^^^^^^^^^^^^
 
-- Performance using Pyirf (#83) @gaia-verna & @adonini
-- Towards using Pyirf (#79) @gaia-verna & @adonini
-- Upgrade of DL2 production (#77) @HealthyPear
-- Upgrade calibration benchmarks (#59) @HealthyPear
-- Upgrade of data training (#58) @HealthyPear
+- Performance using Pyirf (:pr:`83`) `@gaia-verna`_ & `@adonini`_
+- Towards using Pyirf (:pr:`79`) `@gaia-verna`_ & `@adonini`_
+- Upgrade of DL2 production (:pr:`77`) `@HealthyPear`_
+- Upgrade calibration benchmarks (:pr:`59`) `@HealthyPear`_
+- Upgrade of data training (:pr:`58`) `@HealthyPear`_
 
 🐛 Bug Fixes
 ^^^^^^^^^^^^
 
-- Fix calibration benchmarking settings (#100) @HealthyPear
-- Fix plot of simulated signal and noise of 2nd pass image extraction (#99) @HealthyPear
-- Upgrade of DL2 production (#77) @HealthyPear
-- Upgrade of data training (#58) @HealthyPear
+- Fix calibration benchmarking settings (:pr:`100`) `@HealthyPear`_
+- Fix plot of simulated signal and noise of 2nd pass image extraction (:pr:`99`) `@HealthyPear`_
+- Upgrade of DL2 production (:pr:`77`) `@HealthyPear`_
+- Upgrade of data training (:pr:`58`) `@HealthyPear`_
 
 🧰 Maintenance
 ^^^^^^^^^^^^^^
 
-- Fix zenodo configuration file and add LICENSE file (#106) @HealthyPear
-- Update documentation + general maintenance (#62) @HealthyPear
-- Use mamba to create virtual enviroment for the CI (#101) @HealthyPear
-- Upgrade all other notebooks and their docs version (#76) @HealthyPear
-- Upgrade calibration benchmarks (#59) @HealthyPear
-- Upgrade of data training (#58) @HealthyPear
-- Enable CI from GitHub actions (#84) @HealthyPear
+- Fix zenodo configuration file and add LICENSE file (:pr:`106`) `@HealthyPear`_
+- Update documentation + general maintenance (:pr:`62`) `@HealthyPear`_
+- Use mamba to create virtual enviroment for the CI (:pr:`101`) `@HealthyPear`_
+- Upgrade all other notebooks and their docs version (:pr:`76`) `@HealthyPear`_
+- Upgrade calibration benchmarks (:pr:`59`) `@HealthyPear`_
+- Upgrade of data training (:pr:`58`) `@HealthyPear`_
+- Enable CI from GitHub actions (:pr:`84`) `@HealthyPear`_
 
 
 
@@ -149,7 +181,7 @@ Changes from previous release
 - Rollback for GRID support (:pr:`52`) `@HealthyPear`_
 
 🐛 Bug Fixes
-^^^^^^^^^^^^
+^^^^^^^^^^^^  
 
 - Bugfix in Release Drafter workflow file (:pr:`71`) `@HealthyPear`_
 - Convert pointing values to float64 at reading time (:pr:`68`) `@HealthyPear`_

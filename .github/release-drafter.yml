@@ -5,7 +5,6 @@ categories:
   - title: '🔭 Pipeline applications'
     labels:
       - 'pipeline applications'
-      - 'divergent pointing'
   - title: '🌐 GRID support'
     labels:
       - 'grid'

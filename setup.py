@@ -20,7 +20,6 @@ extras_require = {
         "pytest-cov",
         "codecov",
         "ctapipe-extra @ https://github.com/cta-observatory/ctapipe-extra/archive/v0.3.1.tar.gz",
-
     ],
 }
 
@@ -44,18 +43,7 @@ setup(
     packages=find_packages(),
     package_data={"protopipe": ["aux/example_config_files/analysis.yaml"]},
     include_package_data=True,
-    install_requires=[
-            "astropy>=4.0.1,<5",
-            "ctapipe==0.9.1",
-            "jupyterlab",
-            "pyirf",
-            "scikit-learn",
-            "setuptools_scm>=3.4",
-            # needed for astropy hdf5 io. Version 3 breaks copying those tables
-            # with pytables du to variable length strings.
-            "h5py~=2.0",
-            "vitables",
-    ],
+    install_requires=["ctapipe==0.9.1", "pyirf"],
     zip_safe=False,
     use_scm_version={"write_to": os.path.join("protopipe", "_version.py")},
     tests_require=extras_require["tests"],

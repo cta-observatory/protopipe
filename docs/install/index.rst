@@ -3,24 +3,34 @@
 Installation
 ============
 
-The only requirement is an Anaconda (or Miniconda) installation which supports
-Python 3.
+Requirements:
 
-There are two different ways to install `protopipe`,
+- ``Python >= 3.7``
+- ``pip``
+
+It is recommended to work within a virtual environment, using for example
+``venv`` or Anaconda's ``conda``. 
+
+.. note::
+  In case you want to use Anaconda it is recommended to use
+  `mamba <https://github.com/mamba-org/mamba#readme>`__
+  for improved speed during the creation of the virtual environment.
+
+There are two different ways to install ``protopipe``,
 
 * if you just want to use it as it is (:ref:`install-release`),
 * or if you also want to develop it (:ref:`install-development`).
 
-.. note::
-  For both types of installation the use of `mamba <https://github.com/mamba-org/mamba#readme>`__
-  might provide improved speed during the creation of the `conda` environment.
+In both cases it is suggested to integrate the virtual environment with
 
-In both cases, if you want to perform a full analysis, you will need some
-computational power in order to produce enough
-data files for model and performance estimation.
-This can be accomplished through the use of a GRID environment.
+- ``jupyterlab`` to execute the benchmarking notebooks and optionally 
+- ``vitables`` to open data files stored as HDF5 tables.
 
-After installing `protopipe`,
+To perform full analyses, you will need some computational power in order to 
+produce enough data files for model and performance estimation.
+This can be accomplished through the use of the DIRAC computing grid.
+
+After installing ``protopipe``,
 
 * install the code necessary to interface it with the grid (:ref:`install-grid`),
 * use protopipe on the grid (:ref:`use-grid`).
