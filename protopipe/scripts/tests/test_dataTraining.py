@@ -23,7 +23,8 @@ from protopipe.pipeline.temp import get_dataset_path
 PROD3B_CTA_NORTH = get_dataset_path("gamma_LaPalma_baseline_20Zd_180Az_prod3b_test.simtel.gz")
 PROD3B_CTA_SOUTH = get_dataset_path("gamma_Paranal_baseline_20Zd_180Az_prod3_test.simtel.gz")
 
-@pytest.mark.parametrize("input_file",[PROD3B_CTA_NORTH, PROD3B_CTA_SOUTH])
+
+@pytest.mark.parametrize("input_file", [PROD3B_CTA_NORTH, PROD3B_CTA_SOUTH])
 def test_dataTraining_noImages(input_file):
     """Very bare test to see if the script reaches the end correctly.
 
@@ -32,13 +33,13 @@ def test_dataTraining_noImages(input_file):
     In any case, it is expected that in absence of fatal bugs, the script
     ends successfully.
     """
-    
+
     # the difference is only the 'site' key as a check for the user
     if "Paranal" in str(input_file):
         ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_south.yaml")
     else:
         ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_north.yaml")
-    
+
     exit_status = system(
         f"python {data_training.__file__}\
         --config_file {ana_config}\
@@ -49,8 +50,9 @@ def test_dataTraining_noImages(input_file):
     )
     assert exit_status == 0
 
-@pytest.mark.parametrize("input_file",[PROD3B_CTA_NORTH, PROD3B_CTA_SOUTH])
-def test_dataTraining_withImages():
+
+@pytest.mark.parametrize("input_file", [PROD3B_CTA_NORTH, PROD3B_CTA_SOUTH])
+def test_dataTraining_withImages(input_file):
     """Very bare test to see if the script reaches the end correctly.
 
     WARNING: some of the cuts in the example config file are not optimized for
@@ -58,13 +60,13 @@ def test_dataTraining_withImages():
     In any case, it is expected that in absence of fatal bugs, the script
     ends successfully.
     """
-    
+
     # the difference is only the 'site' key as a check for the user
     if "Paranal" in str(input_file):
         ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_south.yaml")
     else:
         ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_north.yaml")
-    
+
     exit_status = system(
         f"python {data_training.__file__}\
         --config_file {ana_config}\
