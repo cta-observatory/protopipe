@@ -2,7 +2,7 @@
 # NOTE: only Prod3b simulations are currently supported.
 General:
  config_name: 'v0.4.0_dev1'
- site: 'south'  # 'north' or 'south'
+ site: 'north'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
  # - a custom list of telescope IDs
@@ -18,8 +18,8 @@ ImageCleaning:
  biggest:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6.61, 3.30]  # TBC
-    - NectarCam: [5.75, 2.88]  # TBC
+    - LSTCam: [6.61, 3.30]
+    - NectarCam: [5.75, 2.88]
     - FlashCam: [4,2] # dummy values for reliable unit-testing
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies
@@ -52,8 +52,8 @@ ImageCleaning:
  extended:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6.61, 3.30]  # TBC
-    - NectarCam: [5.75, 2.88]  # TBC
+    - LSTCam: [6.61, 3.30]
+    - NectarCam: [5.75, 2.88]
     - FlashCam: [4,2] # dummy values for reliable unit-testing
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies

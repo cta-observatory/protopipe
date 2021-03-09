@@ -1,20 +1,34 @@
-"""Test the data training script in a variety of conditions."""
+"""Test the data training script.
+
+TODO
+----
+
+- test only diffuse data (more general case)
+- add Paranal diffuse test file
+- add Prod5 test files
+
+"""
 from os import path, system
 from pkg_resources import resource_filename
 from protopipe.scripts import data_training
-from ctapipe.utils import get_dataset_path
-
-# TEST FILES
-# 110 events, 98 telescopes at Paranal.
-# Instruments tested: LST_LST_LSTCam, MST_MST_FlashCam, SST_ASTRI_ASTRICam
-GAMMA_TEST_LARGE = get_dataset_path("gamma_test_large.simtel.gz")
-# WARNING: absolutely not sufficient!
-# This is just the only file easily usable without external resources.
-# Later on, we will need a sub-simtel file from each of the
-# MC productions expected to be analyzed with protopipe.
+from protopipe.pipeline.temp import get_dataset_path
 
 # configuration files
 ana_config = resource_filename("protopipe", "aux/example_config_files/analysis.yaml")
+
+# TEST FILES
+
+DEFAULT_URL = "http://cccta-dataserver.in2p3.fr/data/ctapipe-extra/v0.3.3/"
+
+# Prod 2
+
+# CTA_SOUTH = get_dataset_path("gamma_test_large.simtel.gz")
+
+# PROD 3b
+
+CTA_NORTH = get_dataset_path("gamma_LaPalma_baseline_20Zd_180Az_prod3b_test.simtel.gz")
+
+
 
 
 def test_dataTraining_noImages():
@@ -30,8 +44,9 @@ def test_dataTraining_noImages():
         --config_file {ana_config}\
         -o test_training_noImages.h5\
         -m 10\
-        -i {path.dirname(GAMMA_TEST_LARGE)}\
-        -f {path.basename(GAMMA_TEST_LARGE)}"
+        --debug\
+        -i {path.dirname(CTA_NORTH)}\
+        -f {path.basename(CTA_NORTH)}"
     )
     assert exit_status == 0
 
@@ -50,7 +65,7 @@ def test_dataTraining_withImages():
         -o test_training_withImages.h5\
         -m 10\
         --save_images\
-        -i {path.dirname(GAMMA_TEST_LARGE)}\
-        -f {path.basename(GAMMA_TEST_LARGE)}"
+        -i {path.dirname(CTA_NORTH)}\
+        -f {path.basename(CTA_NORTH)}"
     )
     assert exit_status == 0
