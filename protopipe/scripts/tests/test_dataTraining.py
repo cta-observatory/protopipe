@@ -71,7 +71,7 @@ def test_dataTraining_withImages():
         -o test_training_withImages.h5\
         -m 10\
         --save_images\
-        -i {path.dirname(CTA_NORTH)}\
-        -f {path.basename(CTA_NORTH)}"
+        -i {path.dirname(input_file)}\
+        -f {path.basename(input_file)}"
     )
     assert exit_status == 0
