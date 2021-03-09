@@ -18,7 +18,7 @@ extras_require = {
         "gammapy",
         "pytest",
         "numpy",
-        "ctapipe==0.9.1",
+        "ctapipe>=0.10.1",
         "pyirf",
     ],
     "tests": [
@@ -39,15 +39,24 @@ setup(
     url="https://github.com/cta-observatory/protopipe",
     author="Michele Peresano",
     author_email="michele.peresano@cea.fr",
-    license="MIT",
+    license="CeCILL-B Free Software License Agreement",
     packages=find_packages(),
     package_data={"protopipe": ["aux/example_config_files/protopipe/analysis.yaml"]},
     include_package_data=True,
-    install_requires=["ctapipe==0.9.1", "pyirf"],
+    install_requires=["ctapipe>=0.10.1", "pyirf"],
     zip_safe=False,
     extras_require={
         "all": extras_require["all"],
         "tests": extras_require["tests"],
         "docs": extras_require["docs"],
+    },
+    entry_points={
+        'console_scripts': [
+            'protopipe-STEP1=protopipe.scripts.step1_tool_draft:main',
+            'protopipe-TRAINING=protopipe.scripts.data_training:main',
+            'protopipe-MODEL=protopipe.scripts.build_model:main',
+            'protopipe-DL2=protopipe.scripts.write_dl2:main',
+            'protopipe-DL3-EventDisplay=protopipe.scripts.make_performance_EventDisplay:main',
+        ],
     },
 )

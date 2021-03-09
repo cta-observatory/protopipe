@@ -9,11 +9,8 @@ import tables as tb
 import astropy.units as u
 
 # ctapipe
-# from ctapipe.io import EventSourceFactory
-from ctapipe.io import event_source
+from ctapipe.io import EventSource
 from ctapipe.utils.CutFlow import CutFlow
-from ctapipe.reco.energy_regressor import EnergyRegressor
-from ctapipe.reco.event_classifier import EventClassifier
 
 # Utilities
 from protopipe.pipeline import EventPreparer
@@ -23,12 +20,11 @@ from protopipe.pipeline.utils import (
     prod3b_array,
     str2bool,
     load_config,
+    load_models,
     SignalHandler,
 )
 
-# from memory_profiler import profile
 
-# @profile
 def main():
 
     # Argument parser
@@ -148,7 +144,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        classifier = EventClassifier.load(clf_file, cam_id_list=cams_and_foclens.keys())
+        classifiers = load_models(clf_file, cam_id_list=cams_and_foclens.keys())
         if args.debug:
             print(
                 bcolors.OKBLUE
@@ -171,7 +167,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
+        regressors = load_models(reg_file, cam_id_list=cams_and_foclens.keys())
         if args.debug:
             print(
                 bcolors.OKBLUE
@@ -342,7 +338,7 @@ def main():
 
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
-                    model = regressor.model_dict[cam_id]
+                    model = regressors[cam_id]
 
                     # Features to be fed in the regressor
                     features_img = np.array(
@@ -394,7 +390,7 @@ def main():
                 for idx, tel_id in enumerate(hillas_dict.keys()):
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
-                    model = classifier.model_dict[cam_id]
+                    model = classifiers[cam_id]
                     # Features to be fed in the classifier
                     # this should be read in some way from
                     # the classifier configuration file!!!!!
@@ -561,7 +557,6 @@ def main():
         for table in images_table.values():
             table.flush()
 
-    # Add in meta-data's table?
     try:
         print()
         evt_cutflow()

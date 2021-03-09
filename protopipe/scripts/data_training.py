@@ -10,8 +10,7 @@ import signal
 import tables as tb
 
 from ctapipe.utils.CutFlow import CutFlow
-from ctapipe.io import event_source
-from ctapipe.reco.energy_regressor import EnergyRegressor
+from ctapipe.io import EventSource
 
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
@@ -21,6 +20,7 @@ from protopipe.pipeline.utils import (
     load_config,
     SignalHandler,
     bcolors,
+    load_models,
 )
 
 
@@ -116,7 +116,7 @@ def main():
             }
         )
 
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
+        regressors = load_models(reg_file, cam_id_list=cams_and_foclens.keys())
 
     # COLUMN DESCRIPTOR AS DICTIONARY
     # Column descriptor for the file containing output training data."""
@@ -207,7 +207,7 @@ def main():
 
         print("file: {} filename = {}".format(i, filename))
 
-        source = event_source(
+        source = EventSource(
             input_url=filename, allowed_tels=allowed_tels, max_events=args.max_events
         )
 
@@ -295,7 +295,7 @@ def main():
 
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
-                    model = regressor.model_dict[cam_id]
+                    model = regressors[cam_id]
 
                     features_img = np.array(
                         [
