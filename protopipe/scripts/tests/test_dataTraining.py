@@ -18,8 +18,6 @@ ana_config = resource_filename("protopipe", "aux/example_config_files/analysis.y
 
 # TEST FILES
 
-DEFAULT_URL = "http://cccta-dataserver.in2p3.fr/data/ctapipe-extra/v0.3.3/"
-
 # Prod 2
 
 # CTA_SOUTH = get_dataset_path("gamma_test_large.simtel.gz")
