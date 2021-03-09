@@ -234,18 +234,15 @@ def main():
             source, save_images=args.save_images, debug=args.debug
         ):
 
-            # Angular quantities
-            run_array_direction = event.mcheader.run_array_direction
-
             if good_event:
 
                 xi = angular_separation(
-                    event.mc.az, event.mc.alt, reco_result.az, reco_result.alt
+                    event.simulation.shower.az, event.simulation.shower.alt, reco_result.az, reco_result.alt
                 )
 
                 offset = angular_separation(
-                    run_array_direction[0],  # az
-                    run_array_direction[1],  # alt
+                    event.pointing.array_azimuth,
+                    event.pointing.array_altitude,
                     reco_result.az,
                     reco_result.alt,
                 )
@@ -377,7 +374,7 @@ def main():
                 outData[cam_id]["h_max"] = h_max.to("m").value
                 outData[cam_id]["err_est_pos"] = np.nan
                 outData[cam_id]["err_est_dir"] = np.nan
-                outData[cam_id]["true_energy"] = event.mc.energy.to("TeV").value
+                outData[cam_id]["true_energy"] = event.simulation.shower.energy.to("TeV").value
                 outData[cam_id]["hillas_x"] = moments.x.to("deg").value
                 outData[cam_id]["hillas_y"] = moments.y.to("deg").value
                 outData[cam_id]["hillas_phi"] = moments.phi.to("deg").value
@@ -392,13 +389,13 @@ def main():
                 outData[cam_id]["hillas_ellipticity"] = ellipticity.value
                 outData[cam_id]["clusters"] = n_cluster_dict[tel_id]
                 outData[cam_id]["n_tel_discri"] = n_tels["GOOD images"]
-                outData[cam_id]["mc_core_x"] = event.mc.core_x.to("m").value
-                outData[cam_id]["mc_core_y"] = event.mc.core_y.to("m").value
+                outData[cam_id]["mc_core_x"] = event.simulation.shower.core_x.to("m").value
+                outData[cam_id]["mc_core_y"] = event.simulation.shower.core_y.to("m").value
                 outData[cam_id]["reco_core_x"] = reco_core_x.to("m").value
                 outData[cam_id]["reco_core_y"] = reco_core_y.to("m").value
-                outData[cam_id]["mc_h_first_int"] = event.mc.h_first_int.to("m").value
+                outData[cam_id]["mc_h_first_int"] = event.simulation.shower.h_first_int.to("m").value
                 outData[cam_id]["offset"] = offset.to("deg").value
-                outData[cam_id]["mc_x_max"] = event.mc.x_max.value  # g / cm2
+                outData[cam_id]["mc_x_max"] = event.simulation.shower.x_max.value  # g / cm2
                 outData[cam_id]["alt"] = reco_result.alt.to("deg").value
                 outData[cam_id]["az"] = reco_result.az.to("deg").value
                 outData[cam_id]["reco_energy_tel"] = reco_energy_tel[tel_id]
