@@ -10,26 +10,21 @@ TODO
 """
 from os import path, system
 from pkg_resources import resource_filename
+
+import pytest
+
 from protopipe.scripts import data_training
 from protopipe.pipeline.temp import get_dataset_path
 
-# configuration files
-ana_config = resource_filename("protopipe", "aux/example_config_files/analysis.yaml")
-
 # TEST FILES
-
-# Prod 2
-
-# CTA_SOUTH = get_dataset_path("gamma_test_large.simtel.gz")
 
 # PROD 3b
 
-CTA_NORTH = get_dataset_path("gamma_LaPalma_baseline_20Zd_180Az_prod3b_test.simtel.gz")
+PROD3B_CTA_NORTH = get_dataset_path("gamma_LaPalma_baseline_20Zd_180Az_prod3b_test.simtel.gz")
+PROD3B_CTA_SOUTH = get_dataset_path("gamma_Paranal_baseline_20Zd_180Az_prod3_test.simtel.gz")
 
-
-
-
-def test_dataTraining_noImages():
+@pytest.mark.parametrize("input_file",[PROD3B_CTA_NORTH, PROD3B_CTA_SOUTH])
+def test_dataTraining_noImages(input_file):
     """Very bare test to see if the script reaches the end correctly.
 
     WARNING: some of the cuts in the example config file are not optimized for
@@ -37,17 +32,24 @@ def test_dataTraining_noImages():
     In any case, it is expected that in absence of fatal bugs, the script
     ends successfully.
     """
+    
+    # the difference is only the 'site' key as a check for the user
+    if "Paranal" in str(input_file):
+        ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_south.yaml")
+    else:
+        ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_north.yaml")
+    
     exit_status = system(
         f"python {data_training.__file__}\
         --config_file {ana_config}\
         -o test_training_noImages.h5\
         -m 10\
-        -i {path.dirname(CTA_NORTH)}\
-        -f {path.basename(CTA_NORTH)}"
+        -i {path.dirname(input_file)}\
+        -f {path.basename(input_file)}"
     )
     assert exit_status == 0
 
-
+@pytest.mark.parametrize("input_file",[PROD3B_CTA_NORTH, PROD3B_CTA_SOUTH])
 def test_dataTraining_withImages():
     """Very bare test to see if the script reaches the end correctly.
 
@@ -56,6 +58,13 @@ def test_dataTraining_withImages():
     In any case, it is expected that in absence of fatal bugs, the script
     ends successfully.
     """
+    
+    # the difference is only the 'site' key as a check for the user
+    if "Paranal" in str(input_file):
+        ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_south.yaml")
+    else:
+        ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_north.yaml")
+    
     exit_status = system(
         f"python {data_training.__file__}\
         --config_file {ana_config}\
