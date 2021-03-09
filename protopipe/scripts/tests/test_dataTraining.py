@@ -42,7 +42,6 @@ def test_dataTraining_noImages():
         --config_file {ana_config}\
         -o test_training_noImages.h5\
         -m 10\
-        --debug\
         -i {path.dirname(CTA_NORTH)}\
         -f {path.basename(CTA_NORTH)}"
     )
