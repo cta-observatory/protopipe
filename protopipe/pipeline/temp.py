@@ -10,6 +10,10 @@ file will change.
 
 """
 
+import os
+import logging
+from pathlib import Path
+
 import numpy as np
 from numpy import nan
 from scipy.sparse import lil_matrix, csr_matrix
@@ -22,6 +26,7 @@ from ctapipe.instrument import CameraGeometry
 from ctapipe.reco import HillasReconstructor
 from ctapipe.reco.HillasReconstructor import HillasPlane
 
+logger = logging.getLogger(__name__)
 
 class HillasParametersTelescopeFrameContainer(Container):
     container_prefix = "hillas"
@@ -199,3 +204,58 @@ class MyHillasReconstructor(HillasReconstructor):
                 weight=moments.intensity * (moments.length / moments.width),
             )
             self.hillas_planes[tel_id] = circle
+
+
+try:
+    import ctapipe_resources
+
+    has_resources = True
+except ImportError:
+    has_resources = False
+
+DEFAULT_URL = "http://cccta-dataserver.in2p3.fr/data/ctapipe-extra/v0.3.3/"
+def get_dataset_path(filename, url=DEFAULT_URL):
+    """
+    Returns the full file path to an auxiliary dataset needed by
+    ctapipe, given the dataset's full name (filename with no directory).
+    This will first search for the file in directories listed in
+    tne environment variable CTAPIPE_SVC_PATH (if set), and if not found,
+    will look in the ctapipe_resources module
+    (if installed with the ctapipe-extra package), which contains the defaults.
+    Parameters
+    ----------
+    filename: str
+        name of dataset to fetch
+    Returns
+    -------
+    string with full path to the given dataset
+    """
+    
+    searchpath = os.getenv("CTAPIPE_SVC_PATH")
+
+    if searchpath:
+        filepath = find_in_path(filename=filename, searchpath=searchpath, url=url)
+
+        if filepath:
+            return filepath
+
+    if has_resources:
+        logger.debug(
+            "Resource '{}' not found in CTAPIPE_SVC_PATH, looking in "
+            "ctapipe_resources...".format(filename)
+        )
+
+        return Path(ctapipe_resources.get(filename))
+
+    # last, try downloading the data
+    try:
+        return download_file_cached(filename, default_url=url, progress=True)
+    except HTTPError as e:
+        # let 404 raise the FileNotFoundError instead of HTTPError
+        if e.response.status_code != 404:
+            raise
+
+    raise FileNotFoundError(
+        f"Couldn't find resource: '{filename}',"
+        " You might want to install ctapipe_resources"
+    )
