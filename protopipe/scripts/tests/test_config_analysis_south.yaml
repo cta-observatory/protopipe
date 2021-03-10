@@ -2,7 +2,7 @@
 # NOTE: only Prod3b simulations are currently supported.
 General:
  config_name: 'v0.4.0_dev1'
- site: 'north'  # 'north' or 'south'
+ site: 'south'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
  # - a custom list of telescope IDs
