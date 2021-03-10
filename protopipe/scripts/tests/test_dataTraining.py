@@ -11,6 +11,7 @@ TODO
 from os import path, system
 from pkg_resources import resource_filename
 
+import tables
 import pytest
 
 from protopipe.scripts import data_training
@@ -48,7 +49,13 @@ def test_dataTraining_noImages(input_file):
         -i {path.dirname(input_file)}\
         -f {path.basename(input_file)}"
     )
+
+    # check that the script ends without crashing
     assert exit_status == 0
+
+    # check that the produced HDF5 file is non-empty
+    with tables.open_file("test_training_noImages.h5") as file:
+        assert file.get_filesize() > 0
 
 
 @pytest.mark.parametrize("input_file", [PROD3B_CTA_NORTH, PROD3B_CTA_SOUTH])
@@ -76,4 +83,10 @@ def test_dataTraining_withImages(input_file):
         -i {path.dirname(input_file)}\
         -f {path.basename(input_file)}"
     )
+
+    # check that the script ends without crashing
     assert exit_status == 0
+
+    # check that the produced HDF5 file is non-empty
+    with tables.open_file("test_training_noImages.h5") as file:
+        assert file.get_filesize() > 0
