@@ -19,10 +19,14 @@ from protopipe.pipeline.temp import get_dataset_path
 
 # TEST FILES
 
+URL = "http://cccta-dataserver.in2p3.fr/data/protopipe/testData/"
+
 # PROD 3b
 
-PROD3B_CTA_NORTH = get_dataset_path("gamma_LaPalma_baseline_20Zd_180Az_prod3b_test.simtel.gz")
-PROD3B_CTA_SOUTH = get_dataset_path("gamma_Paranal_baseline_20Zd_180Az_prod3_test.simtel.gz")
+PROD3B_CTA_NORTH = get_dataset_path("gamma1.simtel.gz",
+                                    url=f"{URL}/prod3_laPalma_baseline_Az180_Az20")
+PROD3B_CTA_SOUTH = get_dataset_path("gamma1.simtel.gz",
+                                    url=f"{URL}/prod3_Paranal_baseline_Az180_Az20")
 
 
 @pytest.mark.parametrize("input_file", [PROD3B_CTA_NORTH, PROD3B_CTA_SOUTH])
@@ -36,7 +40,7 @@ def test_dataTraining_noImages(input_file):
     """
 
     # the difference is only the 'site' key as a check for the user
-    if "Paranal" in str(input_file):
+    if input_file in [PROD3B_CTA_SOUTH]:
         ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_south.yaml")
     else:
         ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_north.yaml")
@@ -45,7 +49,6 @@ def test_dataTraining_noImages(input_file):
         f"python {data_training.__file__}\
         --config_file {ana_config}\
         -o test_training_noImages.h5\
-        -m 10\
         -i {path.dirname(input_file)}\
         -f {path.basename(input_file)}"
     )
@@ -69,7 +72,7 @@ def test_dataTraining_withImages(input_file):
     """
 
     # the difference is only the 'site' key as a check for the user
-    if "Paranal" in str(input_file):
+    if input_file in [PROD3B_CTA_SOUTH]:
         ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_south.yaml")
     else:
         ana_config = resource_filename("protopipe", "scripts/tests/test_config_analysis_north.yaml")
@@ -78,7 +81,6 @@ def test_dataTraining_withImages(input_file):
         f"python {data_training.__file__}\
         --config_file {ana_config}\
         -o test_training_withImages.h5\
-        -m 10\
         --save_images\
         -i {path.dirname(input_file)}\
         -f {path.basename(input_file)}"
