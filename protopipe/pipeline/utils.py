@@ -1,3 +1,4 @@
+import tables
 import yaml
 import argparse
 import math
@@ -427,7 +428,6 @@ def camera_radius(camid_to_efl, cam_id="all"):
 
 
 def CTAMARS_radii(camera_name):
-
     """Radii of the cameras as defined in CTA-MARS.
 
     These values are defined in the code of CTA-MARS.
@@ -456,3 +456,27 @@ def CTAMARS_radii(camera_name):
     }
 
     return average_camera_radii_deg[camera_name]
+
+
+def get_camera_names(inputPath=None):
+    """Read the names of the cameras.
+
+    Parameters
+    ==========
+    infile : str
+        Full path of the input DL1 file.
+    fileName : str
+        Name of the input DL1 file.
+
+    Returns
+    =======
+    camera_names : list(str)
+        Table names as a list.
+    """
+    if inputPath is None:
+        print("ERROR: check input")
+    h5file = tables.open_file(inputPath, mode='r')
+    group = h5file.get_node("/")
+    camera_names = [x.name for x in group._f_list_nodes()]
+    h5file.close()
+    return camera_names

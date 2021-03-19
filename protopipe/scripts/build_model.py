@@ -14,7 +14,7 @@ import joblib
 from sklearn.metrics import classification_report
 from sklearn.calibration import CalibratedClassifierCV
 
-from protopipe.pipeline.utils import load_config
+from protopipe.pipeline.utils import load_config, get_camera_names
 
 from protopipe.mva import TrainModel
 from protopipe.mva.utils import make_cut_list, prepare_data, save_obj
@@ -49,6 +49,31 @@ def main():
         const="tail",
         help="if set, use tail cleaning, otherwise wavelets",
     )
+
+    # if set, these last 4 CLI can overwrite the values from the config
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--cameras_from_file', action='store_true')
+    group.add_argument('--cameras_from_config', action='store_true')
+    group.add_argument('--cam_id_list', type=str, default=None)
+
+    parser.add_argument(
+        "-i", "--indir", type=str, default=None,
+    )
+    parser.add_argument(
+        "--infile_signal",
+        type=str,
+        default=None,
+        help="SIGNAL file (default: read from config file)",
+    )
+    parser.add_argument(
+        "--infile_background",
+        type=str,
+        default=None,
+        help="BACKGROUND file (default: read from config file)",
+    )
+    parser.add_argument("-o", "--outdir", type=str, default=None)
+
     args = parser.parse_args()
 
     # Read configuration file
@@ -58,14 +83,19 @@ def main():
     model_type = cfg["General"]["model_type"]
 
     # Import parameters
-    data_dir = cfg["General"]["data_dir"]
-    outdir = cfg["General"]["outdir"]
+    if args.indir is None:
+        data_dir = cfg["General"]["data_dir"]
+    else:
+        data_dir = args.indir
+
+    if args.outdir is None:
+        outdir = cfg["General"]["outdir"]
+    else:
+        outdir = args.outdir
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    cam_ids = cfg["General"]["cam_id_list"]
     table_name_template = cfg["General"]["table_name_template"]
-    table_name = [table_name_template + cam_id for cam_id in cam_ids]
 
     # List of features
     feature_list = cfg["FeatureList"]
@@ -80,8 +110,22 @@ def main():
     train_fraction = cfg["Split"]["train_fraction"]
 
     if model_type in "regressor":
-        data_file = cfg["General"]["data_file"].format(args.mode)
+
+        if args.infile_signal is None:
+            data_file = cfg["General"]["data_file"].format(args.mode)
+        else:
+            data_file = args.infile_signal
+
         filename = path.join(data_dir, data_file)
+
+        if args.cameras_from_config:
+            cam_ids = cfg["General"]["cam_id_list"]
+        elif args.cameras_from_file:
+            cam_ids = get_camera_names(filename)
+        else:
+            cam_ids = args.cam_id_list.split()
+
+        table_name = [table_name_template + cam_id for cam_id in cam_ids]
 
         # List of cuts
         cuts = make_cut_list(cfg["SigFiducialCuts"])
@@ -91,10 +135,33 @@ def main():
         target_name = cfg["Method"]["target_name"]
 
     elif model_type in "classifier":
-        data_sig_file = cfg["General"]["data_sig_file"].format(args.mode)
-        data_bkg_file = cfg["General"]["data_bkg_file"].format(args.mode)
+
+        # read signal file from either config file or CLI
+        if args.infile_signal is None:
+            data_sig_file = cfg["General"]["data_sig_file"].format(args.mode)
+        else:
+            data_sig_file = args.infile_signal
+
+        # read background file from either config file or CLI
+        if args.infile_background is None:
+            data_bkg_file = cfg["General"]["data_bkg_file"].format(args.mode)
+        else:
+            data_sig_file = args.infile_background
+
         filename_sig = path.join(data_dir, data_sig_file)
         filename_bkg = path.join(data_dir, data_bkg_file)
+
+        if args.cameras_from_config:
+            print("TAKING CAMERAS FROM CONFIG")
+            cam_ids = cfg["General"]["cam_id_list"]
+        elif args.cameras_from_file:
+            print("TAKING CAMERAS FROM TRAINING FILE")
+            cam_ids = get_camera_names(filename)
+        else:
+            print("TAKING CAMERAS FROM CLI")
+            cam_ids = args.cam_id_lists.split()
+
+        table_name = [table_name_template + cam_id for cam_id in cam_ids]
 
         # List of cuts
         sig_cuts = make_cut_list(cfg["SigFiducialCuts"])
@@ -123,6 +190,8 @@ def main():
         ]
 
     print("### Using {} for model construction".format(method_name))
+
+    print(f"LIST OF CAMERAS TO USE = {cam_ids}")
 
     models = dict()
     for idx, cam_id in enumerate(cam_ids):
