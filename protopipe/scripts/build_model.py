@@ -50,15 +50,26 @@ def main():
         help="if set, use tail cleaning, otherwise wavelets",
     )
 
-    # if set, these last 4 CLI can overwrite the values from the config
+    # These last CL arguments can overwrite the values from the config
 
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--cameras_from_file', action='store_true')
-    group.add_argument('--cameras_from_config', action='store_true')
-    group.add_argument('--cam_id_list', type=str, default=None)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--cameras_from_config',
+                       action='store_true',
+                       help="Get cameras configuration file (Priority 1)",)
+    group.add_argument('--cameras_from_file',
+                       action='store_true',
+                       help="Get cameras from input file (Priority 2)",)
+    group.add_argument('--cam_id_list',
+                       type=str,
+                       default=None,
+                       help="Select cameras like 'LSTCam CHEC' (Priority 3)",)
 
     parser.add_argument(
-        "-i", "--indir", type=str, default=None,
+        "-i",
+        "--indir",
+        type=str,
+        default=None,
+        help="Directory containing the required input file(s)"
     )
     parser.add_argument(
         "--infile_signal",
