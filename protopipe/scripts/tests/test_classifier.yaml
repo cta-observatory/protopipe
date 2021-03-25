@@ -1,0 +1,51 @@
+General:
+ model_type: 'classifier'
+ # [...] = your analysis local full path OUTSIDE the Vagrant box
+ data_dir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/TRAINING/for_particle_classification/'
+ data_sig_file: 'TRAINING_classification_{}_gamma_merged.h5'
+ data_bkg_file: 'TRAINING_classification_{}_proton_merged.h5'
+ cam_id_list: ['LSTCam', 'NectarCam']
+ table_name_template: '' # leave empty (TO BE REMOVED)
+ outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/estimators/gamma_hadron_classifier'
+
+Split:
+ train_fraction: 0.8
+ use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+
+Method:
+ name: 'RandomForestClassifier'  # AdaBoostClassifier or RandomForestClassifier
+ target_name: 'label'
+ tuned_parameters: # these are lists of values used by the GridSearchCV algorithm
+  n_estimators: [200]
+  max_depth: [10]  # null for None
+  max_features: [3] # possible choices are “auto”, “sqrt”, “log2”, int or float
+  min_samples_split: [10]
+  min_samples_leaf: [10]
+ scoring: 'roc_auc' # possible choices are 'roc_auc', 'explained_variance'
+ cv: 2
+ use_proba: True  # If not output is score
+ calibrate_output: False  # If true calibrate probability
+
+FeatureList:
+ # - 'log10_reco_energy'
+ # - 'log10_reco_energy_tel'
+ - 'log10_hillas_intensity'
+ - 'hillas_width'
+ - 'hillas_length'
+ - 'h_max'
+ - 'impact_dist'
+
+SigFiducialCuts:
+ - 'good_image == 1'
+ - 'is_valid == True'
+
+BkgFiducialCuts:
+ - 'good_image == 1'
+ - 'is_valid == True'
+
+Diagnostic:
+ # Energy binning (used for reco and true energy)
+ energy:
+  nbins: 4
+  min: 0.02
+  max: 200
