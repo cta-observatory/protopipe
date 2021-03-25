@@ -10,24 +10,38 @@ The base classes are defined in the ``protopipe.mva`` module (see :ref:`mva`).
 For both cases, building a regressor or a classifier, the script
 ``protopipe.scripts.build_model.py`` is used.
 
-The following is a summary of ist usage required arguments and options.
+The following is the help output which shows required arguments and options.
 
 .. code-block::
 
-    >$ ./build_model.py --help
-    usage: build_model.py [-h] --config_file CONFIG_FILE [--max_events MAX_EVENTS]
-                      [--wave | --tail]
+    >$ protopipe-MODEL -h
+    usage: protopipe-MODEL [-h] --config_file CONFIG_FILE
+                       [--max_events MAX_EVENTS] [--wave | --tail]
+                       (--cameras_from_config | --cameras_from_file | --cam_id_list CAM_ID_LIST)
+                       [-i INDIR] [--infile_signal INFILE_SIGNAL]
+                       [--infile_background INFILE_BACKGROUND] [-o OUTDIR]
 
     Build model for regression/classification
 
     optional arguments:
       -h, --help            show this help message and exit
-      --config_file         CONFIG_FILE
-      --max_events          maximum number of events for training
+      --config_file CONFIG_FILE
+      --max_events MAX_EVENTS
+                            maximum number of events for training
       --wave                if set, use wavelet cleaning
       --tail                if set, use tail cleaning, otherwise wavelets
-
-The last two options can be ignored.
+      --cameras_from_config
+                            Get cameras configuration file (Priority 1)
+      --cameras_from_file   Get cameras from input file (Priority 2)
+      --cam_id_list CAM_ID_LIST
+                            Select cameras like 'LSTCam CHEC' (Priority 3)
+      -i INDIR, --indir INDIR
+                            Directory containing the required input file(s)
+      --infile_signal INFILE_SIGNAL
+                            SIGNAL file (default: read from config file)
+      --infile_background INFILE_BACKGROUND
+                            BACKGROUND file (default: read from config file)
+      -o OUTDIR, --outdir OUTDIR
 
 The script takes along its arguments a configuration file which depends on what
 type of estimator needs to be trained:
