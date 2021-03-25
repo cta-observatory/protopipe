@@ -177,22 +177,12 @@ def test_BUILD_CLASSIFICATION_MODEL_RandomForest(test_case, pipeline_testdir):
 
     config = resource_filename("protopipe", "scripts/tests/test_regressor.yaml")
 
-    # This is temporary
-    # It is only a way to overwrite the cameras to be used in this test
-    # Reason is that from the current Paranal test files the CHEC images
-    # are all useless (also because of unoptimized settings)
-    if test_case == "PROD3B_CTA_SOUTH":
-        cameras = ['LSTCam', 'FlashCam']
-        cameras_argument = f"--cam_id_list '{' '.join([camera for camera in cameras ])}'"
-    else:
-        cameras_argument = "--cameras_from_file"
-
     exit_status = system(
         f"python {build_model.__file__}\
         --config_file {config}\
         --infile_signal {infile_signal}\
         --infile_background {infile_background}\
         --outdir {outdir}\
-        {cameras_argument}"
+        --cameras_from_file"
     )
     assert exit_status == 0
