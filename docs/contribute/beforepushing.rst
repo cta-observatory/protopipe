@@ -35,18 +35,16 @@ You will have to fix any warning that appears during documentation building,
 because the documentation also runs on `readthedocs <https://readthedocs.org/>`__
 with an option to treat warnings as errors.
 
-Unit and integration tests
---------------------------
+Unit tests
+----------
 
 .. note::
   This is a maintenance activity which has being long overdue and we need
   manpower for it, so if you have experience on this or you want to contribute
   please feel free to do so.
 
-  For more information on how to contribute to this effort check these issues,
-
-  - `unit-tests <https://github.com/cta-observatory/protopipe/issues/69>`__,
-  - `integration tests <https://github.com/cta-observatory/protopipe/issues/70>`__.
+  For more information on how to contribute to this effort check
+  `this issue <https://github.com/cta-observatory/protopipe/issues/69>`__.
 
 Being *protopipe* based on *ctapipe*, all the tools imported from the latter
 have been already tested and approved (*protopipe* uses always a version of
@@ -64,18 +62,28 @@ Same for *pyirf*.
   order to code a new feature, this has to be pull-requested to *ctapipe* and at
   the same time hardcoded in *protopipe*, until the new version of *ctapipe* is released.
 
-For the moment there is only **one integration test**.
+Integration tests
+^^^^^^^^^^^^^^^^^
 
-This test is in charge to detect if changes in the script
-``protopipe.scripts.data_training`` and any code used by it, produce
-any fatal behaviour or crash.
+.. note::
+  For more information on how to contribute to this effort check
+  `this issue <https://github.com/cta-observatory/protopipe/issues/70>`__.
 
-For the moment it uses an old test file from *ctapipe* (a Prod2 CTA South array composed of
-LSTCam, FlashCam and ASTRICam with about ~100 simulated showers).
-Each test is expected to produce a non-empty HDF5 file.
+The integration tests are defined in the dedicated module ``pipeline/scripts/tests/test_pipeline.py``
+and start from test simtel files stored on a CC-IN2P3 dataserver.  
 
-The test can be executed directly from the main folder of *protopipe* by launching
-``pytest``. It is also automatically triggered by the CI every time a new
+The test data is diffuse data from the Prod3b baseline simulations of both 
+CTAN and CTAS produced with the following Corsika settings,
+
+- gammas, ``NSHOW=10 ESLOPE=-2.0 EMIN=10 EMAX=20 NSCAT=1 CSCAT=200 VIEWCONE=3``
+- protons, ``NSHOW=10 ESLOPE=-2.0 EMIN=100 EMAX=200 NSCAT=1 CSCAT=200 VIEWCONE=3``
+- electrons, ``NSHOW=10 ESLOPE=-2.0 EMIN=10 EMAX=20 NSCAT=1 CSCAT=200 VIEWCONE=3``
+
+in the same proportions as a standard full-scale analysis.
+
+The pipeline integration testing can be executed directly from the main folder 
+of *protopipe* by launching ``pytest``.
+It is also automatically triggered by the CI every time a new
 pull-request is pushed to the repository, and its correct
 execution is a mandatory condition for merging.
 
