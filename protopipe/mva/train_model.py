@@ -57,7 +57,7 @@ class TrainModel(object):
                 self.data_train,
                 self.data_test,
             ) = split_train_test(
-                ds=data_sig,
+                survived_images=data_sig,
                 train_fraction=train_fraction,
                 feature_name_list=self.feature_name_list,
                 target_name=self.target_name,
