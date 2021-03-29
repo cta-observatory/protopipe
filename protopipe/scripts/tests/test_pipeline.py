@@ -90,55 +90,6 @@ def test_GET_GAMMAS_FOR_ENERGY_MODEL(test_case, pipeline_testdir):
 
 
 @pytest.mark.parametrize("test_case", [
-    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="g2N")),
-    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="g2S")),
-])
-def test_GET_GAMMAS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
-
-    outpath = pipeline_testdir / f"test_gamma2_noImages_{test_case}.h5"
-
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        -i {input_data[test_case]['gamma2'].parent}\
-        -f {input_data[test_case]['gamma2'].name}"
-    )
-
-    # check that the script ends without crashing
-    assert exit_status == 0
-
-    # check that the produced HDF5 file is non-empty
-    with tables.open_file(outpath) as file:
-        assert file.get_filesize() > 0
-
-
-@pytest.mark.parametrize("test_case", [
-    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="p1N")),
-    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="p1S")),
-])
-def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
-
-    outpath = pipeline_testdir / f"test_proton1_noImages_{test_case}.h5"
-
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        -m 10\
-        -i {input_data[test_case]['proton1'].parent}\
-        -f {input_data[test_case]['proton1'].name}"
-    )
-
-    # check that the script ends without crashing
-    assert exit_status == 0
-
-    # check that the produced HDF5 file is non-empty
-    with tables.open_file(outpath) as file:
-        assert file.get_filesize() > 0
-
-
-@pytest.mark.parametrize("test_case", [
     pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="EN",
                                                                   depends=["g1N"])),
     pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="ES",
@@ -160,6 +111,65 @@ def test_BUILD_ENERGY_MODEL_AdaBoost_DecisionTreeRegressor(test_case, pipeline_t
         --cameras_from_file"
     )
     assert exit_status == 0
+
+
+@pytest.mark.parametrize("test_case", [
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="g2N",
+                                                                  depends=["EN"])),
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="g2S",
+                                                                  depends=["ES"])),
+])
+def test_GET_GAMMAS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
+
+    modelpath = pipeline_testdir / f"energy_model_{test_case}"
+    outpath = pipeline_testdir / f"test_gamma2_noImages_{test_case}.h5"
+
+    exit_status = system(
+        f"python {data_training.__file__}\
+        --config_file {input_data[test_case]['config']}\
+        -o {outpath}\
+        -i {input_data[test_case]['gamma2'].parent}\
+        -f {input_data[test_case]['gamma2'].name}\
+        --estimate_energy True\
+        --regressor_dir {modelpath}"
+    )
+
+    # check that the script ends without crashing
+    assert exit_status == 0
+
+    # check that the produced HDF5 file is non-empty
+    with tables.open_file(outpath) as file:
+        assert file.get_filesize() > 0
+
+
+@pytest.mark.parametrize("test_case", [
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="p1N",
+                                                                  depends=["EN"])),
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="p1S",
+                                                                  depends=["ES"])),
+])
+def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
+
+    modelpath = pipeline_testdir / f"energy_model_{test_case}"
+    outpath = pipeline_testdir / f"test_proton1_noImages_{test_case}.h5"
+
+    exit_status = system(
+        f"python {data_training.__file__}\
+        --config_file {input_data[test_case]['config']}\
+        -o {outpath}\
+        -m 10\
+        -i {input_data[test_case]['proton1'].parent}\
+        -f {input_data[test_case]['proton1'].name}\
+        --estimate_energy True\
+        --regressor_dir {modelpath}"
+    )
+
+    # check that the script ends without crashing
+    assert exit_status == 0
+
+    # check that the produced HDF5 file is non-empty
+    with tables.open_file(outpath) as file:
+        assert file.get_filesize() > 0
 
 
 @pytest.mark.parametrize("test_case", [
