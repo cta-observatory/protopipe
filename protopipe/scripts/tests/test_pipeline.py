@@ -48,14 +48,22 @@ def test_GET_GAMMAS_FOR_ENERGY_MODEL_WITH_IMAGES(test_case, pipeline_testdir):
 
     outpath = pipeline_testdir / f"test_training_withImages_{test_case}.h5"
 
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        --save_images\
-        -i {input_data[test_case]['gamma1'].parent}\
-        -f {input_data[test_case]['gamma1'].name}"
+    command = f"python {data_training.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    --save_images\
+    -i {input_data[test_case]['gamma1'].parent}\
+    -f {input_data[test_case]['gamma1'].name}"
+
+    print(  # only with "pytest -s"
+        f'''
+        /n You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
 
     # check that the script ends without crashing
     assert exit_status == 0
@@ -73,13 +81,21 @@ def test_GET_GAMMAS_FOR_ENERGY_MODEL(test_case, pipeline_testdir):
 
     outpath = pipeline_testdir / f"test_gamma1_noImages_{test_case}.h5"
 
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        -i {input_data[test_case]['gamma1'].parent}\
-        -f {input_data[test_case]['gamma1'].name}"
+    command = f"python {data_training.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    -i {input_data[test_case]['gamma1'].parent}\
+    -f {input_data[test_case]['gamma1'].name}"
+
+    print(  # only with "pytest -s"
+        f'''
+        /n You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
 
     # check that the script ends without crashing
     assert exit_status == 0
@@ -103,13 +119,21 @@ def test_BUILD_ENERGY_MODEL_AdaBoost_DecisionTreeRegressor(test_case, pipeline_t
 
     config = resource_filename("protopipe", "scripts/tests/test_regressor.yaml")
 
-    exit_status = system(
-        f"python {build_model.__file__}\
-        --config_file {config}\
-        --infile_signal {infile}\
-        --outdir {outdir}\
-        --cameras_from_file"
+    command = f"python {build_model.__file__}\
+    --config_file {config}\
+    --infile_signal {infile}\
+    --outdir {outdir}\
+    --cameras_from_file"
+
+    print(  # only with "pytest -s"
+        f'''
+        /n You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
     assert exit_status == 0
 
 
@@ -124,15 +148,23 @@ def test_GET_GAMMAS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
     modelpath = pipeline_testdir / f"energy_model_{test_case}"
     outpath = pipeline_testdir / f"test_gamma2_noImages_{test_case}.h5"
 
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        -i {input_data[test_case]['gamma2'].parent}\
-        -f {input_data[test_case]['gamma2'].name}\
-        --estimate_energy True\
-        --regressor_dir {modelpath}"
+    command = f"python {data_training.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    -i {input_data[test_case]['gamma2'].parent}\
+    -f {input_data[test_case]['gamma2'].name}\
+    --estimate_energy True\
+    --regressor_dir {modelpath}"
+
+    print(  # only with "pytest -s"
+        f'''
+        /n You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
 
     # check that the script ends without crashing
     assert exit_status == 0
@@ -153,16 +185,24 @@ def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
     modelpath = pipeline_testdir / f"energy_model_{test_case}"
     outpath = pipeline_testdir / f"test_proton1_noImages_{test_case}.h5"
 
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        -m 10\
-        -i {input_data[test_case]['proton1'].parent}\
-        -f {input_data[test_case]['proton1'].name}\
-        --estimate_energy True\
-        --regressor_dir {modelpath}"
+    command = f"python {data_training.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    -m 10\
+    -i {input_data[test_case]['proton1'].parent}\
+    -f {input_data[test_case]['proton1'].name}\
+    --estimate_energy True\
+    --regressor_dir {modelpath}"
+
+    print(  # only with "pytest -s"
+        f'''
+        /n You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
 
     # check that the script ends without crashing
     assert exit_status == 0
@@ -187,12 +227,20 @@ def test_BUILD_CLASSIFICATION_MODEL_RandomForest(test_case, pipeline_testdir):
 
     config = resource_filename("protopipe", "scripts/tests/test_regressor.yaml")
 
-    exit_status = system(
-        f"python {build_model.__file__}\
-        --config_file {config}\
-        --infile_signal {infile_signal}\
-        --infile_background {infile_background}\
-        --outdir {outdir}\
-        --cameras_from_file"
+    command = f"python {build_model.__file__}\
+    --config_file {config}\
+    --infile_signal {infile_signal}\
+    --infile_background {infile_background}\
+    --outdir {outdir}\
+    --cameras_from_file"
+
+    print(  # only with "pytest -s"
+        f'''
+        /n You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
     assert exit_status == 0
