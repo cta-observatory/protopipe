@@ -795,7 +795,6 @@ class EventPreparer:
                         good_hillas_dict_reco,
                         source.subarray,
                         SkyCoord(alt=alt, az=az, frame="altaz"),
-                        None,  # use the array direction
                         tels_pointing
                         ,
                     )
