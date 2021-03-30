@@ -68,16 +68,16 @@ PreparedEvent = namedtuple(
 
 
 def stub(
-    event,
-    true_image,
-    image,
-    cleaning_mask_reco,
-    cleaning_mask_clusters,
-    good_for_reco,
-    hillas_dict,
-    hillas_dict_reco,
-    n_tels,
-    leakage_dict,
+        event,
+        true_image,
+        image,
+        cleaning_mask_reco,
+        cleaning_mask_clusters,
+        good_for_reco,
+        hillas_dict,
+        hillas_dict_reco,
+        n_tels,
+        leakage_dict,
 ):
     """Default container for images that did not survive cleaning."""
     return PreparedEvent(
@@ -128,14 +128,14 @@ class EventPreparer:
     """
 
     def __init__(
-        self,
-        config,
-        subarray,
-        cams_and_foclens,
-        mode,
-        event_cutflow=None,
-        image_cutflow=None,
-        debug=False,
+            self,
+            config,
+            subarray,
+            cams_and_foclens,
+            mode,
+            event_cutflow=None,
+            image_cutflow=None,
+            debug=False,
     ):
         """Initiliaze an EventPreparer object."""
         # Cleaning for reconstruction
@@ -195,19 +195,19 @@ class EventPreparer:
                     (
                         "poor moments",
                         lambda m: m.width <= 0
-                        or m.length <= 0
-                        or np.isnan(m.width)
-                        or np.isnan(m.length),
+                                  or m.length <= 0
+                                  or np.isnan(m.width)
+                                  or np.isnan(m.length),
                     ),
                     (
                         "bad ellipticity",
                         lambda m: (m.width / m.length) < ellipticity_bounds[0]
-                        or (m.width / m.length) > ellipticity_bounds[-1],
+                                  or (m.width / m.length) > ellipticity_bounds[-1],
                     ),
                     (
                         "close to the edge",
                         lambda m, cam_id: m.r.value
-                        > (nominal_distance_bounds[-1] * self.camera_radius[cam_id]),
+                                          > (nominal_distance_bounds[-1] * self.camera_radius[cam_id]),
                     ),  # in meter
                 ]
             )
@@ -284,7 +284,6 @@ class EventPreparer:
 
         geom_cam_tel = {}
         for camera in source.subarray.camera_types:
-
             # Original geometry of each camera
             geom = camera.geometry
             # Same but with focal length as an attribute
@@ -632,7 +631,7 @@ class EventPreparer:
                             good_for_reco[tel_id] = 0  # we record it as BAD
 
                         if self.image_cutflow.cut(
-                            "close to the edge", moments_reco, camera.camera_name
+                                "close to the edge", moments_reco, camera.camera_name
                         ):
                             if debug:
                                 print(
@@ -677,9 +676,9 @@ class EventPreparer:
                         leakage_dict[tel_id] = leakages
 
                     except (
-                        FloatingPointError,
-                        HillasParameterizationError,
-                        ValueError,
+                            FloatingPointError,
+                            HillasParameterizationError,
+                            ValueError,
                     ) as e:
                         if debug:
                             print(
@@ -776,19 +775,21 @@ class EventPreparer:
                             + bcolors.ENDC
                         )
 
-                    tels_pointing = {
-                        tel_id: SkyCoord(
-                            alt=point_altitude_dict[tel_id],
-                            az=point_azimuth_dict[tel_id],
-                            frame="altaz",
-                        )  # cycle only on tels which still have an image
-                        for tel_id in point_altitude_dict.keys()
-                    }
 
                     # if all telescopes are pointing in parallel to run_array_direction, no need to pass the tels
                     # pointing to predict
-                    if all(x.alt == dir[1] and x.az == dir[0] for x in tels_pointing.values()):
+                    if all(x.alt == event.mcheader.run_array_direction[1]
+                           and x.az == event.mcheader.run_array_direction[0] for x in tels_pointing.values()):
                         tels_pointing = None
+                    else:
+                        tels_pointing = {
+                            tel_id: SkyCoord(
+                                alt=point_altitude_dict[tel_id],
+                                az=point_azimuth_dict[tel_id],
+                                frame="altaz",
+                            )  # cycle only on tels which still have an image
+                            for tel_id in point_altitude_dict.keys()
+                        }
 
                     # Reconstruction results
                     reco_result = self.shower_reco.predict(
@@ -801,7 +802,6 @@ class EventPreparer:
                     # Impact parameter for energy estimation (/ tel)
                     subarray = source.subarray
                     for tel_id in hillas_dict.keys():
-
                         pos = subarray.positions[tel_id]
 
                         tel_ground = SkyCoord(
