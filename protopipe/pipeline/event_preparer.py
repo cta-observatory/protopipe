@@ -720,9 +720,6 @@ class EventPreparer:
                         + bcolors.ENDC
                     )
 
-                # create a dummy container for direction reconstruction
-                reco_result = ReconstructedShowerContainer()
-
                 if return_stub:  # if saving all events (default)
                     if debug:
                         print(bcolors.OKBLUE + "Recording event..." + bcolors.ENDC)
@@ -774,7 +771,6 @@ class EventPreparer:
                             + "used to recover the shower's direction..."
                             + bcolors.ENDC
                         )
-
 
                     # if all telescopes are pointing in parallel to run_array_direction, no need to pass the tels
                     # pointing to predict
