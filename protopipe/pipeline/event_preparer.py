@@ -776,12 +776,27 @@ class EventPreparer:
                             + bcolors.ENDC
                         )
 
+                    # if all telescopes are pointing in parallel to run_array_direction, no need to pass the tels
+                    # pointing to predict
+                    if all(x.alt == event.mcheader.run_array_direction[1]
+                           and x.az == event.mcheader.run_array_direction[0] for x in tels_pointing.values()):
+                        tels_pointing = None
+                    else:
+                        tels_pointing = {
+                            tel_id: SkyCoord(
+                                alt=point_altitude_dict[tel_id],
+                                az=point_azimuth_dict[tel_id],
+                                frame="altaz",
+                            )  # cycle only on tels which still have an image
+                            for tel_id in point_altitude_dict.keys()
+                        }
+
                     # Reconstruction results
                     reco_result = self.shower_reco.predict(
                         good_hillas_dict_reco,
                         source.subarray,
                         SkyCoord(alt=alt, az=az, frame="altaz"),
-                        None,  # use the array direction
+                        tels_pointing,
                     )
 
                     # Impact parameter for energy estimation (/ tel)
