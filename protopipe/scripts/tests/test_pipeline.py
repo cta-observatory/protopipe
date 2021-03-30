@@ -188,7 +188,6 @@ def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
     command = f"python {data_training.__file__}\
     --config_file {input_data[test_case]['config']}\
     -o {outpath}\
-    -m 10\
     -i {input_data[test_case]['proton1'].parent}\
     -f {input_data[test_case]['proton1'].name}\
     --estimate_energy True\
@@ -225,7 +224,7 @@ def test_BUILD_CLASSIFICATION_MODEL_RandomForest(test_case, pipeline_testdir):
     infile_background = pipeline_testdir / f"test_proton1_noImages_{test_case}.h5"
     outdir = pipeline_testdir / f"classification_model_{test_case}"
 
-    config = resource_filename("protopipe", "scripts/tests/test_regressor.yaml")
+    config = resource_filename("protopipe", "scripts/tests/test_classifier.yaml")
 
     command = f"python {build_model.__file__}\
     --config_file {config}\

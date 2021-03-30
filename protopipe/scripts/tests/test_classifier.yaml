@@ -9,7 +9,7 @@ General:
  outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/estimators/gamma_hadron_classifier'
 
 Split:
- train_fraction: 0.8
+ train_fraction: 0.5
  use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
 
 Method:

@@ -86,8 +86,8 @@ ImageCleaning:
 ImageSelection:
  charge: [50., 1e10]
  pixel: [3, 1e10]
- ellipticity: [0.1, 0.6]
- nominal_distance: [0., 0.8]  # in camera radius
+ ellipticity: [0.1, 0.8]
+ nominal_distance: [0., 1.]  # in camera radius
 
 # Minimal number of telescopes to consider events
 Reconstruction:
