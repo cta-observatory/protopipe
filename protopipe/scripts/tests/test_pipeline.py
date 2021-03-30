@@ -188,7 +188,6 @@ def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
     command = f"python {data_training.__file__}\
     --config_file {input_data[test_case]['config']}\
     -o {outpath}\
-    -m 10\
     -i {input_data[test_case]['proton1'].parent}\
     -f {input_data[test_case]['proton1'].name}\
     --estimate_energy True\
