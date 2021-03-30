@@ -795,8 +795,7 @@ class EventPreparer:
                         good_hillas_dict_reco,
                         source.subarray,
                         SkyCoord(alt=alt, az=az, frame="altaz"),
-                        tels_pointing
-                        ,
+                        tels_pointing,
                     )
 
                     # Impact parameter for energy estimation (/ tel)
