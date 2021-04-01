@@ -12,14 +12,14 @@ extras_require = {
         "gammapy",
         "pytest",
         "numpy",
-        "ctapipe==0.9.1",
+        "ctapipe==0.10.5",
         "pyirf",
     ],
     "tests": [
         "pytest",
         "pytest-cov",
+        "pytest-dependency",
         "codecov",
-        "ctapipe-extra @ https://github.com/cta-observatory/ctapipe-extra/archive/v0.3.1.tar.gz",
     ],
 }
 
@@ -43,7 +43,7 @@ setup(
     packages=find_packages(),
     package_data={"protopipe": ["aux/example_config_files/analysis.yaml"]},
     include_package_data=True,
-    install_requires=["ctapipe==0.9.1", "pyirf"],
+    install_requires=["ctapipe==0.10.5", "pyirf"],
     zip_safe=False,
     use_scm_version={"write_to": os.path.join("protopipe", "_version.py")},
     tests_require=extras_require["tests"],
