@@ -2,12 +2,13 @@ import tables
 import yaml
 import argparse
 import math
+import joblib
 
 import astropy.units as u
 import matplotlib.pyplot as plt
 import os.path as path
 
-from ctapipe.io import event_source
+from ctapipe.io import EventSource
 
 
 class bcolors:
@@ -237,7 +238,7 @@ def prod3b_array(fileName, site, array):
         This will feed both the estimators and the image cleaning.
 
     """
-    source = event_source(input_url=fileName, max_events=1)
+    source = EventSource(input_url=fileName, max_events=1)
 
     for event in source:  # get only first event
         pass
@@ -440,7 +441,7 @@ def CTAMARS_radii(camera_name):
         Name of the camera.
 
     Returns
-    ----------
+    -------
     average_camera_radii_deg : dict
         Dictionary containing the hard-coded values.
     """
@@ -480,3 +481,36 @@ def get_camera_names(inputPath=None):
     camera_names = [x.name for x in group._f_list_nodes()]
     h5file.close()
     return camera_names
+
+
+def load_models(path, cam_id_list):
+    """Load the pickled dictionary of model from disk
+    and fill the model dictionary.
+    
+    Parameters
+    ----------
+    path : string
+        The path where the pre-trained, pickled models are
+        stored. `path` is assumed to contain a `{cam_id}` keyword
+        to be replaced by each camera identifier in `cam_id_list`
+        (or at least a naked `{}`).
+    cam_id_list : list
+        List of camera identifiers like telescope ID or camera ID
+        and the assumed distinguishing feature in the filenames of
+        the various pickled regressors.
+    
+    Returns
+    -------
+    model_dict: dict
+        Dictionary with `cam_id` as keys and pickled models as values.
+    
+    """
+    
+    model_dict = {}
+    for key in cam_id_list:
+            try:
+                model_dict[key] = joblib.load(path.format(cam_id=key))
+            except IndexError:
+                model_dict[key] = joblib.load(path.format(key))
+                
+    return model_dict
