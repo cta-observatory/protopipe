@@ -9,11 +9,8 @@ import tables as tb
 import astropy.units as u
 
 # ctapipe
-# from ctapipe.io import EventSourceFactory
-from ctapipe.io import event_source
+from ctapipe.io import EventSource
 from ctapipe.utils.CutFlow import CutFlow
-from ctapipe.reco.energy_regressor import EnergyRegressor
-from ctapipe.reco.event_classifier import EventClassifier
 
 # Utilities
 from protopipe.pipeline import EventPreparer
@@ -23,12 +20,11 @@ from protopipe.pipeline.utils import (
     prod3b_array,
     str2bool,
     load_config,
+    load_models,
     SignalHandler,
 )
 
-# from memory_profiler import profile
 
-# @profile
 def main():
 
     # Argument parser
@@ -148,7 +144,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        classifier = EventClassifier.load(clf_file, cam_id_list=cams_and_foclens.keys())
+        classifiers = load_models(clf_file, cam_id_list=cams_and_foclens.keys())
         if args.debug:
             print(
                 bcolors.OKBLUE
@@ -171,7 +167,7 @@ def main():
                 "cam_id": "{cam_id}",
             }
         )
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
+        regressors = load_models(reg_file, cam_id_list=cams_and_foclens.keys())
         if args.debug:
             print(
                 bcolors.OKBLUE
@@ -186,11 +182,12 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     # Declaration of the column descriptor for the (possible) images file
-    class StoredImages(tb.IsDescription):
-        event_id = tb.Int32Col(dflt=1, pos=0)
+    StoredImages = dict(
+        event_id = tb.Int32Col(dflt=1, pos=0),
         tel_id = tb.Int16Col(dflt=1, pos=1)
-        dl1_phe_image = tb.Float32Col(shape=(1855), pos=2)
-        mc_phe_image = tb.Float32Col(shape=(1855), pos=3)
+        # reco_image, true_image and cleaning_mask_reco
+        # are defined later sicne they depend on the number of pixels
+        )
 
     # this class defines the reconstruction parameters to keep track of
     class RecoEvent(tb.IsDescription):
@@ -249,7 +246,7 @@ def main():
 
     for i, filename in enumerate(filenamelist):
 
-        source = event_source(
+        source = EventSource(
             input_url=filename, allowed_tels=allowed_tels, max_events=args.max_events
         )
         # loop that cleans and parametrises the images and performs the reconstruction
@@ -275,15 +272,15 @@ def main():
         ):
 
             # True energy
-            true_energy = event.mc.energy.value
+            true_energy = event.simulation.shower.energy.value
             
             # True direction
-            true_az = event.mc.az
-            true_alt = event.mc.alt
+            true_az = event.simulation.shower.az
+            true_alt = event.simulation.shower.alt
             
-            # Angular quantities
-            run_array_direction = event.mcheader.run_array_direction
-            pointing_az, pointing_alt = run_array_direction[0], run_array_direction[1]
+            # Array pointing in AltAz frame
+            pointing_az = event.pointing.array_azimuth
+            pointing_alt = event.pointing.array_altitude
 
             if good_event:  # aka it has been successfully reconstructed
 
@@ -291,7 +288,7 @@ def main():
                 # - true direction
                 # - reconstruted direction
                 xi = angular_separation(
-                    event.mc.az, event.mc.alt, reco_result.az, reco_result.alt
+                    event.simulation.shower.az, event.simulation.shower.alt, reco_result.az, reco_result.alt
                 )
 
                 # Angular separation between
@@ -342,7 +339,7 @@ def main():
 
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
-                    model = regressor.model_dict[cam_id]
+                    model = regressors[cam_id]
 
                     # Features to be fed in the regressor
                     features_img = np.array(
@@ -394,7 +391,7 @@ def main():
                 for idx, tel_id in enumerate(hillas_dict.keys()):
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
-                    model = classifier.model_dict[cam_id]
+                    model = classifiers[cam_id]
                     # Features to be fed in the classifier
                     # this should be read in some way from
                     # the classifier configuration file!!!!!
@@ -482,28 +479,43 @@ def main():
             # If the user wants to save the images of the run
             if args.save_images is True:
                 for idx, tel_id in enumerate(hillas_dict.keys()):
-                    cam_id = event.inst.subarray.tel[tel_id].camera.cam_id
+                    cam_id = source.subarray.tel[tel_id].camera.camera_name
                     if cam_id not in images_phe:
+                        
+                        n_pixels = source.subarray.tel[tel_id].camera.geometry.n_pixels
+                        StoredImages["true_image"] = tb.Float32Col(
+                            shape=(n_pixels), pos=2
+                        )
+                        StoredImages["reco_image"] = tb.Float32Col(
+                            shape=(n_pixels), pos=3
+                        )
+                        StoredImages["cleaning_mask_reco"] = tb.BoolCol(
+                            shape=(n_pixels), pos=4
+                        )  # not in ctapipe
+                        StoredImages["cleaning_mask_clusters"] = tb.BoolCol(
+                            shape=(n_pixels), pos=5
+                        )  # not in ctapipe
+                        
                         images_table[cam_id] = images_outfile.create_table(
                             "/", "_".join(["images", cam_id]), StoredImages
                         )
-                        images_phe[cam_id] = images_table[cam_id].row
+                    images_phe[cam_id] = images_table[cam_id].row
 
-                images_phe[cam_id]["event_id"] = event.r0.event_id
-                images_phe[cam_id]["tel_id"] = tel_id
-                images_phe[cam_id]["reco_image"] = reco_image[tel_id]
-                images_phe[cam_id]["true_image"] = true_image[tel_id]
-                images_phe[cam_id]["cleaning_mask_reco"] = cleaning_mask_reco[tel_id]
-                images_phe[cam_id]["cleaning_mask_clusters"] = cleaning_mask_clusters[
-                    tel_id
-                ]
+                    images_phe[cam_id]["event_id"] = event.index.event_id
+                    images_phe[cam_id]["tel_id"] = tel_id
+                    images_phe[cam_id]["reco_image"] = reco_image[tel_id]
+                    images_phe[cam_id]["true_image"] = true_image[tel_id]
+                    images_phe[cam_id]["cleaning_mask_reco"] = cleaning_mask_reco[tel_id]
+                    images_phe[cam_id]["cleaning_mask_clusters"] = cleaning_mask_clusters[
+                        tel_id
+                    ]
 
-                images_phe[cam_id].append()
+                    images_phe[cam_id].append()
 
             # Now we start recording the data to file
             reco_event["event_id"] = event.index.event_id
             reco_event["obs_id"] = event.index.obs_id
-            reco_event["NTels_trig"] = len(event.dl0.tels_with_data)
+            reco_event["NTels_trig"] = len(event.r1.tel.keys())
             reco_event["NTels_reco"] = len(hillas_dict)
             reco_event["NTels_reco_lst"] = n_tels["LST_LST_LSTCam"]
             reco_event["NTels_reco_mst"] = (
@@ -536,10 +548,10 @@ def main():
             reco_event["ErrEstDir"] = np.nan
 
             # Simulated information
-            shower = event.mc
+            shower = event.simulation.shower
             mc_core_x = shower.core_x
             mc_core_y = shower.core_y
-            reco_event["true_energy"] = event.mc.energy.to("TeV").value
+            reco_event["true_energy"] = shower.energy.to("TeV").value
             reco_event["true_az"] = true_az.to("deg").value
             reco_event["true_alt"] = true_alt.to("deg").value
             reco_event["true_core_x"] = mc_core_x.to("m").value
@@ -561,7 +573,6 @@ def main():
         for table in images_table.values():
             table.flush()
 
-    # Add in meta-data's table?
     try:
         print()
         evt_cutflow()
