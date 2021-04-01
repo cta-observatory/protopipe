@@ -16,8 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      # make sure we have version info
-      - run: git fetch --tags
+        with:
+            fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -49,7 +49,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: git fetch --tags
+        with:
+            fetch-depth: 0
 
       - uses: ammaraskar/sphinx-action@master
         with:

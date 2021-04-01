@@ -26,8 +26,8 @@ The script ``protopipe.scripts.make_performance_EventDisplay.py`` is used as fol
 
 .. code-block::
 
-  usage: make_performance_EventDisplay.py [-h] --config_file CONFIG_FILE
-                                          [--wave | --tail]
+  usage: protopipe-DL3-EventDisplay [-h] --config_file CONFIG_FILE
+                                  [--wave | --tail]
 
   Make performance files
 

@@ -1,15 +1,15 @@
 # General informations
 # NOTE: only Prod3b simulations are currently supported.
 General:
- config_name: 'v0.4.0_dev1'
- site: 'north'  # 'north' or 'south'
+ config_name: 'test_CTA_South'
+ site: 'south'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
  # - a custom list of telescope IDs
  # WARNING: for simulations containing multiple copies of the telescopes,
  # only 'full_array' or custom list are supported options!
  array: full_array
- cam_id_list : ['LSTCam', 'NectarCam'] # Selected cameras (disabled option)
+ cam_id_list : ['LSTCam', 'FlashCam', 'CHEC'] # Selected cameras (disabled option)
 
 # Cleaning for reconstruction
 ImageCleaning:
@@ -86,8 +86,8 @@ ImageCleaning:
 ImageSelection:
  charge: [50., 1e10]
  pixel: [3, 1e10]
- ellipticity: [0.1, 0.6]
- nominal_distance: [0., 0.8]  # in camera radius
+ ellipticity: [0.1, 0.8]
+ nominal_distance: [0., 1.]  # in camera radius
 
 # Minimal number of telescopes to consider events
 Reconstruction:

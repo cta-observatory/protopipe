@@ -1,7 +1,7 @@
 # General informations
 # NOTE: only Prod3b simulations are currently supported.
 General:
- config_name: 'v0.4.0_dev1'
+ config_name: 'test_CTA_North'
  site: 'north'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
