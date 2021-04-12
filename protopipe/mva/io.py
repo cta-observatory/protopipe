@@ -27,7 +27,7 @@ def initialize_script_arguments():
         default=None,
         help="maximum number of events to use",
     )
-    
+
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument(
         "--wave",
@@ -42,7 +42,7 @@ def initialize_script_arguments():
         dest="mode",
         action="store_const",
         const="tail",
-        help="if set, use tail cleaning, otherwise wavelets",
+        help="if set, use tail cleaning (default), otherwise wavelets",
     )
 
     # These last CL arguments can overwrite the values from the config
