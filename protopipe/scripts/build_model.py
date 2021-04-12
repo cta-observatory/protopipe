@@ -49,7 +49,7 @@ def main():
 
     # Get file containing gammas (signal)
     if args.infile_signal is None:
-        data_sig_file = cfg["General"]["data_file"].format(args.mode)
+        data_sig_file = cfg["General"]["data_sig_file"].format(args.mode)
     else:
         data_sig_file = args.infile_signal
 
@@ -57,15 +57,15 @@ def main():
 
     # Cameras to use
     if args.cameras_from_config:
-        print("TAKING CAMERAS FROM CONFIG")
+        print("GETTING CAMERAS FROM CONFIGURATION FILE")
         cam_ids = cfg["General"]["cam_id_list"]
     elif args.cameras_from_file:
-        print("TAKING CAMERAS FROM TRAINING FILE")
+        print("GETTING CAMERAS FROM SIGNAL TRAINING FILE")
         # in the same analysis all particle types are analyzed in the
         # same way so we can just use gammas
         cam_ids = get_camera_names(filename_sig)
     else:
-        print("TAKING CAMERAS FROM CLI")
+        print("GETTING CAMERAS FROM CLI")
         cam_ids = args.cam_id_lists.split()
 
     # The names of the tables inside the HDF5 file are the camera's names
