@@ -11,7 +11,7 @@ This section contains,
 
 - information on how the project is organized (:ref:`gitrepo`),
 - instructions on how to start adding your contribution (:ref:`instructions`),
-- what you can check before adding it (:ref:`beforepushing`).
+- what to check before adding it (:ref:`beforepushing`).
 
 .. toctree::
     :hidden:

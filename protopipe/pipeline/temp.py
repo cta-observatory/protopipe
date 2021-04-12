@@ -10,17 +10,27 @@ file will change.
 
 """
 
+import os
+import time
+import logging
+from pathlib import Path
+
+import requests
+from tqdm import tqdm
+from urllib.parse import urlparse
 import numpy as np
 from numpy import nan
-from scipy.sparse import lil_matrix, csr_matrix
 import astropy.units as u
-from astropy.coordinates import Angle, SkyCoord
+from astropy.coordinates import SkyCoord
+from requests.exceptions import HTTPError
 
 from ctapipe.core import Container, Field
 from ctapipe.coordinates import CameraFrame, TelescopeFrame
 from ctapipe.instrument import CameraGeometry
 from ctapipe.reco import HillasReconstructor
 from ctapipe.reco.HillasReconstructor import HillasPlane
+
+logger = logging.getLogger(__name__)
 
 
 class HillasParametersTelescopeFrameContainer(Container):
@@ -199,3 +209,191 @@ class MyHillasReconstructor(HillasReconstructor):
                 weight=moments.intensity * (moments.length / moments.width),
             )
             self.hillas_planes[tel_id] = circle
+
+
+try:
+    import ctapipe_resources
+
+    has_resources = True
+except ImportError:
+    has_resources = False
+
+
+def download_file(url, path, auth=None, chunk_size=10240, progress=False):
+    """
+    Download a file. Will write to ``path + '.part'`` while downloading
+    and rename after successful download to the final name.
+    Parameters
+    ----------
+    url: str or url
+        The URL to download
+    path: pathlib.Path or str
+        Where to store the downloaded data.
+    auth: None or tuple of (username, password) or a request.AuthBase instance.
+    chunk_size: int
+        Chunk size for writing the data file, 10 kB by default.
+    """
+    logger.info(f"Downloading {url} to {path}")
+    name = urlparse(url).path.split("/")[-1]
+    path = Path(path)
+
+    with requests.get(url, stream=True, auth=auth, timeout=5) as r:
+        # make sure the request is successful
+        r.raise_for_status()
+
+        total = float(r.headers.get("Content-Length", float("inf")))
+        pbar = tqdm(
+            total=total,
+            disable=not progress,
+            unit="B",
+            unit_scale=True,
+            desc=f"Downloading {name}",
+        )
+
+        try:
+            # open a .part file to avoid creating
+            # a broken file at the intended location
+            part_file = path.with_suffix(path.suffix + ".part")
+
+            part_file.parent.mkdir(parents=True, exist_ok=True)
+            with part_file.open("wb") as f:
+                for chunk in r.iter_content(chunk_size=chunk_size):
+                    f.write(chunk)
+                    pbar.update(len(chunk))
+        except:  # we really want to catch everythin here
+            # cleanup part file if something goes wrong
+            if part_file.is_file():
+                part_file.unlink()
+            raise
+
+    # when successful, move to intended location
+    part_file.rename(path)
+
+
+def get_cache_path(url, cache_name="ctapipe", env_override="CTAPIPE_CACHE"):
+    if os.getenv(env_override):
+        base = Path(os.environ["CTAPIPE_CACHE"])
+    else:
+        base = Path(os.environ["HOME"]) / ".cache" / cache_name
+
+    url = urlparse(url)
+
+    path = os.path.join(url.netloc.rstrip("/"), url.path.lstrip("/"))
+    path = base / path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def download_file_cached(
+    name,
+    cache_name="ctapipe",
+    auth=None,
+    env_prefix="CTAPIPE_DATA_",
+    default_url="http://cccta-dataserver.in2p3.fr/data/",
+    progress=False,
+):
+    """
+    Downloads a file from a dataserver and caches the result locally
+    in ``$HOME/.cache/<cache_name>``.
+    If the file is found in the cache, no new download is performed.
+    Parameters
+    ----------
+    name: str or pathlib.Path
+        the name of the file, relative to the data server url
+    cache_name: str
+        What name to use for the cache directory
+    env_prefix: str
+        Prefix for the environt variables used for overriding the URL,
+        and providing username and password in case authentication is required.
+    auth: True, None or tuple of (username, password)
+        Authentication data for the request. Will be passed to ``requests.get``.
+        If ``True``, read username and password for the request from
+        the env variables ``env_prefix + 'USER'`` and ``env_prefix + PASSWORD``
+    default_url: str
+        The default url from which to download ``name``, can be overriden
+        by setting the env variable ``env_prefix + URL``
+    Returns
+    -------
+    path: pathlib.Path
+        the full path to the downloaded data.
+    """
+    logger.debug(f"File {name} is not available in cache, downloading.")
+
+    base_url = os.environ.get(env_prefix + "URL", default_url).rstrip("/")
+    url = base_url + "/" + str(name).lstrip("/")
+
+    path = get_cache_path(url, cache_name=cache_name)
+    part_file = path.with_suffix(path.suffix + ".part")
+
+    if part_file.is_file():
+        logger.warning("Another download for this file is already running, waiting.")
+        while part_file.is_file():
+            time.sleep(1)
+
+    # if we already dowloaded the file, just use it
+    if path.is_file():
+        logger.debug(f"File {name} is available in cache.")
+        return path
+
+    if auth is True:
+        try:
+            auth = (
+                os.environ[env_prefix + "USER"],
+                os.environ[env_prefix + "PASSWORD"],
+            )
+        except KeyError:
+            raise KeyError(
+                f'You need to set the env variables "{env_prefix}USER"'
+                f' and "{env_prefix}PASSWORD" to download test files.'
+            ) from None
+
+    download_file(url=url, path=path, auth=auth, progress=progress)
+    return path
+
+
+DEFAULT_URL = "http://cccta-dataserver.in2p3.fr/data/ctapipe-extra/v0.3.3/"
+def get_dataset_path(filename, url=DEFAULT_URL):
+    """
+    Returns the full file path to an auxiliary dataset needed by
+    ctapipe, given the dataset's full name (filename with no directory).
+    This will first search for the file in directories listed in
+    tne environment variable CTAPIPE_SVC_PATH (if set), and if not found,
+    will look in the ctapipe_resources module
+    (if installed with the ctapipe-extra package), which contains the defaults.
+    Parameters
+    ----------
+    filename: str
+        name of dataset to fetch
+    Returns
+    -------
+    string with full path to the given dataset
+    """
+
+    searchpath = os.getenv("CTAPIPE_SVC_PATH")
+
+    if searchpath:
+        filepath = find_in_path(filename=filename, searchpath=searchpath, url=url)
+
+        if filepath:
+            return filepath
+
+    if has_resources and (url is DEFAULT_URL):
+        logger.debug(
+            "Resource '{}' not found in CTAPIPE_SVC_PATH, looking in "
+            "ctapipe_resources...".format(filename)
+        )
+
+        return Path(ctapipe_resources.get(filename))
+
+    # last, try downloading the data
+    try:
+        return download_file_cached(filename, default_url=url, progress=True)
+    except HTTPError as e:
+        # let 404 raise the FileNotFoundError instead of HTTPError
+        if e.response.status_code != 404:
+            raise
+
+    raise FileNotFoundError(
+        f"Couldn't find resource: '{filename}',"
+        " You might want to install ctapipe_resources"
+    )

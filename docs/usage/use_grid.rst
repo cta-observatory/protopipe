@@ -26,7 +26,7 @@ Usage
   - protopipe (Python >=3.5, conda environment)
   - GRID interface (Python 2.7, inside the container).
 
-  Open 1 tab each on you terminal so you can work seamlessly between the 2.
+  Open 1 tab for each of these environments on you terminal so you can work seamlessly between the 2.
 
   To monitor the jobs you can use the
   `DIRAC Web Interface <https://ccdcta-web.in2p3.fr/DIRAC/?view=tabs&theme=Crisp&url_state=1|*DIRAC.JobMonitor.classes.JobMonitor:,>`_
@@ -37,6 +37,12 @@ Usage
   2. ``python $GRID/create_analysis_tree.py --analysis_name myAnalysis``
 
   All configuration files for this analysis are stored under ``configs``.
+  Throughout these instructions ``$ANALYSIS`` will be a label for the analysis
+  path within or outside of the container.
+
+  .. figure:: ./AnalysisTree.png
+    :width: 250
+    :alt: Directory tree of a full analysis performed with protopipe.
 
 2. **Obtain training data for energy estimation** (GRID enviroment)
 
@@ -102,12 +108,6 @@ Check that,
 
 - ``System clock synchronized: yes``
 - ``systemd-timesyncd.service active: yes``
-
-**After issuing the command ``dirac-proxy-init`` and typing my certificate
-password the process start pending and gets stuck**
-
-One possible reason might be related to your network security settings.
-Some networks might require to add the option ``-L`` to ``dirac-proxy-init``.
 
 **After issuing the command ``dirac-proxy-init`` and typing my certificate
 password the process start pending and gets stuck**

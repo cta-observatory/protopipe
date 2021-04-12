@@ -3,6 +3,7 @@ import pandas as pd
 import pickle
 import gzip
 from sklearn.metrics import auc, roc_curve
+from sklearn.model_selection import train_test_split
 
 
 def save_obj(obj, name):
@@ -80,23 +81,48 @@ def make_cut_list(cuts):
     return cut_list
 
 
-def split_train_test(ds, train_fraction, feature_name_list, target_name):
-    # Get the run id corresponding to 70% of the statistics
-    # (and sort to avoid troubles...)
-    obs_ids = np.sort(pd.unique(ds["obs_id"]))
-    max_train_obs_idx = int(train_fraction * len(obs_ids))
-    run_max_train = obs_ids[max_train_obs_idx]
+def split_train_test(survived_images, train_fraction, feature_name_list, target_name):
+    """Split the data selected for cuts in train and test samples.
 
-    # Split the data for training
-    data_train = ds.query("obs_id < {}".format(run_max_train))
+    Parameters
+    ----------
+    survived_images: `~pandas.DataFrame`
+        Images that survived the selection cuts.
+    train_fraction: `float`
+        Fraction of data to be used for training.
+    feature_name_list: `list`
+        List of variables to use for training the model.
+    target_name: `str`
+        Variable against which to train.
+
+    Returns
+    --------
+    X_train: `~pandas.DataFrame`
+        Data frame
+    X_test: `~pandas.DataFrame`
+        Data frame
+    y_train: `~pandas.DataFrame`
+        Data frame
+    y_test: `~pandas.DataFrame`
+        Data frame
+    data_train: `~pandas.DataFrame`
+        Training data indexed by observation ID and event ID.
+    data_test: `~pandas.DataFrame`
+        Test data indexed by observation ID and event ID.
+    """
+
+    data_train, data_test = train_test_split(survived_images,
+                                             train_size=train_fraction,
+                                             random_state=0,
+                                             shuffle=True)
+
     y_train = data_train[target_name]
     X_train = data_train[feature_name_list]
-    data_train = data_train.set_index(["obs_id", "event_id"])
 
-    # Split the data for training
-    data_test = ds.query("obs_id >= {}".format(run_max_train))
     y_test = data_test[target_name]
     X_test = data_test[feature_name_list]
+
+    data_train = data_train.set_index(["obs_id", "event_id"])
     data_test = data_test.set_index(["obs_id", "event_id"])
 
     return X_train, X_test, y_train, y_test, data_train, data_test

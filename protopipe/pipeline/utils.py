@@ -1,15 +1,19 @@
+import tables
 import yaml
 import argparse
+import math
+import joblib
 
 import astropy.units as u
 import matplotlib.pyplot as plt
 import os.path as path
 
-from ctapipe.io import event_source
+from ctapipe.io import EventSource
 
 
 class bcolors:
     """Color definitions for standard and debug printing."""
+
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
     OKGREEN = "\033[92m"
@@ -234,7 +238,7 @@ def prod3b_array(fileName, site, array):
         This will feed both the estimators and the image cleaning.
 
     """
-    source = event_source(input_url=fileName, max_events=1)
+    source = EventSource(input_url=fileName, max_events=1)
 
     for event in source:  # get only first event
         pass
@@ -385,8 +389,8 @@ def camera_radius(camid_to_efl, cam_id="all"):
     This should be replaced by a function in ctapipe getting the radius either
     from  the pixel poisitions or from an external database
 
-    Note
-    ----
+    Notes
+    -----
     average_camera_radius_meters = math.tan(math.radians(average_camera_radius_degree)) * foclen
     The average camera radius values are, in degrees :
     - LST: 2.31
@@ -425,7 +429,6 @@ def camera_radius(camid_to_efl, cam_id="all"):
 
 
 def CTAMARS_radii(camera_name):
-
     """Radii of the cameras as defined in CTA-MARS.
 
     These values are defined in the code of CTA-MARS.
@@ -438,7 +441,7 @@ def CTAMARS_radii(camera_name):
         Name of the camera.
 
     Returns
-    ----------
+    -------
     average_camera_radii_deg : dict
         Dictionary containing the hard-coded values.
     """
@@ -454,3 +457,60 @@ def CTAMARS_radii(camera_name):
     }
 
     return average_camera_radii_deg[camera_name]
+
+
+def get_camera_names(inputPath=None):
+    """Read the names of the cameras.
+
+    Parameters
+    ==========
+    infile : str
+        Full path of the input DL1 file.
+    fileName : str
+        Name of the input DL1 file.
+
+    Returns
+    =======
+    camera_names : list(str)
+        Table names as a list.
+    """
+    if inputPath is None:
+        print("ERROR: check input")
+    h5file = tables.open_file(inputPath, mode='r')
+    group = h5file.get_node("/")
+    camera_names = [x.name for x in group._f_list_nodes()]
+    h5file.close()
+    return camera_names
+
+
+def load_models(path, cam_id_list):
+    """Load the pickled dictionary of model from disk
+    and fill the model dictionary.
+    
+    Parameters
+    ----------
+    path : string
+        The path where the pre-trained, pickled models are
+        stored. `path` is assumed to contain a `{cam_id}` keyword
+        to be replaced by each camera identifier in `cam_id_list`
+        (or at least a naked `{}`).
+    cam_id_list : list
+        List of camera identifiers like telescope ID or camera ID
+        and the assumed distinguishing feature in the filenames of
+        the various pickled regressors.
+    
+    Returns
+    -------
+    model_dict: dict
+        Dictionary with `cam_id` as keys and pickled models as values.
+    
+    """
+    
+    model_dict = {}
+    for key in cam_id_list:
+            try:
+                model_dict[key] = joblib.load(path.format(cam_id=key))
+            except IndexError:
+                model_dict[key] = joblib.load(path.format(key))
+                
+    return model_dict

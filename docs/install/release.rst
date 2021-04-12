@@ -3,11 +3,19 @@
 Released version
 ================
 
-1. download the `latest released version <https://github.com/cta-observatory/protopipe/releases>`__
-2. ``cd protopipe-X.Y.Z``
-3. ``conda env create -f environment.yml -n protopipe-X.Y.Z``
-4. ``conda activate protopipe``
-5. ``pip install .``
+To install the latest released version it is sufficient to install the
+package from ``PyPI`` with ``pip install protopipe``.
+
+If you prefer to work from an Anaconda virtual environment you can create it with,
+
+``conda env create -f environment_latest_release.yml``
+
+For previous releases,
+
+1. download the corresponding tarball stored `here <https://github.com/cta-observatory/protopipe/releases>`__
+2. ``conda env create -f environment.yml -n protopipe-X.Y.Z``
+3. ``conda activate protopipe-X.Y.Z``
+4. ``pip install .``
 
 Next steps:
 

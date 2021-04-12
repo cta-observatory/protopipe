@@ -12,8 +12,8 @@
     "TwoPassWindowSum": {
         "core_threshold" : [
           ["type", "*", 6.0],
-          ["type", "LST_LST_LSTCam", 16.0],
-          ["type", "MST_MST_NectarCam", 18.0]
+          ["type", "LST_LST_LSTCam", 6.0],
+          ["type", "MST_MST_NectarCam", 8.0]
         ],
         "disable_second_pass": false
     }

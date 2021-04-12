@@ -24,7 +24,7 @@ You can find the latest released version `here <https://github.com/cta-observato
       - v0.2.X
     * - v0.3.X
       - v0.2.X
-    * - v0.4.X (unreleased)
+    * - v0.4.X
       - v0.3.X
 
 The latest released version of the GRID interface is also compatible with

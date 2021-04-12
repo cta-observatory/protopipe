@@ -13,7 +13,7 @@ from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.metrics import classification_report
 from sklearn.calibration import CalibratedClassifierCV
 
-from protopipe.pipeline.utils import load_config
+from protopipe.pipeline.utils import load_config, get_camera_names
 
 from protopipe.mva import TrainModel
 from protopipe.mva.io import initialize_script_arguments, save_output
@@ -25,6 +25,7 @@ from protopipe.mva.utils import (
 
 def main():
 
+    # INITIALIZE CLI arguments
     args = initialize_script_arguments()
 
     # LOAD CONFIGURATION FILE
@@ -32,18 +33,26 @@ def main():
 
     # INPUT CONFIGURATION
 
-    # I/O settings
-    data_dir = cfg["General"]["data_dir"]
-    outdir = cfg["General"]["outdir"]
+    # Import parameters
+    if args.indir is None:
+        data_dir = cfg["General"]["data_dir"]
+    else:
+        data_dir = args.indir
+
+    if args.outdir is None:
+        outdir = cfg["General"]["outdir"]
+    else:
+        outdir = args.outdir
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    # Types of cameras
-    cam_ids = cfg["General"]["cam_id_list"]
-    table_name = [cam_id for cam_id in cam_ids]
+
+    table_name_template = cfg["General"]["table_name_template"]
+
     # Type of model (regression or classification)
     model_type = cfg["General"]["model_type"]
     # Dataset split train-test fraction
     train_fraction = cfg["Split"]["train_fraction"]
+
     # List of features
     feature_list = cfg["FeatureList"]
     method_name = cfg["Method"]["name"]
@@ -88,9 +97,25 @@ def main():
     if method_name == 'RandomForestClassifier':
         class_weight = cfg["Method"]["class_weight"]
 
-    if model_type == "regressor":
-        data_file = cfg["General"]["data_file"]
+    if model_type in "regressor":
+
+        if args.infile_signal is None:
+            data_file = cfg["General"]["data_file"].format(args.mode)
+        else:
+            data_file = args.infile_signal
+
         filename = path.join(data_dir, data_file)
+
+        if args.cameras_from_config:
+            cam_ids = cfg["General"]["cam_id_list"]
+        elif args.cameras_from_file:
+            cam_ids = get_camera_names(filename)
+        else:
+            cam_ids = args.cam_id_list.split()
+
+        table_name = [table_name_template + cam_id for cam_id in cam_ids]
+
+        # List of cuts
 
         # Get the selection cuts
         cuts = make_cut_list(cfg["SigFiducialCuts"])
@@ -128,10 +153,35 @@ def main():
         target_name = cfg["Method"]["target_name"]
 
     elif model_type in "classifier":
-        data_sig_file = cfg["General"]["data_sig_file"].format(args.mode)
-        data_bkg_file = cfg["General"]["data_bkg_file"].format(args.mode)
+
+        # read signal file from either config file or CLI
+        if args.infile_signal is None:
+            data_sig_file = cfg["General"]["data_sig_file"].format(args.mode)
+        else:
+            data_sig_file = args.infile_signal
+
+        # read background file from either config file or CLI
+        if args.infile_background is None:
+            data_bkg_file = cfg["General"]["data_bkg_file"].format(args.mode)
+        else:
+            data_bkg_file = args.infile_background
+
         filename_sig = path.join(data_dir, data_sig_file)
         filename_bkg = path.join(data_dir, data_bkg_file)
+
+        if args.cameras_from_config:
+            print("TAKING CAMERAS FROM CONFIG")
+            cam_ids = cfg["General"]["cam_id_list"]
+        elif args.cameras_from_file:
+            print("TAKING CAMERAS FROM TRAINING FILE")
+            # in the same analysis all particle types are analyzed in the
+            # same way so we can just use gammas
+            cam_ids = get_camera_names(filename_sig)
+        else:
+            print("TAKING CAMERAS FROM CLI")
+            cam_ids = args.cam_id_lists.split()
+
+        table_name = [table_name_template + cam_id for cam_id in cam_ids]
 
         # Get the selection cuts
         sig_cuts = make_cut_list(cfg["SigFiducialCuts"])
@@ -171,6 +221,8 @@ def main():
 
     print("### Using {} for model construction".format(method_name))
 
+    print(f"LIST OF CAMERAS TO USE = {cam_ids}")
+
     models = dict()
     for idx, cam_id in enumerate(cam_ids):
 
@@ -180,7 +232,9 @@ def main():
 
             # Load data
             data = pd.read_hdf(filename, table_name[idx], mode="r")
-            data = prepare_data(ds=data, cuts=cuts)[0: args.max_events]
+            data = prepare_data(ds=data, cuts=cuts)[0:args.max_events]
+
+            print(f"Going to split {len(data)} SIGNAL images...")
 
             # Initialize the model
             factory = TrainModel(
@@ -204,8 +258,11 @@ def main():
             data_sig = prepare_data(ds=data_sig, label=1, cuts=sig_cuts)
             data_bkg = prepare_data(ds=data_bkg, label=0, cuts=bkg_cuts)
 
-            data_sig = data_sig[0: args.max_events]
-            data_bkg = data_bkg[0: args.max_events]
+            if args.max_events:
+                data_sig = data_sig[0:(args.max_events - 1)]
+                data_bkg = data_bkg[0:(args.max_events - 1)]
+
+            print(f"Going to split {len(data_sig)} SIGNAL images and {len(data_bkg)} BACKGROUND images")
 
             # Initialize the model
             factory = TrainModel(

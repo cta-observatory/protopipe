@@ -5,16 +5,135 @@
 .. _@kosack: https://github.com/kosack
 .. _@tstolarczyk: https://github.com/tstolarczyk
 .. _@vuillaut: https://github.com/vuillaut
+.. _@adonini: https://github.com/adonini
 
 Changelog
 =========
 
-.. _protopipe_0p4_release:
+.. _protopipe_0p5_release:
 
-`0.4.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.4.0>`__ (TBD)
-----------------------------------------------------------------------------------
+**0.5.0** (TBD)
+---------------
 
 . . .
+
+.. _protopipe_0p4p4post1_release:
+
+`0.4.0.post1 <https://github.com/cta-observatory/protopipe/releases/tag/v0.4.0.post1>`__ (Mar 5th, 2021)
+---------------------------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+This is a post-release that takes care of project maintenance, so it doesn't change the performance of the code.
+
+Contributors
+++++++++++++
+
+- Michele Peresano (`@HealthyPear`_)
+
+Changes from previous release
++++++++++++++++++++++++++++++
+
+Pull-requests that contain changes belonging to multiple classes are repeated.
+
+🐛 Bug Fixes
+^^^^^^^^^^^^
+
+- Fix zenodo configuration file and add LICENSE file (:pr:`106`) `@HealthyPear`_
+
+🧰 Maintenance
+^^^^^^^^^^^^^^
+
+- Update CHANGELOG (:pr:`108`) `@HealthyPear`_
+- Fix zenodo configuration file and add LICENSE file (:pr:`106`) `@HealthyPear`_
+- Prepare first upload to PyPI (:pr:`107`) `@HealthyPear`_
+
+.. _protopipe_0p4_release:
+
+`0.4.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.4.0>`__ (Feb 22th, 2021)
+---------------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+This release brings many improvements of which the most relevant are summarised
+here depending on their scope within the pipeline workflow.
+
+Performance-wise, ``protopipe`` caught up with the ``EventDisplay`` and ``CTAMARS``
+historical pipelines starting from about 500 GeV onwards.
+Below this threshold, even if compatible with requirements, the sensitivity
+diverges. The cause seems to be a low-energy effect delimited to
+the steps before model training.
+
+- All pipeline
+
+  - upgrade to the API of ``ctapipe 0.9.1``
+  - documentation also on ``readthedocs`` and link to ``Zenodo``
+  - Continuous Integration is now performed on ``GitHub``
+  - New benchmarks have been added
+  - Reference analysis and benchmarks results have been updated
+
+- Data training
+
+  - calibration benchmarks need only ``ctapipe-stage1-process`` 
+  - ``write_dl1`` has become ``data_training``
+  - DL1 parameters and (optionally) images are merged in a single file
+  - DL1 parameters names as in ``ctapipe`` and they are in degrees (``TelescopeFrame``)
+  - scale correction with the effective focal length
+  - fixed bugs and wrong behaviors
+
+- Modeling and DL2 production
+
+  - fixed bugs and wrong behaviors
+  - Added missing features to get closer to ``CTAMARS``
+
+- DL3
+
+  - the performance step is now based on the `pyirf <https://cta-observatory.github.io/pyirf/>`_ library
+  - performance results are stored `here <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`_
+
+Contributors
+++++++++++++
+
+- Michele Peresano (`@HealthyPear`_)
+- Gaia Verna (`@gaia-verna`_)
+- Alice Donini (`@adonini`_)
+
+Changes from previous release
++++++++++++++++++++++++++++++
+
+Pull-requests that contain changes belonging to multiple classes are repeated.
+
+🚀 General features
+^^^^^^^^^^^^^^^^^^^
+
+- Performance using Pyirf (:pr:`83`) `@gaia-verna`_ & `@adonini`_
+- Towards using Pyirf (:pr:`79`) `@gaia-verna`_ & `@adonini`_
+- Upgrade of DL2 production (:pr:`77`) `@HealthyPear`_
+- Upgrade calibration benchmarks (:pr:`59`) `@HealthyPear`_
+- Upgrade of data training (:pr:`58`) `@HealthyPear`_
+
+🐛 Bug Fixes
+^^^^^^^^^^^^
+
+- Fix calibration benchmarking settings (:pr:`100`) `@HealthyPear`_
+- Fix plot of simulated signal and noise of 2nd pass image extraction (:pr:`99`) `@HealthyPear`_
+- Upgrade of DL2 production (:pr:`77`) `@HealthyPear`_
+- Upgrade of data training (:pr:`58`) `@HealthyPear`_
+
+🧰 Maintenance
+^^^^^^^^^^^^^^
+
+- Fix zenodo configuration file and add LICENSE file (:pr:`106`) `@HealthyPear`_
+- Update documentation + general maintenance (:pr:`62`) `@HealthyPear`_
+- Use mamba to create virtual enviroment for the CI (:pr:`101`) `@HealthyPear`_
+- Upgrade all other notebooks and their docs version (:pr:`76`) `@HealthyPear`_
+- Upgrade calibration benchmarks (:pr:`59`) `@HealthyPear`_
+- Upgrade of data training (:pr:`58`) `@HealthyPear`_
+- Enable CI from GitHub actions (:pr:`84`) `@HealthyPear`_
+
+
 
 .. _protopipe_0p3_release:
 
@@ -62,7 +181,7 @@ Changes from previous release
 - Rollback for GRID support (:pr:`52`) `@HealthyPear`_
 
 🐛 Bug Fixes
-^^^^^^^^^^^^
+^^^^^^^^^^^^  
 
 - Bugfix in Release Drafter workflow file (:pr:`71`) `@HealthyPear`_
 - Convert pointing values to float64 at reading time (:pr:`68`) `@HealthyPear`_

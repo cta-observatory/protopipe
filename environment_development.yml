@@ -1,12 +1,11 @@
-name: protopipe-devtest
+name: protopipe-dev
 channels:
   - defaults
-  - cta-observatory
 dependencies:
+  - python >=3.7,<3.9
   - pip
-  - ctapipe=0.9.1
+  - conda-forge::ctapipe=0.10.5
   - conda-forge::gammapy
-  - ctapipe-extra
   - astropy>=4.0.1
   - h5py=2
   - ipython
@@ -23,4 +22,4 @@ dependencies:
   - conda-forge::vitables
   - pip:
     - pyirf
-    - uproot
+    - pytest-dependency

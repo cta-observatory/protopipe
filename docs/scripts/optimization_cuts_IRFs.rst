@@ -17,109 +17,83 @@ the performance of the instruments:
  * Gamma-rays, considered as signal
  * Protons, considered as a source of diffuse background
  * Electrons, considered as a source of diffuse background
+ 
+*protopipe* currently provides the DL2-to-DL3 step as performed by the *EventDisplay*
+historical pipeline.
+Additional scripts can be added as well.
 
-The script ``protopipe.scripts.make_performance.py`` is used as follows:
+The script ``protopipe.scripts.make_performance_EventDisplay.py`` is used as follows:
 
 .. code-block::
 
-    usage: make_performance.py [-h] --config_file CONFIG_FILE --obs_time OBS_TIME
-                               [--wave | --tail]
+  usage: protopipe-DL3-EventDisplay [-h] --config_file CONFIG_FILE
+                                  [--wave | --tail]
 
-    Make performance files
+  Make performance files
 
-    optional arguments:
-      -h, --help            show this help message and exit
-      --config_file CONFIG_FILE
-      --obs_time OBS_TIME   Observation time, should be given as a string, value
-                            and astropy unit separated by an empty space
-      --wave                if set, use wavelet cleaning
-      --tail                if set, use tail cleaning, otherwise wavelets
+  optional arguments:
+    -h, --help            show this help message and exit
+    --config_file CONFIG_FILE
+    --wave                if set, use wavelet cleaning
+    --tail                if set, use tail cleaning (default)
+    
+The last two options can be ignored.
 
-You can use ``protopipe/aux/scripts/multiple_performances.sh`` to produce
-multiple IRFs for different observation times.
-
-The configuration file for this step is ``performance.yaml``, here shown with some comments:
+The configuration file for this step is ``performance.yaml``, here an example:
 
 .. code-block:: yaml
 
-    general:
-     # Directory with input data file
-     indir: ''
-     # Template name for input file
-     template_input_file: 'dl2_{}_{}_merged.h5'  # will be filled with mode and particle type
-     # Directory for output files
-     outdir: ''
-     # Output table name
-     output_table_name: 'table_best_cutoff'
+  general:
+   # Directory with input data file
+   # [...] = your analysis local full path OUTSIDE the Vagrant box
+   indir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/DL2'
+   # Template name for output file
+   prod: 'Prod3b'
+   site: 'North'
+   array: 'baseline_full_array'
+   zenith: '20deg'
+   azimuth: '180deg' # 0deg -> north 180deg -> south
+   template_input_file: 'DL2_{}_{}_merged.h5' # filled with mode and particle type
+   # Directory for output files
+   outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/DL3'
 
-    analysis:
-     # Additional cut on data
-     cut_on_data: 'NTels_reco >= 3'
-     # Theta square cut optimisation (opti, fixed, r68)
-     thsq_opt:
-      type: 'r68'
-      value: 0.2  # In degree, necessary for type fixed
-     # Normalisation between ON and OFF regions
-     alpha: 0.2
-     # Observation time to estimate best cuts corresponding to best sensitivity
-     obs_time:
-      value: 50
-      unit: 'h'
-     min_sigma: 5  # minimal number of sigma
-     min_excess: 10  # minimal number of excess events (nsig > min_excess)
-     bkg_syst: 0.05  # percentage of bkg sytematics (nsig > bkg_syst * n_bkg)
-     # Binning in reco energy (bkg rate, migration matrix)
-     ereco_binning:  # TeV
-      emin: 0.012589254
-      emax: 199.52623
-      nbin: 21
-     # Binning for true energy (eff area, migration matrix, PSF)
-     etrue_binning:  # TeV
-      emin: 0.019952623
-      emax: 199.52623
-      nbin: 42
+  analysis:
+   obs_time:
+     value: 50
+     unit: 'h'
+   cut_on_multiplicity: 4
+   # Normalisation between ON and OFF regions
+   alpha: 0.2
 
-    # Information about simulation. In the future, everything should be store
-    # in the input files (as meta data and as histogram)
-    particle_information:
-     # Simulated gamma-rays
-     gamma:
-      n_events_per_file: 1000000  #  number of files, 10**5 * 10
-      e_min: 0.003  # energy min in TeV
-      e_max: 330  # energy max in TeV
-      gen_radius: 1400  # maximal impact parameter in meter
-      diff_cone: 0  # diffuse cone, 0 or point-like, in degree
-      gen_gamma: 2  # spectral index for input spectra
-     # Simulated protons
-     proton:
-      n_events_per_file: 4000000  #  number of files, 2 * 10**5 * 20
-      e_min: 0.004  # energy min in TeV
-      e_max: 600  # energy max in TeV
-      gen_radius: 1900  # maximal impact parameter in meter
-      diff_cone: 10  # diffuse cone, 0 or point-like, in degree
-      gen_gamma: 2  # spectral index for input spectra
-      offset_cut: 1.  # maximum offset to consider particles
-     # Simulated electrons
-     electron:
-      n_events_per_file: 2000000  #  number of files, 10**5 * 20
-      e_min: 0.003  # energy min in TeV
-      e_max: 330  # energy max in TeV
-      gen_radius: 1900  # maximal impact parameter in meter
-      diff_cone: 10  # diffuse cone, 0 or point-like, in degree
-      gen_gamma: 2  # spectral index for input spectra
-      offset_cut: 1.  # maximum offset to consider particles
+   # Radius to use for calculating bg rate
+   max_bg_radius: 1.
 
-    column_definition:
-     # Column name for true energy
-     mc_energy: 'mc_energy'
-     # Column name for reconstructed energy
-     reco_energy: 'reco_energy'
-     # Column name for the angular distance in the camera between the true
-     # position and the reconstructed position
-     angular_distance_to_the_src: 'xi'
-     # Column name for classification output
-     classification_output:
-      name: 'gammaness'
-      range: [0, 1]  # needed to bin data and for diagnostic plots
+  particle_information:
+   gamma:
+    num_use: 10
+    num_showers: 100000
+    e_min: 0.003
+    e_max: 330
+    gen_radius: 1400
+    gen_gamma: -2
+    diff_cone: 0
+
+   proton:
+    num_use: 20
+    num_showers: 200000
+    e_min: 0.004
+    e_max: 600
+    gen_radius: 1900
+    gen_gamma: -2
+    diff_cone: 10
+
+   electron:
+    num_use: 20
+    num_showers: 100000
+    e_min: 0.003
+    e_max: 330
+    gen_radius: 1900
+    gen_gamma: -2
+    diff_cone: 10
 
 .. _HDF5: https://www.hdfgroup.org/solutions/hdf5/

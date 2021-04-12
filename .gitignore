@@ -11,7 +11,8 @@
 __pycache__
 
 # ignore version cache file (generated automatically when setup.py is run)
-ctapipe/_version_cache.py
+protopipe/_version_cache.py
+protopipe/_version.py
 
 # Ignore .c files by default to avoid including generated code. If you want to
 # add a non-generated .c extension, use `git add -f filename.c`.
@@ -27,10 +28,8 @@ MANIFEST
 docs/api
 docs/_build
 
-# Benchmarks
-docs/contribute/benchmarks/TRAINING/plots/*
-docs/contribute/benchmarks/DL2/plots/*
-docs/contribute/benchmarks/DL3/plots/*
+# Benchmark plots
+plots/
 
 # Eclipse editor project files
 .project
