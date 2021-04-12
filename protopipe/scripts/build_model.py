@@ -295,13 +295,21 @@ def main():
                 )
             )
 
-        # Apply optimization of the hyper-parameters via grid search if enabled
-        if use_GridSearchCV == "True":
+        if use_GridSearchCV:
+            # Apply optimization of the hyper-parameters via grid search
+            # and return best model
             best_model = factory.get_optimal_model(
                 initialized_model, tuned_parameters, scoring=scoring, cv=cv
             )
         else:  # otherwise use directly the initial model
             best_model = initialized_model
+
+            # Fit the chosen model on the train data
+            best_model.fit(
+                factory.data_scikit["X_train"],
+                factory.data_scikit["y_train"],
+                sample_weight=factory.data_scikit["w_train"],
+            )
 
         if class_name in model_type["classifier"]:
 
@@ -312,17 +320,16 @@ def main():
                 )
             )
 
-            # Calibrate model if necessary on test data
-            if cfg["Method"]["calibrate_output"] is True:
+            # Calibrate model if necessary on test data (GridSearchCV)
+            if use_GridSearchCV and cfg["Method"]["calibrate_output"]:
                 print("==> Calibrate classifier...")
 
                 best_model = CalibratedClassifierCV(
                     best_model, method="sigmoid", cv="prefit"
                 )
-
+                
                 best_model.fit(
-                    factory.data_scikit["X_test"],
-                    factory.data_scikit["y_test"]
+                    factory.data_scikit["X_test"], factory.data_scikit["y_test"]
                 )
 
         save_output(models,
