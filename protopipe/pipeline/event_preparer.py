@@ -11,7 +11,7 @@ from collections import namedtuple, OrderedDict
 from ctapipe.containers import ReconstructedShowerContainer
 from ctapipe.calib import CameraCalibrator
 from ctapipe.image.extractor import TwoPassWindowSum
-from ctapipe.image import leakage, number_of_islands, largest_island
+from ctapipe.image import leakage_parameters, number_of_islands, largest_island
 from ctapipe.utils.CutFlow import CutFlow
 from ctapipe.coordinates import GroundFrame, TelescopeFrame, CameraFrame
 
@@ -317,7 +317,7 @@ class EventPreparer:
                 )
                 print(
                     bcolors.BOLD
-                    + f"has triggered telescopes {event.r0.tels_with_data}"
+                    + f"has triggered telescopes {event.r1.tel.keys()}"
                     + bcolors.ENDC
                 )
                 ievt += 1
@@ -326,7 +326,7 @@ class EventPreparer:
 
             self.event_cutflow.count("noCuts")
 
-            if self.event_cutflow.cut("min2Tels trig", len(event.dl0.tels_with_data)):
+            if self.event_cutflow.cut("min2Tels trig", len(event.r1.tel.keys())):
                 if return_stub:
                     print(
                         bcolors.WARNING
@@ -361,7 +361,7 @@ class EventPreparer:
             hillas_dict = {}  # for discrimination
             leakage_dict = {}
             n_tels = {
-                "Triggered": len(event.dl0.tels_with_data),
+                "Triggered": len(event.r1.tel.keys()),
                 "LST_LST_LSTCam": 0,
                 "MST_MST_NectarCam": 0,
                 "MST_MST_FlashCam": 0,
@@ -378,16 +378,16 @@ class EventPreparer:
 
             good_for_reco = {}  # 1 = success, 0 = fail
 
-            # Compute impact parameter in tilt system
-            run_array_direction = event.mcheader.run_array_direction
-            az, alt = run_array_direction[0], run_array_direction[1]
+            # Array pointing in AltAz frame
+            az = event.pointing.array_azimuth
+            alt = event.pointing.array_altitude
 
             ground_frame = GroundFrame()
 
-            for tel_id in event.dl0.tels_with_data:
+            for tel_id in event.r1.tel.keys():
 
-                point_azimuth_dict[tel_id] = event.mc.tel[tel_id].azimuth_raw * u.rad
-                point_altitude_dict[tel_id] = event.mc.tel[tel_id].altitude_raw * u.rad
+                point_azimuth_dict[tel_id] = event.pointing.tel[tel_id].azimuth
+                point_altitude_dict[tel_id] = event.pointing.tel[tel_id].altitude
 
                 if debug:
                     print(
@@ -411,7 +411,7 @@ class EventPreparer:
                 if save_images is True:
                     # Save the simulated and reconstructed image of the event
                     dl1_phe_image[tel_id] = pmt_signal
-                    mc_phe_image[tel_id] = event.mc.tel[tel_id].true_image
+                    mc_phe_image[tel_id] = event.simulation.tel[tel_id].true_image
 
                 # We now ASSUME that the event will be good
                 good_for_reco[tel_id] = 1
@@ -429,7 +429,7 @@ class EventPreparer:
                     # The check on SIZE shouldn't be here, but for the moment
                     # I prefer to sacrifice elegancy...
                     if np.sum(image_biggest[mask_reco]) != 0.0:
-                        leakage_biggest = leakage(camera, image_biggest, mask_reco)
+                        leakage_biggest = leakage_parameters(camera, image_biggest, mask_reco)
                         leakages["leak1_reco"] = leakage_biggest["intensity_width_1"]
                         leakages["leak2_reco"] = leakage_biggest["intensity_width_2"]
                     else:
@@ -469,7 +469,7 @@ class EventPreparer:
                     # calculate the leakage (before filtering)
                     # this part is not well coded, but for the moment it works
                     if np.sum(image_extended[mask_extended]) != 0.0:
-                        leakage_extended = leakage(
+                        leakage_extended = leakage_parameters(
                             camera, image_extended, mask_extended
                         )
                         leakages["leak1"] = leakage_extended["intensity_width_1"]
