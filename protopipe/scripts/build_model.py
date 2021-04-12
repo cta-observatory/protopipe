@@ -327,7 +327,7 @@ def main():
                 best_model = CalibratedClassifierCV(
                     best_model, method="sigmoid", cv="prefit"
                 )
-                
+
                 best_model.fit(
                     factory.data_scikit["X_test"], factory.data_scikit["y_test"]
                 )
