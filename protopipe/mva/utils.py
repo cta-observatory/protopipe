@@ -53,9 +53,10 @@ def prepare_data(ds, cuts, label=None):
     ds["log10_hillas_intensity"] = np.log10(intensity)
     ds["log10_impact_dist"] = np.log10(ds["impact_dist"])
     ds["log10_true_energy"] = np.log10(ds["true_energy"])
-    ds["log10(width*length/intensity)"] = np.log10(width*length/intensity)
+    ds["log10(width*length/intensity)"] = np.log10(width * length / intensity)
 
-    # square of distance from Image c.o.g. to the reconstructed event direction on the camera (dir_x, dir_y)
+    # square of distance from Image c.o.g. to reconstructed event direction
+    # on the camera (dir_x, dir_y)
     ds["CTAMARS_1"] = np.power(np.sqrt(np.power((cog_x - dir_x), 2) + np.power((cog_y - dir_y), 2)), 2)
 
     ds["CTAMARS_2"] = np.arctan2(cog_y - dir_y, cog_x - dir_x)
