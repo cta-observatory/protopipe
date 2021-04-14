@@ -51,23 +51,22 @@ Method:
 # List of the features to use to train the model
 # You can:
 # - comment/uncomment the ones you see here,
-# - add new (simple) ones
-# If you want to test/add a new more complex feature,
-# please check/contribute to protopipe.utils.mva.prepare_data
+# - add new ones here if they can be evaluated with pandas.DataFrame.eval
+# - if not you can propose modifications to protopipe.mva.utils.prepare_data
 FeatureList:
-  - 'h_max'
-  - 'impact_dist'
-  - 'log10_hillas_intensity' # it will use the *_reco* version until v0.5.0
-  - 'hillas_width_reco'
-  - 'hillas_length_reco'
-  # Percentage of photo-electrons in the three pixels closest to the cog"
-  #- 'concentration_cog' # not available until v0.5.0
-  - 'log10(width*length/intensity)' # obtained in protopipe.mva.utils.prepare_data
-  - 'leakage_intensity_width_1_reco'
-  # square of distance from Image COG to reconstructed event direction in the CameraFrame
-  - 'CTAMARS_1' # obtained in protopipe.mva.utils.prepare_data
-  # atan2(cog_y - dir_y, cog_x - dir_x)
-  - 'CTAMARS_2' # obtained in protopipe.mva.utils.prepare_data
+  Basic: # single-named, they need to correspond to input data columns
+  - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
+  - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
+  - 'hillas_width'  # Image Width
+  - 'hillas_length' # Image Length
+  # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
+  - 'leakage_intensity_width_1_reco' # fraction of total Intensity which is contained in the outermost pixels of the camera
+  Derived: # custom evaluations of basic features that will be added to the data
+    # column name : expression to evaluate using basic column names
+    log10_WLS: log10(hillas_width*hillas_length/hillas_intensity)
+    log10_intensity: log10(hillas_intensity)
+    CTAMARS_1: (sqrt((hillas_x - az)**2 + (hillas_y - alt)**2))**2
+    CTAMARS_2: arctan2(hillas_y - alt, hillas_x - az)
 
 # These cuts select the input data BEFORE training
 SigFiducialCuts:

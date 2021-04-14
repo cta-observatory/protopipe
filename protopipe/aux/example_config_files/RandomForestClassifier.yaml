@@ -51,24 +51,34 @@ Method:
     max_samples: null # null, integer or float
   calibrate_output: False  # If True calibrate model on test data
 
+# List of the features to use to train the model
+# You can:
+# - comment/uncomment the ones you see here,
+# - add new ones here if they can be evaluated with pandas.DataFrame.eval
+# - if not you can propose modifications to protopipe.mva.utils.prepare_data
 FeatureList:
-  - 'h_max'
-  - 'impact_dist'
-  - 'log10_reco_energy'
-  - 'log10_reco_energy_tel'
-  - 'log10_hillas_intensity'
-  - 'hillas_width'
-  - 'hillas_length'
-  # Percentage of photo-electrons in the three pixels closest to the cog"
-  # - 'concentration_cog'
+  Basic: # single-named, they need to correspond to input data columns
+  - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
+  - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
+  - 'hillas_width'  # Image Width
+  - 'hillas_length' # Image Length
+  # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
+  Derived: # custom evaluations of basic features that will be added to the data
+    # column name : expression to evaluate using basic column names
+    log10_intensity: log10(hillas_intensity)
+    log10_energy: log10(reco_energy) # Averaged-estimated energy of the shower
+    log10_energy_tel: log10(reco_energy_tel) # Estimated energy of the shower per telescope
 
+# These cuts select the input data BEFORE training
 SigFiducialCuts:
- - 'good_image == 1'
- - 'is_valid == True'
+  - 'good_image == 1'
+  - 'is_valid == True'
+  - 'hillas_intensity_reco > 0'
 
 BkgFiducialCuts:
  - 'good_image == 1'
  - 'is_valid == True'
+ - 'hillas_intensity_reco > 0'
 
 Diagnostic:
  # Energy binning (used for reco and true energy)
