@@ -2,6 +2,7 @@
 
 from sys import exit
 import numpy as np
+import pandas as pd
 from glob import glob
 import signal
 from astropy.coordinates.angle_utilities import angular_separation
@@ -47,6 +48,20 @@ def main():
         action="store_true",
         help="Save images in images.h5 (one file testing)",
     )
+
+    parser.add_argument(
+        "--regressor_config",
+        type=str,
+        default=None,
+        help="Configuration file used to produce regressor model"
+    )
+    parser.add_argument(
+        "--classifier_config",
+        type=str,
+        default=None,
+        help="Configuration file used to produce classification model"
+    )
+
     args = parser.parse_args()
 
     # Read configuration file
@@ -133,8 +148,12 @@ def main():
 
     # Classifiers
     if use_classifier:
+
+        # Read configuration file
+        classifier_config = load_config(args.classifier_config)
+
         classifier_files = (
-            args.classifier_dir + "/classifier_{mode}_{cam_id}_{classifier}.pkl.gz"
+            args.classifier_dir + "/classifier_{cam_id}_{classifier}.pkl.gz"
         )
         clf_file = classifier_files.format(
             **{
@@ -156,8 +175,12 @@ def main():
 
     # Regressors
     if use_regressor:
+
+        # Read configuration file
+        regressor_config = load_config(args.regressor_config)
+
         regressor_files = (
-            args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
+            args.regressor_dir + "/regressor_{cam_id}_{regressor}.pkl.gz"
         )
         reg_file = regressor_files.format(
             **{
@@ -271,13 +294,10 @@ def main():
             source, save_images=args.save_images, debug=args.debug
         ):
 
-            # True energy
-            true_energy = event.simulation.shower.energy.value
-            
             # True direction
             true_az = event.simulation.shower.az
             true_alt = event.simulation.shower.alt
-            
+
             # Array pointing in AltAz frame
             pointing_az = event.pointing.array_azimuth
             pointing_alt = event.pointing.array_altitude
@@ -329,6 +349,9 @@ def main():
                 gammaness = np.nan
                 reco_event["success"] = False
 
+            for tel_id in hillas_dict:
+                print(f"tel {tel_id}, width = {hillas_dict[tel_id]['width']}, width_reco = {hillas_dict_reco[tel_id]['width']} ")
+
             # Estimate particle energy
             if use_regressor and is_valid:
                 energy_tel = np.zeros(len(hillas_dict.keys()))
@@ -339,21 +362,69 @@ def main():
 
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
+                    
+                    print(tel_id)
+                    print(moments)
+                    
                     model = regressors[cam_id]
 
-                    # Features to be fed in the regressor
-                    features_img = np.array(
-                        [
-                            np.log10(moments.intensity),
-                            np.log10(impact_dict[tel_id].value),
-                            moments.width.value,
-                            moments.length.value,
-                            h_max.value,
-                        ]
-                    )
+                    ############################################################
+                    #                  GET FEATURES
+                    ############################################################
+
+                    # Read feature list from model configutation file
+                    features_basic = regressor_config["FeatureList"]["Basic"]
+                    features_derived = regressor_config["FeatureList"]["Derived"]
+                    features = features_basic + list(features_derived)
+
+                    # Create a pandas Dataframe with basic quantities
+                    # This is needed in order to connect the I/O system of the
+                    # model inputs to the in-memory computation of this script
+                    data = pd.DataFrame({
+                        "hillas_intensity": [moments.intensity],
+                        "hillas_width": [moments.width.to("deg").value],
+                        "hillas_length": [moments.length.to("deg").value],
+                        "hillas_x": [moments.x.to("deg").value],
+                        "hillas_y": [moments.y.to("deg").value],
+                        "hillas_phi": [moments.phi.to("deg").value],
+                        "hillas_r": [moments.r.to("deg").value],
+                        "leakage_intensity_width_1_reco": [leakage_dict[tel_id]['leak1_reco']],
+                        "leakage_intensity_width_2_reco": [leakage_dict[tel_id]['leak2_reco']],
+                        "leakage_intensity_width_1": [leakage_dict[tel_id]['leak1']],
+                        "leakage_intensity_width_2": [leakage_dict[tel_id]['leak2']],
+                        "az": [reco_result.az.to("deg").value],
+                        "alt": [reco_result.alt.to("deg").value],
+                        "h_max": [h_max.value],
+                        "impact_dist": [impact_dict[tel_id].to("m").value],
+                    })
+
+                    # Compute derived features and add them to the dataframe
+                    for key, expression in features_derived.items():
+                        if key not in data:
+                            data.eval(f'{key} = {expression}', inplace=True)
+
+                    # # Features to be fed in the regressor
+                    # features_img = np.array(
+                    #     [
+                    #         np.log10(moments.intensity),
+                    #         np.log10(impact_dict[tel_id].value),
+                    #         moments.width.value,
+                    #         moments.length.value,
+                    #         h_max.value,
+                    #     ]
+                    # )
+
+                    # sort features_to_use alphabetically to ensure order
+                    # preservation with model.fit in protopipe.mva
+                    features = sorted(features)
+
+                    # Select the values for the full set of features
+                    features_values = data[features].to_numpy()
+
+                    ############################################################
 
                     if good_for_reco[tel_id] == 1:
-                        energy_tel[idx] = model.predict([features_img])
+                        energy_tel[idx] = model.predict(features_values)
                     else:
                         energy_tel[idx] = np.nan
 
@@ -389,39 +460,87 @@ def main():
                 weight_tel = np.zeros(len(hillas_dict.keys()))
 
                 for idx, tel_id in enumerate(hillas_dict.keys()):
+
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
-                    model = classifiers[cam_id]
-                    # Features to be fed in the classifier
-                    # this should be read in some way from
-                    # the classifier configuration file!!!!!
 
-                    features_img = np.array(
-                        [
-                            np.log10(reco_energy),
-                            np.log10(energy_tel_classifier[tel_id]),
-                            np.log10(moments.intensity),
-                            moments.width.value,
-                            moments.length.value,
-                            h_max.value,
-                            impact_dict[tel_id].value,
-                        ]
-                    )
+                    model = classifiers[cam_id]
+
+                    ############################################################
+                    #                  GET FEATURES
+                    ############################################################
+
+                    # Read feature list from model configutation file
+                    features_basic = classifier_config["FeatureList"]["Basic"]
+                    features_derived = classifier_config["FeatureList"]["Derived"]
+                    features = features_basic + list(features_derived)
+
+                    # Create a pandas Dataframe with basic quantities
+                    # This is needed in order to connect the I/O system of the
+                    # model inputs to the in-memory computation of this script
+                    data = pd.DataFrame({
+                        "hillas_intensity": [moments.intensity],
+                        "hillas_width": [moments.width.to("deg").value],
+                        "hillas_length": [moments.length.to("deg").value],
+                        "hillas_x": [moments.x.to("deg").value],
+                        "hillas_y": [moments.y.to("deg").value],
+                        "hillas_phi": [moments.phi.to("deg").value],
+                        "hillas_r": [moments.r.to("deg").value],
+                        "leakage_intensity_width_1_reco": [leakage_dict[tel_id]['leak1_reco']],
+                        "leakage_intensity_width_2_reco": [leakage_dict[tel_id]['leak2_reco']],
+                        "leakage_intensity_width_1": [leakage_dict[tel_id]['leak1']],
+                        "leakage_intensity_width_2": [leakage_dict[tel_id]['leak2']],
+                        "az": [reco_result.az.to("deg").value],
+                        "alt": [reco_result.alt.to("deg").value],
+                        "h_max": [h_max.value],
+                        "impact_dist": [impact_dict[tel_id].to("m").value],
+                        "reco_energy": reco_energy,
+                        "reco_energy_tel": energy_tel_classifier[tel_id],
+                    })
+
+                    # Compute derived features and add them to the dataframe
+                    for key, expression in features_derived.items():
+                        if key not in data:
+                            data.eval(f'{key} = {expression}', inplace=True)
+
+                    print(data)
+
+                    # features_img = np.array(
+                    #     [
+                    #         np.log10(reco_energy),
+                    #         np.log10(energy_tel_classifier[tel_id]),
+                    #         np.log10(moments.intensity),
+                    #         moments.width.value,
+                    #         moments.length.value,
+                    #         h_max.value,
+                    #         impact_dict[tel_id].value,
+                    #     ]
+                    # )
+
+                    # sort features_to_use alphabetically to ensure order
+                    # preservation with model.fit in protopipe.mva
+                    features = sorted(features)
+
+                    # Select the values for the full set of features
+                    features_values = data[features].to_numpy()
+
+                    ############################################################
 
                     # Here we check for valid telescope-wise energies
                     # Because it means that it's a good image
                     # WARNING: currently we should REQUIRE to estimate both
                     # energy AND particle type
                     if not np.isnan(energy_tel_classifier[tel_id]):
+                        print("energy_tel_classifier NOT NaN")
+                        print(energy_tel_classifier[tel_id])
                         # Output of classifier according to type of classifier
                         if use_proba_for_classifier is False:
-                            score_tel[idx] = model.decision_function([features_img])
+                            score_tel[idx] = model.decision_function(features_values)
                         else:
-                            gammaness_tel[idx] = model.predict_proba([features_img])[
-                                :, 1
-                            ]
+                            gammaness_tel[idx] = model.predict_proba(features_values)[:, 1]
                         weight_tel[idx] = np.sqrt(moments.intensity)
                     else:
+                        print("energy_tel_classifier IS NaN")
                         # WARNING:
                         # this is true only because we use telescope-wise
                         # energies as a feature of the model!!!
@@ -481,7 +600,7 @@ def main():
                 for idx, tel_id in enumerate(hillas_dict.keys()):
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     if cam_id not in images_phe:
-                        
+
                         n_pixels = source.subarray.tel[tel_id].camera.geometry.n_pixels
                         StoredImages["true_image"] = tb.Float32Col(
                             shape=(n_pixels), pos=2
@@ -495,7 +614,7 @@ def main():
                         StoredImages["cleaning_mask_clusters"] = tb.BoolCol(
                             shape=(n_pixels), pos=5
                         )  # not in ctapipe
-                        
+
                         images_table[cam_id] = images_outfile.create_table(
                             "/", "_".join(["images", cam_id]), StoredImages
                         )
