@@ -5,13 +5,7 @@ from os import path
 import importlib
 
 import pandas as pd
-from sklearn.ensemble import (
-    AdaBoostRegressor,
-    AdaBoostClassifier,
-    RandomForestClassifier,
-    RandomForestRegressor,
-)
-from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
+
 from sklearn.metrics import classification_report
 from sklearn.calibration import CalibratedClassifierCV
 
@@ -55,6 +49,8 @@ def main():
 
     filename_sig = path.join(data_dir, data_sig_file)
 
+    print(f"INPUT SIGNAL FILE PATH= {filename_sig}")
+
     # Cameras to use
     if args.cameras_from_config:
         print("GETTING CAMERAS FROM CONFIGURATION FILE")
@@ -76,104 +72,62 @@ def main():
     # Name of target quantity
     target_name = cfg["Method"]["target_name"]
 
-    # List of features
-    feature_list = cfg["FeatureList"]
+    # Get list of features
+    features_basic = cfg["FeatureList"]["Basic"]
+    features_derived = cfg["FeatureList"]["Derived"]
+    feature_list = features_basic + list(features_derived)
+    print("Going to use the following features to train the model:")
+    print(feature_list)
+    # sort features_to_use alphabetically to ensure order
+    # preservation with model.predict in protopipe.scripts
+    feature_list = sorted(feature_list)
 
     # GridSearchCV
     use_GridSearchCV = cfg["GridSearchCV"]["use"]
     scoring = cfg["GridSearchCV"]["scoring"]
     cv = cfg["GridSearchCV"]["cv"]
 
-    # This is a list of dictionaries to generalize for GridSearchCV
-    # The initial model will be always initialized with the first set of
-    # tuned_parameters
-    tuned_parameters = [cfg["Method"]["tuned_parameters"]]
+    # Hyper-parameters of the main model
+    tuned_parameters = cfg["Method"]["tuned_parameters"]
 
     # Initialize the model dynamically
+
+    # There always at least one (main) model to initialize
     model_to_use = cfg['Method']['name']
     module_name = '.'.join(model_to_use.split('.', 2)[:-1])
     class_name = model_to_use.split('.')[-1]
     module = importlib.import_module(module_name)  # sklearn.XXX
     model = getattr(module, class_name)
-    initialized_model = model(**cfg['Method']['tuned_parameters'])
+    print(f"Going to use {module_name}.{class_name}...")
+
+    # Check for any base estimator if main model is a meta-estimator
+    if "base_estimator" in cfg['Method']:
+        base_estimator_cfg = cfg['Method']['base_estimator']
+        base_estimator_name = base_estimator_cfg['name']
+        base_estimator_pars = base_estimator_cfg['parameters']
+        base_estimator_module_name = '.'.join(base_estimator_name.split('.', 2)[:-1])
+        base_estimator_class_name = base_estimator_name.split('.')[-1]
+        base_estimator_module = importlib.import_module(base_estimator_module_name)  # sklearn.XXX
+        base_estimator_model = getattr(base_estimator_module, base_estimator_class_name)
+        initialized_base_estimator = base_estimator_model(**base_estimator_pars)
+        print(f"...based on {base_estimator_module_name}.{base_estimator_class_name}")
+        initialized_model = model(base_estimator=initialized_base_estimator,
+                                  **cfg['Method']['tuned_parameters'])
+    else:
+        initialized_model = model(**cfg['Method']['tuned_parameters'])
 
     # Map model types to the models supported by the script
-    model_type = {"regressor": ["RandomForestRegressor",
-                                "AdaBoostRegressor"],
-                  "classifier": ["RandomForestClassifier",
-                                 "AdaBoostClassifier"]}
+    model_types = {"regressor": ["RandomForestRegressor",
+                                 "AdaBoostRegressor"],
+                   "classifier": ["RandomForestClassifier",
+                                  "AdaBoostClassifier"]}
 
-    # Hyper-parameters based on type of model
-
-    # if method_name in ["RandomForestRegressor", "RandomForestClassifier"]:
-    #     n_estimators = tuned_parameters[0]["n_estimators"]
-    #     criterion = tuned_parameters[0]["criterion"]
-    #     max_depth = None if tuned_parameters[0]["max_depth"] == "None" else tuned_parameters[0]["max_depth"]
-    #     min_samples_split = tuned_parameters[0]["min_samples_split"]
-    #     min_samples_leaf = tuned_parameters[0]["min_samples_leaf"]
-    #     min_weight_fraction_leaf = tuned_parameters[0]["min_weight_fraction_leaf"]
-    #     max_features = tuned_parameters[0]["max_features"]
-    #     max_leaf_nodes = None if tuned_parameters[0]["max_leaf_nodes"] == "None" else tuned_parameters[0]["max_leaf_nodes"]
-    #     min_impurity_decrease = tuned_parameters[0]["min_impurity_decrease"]
-    #     bootstrap = False if tuned_parameters[0]["bootstrap"] == "False" else True
-    #     oob_score = False if tuned_parameters[0]["oob_score"] == "False" else True
-    #     n_jobs = None if tuned_parameters[0]["n_jobs"] == "None" else tuned_parameters[0]["n_jobs"]
-    #     random_state = None if tuned_parameters[0]["random_state"] == "None" else tuned_parameters[0]["random_state"]
-    #     verbose = tuned_parameters[0]["verbose"]
-    #     warm_start = False if tuned_parameters[0]["warm_start"] == "False" else True
-    #     ccp_alpha = tuned_parameters[0]["ccp_alpha"]
-    #     max_samples = None if tuned_parameters[0]["max_samples"] == "None" else tuned_parameters[0]["max_samples"]
-    # 
-    # if method_name == 'AdaBoostRegressor':
-    #     base_estimator = 'None'  # (aka DecisionTreeRegressor)
-    #     n_estimators = cfg["Method"]["n_estimators"]
-    #     learning_rate = cfg["Method"]["learning_rate"]
-    #     random_state = None if cfg["Method"]["random_state"] == "None" else cfg["Method"]["random_state"]
-    # 
-    # if method_name == 'RandomForestClassifier':
-    #     class_weight = cfg["Method"]["class_weight"]
-
-    if class_name in model_type["regressor"]:
+    if class_name in model_types["regressor"]:
 
         # Get the selection cuts
         cuts = make_cut_list(cfg["SigFiducialCuts"])
 
-        # # # Initialize the model
-        # if method_name in "AdaBoostRegressor":
-        #     init_model = AdaBoostRegressor(
-        #         base_estimator=DecisionTreeRegressor(max_depth=None)
-        #         )
-        # if method_name in "RandomForestRegressor":
-        #     init_model = RandomForestRegressor(
-        #         n_estimators=n_estimators,
-        #         criterion=criterion,
-        #         max_depth=max_depth,
-        #         min_samples_split=min_samples_split,
-        #         min_samples_leaf=min_samples_leaf,
-        #         min_weight_fraction_leaf=min_weight_fraction_leaf,
-        #         max_features=max_features,
-        #         max_leaf_nodes=max_leaf_nodes,
-        #         min_impurity_decrease=min_impurity_decrease,
-        #         bootstrap=bootstrap,
-        #         oob_score=oob_score,
-        #         n_jobs=n_jobs,
-        #         random_state=random_state,
-        #         verbose=verbose,
-        #         warm_start=warm_start,
-        #         ccp_alpha=ccp_alpha,
-        #         max_samples=max_samples
-        #     )
-        # else:
-        #     print("ERROR: we support only AdaBoostRegressor and RandomForestRegressor at the moment!")
-        #     exit()
-
-    elif class_name in model_type["classifier"]:
-
-        # # read signal file from either config file or CLI
-        # if args.infile_signal is None:
-        #     data_sig_file = cfg["General"]["data_sig_file"].format(args.mode)
-        # else:
-        #     data_sig_file = args.infile_signal
+    else:
 
         # read background file from either config file or CLI
         if args.infile_background is None:
@@ -190,34 +144,6 @@ def main():
         sig_cuts = make_cut_list(cfg["SigFiducialCuts"])
         bkg_cuts = make_cut_list(cfg["BkgFiducialCuts"])
 
-        # # Initialize the the base estimator
-        # if method_name in "AdaBoostClassifier":
-        #     init_model = AdaBoostClassifier(DecisionTreeClassifier(max_depth=4))
-        # elif method_name in "RandomForestClassifier":
-        #     init_model = RandomForestClassifier(
-        #         n_estimators=n_estimators,
-        #         criterion=criterion,
-        #         max_depth=max_depth,
-        #         min_samples_split=min_samples_split,
-        #         min_samples_leaf=min_samples_leaf,
-        #         min_weight_fraction_leaf=min_weight_fraction_leaf,
-        #         max_features=max_features,
-        #         max_leaf_nodes=max_leaf_nodes,
-        #         min_impurity_decrease=min_impurity_decrease,
-        #         bootstrap=bootstrap,
-        #         oob_score=oob_score,
-        #         n_jobs=n_jobs,
-        #         random_state=random_state,
-        #         verbose=verbose,
-        #         warm_start=warm_start,
-        #         class_weight=class_weight,
-        #         ccp_alpha=ccp_alpha,
-        #         max_samples=max_samples
-        #     )
-
-            # # Name of target
-            # target_name = cfg["Method"]["target_name"]
-
         use_same_number_of_sig_and_bkg_for_training = cfg["Split"][
             "use_same_number_of_sig_and_bkg_for_training"
         ]
@@ -231,13 +157,20 @@ def main():
 
         print("### Building model for {}".format(cam_id))
 
-        if class_name in model_type["regressor"]:
+        if class_name in model_types["regressor"]:
 
             # Load data
-            data = pd.read_hdf(filename_sig, table_name[idx], mode="r")
-            data = prepare_data(ds=data, cuts=cuts)[0:args.max_events]
+            data_sig = pd.read_hdf(filename_sig, table_name[idx], mode="r")
+            # Add any derived feature and apply fiducial cuts
+            data_sig = prepare_data(ds=data_sig,
+                                    derived_features=features_derived,
+                                    select_data=True,
+                                    cuts=cuts)
 
-            print(f"Going to split {len(data)} SIGNAL images...")
+            if args.max_events:
+                data_sig = data_sig[0:args.max_events]
+
+            print(f"Going to split {len(data_sig)} SIGNAL images...")
 
             # Initialize the model
             factory = TrainModel(
@@ -248,7 +181,7 @@ def main():
 
             # Split the TRAINING dataset in a train and test sub-datasets
             # Useful to test the models before using them for DL2 production
-            factory.split_data(data_sig=data, train_fraction=train_fraction)
+            factory.split_data(data_sig=data_sig, train_fraction=train_fraction)
             print("Training sample: sig {}".format(len(factory.data_train)))
             print("Test sample: sig {}".format(len(factory.data_test)))
 
@@ -259,12 +192,20 @@ def main():
             data_bkg = pd.read_hdf(filename_bkg, table_name[idx], mode="r")
 
             # Add label
-            data_sig = prepare_data(ds=data_sig, label=1, cuts=sig_cuts)
-            data_bkg = prepare_data(ds=data_bkg, label=0, cuts=bkg_cuts)
+            data_sig = prepare_data(ds=data_sig,
+                                    label=1,
+                                    cuts=sig_cuts,
+                                    select_data=True,
+                                    derived_features=features_derived)
+            data_bkg = prepare_data(ds=data_bkg,
+                                    label=0,
+                                    cuts=bkg_cuts,
+                                    select_data=True,
+                                    derived_features=features_derived)
 
             if args.max_events:
-                data_sig = data_sig[0:(args.max_events - 1)]
-                data_bkg = data_bkg[0:(args.max_events - 1)]
+                data_sig = data_sig[0:args.max_events]
+                data_bkg = data_bkg[0:args.max_events]
 
             print(f"Going to split {len(data_sig)} SIGNAL images and {len(data_bkg)} BACKGROUND images")
 
@@ -311,7 +252,7 @@ def main():
                 sample_weight=factory.data_scikit["w_train"],
             )
 
-        if class_name in model_type["classifier"]:
+        if class_name in model_types["classifier"]:
 
             print(
                 classification_report(
@@ -336,7 +277,7 @@ def main():
                     cam_id,
                     factory,
                     best_model,
-                    model_type,
+                    model_types,
                     class_name,
                     outdir)
 
