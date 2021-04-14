@@ -84,16 +84,36 @@ def initialize_script_arguments():
 
     return args
 
+
 def save_output(models,
                 cam_id,
                 factory,
                 best_model,
-                model_type,
+                model_types,
                 method_name,
                 outdir):
-    """Save model and data used to produce it per camera-type."""
+    """Save model and data used to produce it per camera-type.
+
+    Parameters
+    ----------
+    models: dict
+        Dictionary of models with camera names as keys.
+    cam_id: str
+        Name of the analyzed camera.
+    factory: protopipe.mva.TrainModel
+        Wrapper around trained model containing references to train/test samples.
+    best_model:
+        Fit of the model from factory.
+    model_types: dict
+        Dictionary that maps type of model to method name.
+    method_name: str
+        Name of the scikit-learn model.
+    outdir: str
+        Path to output directory where to save the trained model and train/test samples.
+    """
 
     models[cam_id] = best_model
+    model_type = [k for k, v in model_types.items() if method_name in v][0]
     outname = "{}_{}_{}.pkl.gz".format(
         model_type, cam_id, method_name
     )
