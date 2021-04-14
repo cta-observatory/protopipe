@@ -96,7 +96,7 @@ Reconstruction:
 # Parameters for energy estimation
 EnergyRegressor:
  # Name of the regression method (e.g. AdaBoostRegressor, etc.)
- method_name: 'AdaBoostRegressor'
+ method_name: 'RandomForestRegressor'
 
 # Parameters for g/h separation
 GammaHadronClassifier:

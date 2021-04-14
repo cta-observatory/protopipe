@@ -9,6 +9,13 @@ General:
   # NOTE: not used here since the testing suite needs to work from the CLI
   cam_id_list: ['LSTCam', 'NectarCam']
 
+# If train_fraction is 1, all the TRAINING dataset will be used to train the
+# model and benchmarking can only be done from the benchmarking notebook
+# TRAINING/benchmarks_DL2_to_classification.ipynb
+Split:
+  train_fraction: 0.8
+  use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+
 # Optimize the hyper-parameters of the estimator with a grid search
 # If True parameters should be provided as lists
 # If False the model used will be the unique one based on your the
@@ -39,12 +46,10 @@ Method:
       random_state: 0 # null or integer or RandomState
       ccp_alpha: 0.0 # non-negative float
   tuned_parameters:
-    n_estimators: [100]
-    learning_rate: [0.3]
+    n_estimators: 50
+    learning_rate: 1
     loss: 'linear' # 'linear', 'square' or 'exponential'
     random_state: 0 # int, RandomState instance or None
-  
-  
 
 # List of the features to use to train the model
 # You can:
