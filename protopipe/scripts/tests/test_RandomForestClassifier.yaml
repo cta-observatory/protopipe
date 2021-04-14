@@ -1,0 +1,76 @@
+General:
+  data_dir: '../../data/'
+  data_sig_file: 'TRAINING_classification_tail_gamma_merged.h5'
+  data_bkg_file: 'TRAINING_classification_tail_proton_merged.h5'
+  outdir: './'
+  
+  # List of cameras to use (protopipe-MODEL help output for other options)
+  cam_id_list: ['LSTCam', 'NectarCam']
+
+# If train_fraction is 1, all the TRAINING dataset will be used to train the
+# model and benchmarking can only be done from the benchmarking notebook
+# TRAINING/benchmarks_DL2_to_classification.ipynb
+Split:
+  train_fraction: 0.8
+  use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+
+# Optimize the hyper-parameters of the estimator with a grid search
+# If 'True' parameters should be provided as lists (for None use [null])
+# If 'False' the model used will be the unique one based on your the
+GridSearchCV:
+  use: False # 'True' or 'False'
+  # if False the following to variables are irrelevant
+  scoring: 'roc_auc'
+  cv: 2
+
+# Definition of the algorithm/method used and its hyper-parameters
+Method:
+  name: 'sklearn.ensemble.RandomForestClassifier' # DO NOT CHANGE
+  target_name: 'label' # defined between 0 and 1 (DO NOT CHANGE)
+  tuned_parameters:
+    # Please, see scikit-learn's API for what each parameter means
+    # WARNING: null (not a string) == 'None'
+    n_estimators: 100 # integer
+    criterion: 'gini' # 'gini' or 'entropy'
+    max_depth: null # null or integer
+    min_samples_split: 2 # integer or float
+    min_samples_leaf: 1 # integer or float
+    min_weight_fraction_leaf: 0.0 # float
+    max_features: 3 # 'auto', 'sqrt', 'log2', integer or float
+    max_leaf_nodes: null # null or integer
+    min_impurity_decrease: 0.0 # float
+    bootstrap: False # True or False
+    oob_score: False # True or False
+    n_jobs: null # null or integer
+    random_state: 0 # null or integer or RandomState
+    verbose: 0 # integer
+    warm_start: False # 'True' or 'False'
+    class_weight: null # 'balanced', 'balanced_subsample', null, dict or list of dicts
+    ccp_alpha: 0.0 # non-negative float
+    max_samples: null # null, integer or float
+  calibrate_output: False  # If True calibrate model on test data
+
+FeatureList:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  # - 7
+  - 10
+  - 11
+
+SigFiducialCuts:
+ - 'good_image == 1'
+ - 'is_valid == True'
+
+BkgFiducialCuts:
+ - 'good_image == 1'
+ - 'is_valid == True'
+
+Diagnostic:
+ # Energy binning (used for reco and true energy)
+ energy:
+  nbins: 4
+  min: 0.0125
+  max: 200
