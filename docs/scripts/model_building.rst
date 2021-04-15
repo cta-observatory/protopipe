@@ -15,10 +15,8 @@ The following is the help output which shows required arguments and options.
 .. code-block::
 
     >$ protopipe-MODEL -h
-    usage: protopipe-MODEL [-h] --config_file CONFIG_FILE
-                       [--max_events MAX_EVENTS] [--wave | --tail]
-                       (--cameras_from_config | --cameras_from_file | --cam_id_list CAM_ID_LIST)
-                       [-i INDIR] [--infile_signal INFILE_SIGNAL]
+    usage: protopipe-MODEL [-h] --config_file CONFIG_FILE [--max_events MAX_EVENTS] [--wave | --tail]
+                       (--cameras_from_config | --cameras_from_file | --cam_id_list CAM_ID_LIST) [-i INDIR] [--infile_signal INFILE_SIGNAL]
                        [--infile_background INFILE_BACKGROUND] [-o OUTDIR]
 
     Build model for regression/classification
@@ -27,9 +25,9 @@ The following is the help output which shows required arguments and options.
       -h, --help            show this help message and exit
       --config_file CONFIG_FILE
       --max_events MAX_EVENTS
-                            maximum number of events for training
+                            maximum number of events to use
       --wave                if set, use wavelet cleaning
-      --tail                if set, use tail cleaning, otherwise wavelets
+      --tail                if set, use tail cleaning (default), otherwise wavelets
       --cameras_from_config
                             Get cameras configuration file (Priority 1)
       --cameras_from_file   Get cameras from input file (Priority 2)
@@ -44,10 +42,13 @@ The following is the help output which shows required arguments and options.
       -o OUTDIR, --outdir OUTDIR
 
 The script takes along its arguments a configuration file which depends on what
-type of estimator needs to be trained:
+type of model needs to be built.
 
-* ``regressor.yaml`` is used to train an energy regressor,
-* ``classifier.yaml`` is used to train a gamma/hadron classifier.
+The available choices can be found under ```protopipe.aux.example_config_files```:
+
+* ``AdaBoostRegressor.yaml`` is used to train an energy regressor,
+* ``RandomForestRegressor.yaml``  is used to train an energy regressor,
+* ``RandomForestClassifier.yaml`` is used to train a gamma/hadron classifier.
 
 Energy regressor
 ----------------
@@ -57,44 +58,86 @@ and some event characteristics (the features) to reconstruct the energy.
 This table is created in the :ref:`data_training` step.
 
 The following is a commented example of the required configuration file
-``regressor.yaml``:
+``AdaBoostRegressor.yaml`` with similar options as for ``RandomForestRegressor.yaml``,
 
 .. code-block:: yaml
 
   General:
-   model_type: 'regressor'
-   # [...] = your analysis local full path OUTSIDE the Vagrant box
-   data_dir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/TRAINING/for_energy_estimation'
-   data_file: 'TRAINING_energy_tail_gamma_merged.h5'
-   outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/estimators/energy_regressor'
-   cam_id_list: ['LSTCam', 'NectarCam']
-   table_name_template: '' # leave empty (TO BE REMOVED)
+    # [...] = your analysis local full path OUTSIDE the Vagrant box
+    data_dir: '../../data/'
+    data_sig_file: 'TRAINING_energy_tail_gamma_merged.h5'
+    outdir: './'
+    
+    # List of cameras to use (you can override this from the CLI)
+    cam_id_list: ['LSTCam', 'NectarCam']
 
+  # If train_fraction is 1, all the TRAINING dataset will be used to train the
+  # model and benchmarking can only be done from the benchmarking notebook
+  # TRAINING/benchmarks_DL2_to_classification.ipynb
   Split:
-   train_fraction: 0.8
+    train_fraction: 0.8
+    use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+
+  # Optimize the hyper-parameters of the estimator with a grid search
+  # If True parameters should be provided as lists
+  # If False the model used will be the unique one based on your the
+  GridSearchCV:
+    use: False # True or False
+    # if False the following two variables are irrelevant
+    scoring: 'explained_variance'
+    cv: 2
 
   Method:
-   name: 'AdaBoostRegressor'
-   target_name: 'true_energy'
-   tuned_parameters:
-    learning_rate: [0.3]
-    n_estimators: [100]
-    base_estimator__max_depth: [null]  # null is equivalent to None
-    base_estimator__min_samples_split: [2]
-    base_estimator__min_samples_leaf: [10]
-   scoring: 'explained_variance'
-   cv: 2
+    name: 'sklearn.ensemble.AdaBoostRegressor'
+    target_name: 'true_energy'
+    # Please, see scikit-learn's API for what each parameter means
+    # NOTE: null == None
+    base_estimator:
+      name: 'sklearn.tree.DecisionTreeRegressor'
+      parameters:
+        # NOTE: here we set the parameters relevant for sklearn.tree.DecisionTreeRegressor
+        criterion: "mse" # "mse", "friedman_mse", "mae" or "poisson"
+        splitter: "best" # "best" or "random"
+        max_depth: null # null or integer
+        min_samples_split: 2 # integer or float
+        min_samples_leaf: 1 # int or float
+        min_weight_fraction_leaf: 0.0 # float
+        max_features: null # null, "auto", "sqrt", "log2", int or float
+        max_leaf_nodes: null # null or integer
+        min_impurity_decrease: 0.0 # float
+        random_state: 0 # null or integer or RandomState
+        ccp_alpha: 0.0 # non-negative float
+    tuned_parameters:
+      n_estimators: 50
+      learning_rate: 1
+      loss: 'linear' # 'linear', 'square' or 'exponential'
+      random_state: 0 # int, RandomState instance or None
 
+  # List of the features to use to train the model
+  # You can:
+  # - comment/uncomment the ones you see here,
+  # - add new ones here if they can be evaluated with pandas.DataFrame.eval
+  # - if not you can propose modifications to protopipe.mva.utils.prepare_data
   FeatureList:
-   - 'log10_hillas_intensity'
-   - 'log10_impact_dist'
-   - 'hillas_width_reco'
-   - 'hillas_length_reco'
-   - 'h_max'
+    Basic: # single-named, they need to correspond to input data columns
+    - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
+    - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
+    - 'hillas_width'  # Image Width
+    - 'hillas_length' # Image Length
+    # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
+    - 'leakage_intensity_width_1_reco' # fraction of total Intensity which is contained in the outermost pixels of the camera
+    Derived: # custom evaluations of basic features that will be added to the data
+      # column name : expression to evaluate using basic column names
+      log10_WLS: log10(hillas_width*hillas_length/hillas_intensity)
+      log10_intensity: log10(hillas_intensity)
+      CTAMARS_1: (sqrt((hillas_x - az)**2 + (hillas_y - alt)**2))**2
+      CTAMARS_2: arctan2(hillas_y - alt, hillas_x - az)
 
+  # These cuts select the input data BEFORE training
   SigFiducialCuts:
-   - 'good_image == 1'
-   - 'is_valid == True'
+    - 'good_image == 1'
+    - 'is_valid == True'
+    - 'hillas_intensity_reco > 0'
 
   Diagnostic:
    # Energy binning (used for reco and true energy)
@@ -136,58 +179,97 @@ as a contamination).
   An alternative approach - yet to study - could be to train a classifier with gamma
   against a background sample composed of weighted hadrons and weighted electrons.
 
+The following the example provided by the example configuration file ``RandomForestClassifier.yaml``,
+
 .. code-block:: yaml
 
   General:
-   model_type: 'classifier'
-   # [...] = your analysis local full path OUTSIDE the Vagrant box
-   data_dir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/TRAINING/for_particle_classification/'
-   data_sig_file: 'TRAINING_classification_tail_gamma_merged.h5'
-   data_bkg_file: 'TRAINING_classification_tail_proton_merged.h5'
-   cam_id_list: ['LSTCam', 'NectarCam']
-   table_name_template: '' # leave empty (TO BE REMOVED)
-   outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/estimators/gamma_hadron_classifier'
+    # [...] = your analysis local full path OUTSIDE the Vagrant box
+    data_dir: '../../data/' # '[...]/data/TRAINING/for_particle_classification/'
+    data_sig_file: 'TRAINING_classification_tail_gamma_merged.h5'
+    data_bkg_file: 'TRAINING_classification_tail_proton_merged.h5'
+    outdir: './' # [...]/estimators/gamma_hadron_classifier
+    
+    # List of cameras to use (protopipe-MODEL help output for other options)
+    cam_id_list: ['LSTCam', 'NectarCam']
 
+  # If train_fraction is 1, all the TRAINING dataset will be used to train the
+  # model and benchmarking can only be done from the benchmarking notebook
+  # TRAINING/benchmarks_DL2_to_classification.ipynb
   Split:
-   train_fraction: 0.8
-   use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+    train_fraction: 0.8
+    use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
 
+  # Optimize the hyper-parameters of the estimator with a grid search
+  # If 'True' parameters should be provided as lists (for None use [null])
+  # If 'False' the model used will be the unique one based on your the
+  GridSearchCV:
+    use: False # 'True' or 'False'
+    # if False the following to variables are irrelevant
+    scoring: 'roc_auc'
+    cv: 2
+
+  # Definition of the algorithm/method used and its hyper-parameters
   Method:
-   name: 'RandomForestClassifier'  # AdaBoostClassifier or RandomForestClassifier
-   target_name: 'label'
-   tuned_parameters: # these are lists of values used by the GridSearchCV algorithm
-    n_estimators: [200]
-    max_depth: [10]  # null for None
-    max_features: [3] # possible choices are “auto”, “sqrt”, “log2”, int or float
-    min_samples_split: [10]
-    min_samples_leaf: [10]
-   scoring: 'roc_auc' # possible choices are 'roc_auc', 'explained_variance'
-   cv: 2
-   use_proba: True  # If not output is score
-   calibrate_output: False  # If true calibrate probability
+    name: 'sklearn.ensemble.RandomForestClassifier' # DO NOT CHANGE
+    target_name: 'label' # defined between 0 and 1 (DO NOT CHANGE)
+    tuned_parameters:
+      # Please, see scikit-learn's API for what each parameter means
+      # WARNING: null (not a string) == 'None'
+      n_estimators: 100 # integer
+      criterion: 'gini' # 'gini' or 'entropy'
+      max_depth: null # null or integer
+      min_samples_split: 2 # integer or float
+      min_samples_leaf: 1 # integer or float
+      min_weight_fraction_leaf: 0.0 # float
+      max_features: 3 # 'auto', 'sqrt', 'log2', integer or float
+      max_leaf_nodes: null # null or integer
+      min_impurity_decrease: 0.0 # float
+      bootstrap: False # True or False
+      oob_score: False # True or False
+      n_jobs: null # null or integer
+      random_state: 0 # null or integer or RandomState
+      verbose: 0 # integer
+      warm_start: False # 'True' or 'False'
+      class_weight: null # 'balanced', 'balanced_subsample', null, dict or list of dicts
+      ccp_alpha: 0.0 # non-negative float
+      max_samples: null # null, integer or float
+    calibrate_output: False  # If True calibrate model on test data
 
+  # List of the features to use to train the model
+  # You can:
+  # - comment/uncomment the ones you see here,
+  # - add new ones here if they can be evaluated with pandas.DataFrame.eval
+  # - if not you can propose modifications to protopipe.mva.utils.prepare_data
   FeatureList:
-   - 'log10_reco_energy'
-   - 'log10_reco_energy_tel'
-   - 'log10_hillas_intensity'
-   - 'hillas_width'
-   - 'hillas_length'
-   - 'h_max'
-   - 'impact_dist'
+    Basic: # single-named, they need to correspond to input data columns
+    - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
+    - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
+    - 'hillas_width'  # Image Width
+    - 'hillas_length' # Image Length
+    # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
+    Derived: # custom evaluations of basic features that will be added to the data
+      # column name : expression to evaluate using basic column names
+      log10_intensity: log10(hillas_intensity)
+      log10_energy: log10(reco_energy) # Averaged-estimated energy of the shower
+      log10_energy_tel: log10(reco_energy_tel) # Estimated energy of the shower per telescope
 
+  # These cuts select the input data BEFORE training
   SigFiducialCuts:
-   - 'good_image == 1'
-   - 'is_valid == True'
+    - 'good_image == 1'
+    - 'is_valid == True'
+    - 'hillas_intensity_reco > 0'
 
   BkgFiducialCuts:
    - 'good_image == 1'
    - 'is_valid == True'
+   - 'hillas_intensity_reco > 0'
 
   Diagnostic:
    # Energy binning (used for reco and true energy)
    energy:
     nbins: 4
-    min: 0.02
+    min: 0.0125
     max: 200
 
 We want to exploit parameters showing statistical differences in the shower

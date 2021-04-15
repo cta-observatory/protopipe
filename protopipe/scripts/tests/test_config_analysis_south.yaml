@@ -86,8 +86,8 @@ ImageCleaning:
 ImageSelection:
  charge: [50., 1e10]
  pixel: [3, 1e10]
- ellipticity: [0.1, 0.6]
- nominal_distance: [0., 0.8]  # in camera radius
+ ellipticity: [0.1, 0.8]
+ nominal_distance: [0., 1.]  # in camera radius
 
 # Minimal number of telescopes to consider events
 Reconstruction:
@@ -96,7 +96,7 @@ Reconstruction:
 # Parameters for energy estimation
 EnergyRegressor:
  # Name of the regression method (e.g. AdaBoostRegressor, etc.)
- method_name: 'AdaBoostRegressor'
+ method_name: 'RandomForestRegressor'
 
 # Parameters for g/h separation
 GammaHadronClassifier:

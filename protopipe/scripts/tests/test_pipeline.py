@@ -13,6 +13,9 @@ from protopipe.scripts import data_training, build_model
 # CONFIG FILES
 config_prod3b_CTAN = resource_filename("protopipe", "scripts/tests/test_config_analysis_north.yaml")
 config_prod3b_CTAS = resource_filename("protopipe", "scripts/tests/test_config_analysis_south.yaml")
+config_AdaBoostRegressor = resource_filename("protopipe", "scripts/tests/test_AdaBoostRegressor.yaml")
+config_RandomForestRegressor = resource_filename("protopipe", "scripts/tests/test_RandomForestRegressor.yaml")
+config_RandomForestClassifier = resource_filename("protopipe", "scripts/tests/test_RandomForestClassifier.yaml")
 
 # TEST FILES
 
@@ -48,14 +51,22 @@ def test_GET_GAMMAS_FOR_ENERGY_MODEL_WITH_IMAGES(test_case, pipeline_testdir):
 
     outpath = pipeline_testdir / f"test_training_withImages_{test_case}.h5"
 
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        --save_images\
-        -i {input_data[test_case]['gamma1'].parent}\
-        -f {input_data[test_case]['gamma1'].name}"
+    command = f"python {data_training.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    --save_images\
+    -i {input_data[test_case]['gamma1'].parent}\
+    -f {input_data[test_case]['gamma1'].name}"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
 
     # check that the script ends without crashing
     assert exit_status == 0
@@ -73,13 +84,21 @@ def test_GET_GAMMAS_FOR_ENERGY_MODEL(test_case, pipeline_testdir):
 
     outpath = pipeline_testdir / f"test_gamma1_noImages_{test_case}.h5"
 
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        -i {input_data[test_case]['gamma1'].parent}\
-        -f {input_data[test_case]['gamma1'].name}"
+    command = f"python {data_training.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    -i {input_data[test_case]['gamma1'].parent}\
+    -f {input_data[test_case]['gamma1'].name}"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
 
     # check that the script ends without crashing
     assert exit_status == 0
@@ -90,49 +109,94 @@ def test_GET_GAMMAS_FOR_ENERGY_MODEL(test_case, pipeline_testdir):
 
 
 @pytest.mark.parametrize("test_case", [
-    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="EN",
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="EN_1",
                                                                   depends=["g1N"])),
-    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="ES",
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="ES_1",
                                                                   depends=["g1S"])),
 ])
 def test_BUILD_ENERGY_MODEL_AdaBoost_DecisionTreeRegressor(test_case, pipeline_testdir):
-    """Launch protopipe.scripts.build_model for a AdaBoost DecisionTreeRegressor."""
+    """Launch protopipe.scripts.build_model for a AdaBoostRegressor based on DecisionTreeRegressor."""
 
     infile = pipeline_testdir / f"test_gamma1_noImages_{test_case}.h5"
     outdir = pipeline_testdir / f"energy_model_{test_case}"
 
-    config = resource_filename("protopipe", "scripts/tests/test_regressor.yaml")
+    command = f"python {build_model.__file__}\
+    --config_file {config_AdaBoostRegressor}\
+    --infile_signal {infile}\
+    --outdir {outdir}\
+    --cameras_from_file"
 
-    exit_status = system(
-        f"python {build_model.__file__}\
-        --config_file {config}\
-        --infile_signal {infile}\
-        --outdir {outdir}\
-        --cameras_from_file"
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
+    assert exit_status == 0
+
+
+@pytest.mark.parametrize("test_case", [
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="EN_2",
+                                                                  depends=["g1N"])),
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="ES_2",
+                                                                  depends=["g1S"])),
+])
+def test_BUILD_ENERGY_MODEL_RandomForestRegressor(test_case, pipeline_testdir):
+    """Launch protopipe.scripts.build_model for a RandomForestRegressor."""
+
+    infile = pipeline_testdir / f"test_gamma1_noImages_{test_case}.h5"
+    outdir = pipeline_testdir / f"energy_model_{test_case}"
+
+    command = f"python {build_model.__file__}\
+    --config_file {config_RandomForestRegressor}\
+    --infile_signal {infile}\
+    --outdir {outdir}\
+    --cameras_from_file"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
+    )
+
+    exit_status = system(command)
     assert exit_status == 0
 
 
 @pytest.mark.parametrize("test_case", [
     pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="g2N",
-                                                                  depends=["EN"])),
+                                                                  depends=["EN_2"])),
     pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="g2S",
-                                                                  depends=["ES"])),
+                                                                  depends=["ES_2"])),
 ])
 def test_GET_GAMMAS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
 
     modelpath = pipeline_testdir / f"energy_model_{test_case}"
     outpath = pipeline_testdir / f"test_gamma2_noImages_{test_case}.h5"
 
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        -i {input_data[test_case]['gamma2'].parent}\
-        -f {input_data[test_case]['gamma2'].name}\
-        --estimate_energy True\
-        --regressor_dir {modelpath}"
+    command = f"python {data_training.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    -i {input_data[test_case]['gamma2'].parent}\
+    -f {input_data[test_case]['gamma2'].name}\
+    --estimate_energy True\
+    --regressor_config {config_RandomForestRegressor}\
+    --regressor_dir {modelpath}"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
 
     # check that the script ends without crashing
     assert exit_status == 0
@@ -144,25 +208,33 @@ def test_GET_GAMMAS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
 
 @pytest.mark.parametrize("test_case", [
     pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="p1N",
-                                                                  depends=["EN"])),
+                                                                  depends=["EN_2"])),
     pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="p1S",
-                                                                  depends=["ES"])),
+                                                                  depends=["ES_2"])),
 ])
 def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
 
     modelpath = pipeline_testdir / f"energy_model_{test_case}"
     outpath = pipeline_testdir / f"test_proton1_noImages_{test_case}.h5"
 
-    exit_status = system(
-        f"python {data_training.__file__}\
-        --config_file {input_data[test_case]['config']}\
-        -o {outpath}\
-        -m 10\
-        -i {input_data[test_case]['proton1'].parent}\
-        -f {input_data[test_case]['proton1'].name}\
-        --estimate_energy True\
-        --regressor_dir {modelpath}"
+    command = f"python {data_training.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    -i {input_data[test_case]['proton1'].parent}\
+    -f {input_data[test_case]['proton1'].name}\
+    --estimate_energy True\
+    --regressor_config {config_RandomForestRegressor}\
+    --regressor_dir {modelpath}"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
 
     # check that the script ends without crashing
     assert exit_status == 0
@@ -178,21 +250,27 @@ def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
     pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="C2",
                                                                   depends=["g2S", "p1S"])),
 ])
-def test_BUILD_CLASSIFICATION_MODEL_RandomForest(test_case, pipeline_testdir):
+def test_BUILD_CLASSIFICATION_MODEL_RandomForestClassifier(test_case, pipeline_testdir):
     """Launch protopipe.scripts.build_model for a Random Forest classifier."""
 
     infile_signal = pipeline_testdir / f"test_gamma2_noImages_{test_case}.h5"
     infile_background = pipeline_testdir / f"test_proton1_noImages_{test_case}.h5"
     outdir = pipeline_testdir / f"classification_model_{test_case}"
 
-    config = resource_filename("protopipe", "scripts/tests/test_regressor.yaml")
+    command = f"python {build_model.__file__}\
+    --config_file {config_RandomForestClassifier}\
+    --infile_signal {infile_signal}\
+    --infile_background {infile_background}\
+    --outdir {outdir}\
+    --cameras_from_file"
 
-    exit_status = system(
-        f"python {build_model.__file__}\
-        --config_file {config}\
-        --infile_signal {infile_signal}\
-        --infile_background {infile_background}\
-        --outdir {outdir}\
-        --cameras_from_file"
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
     )
+
+    exit_status = system(command)
     assert exit_status == 0
