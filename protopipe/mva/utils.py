@@ -44,7 +44,7 @@ def prepare_data(ds, derived_features, cuts, select_data=True, label=None):
     # This is always useful
     ds["log10_true_energy"] = np.log10(ds["true_energy"])
 
-    if label:  # only for classification
+    if label is not None:  # only for classification
         ds["label"] = np.full(len(ds), label)
 
         # This is needed because our reference analysis uses energy as
