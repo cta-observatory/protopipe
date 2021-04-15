@@ -17,7 +17,7 @@ Split:
 
 # Optimize the hyper-parameters of the estimator with a grid search
 # If True parameters should be provided as lists
-# If False the model used will be the unique one based on your the
+# If False the model used will be the one based on the chosen single-valued hyper-parameters
 GridSearchCV:
   use: False # True or False
   # if False the following two variables are irrelevant
