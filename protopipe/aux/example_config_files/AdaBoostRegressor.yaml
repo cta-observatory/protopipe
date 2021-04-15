@@ -66,8 +66,8 @@ FeatureList:
     # column name : expression to evaluate using basic column names
     log10_WLS: log10(hillas_width*hillas_length/hillas_intensity)
     log10_intensity: log10(hillas_intensity)
-    CTAMARS_1: (sqrt((hillas_x - az)**2 + (hillas_y - alt)**2))**2
-    CTAMARS_2: arctan2(hillas_y - alt, hillas_x - az)
+    r_origin: (sqrt((hillas_x - az)**2 + (hillas_y - alt)**2))**2
+    phi_origin: arctan2(hillas_y - alt, hillas_x - az)
 
 # These cuts select the input data BEFORE training
 SigFiducialCuts:
