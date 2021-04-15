@@ -1,97 +1,32 @@
 #!/usr/bin/env python
 
 import os
-import pandas as pd
-import argparse
 from os import path
-from sklearn.ensemble import (
-    AdaBoostRegressor,
-    AdaBoostClassifier,
-    RandomForestClassifier,
-)
-from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
-import joblib
+import importlib
+
+import pandas as pd
+
 from sklearn.metrics import classification_report
 from sklearn.calibration import CalibratedClassifierCV
 
 from protopipe.pipeline.utils import load_config, get_camera_names
-
 from protopipe.mva import TrainModel
-from protopipe.mva.utils import make_cut_list, prepare_data, save_obj
+from protopipe.mva.io import initialize_script_arguments, save_output
+from protopipe.mva.utils import (
+    make_cut_list,
+    prepare_data
+)
 
 
 def main():
 
-    # Read arguments
-    parser = argparse.ArgumentParser(
-        description="Build model for regression/classification"
-    )
-    parser.add_argument("--config_file", type=str, required=True)
-    parser.add_argument(
-        "--max_events",
-        type=int,
-        default=None,
-        help="maximum number of events for training",
-    )
-    mode_group = parser.add_mutually_exclusive_group()
-    mode_group.add_argument(
-        "--wave",
-        dest="mode",
-        action="store_const",
-        const="wave",
-        default="tail",
-        help="if set, use wavelet cleaning",
-    )
-    mode_group.add_argument(
-        "--tail",
-        dest="mode",
-        action="store_const",
-        const="tail",
-        help="if set, use tail cleaning, otherwise wavelets",
-    )
+    # INITIALIZE CLI arguments
+    args = initialize_script_arguments()
 
-    # These last CL arguments can overwrite the values from the config
-
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--cameras_from_config',
-                       action='store_true',
-                       help="Get cameras configuration file (Priority 1)",)
-    group.add_argument('--cameras_from_file',
-                       action='store_true',
-                       help="Get cameras from input file (Priority 2)",)
-    group.add_argument('--cam_id_list',
-                       type=str,
-                       default=None,
-                       help="Select cameras like 'LSTCam CHEC' (Priority 3)",)
-
-    parser.add_argument(
-        "-i",
-        "--indir",
-        type=str,
-        default=None,
-        help="Directory containing the required input file(s)"
-    )
-    parser.add_argument(
-        "--infile_signal",
-        type=str,
-        default=None,
-        help="SIGNAL file (default: read from config file)",
-    )
-    parser.add_argument(
-        "--infile_background",
-        type=str,
-        default=None,
-        help="BACKGROUND file (default: read from config file)",
-    )
-    parser.add_argument("-o", "--outdir", type=str, default=None)
-
-    args = parser.parse_args()
-
-    # Read configuration file
+    # LOAD CONFIGURATION FILE
     cfg = load_config(args.config_file)
 
-    # Type of model (regressor or classifier)
-    model_type = cfg["General"]["model_type"]
+    # INPUT CONFIGURATION
 
     # Import parameters
     if args.indir is None:
@@ -106,52 +41,92 @@ def main():
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    table_name_template = cfg["General"]["table_name_template"]
+    # Get file containing gammas (signal)
+    if args.infile_signal is None:
+        data_sig_file = cfg["General"]["data_sig_file"].format(args.mode)
+    else:
+        data_sig_file = args.infile_signal
 
-    # List of features
-    feature_list = cfg["FeatureList"]
+    filename_sig = path.join(data_dir, data_sig_file)
 
-    # Optimisation parameters
-    method_name = cfg["Method"]["name"]
-    tuned_parameters = [cfg["Method"]["tuned_parameters"]]
-    scoring = cfg["Method"]["scoring"]
-    cv = cfg["Method"]["cv"]
+    print(f"INPUT SIGNAL FILE PATH= {filename_sig}")
 
-    # Split fraction
+    # Cameras to use
+    if args.cameras_from_config:
+        print("GETTING CAMERAS FROM CONFIGURATION FILE")
+        cam_ids = cfg["General"]["cam_id_list"]
+    elif args.cameras_from_file:
+        print("GETTING CAMERAS FROM SIGNAL TRAINING FILE")
+        # in the same analysis all particle types are analyzed in the
+        # same way so we can just use gammas
+        cam_ids = get_camera_names(filename_sig)
+    else:
+        print("GETTING CAMERAS FROM CLI")
+        cam_ids = args.cam_id_lists.split()
+
+    # The names of the tables inside the HDF5 file are the camera's names
+    table_name = [cam_id for cam_id in cam_ids]
+
+    # Dataset split train-test fraction
     train_fraction = cfg["Split"]["train_fraction"]
+    # Name of target quantity
+    target_name = cfg["Method"]["target_name"]
 
-    if model_type in "regressor":
+    # Get list of features
+    features_basic = cfg["FeatureList"]["Basic"]
+    features_derived = cfg["FeatureList"]["Derived"]
+    feature_list = features_basic + list(features_derived)
+    print("Going to use the following features to train the model:")
+    print(feature_list)
+    # sort features_to_use alphabetically to ensure order
+    # preservation with model.predict in protopipe.scripts
+    feature_list = sorted(feature_list)
 
-        if args.infile_signal is None:
-            data_file = cfg["General"]["data_file"].format(args.mode)
-        else:
-            data_file = args.infile_signal
+    # GridSearchCV
+    use_GridSearchCV = cfg["GridSearchCV"]["use"]
+    scoring = cfg["GridSearchCV"]["scoring"]
+    cv = cfg["GridSearchCV"]["cv"]
 
-        filename = path.join(data_dir, data_file)
+    # Hyper-parameters of the main model
+    tuned_parameters = cfg["Method"]["tuned_parameters"]
 
-        if args.cameras_from_config:
-            cam_ids = cfg["General"]["cam_id_list"]
-        elif args.cameras_from_file:
-            cam_ids = get_camera_names(filename)
-        else:
-            cam_ids = args.cam_id_list.split()
+    # Initialize the model dynamically
 
-        table_name = [table_name_template + cam_id for cam_id in cam_ids]
+    # There always at least one (main) model to initialize
+    model_to_use = cfg['Method']['name']
+    module_name = '.'.join(model_to_use.split('.', 2)[:-1])
+    class_name = model_to_use.split('.')[-1]
+    module = importlib.import_module(module_name)  # sklearn.XXX
+    model = getattr(module, class_name)
+    print(f"Going to use {module_name}.{class_name}...")
 
-        # List of cuts
+    # Check for any base estimator if main model is a meta-estimator
+    if "base_estimator" in cfg['Method']:
+        base_estimator_cfg = cfg['Method']['base_estimator']
+        base_estimator_name = base_estimator_cfg['name']
+        base_estimator_pars = base_estimator_cfg['parameters']
+        base_estimator_module_name = '.'.join(base_estimator_name.split('.', 2)[:-1])
+        base_estimator_class_name = base_estimator_name.split('.')[-1]
+        base_estimator_module = importlib.import_module(base_estimator_module_name)  # sklearn.XXX
+        base_estimator_model = getattr(base_estimator_module, base_estimator_class_name)
+        initialized_base_estimator = base_estimator_model(**base_estimator_pars)
+        print(f"...based on {base_estimator_module_name}.{base_estimator_class_name}")
+        initialized_model = model(base_estimator=initialized_base_estimator,
+                                  **cfg['Method']['tuned_parameters'])
+    else:
+        initialized_model = model(**cfg['Method']['tuned_parameters'])
+
+    # Map model types to the models supported by the script
+    model_types = {"regressor": ["RandomForestRegressor",
+                                 "AdaBoostRegressor"],
+                   "classifier": ["RandomForestClassifier"]}
+
+    if class_name in model_types["regressor"]:
+
+        # Get the selection cuts
         cuts = make_cut_list(cfg["SigFiducialCuts"])
-        init_model = AdaBoostRegressor(DecisionTreeRegressor(max_depth=None))
 
-        # Name of target
-        target_name = cfg["Method"]["target_name"]
-
-    elif model_type in "classifier":
-
-        # read signal file from either config file or CLI
-        if args.infile_signal is None:
-            data_sig_file = cfg["General"]["data_sig_file"].format(args.mode)
-        else:
-            data_sig_file = args.infile_signal
+    elif class_name in model_types["classifier"]:
 
         # read background file from either config file or CLI
         if args.infile_background is None:
@@ -159,50 +134,23 @@ def main():
         else:
             data_bkg_file = args.infile_background
 
-        filename_sig = path.join(data_dir, data_sig_file)
+        # filename_sig = path.join(data_dir, data_sig_file)
         filename_bkg = path.join(data_dir, data_bkg_file)
 
-        if args.cameras_from_config:
-            print("TAKING CAMERAS FROM CONFIG")
-            cam_ids = cfg["General"]["cam_id_list"]
-        elif args.cameras_from_file:
-            print("TAKING CAMERAS FROM TRAINING FILE")
-            # in the same analysis all particle types are analyzed in the
-            # same way so we can just use gammas
-            cam_ids = get_camera_names(filename_sig)
-        else:
-            print("TAKING CAMERAS FROM CLI")
-            cam_ids = args.cam_id_lists.split()
+        # table_name = [table_name_template + cam_id for cam_id in cam_ids]
 
-        table_name = [table_name_template + cam_id for cam_id in cam_ids]
-
-        # List of cuts
+        # Get the selection cuts
         sig_cuts = make_cut_list(cfg["SigFiducialCuts"])
         bkg_cuts = make_cut_list(cfg["BkgFiducialCuts"])
-
-        # Model
-        if method_name in "AdaBoostClassifier":
-            init_model = AdaBoostClassifier(DecisionTreeClassifier(max_depth=4))
-        elif method_name in "RandomForestClassifier":
-            init_model = RandomForestClassifier(
-                n_estimators=500,
-                max_depth=None,
-                min_samples_split=0.05,
-                max_features="sqrt",
-                bootstrap=True,
-                random_state=None,
-                criterion="gini",
-                class_weight="balanced_subsample",  # Tree-wise re-weighting
-            )
-
-            # Name of target
-            target_name = cfg["Method"]["target_name"]
 
         use_same_number_of_sig_and_bkg_for_training = cfg["Split"][
             "use_same_number_of_sig_and_bkg_for_training"
         ]
 
-    print("### Using {} for model construction".format(method_name))
+    else:
+        raise ValueError("ERROR: not a supported model")
+
+    print("### Using {} for model construction".format(model_to_use))
 
     print(f"LIST OF CAMERAS TO USE = {cam_ids}")
 
@@ -211,43 +159,65 @@ def main():
 
         print("### Building model for {}".format(cam_id))
 
-        if model_type in "regressor":
+        if class_name in model_types["regressor"]:
+
             # Load data
-            data = pd.read_hdf(filename, table_name[idx], mode="r")
-            data = prepare_data(ds=data, cuts=cuts)[0:args.max_events]
+            data_sig = pd.read_hdf(filename_sig, table_name[idx], mode="r")
+            # Add any derived feature and apply fiducial cuts
+            data_sig = prepare_data(ds=data_sig,
+                                    derived_features=features_derived,
+                                    select_data=True,
+                                    cuts=cuts)
 
-            print(f"Going to split {len(data)} SIGNAL images...")
+            if args.max_events:
+                data_sig = data_sig[0:args.max_events]
 
-            # Init model factory
+            print(f"Going to split {len(data_sig)} SIGNAL images...")
+
+            # Initialize the model
             factory = TrainModel(
-                case=model_type, target_name=target_name, feature_name_list=feature_list
+                case="regressor",
+                target_name=target_name,
+                feature_name_list=feature_list
             )
 
-            # Split data
-            factory.split_data(data_sig=data, train_fraction=train_fraction)
+            # Split the TRAINING dataset in a train and test sub-datasets
+            # Useful to test the models before using them for DL2 production
+            factory.split_data(data_sig=data_sig, train_fraction=train_fraction)
             print("Training sample: sig {}".format(len(factory.data_train)))
             print("Test sample: sig {}".format(len(factory.data_test)))
-        elif model_type in "classifier":
+
+        else:  # if it's not a regressor it's a classifier
+
             # Load data
             data_sig = pd.read_hdf(filename_sig, table_name[idx], mode="r")
             data_bkg = pd.read_hdf(filename_bkg, table_name[idx], mode="r")
 
             # Add label
-            data_sig = prepare_data(ds=data_sig, label=1, cuts=sig_cuts)
-            data_bkg = prepare_data(ds=data_bkg, label=0, cuts=bkg_cuts)
+            data_sig = prepare_data(ds=data_sig,
+                                    label=1,
+                                    cuts=sig_cuts,
+                                    select_data=True,
+                                    derived_features=features_derived)
+            data_bkg = prepare_data(ds=data_bkg,
+                                    label=0,
+                                    cuts=bkg_cuts,
+                                    select_data=True,
+                                    derived_features=features_derived)
 
             if args.max_events:
-                data_sig = data_sig[0:(args.max_events - 1)]
-                data_bkg = data_bkg[0:(args.max_events - 1)]
+                data_sig = data_sig[0:args.max_events]
+                data_bkg = data_bkg[0:args.max_events]
 
             print(f"Going to split {len(data_sig)} SIGNAL images and {len(data_bkg)} BACKGROUND images")
 
-            # Init model factory
+            # Initialize the model
             factory = TrainModel(
-                case=model_type, target_name=target_name, feature_name_list=feature_list
+                case="classifier", target_name=target_name, feature_name_list=feature_list
             )
 
-            # Split data
+            # Split the TRAINING dataset in a train and test sub-datasets
+            # Useful to test the models before using them for DL2 production
             factory.split_data(
                 data_sig=data_sig,
                 data_bkg=data_bkg,
@@ -268,23 +238,33 @@ def main():
                 )
             )
 
-        # Build model
-        best_model = factory.get_optimal_model(
-            init_model, tuned_parameters, scoring=scoring, cv=cv
-        )
+        if use_GridSearchCV:
+            # Apply optimization of the hyper-parameters via grid search
+            # and return best model
+            best_model = factory.get_optimal_model(
+                initialized_model, tuned_parameters, scoring=scoring, cv=cv
+            )
+        else:  # otherwise use directly the initial model
+            best_model = initialized_model
 
-        if model_type in "classifier":
-            # print report
-            if model_type in "classifier":
-                print(
-                    classification_report(
-                        factory.data_scikit["y_test"],
-                        best_model.predict(factory.data_scikit["X_test"]),
-                    )
+            # Fit the chosen model on the train data
+            best_model.fit(
+                factory.data_scikit["X_train"],
+                factory.data_scikit["y_train"],
+                sample_weight=factory.data_scikit["w_train"],
+            )
+
+        if class_name in model_types["classifier"]:
+
+            print(
+                classification_report(
+                    factory.data_scikit["y_test"],
+                    best_model.predict(factory.data_scikit["X_test"]),
                 )
+            )
 
-            # Calibrate model if necessary on test data
-            if cfg["Method"]["calibrate_output"] is True:
+            # Calibrate model if necessary on test data (GridSearchCV)
+            if use_GridSearchCV and cfg["Method"]["calibrate_output"]:
                 print("==> Calibrate classifier...")
 
                 best_model = CalibratedClassifierCV(
@@ -295,39 +275,13 @@ def main():
                     factory.data_scikit["X_test"], factory.data_scikit["y_test"]
                 )
 
-        # save model
-        models[cam_id] = best_model
-        outname = "{}_{}_{}_{}.pkl.gz".format(
-            model_type, args.mode, cam_id, method_name
-        )
-        joblib.dump(best_model, path.join(outdir, outname))
-
-        # save data
-        save_obj(
-            factory.data_scikit,
-            path.join(
-                outdir,
-                "data_scikit_{}_{}_{}_{}.pkl.gz".format(
-                    model_type, method_name, args.mode, cam_id
-                ),
-            ),
-        )
-        factory.data_train.to_pickle(
-            path.join(
-                outdir,
-                "data_train_{}_{}_{}_{}.pkl.gz".format(
-                    model_type, method_name, args.mode, cam_id
-                ),
-            )
-        )
-        factory.data_test.to_pickle(
-            path.join(
-                outdir,
-                "data_test_{}_{}_{}_{}.pkl.gz".format(
-                    model_type, method_name, args.mode, cam_id
-                ),
-            )
-        )
+        save_output(models,
+                    cam_id,
+                    factory,
+                    best_model,
+                    model_types,
+                    class_name,
+                    outdir)
 
 
 if __name__ == "__main__":

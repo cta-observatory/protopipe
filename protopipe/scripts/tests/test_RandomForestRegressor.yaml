@@ -1,0 +1,84 @@
+General:
+  # NOTE: not used here since the testing suite needs to work from the CLI
+  data_dir: './'
+  data_sig_file: 'test_TRAINING_energy_{}_gamma_merged.h5'
+  outdir: './'
+  
+  # List of cameras to use (protopipe-MODEL help output for other options)
+  # NOTE: not used here since the testing suite needs to work from the CLI
+  cam_id_list: ['LSTCam', 'NectarCam']
+
+# If train_fraction is 1, all the TRAINING dataset will be used to train the
+# model and benchmarking can only be done from the benchmarking notebook
+# TRAINING/benchmarks_DL2_to_classification.ipynb
+Split:
+  train_fraction: 0.8
+  use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+
+# Optimize the hyper-parameters of the estimator with a grid search
+# If True parameters should be provided as lists
+# If False the model used will be the one based on the chosen single-valued hyper-parameters
+GridSearchCV:
+  use: False # True or False
+  # if False the following two variables are irrelevant
+  scoring: 'explained_variance'
+  cv: 2
+
+# Definition of the model algorithm/method used and its hyper-parameters
+Method:
+  name: 'sklearn.ensemble.RandomForestRegressor' # DO NOT CHANGE
+  target_name: 'log10_true_energy'
+  tuned_parameters:
+    # Please, see scikit-learn's API for what each parameter means
+    # NOTE: null == None
+    n_estimators: 50 # integer
+    criterion: "mse" # "mse" or "mae"
+    max_depth: null # null or integer
+    min_samples_split: 5 # integer
+    min_samples_leaf: 5 # integer
+    min_weight_fraction_leaf: 0.0 # float
+    max_features: 3 # {"auto", "sqrt", "log2"}, int or float
+    max_leaf_nodes: null # null or integer
+    min_impurity_decrease: 0.0 # float
+    bootstrap: False # True or False
+    oob_score: False # True or False
+    n_jobs: null # 'None' or integer
+    random_state: 0 # null or integer or RandomState
+    verbose: 0 # integer
+    warm_start: False # True or False
+    ccp_alpha: 0.0 # non-negative float
+    max_samples: null # null, integer or float
+
+# List of the features to use to train the model
+# You can:
+# - comment/uncomment the ones you see here,
+# - add new ones here if they can be evaluated with pandas.DataFrame.eval
+# - if not you can propose modifications to protopipe.mva.utils.prepare_data
+FeatureList:
+  Basic: # single-named, they need to correspond to input data columns
+  - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
+  - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
+  - 'hillas_width'  # Image Width
+  - 'hillas_length' # Image Length
+  # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
+  - 'leakage_intensity_width_1_reco' # fraction of total Intensity which is contained in the outermost pixels of the camera
+  Derived: # custom evaluations of basic features that will be added to the data
+    # column name : expression to evaluate using basic column names
+    log10_WLS: log10(hillas_width*hillas_length/hillas_intensity)
+    log10_intensity: log10(hillas_intensity)
+    r_origin: (sqrt((hillas_x - az)**2 + (hillas_y - alt)**2))**2
+    phi_origin: arctan2(hillas_y - alt, hillas_x - az)
+
+# These cuts select the input data BEFORE training
+SigFiducialCuts:
+  - 'good_image == 1'
+  - 'is_valid == True'
+  - 'hillas_intensity_reco > 0'
+
+# Information used by the benchmarking notebook related to this model
+Diagnostic:
+  # Energy binning (used for reco and true energy)
+  energy:
+    nbins: 15
+    min: 0.0125
+    max: 125
