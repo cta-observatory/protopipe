@@ -119,15 +119,14 @@ def main():
     # Map model types to the models supported by the script
     model_types = {"regressor": ["RandomForestRegressor",
                                  "AdaBoostRegressor"],
-                   "classifier": ["RandomForestClassifier",
-                                  "AdaBoostClassifier"]}
+                   "classifier": ["RandomForestClassifier"]}
 
     if class_name in model_types["regressor"]:
 
         # Get the selection cuts
         cuts = make_cut_list(cfg["SigFiducialCuts"])
 
-    else:
+    elif class_name in model_types["classifier"]:
 
         # read background file from either config file or CLI
         if args.infile_background is None:
@@ -147,6 +146,9 @@ def main():
         use_same_number_of_sig_and_bkg_for_training = cfg["Split"][
             "use_same_number_of_sig_and_bkg_for_training"
         ]
+
+    else:
+        raise ValueError("ERROR: not a supported model")
 
     print("### Using {} for model construction".format(model_to_use))
 

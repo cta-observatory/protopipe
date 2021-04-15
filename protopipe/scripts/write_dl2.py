@@ -349,9 +349,6 @@ def main():
                 gammaness = np.nan
                 reco_event["success"] = False
 
-            for tel_id in hillas_dict:
-                print(f"tel {tel_id}, width = {hillas_dict[tel_id]['width']}, width_reco = {hillas_dict_reco[tel_id]['width']} ")
-
             # Estimate particle energy
             if use_regressor and is_valid:
                 energy_tel = np.zeros(len(hillas_dict.keys()))
@@ -362,10 +359,7 @@ def main():
 
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
-                    
-                    print(tel_id)
-                    print(moments)
-                    
+
                     model = regressors[cam_id]
 
                     ############################################################
@@ -402,17 +396,6 @@ def main():
                     for key, expression in features_derived.items():
                         if key not in data:
                             data.eval(f'{key} = {expression}', inplace=True)
-
-                    # # Features to be fed in the regressor
-                    # features_img = np.array(
-                    #     [
-                    #         np.log10(moments.intensity),
-                    #         np.log10(impact_dict[tel_id].value),
-                    #         moments.width.value,
-                    #         moments.length.value,
-                    #         h_max.value,
-                    #     ]
-                    # )
 
                     # sort features_to_use alphabetically to ensure order
                     # preservation with model.fit in protopipe.mva
@@ -503,20 +486,6 @@ def main():
                         if key not in data:
                             data.eval(f'{key} = {expression}', inplace=True)
 
-                    print(data)
-
-                    # features_img = np.array(
-                    #     [
-                    #         np.log10(reco_energy),
-                    #         np.log10(energy_tel_classifier[tel_id]),
-                    #         np.log10(moments.intensity),
-                    #         moments.width.value,
-                    #         moments.length.value,
-                    #         h_max.value,
-                    #         impact_dict[tel_id].value,
-                    #     ]
-                    # )
-
                     # sort features_to_use alphabetically to ensure order
                     # preservation with model.fit in protopipe.mva
                     features = sorted(features)
@@ -531,8 +500,6 @@ def main():
                     # WARNING: currently we should REQUIRE to estimate both
                     # energy AND particle type
                     if not np.isnan(energy_tel_classifier[tel_id]):
-                        print("energy_tel_classifier NOT NaN")
-                        print(energy_tel_classifier[tel_id])
                         # Output of classifier according to type of classifier
                         if use_proba_for_classifier is False:
                             score_tel[idx] = model.decision_function(features_values)
@@ -540,7 +507,6 @@ def main():
                             gammaness_tel[idx] = model.predict_proba(features_values)[:, 1]
                         weight_tel[idx] = np.sqrt(moments.intensity)
                     else:
-                        print("energy_tel_classifier IS NaN")
                         # WARNING:
                         # this is true only because we use telescope-wise
                         # energies as a feature of the model!!!

@@ -17,10 +17,10 @@ Split:
   use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
 
 # Optimize the hyper-parameters of the estimator with a grid search
-# If 'True' parameters should be provided as lists (for None use [null])
-# If 'False' the model used will be the unique one based on your the
+# If True parameters should be provided as lists (for None use [null])
+# If False the model used will be the one based on the chosen single-valued hyper-parameters
 GridSearchCV:
-  use: False # 'True' or 'False'
+  use: False # True or False
   # if False the following to variables are irrelevant
   scoring: 'roc_auc'
   cv: 2
@@ -67,8 +67,8 @@ FeatureList:
   Derived: # custom evaluations of basic features that will be added to the data
     # column name : expression to evaluate using basic column names
     log10_intensity: log10(hillas_intensity)
-    log10_energy: log10(reco_energy) # Averaged-estimated energy of the shower
-    log10_energy_tel: log10(reco_energy_tel) # Estimated energy of the shower per telescope
+    log10_reco_energy: log10(reco_energy) # Averaged-estimated energy of the shower
+    log10_reco_energy_tel: log10(reco_energy_tel) # Estimated energy of the shower per telescope
 
 # These cuts select the input data BEFORE training
 SigFiducialCuts:
