@@ -41,14 +41,17 @@ def prepare_data(ds, derived_features, cuts, select_data=True, label=None):
         the fiducial cuts.
     """
 
+    # This is always useful
     ds["log10_true_energy"] = np.log10(ds["true_energy"])
 
-    try:  # additional parameters for classification
-        ds["log10_reco_energy"] = np.log10(ds["reco_energy"])
-        ds["log10_reco_energy_tel"] = np.log10(ds["reco_energy_tel"])
+    if label:  # only for classification
         ds["label"] = np.full(len(ds), label)
-    except KeyError as e:
-        print(e)
+
+        # This is needed because our reference analysis uses energy as
+        # feature for classification
+        # We should propably support a more elastic choice in the future.
+        if not all(i in derived_features for i in ["log10_reco_energy", "log10_reco_energy_tel"]):
+            raise ValueError('log10_reco_energy and log10_reco_energy_tel need to be model features.')
 
     # Compute derived features and add them to the dataframe
     for feature_name, feature_expression in derived_features.items():
