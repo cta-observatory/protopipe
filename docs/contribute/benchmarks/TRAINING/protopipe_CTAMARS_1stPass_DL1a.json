@@ -1,0 +1,27 @@
+{
+    "Stage1Tool": {
+	"progress_bar": true
+    },
+    "DL1Writer": {
+	"output_path": "events_protopipe_CTAMARS_calibration_1stPass.dl1.h5",
+        "overwrite": true,
+        "write_images": true,
+        "write_parameters": false,
+        "transform_image": false,
+        "transform_peak_time": false,
+	"split_datasets_by": "tel_type",
+	"log_level": 30
+    },
+    "CameraCalibrator": {
+        "image_extractor_type": "TwoPassWindowSum",
+	"apply_peak_time_shift": false,
+	"apply_waveform_time_shift": false
+    },
+    "TwoPassWindowSum": {
+	    "core_threshold" : [
+		    ["type", "LST_LST_LSTCam", 6.0],
+		    ["type", "MST_MST_NectarCam", 8.0]
+	    ],
+	    "disable_second_pass": true
+    }
+}
