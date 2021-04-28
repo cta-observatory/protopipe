@@ -80,6 +80,7 @@ distribute-*.tar.gz
 .sonarlint
 
 # output files (should not be stored in git)
+*.log
 *.h5
 *.hdf5
 *.fits
