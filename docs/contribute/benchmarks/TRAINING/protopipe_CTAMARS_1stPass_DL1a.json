@@ -8,14 +8,10 @@
         "overwrite": true,
         "write_images": true,
         "write_parameters": false,
-        "transform_image": false,
-        "transform_peak_time": false,
         "split_datasets_by": "tel_type"
     },
     "CameraCalibrator": {
-        "image_extractor_type": "TwoPassWindowSum",
-        "apply_peak_time_shift": false,
-        "apply_waveform_time_shift": false
+        "image_extractor_type": "TwoPassWindowSum"
     },
     "TwoPassWindowSum": {
 	    "core_threshold" : [
