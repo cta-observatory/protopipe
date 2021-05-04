@@ -234,11 +234,14 @@ class EventPreparer:
 
         # Add cuts on events
         self.min_ntel = config["Reconstruction"]["min_tel"]
+        self.min_ntel_LST = 2 # LST stereo trigger
+        self.LST_stereo = config["Reconstruction"]["LST_stereo"]
         self.event_cutflow.set_cuts(
             OrderedDict(
                 [
                     ("noCuts", None),
                     ("min2Tels trig", lambda x: x < self.min_ntel),
+                    ("no-LST-stereo + <2 other types", lambda x, y: (x < self.min_ntel_LST) and (y < 2)),
                     ("min2Tels reco", lambda x: x < self.min_ntel),
                     ("direction nan", lambda x: x.is_valid is False),
                 ]
@@ -326,11 +329,43 @@ class EventPreparer:
 
             self.event_cutflow.count("noCuts")
 
+            # LST stereo condition
+            # whenever there is only 1 LST in an event, we remove that telescope
+            # if the remaining telescopes are less than min_tel we remove the event
+            n_triggered = {}
+            subarray = source.subarray
+            for i, tel_type in enumerate(subarray.telescope_types):
+                tel_type_name = f"{subarray.telescope_types[i].type}_{subarray.telescope_types[i].optics.name}_{subarray.telescope_types[i].camera.camera_name}"
+                tels_with_trigger = event.trigger.tels_with_trigger
+                tels_ids = source.subarray.get_tel_ids_for_type(tel_type_name)
+                # for each telescope type we save how many and which telescopes have been triggered
+                n_triggered[str(tel_type)] = [sum(tel_id in tels_with_trigger for tel_id in tels_ids),
+                                         [tel_id for tel_id in tels_ids if tel_id in tels_with_trigger],
+                                         ]
+            n_triggered_LSTs = n_triggered["LST_LST_LSTCam"][0]
+            not_LST_triggered_telescopes = sum(n_triggered[str(tel_type)][0] for tel_type in n_triggered if str(tel_type) != "LST_LST_LSTCam")
+
+            bad_LST_stereo = False
+            if self.LST_stereo and self.event_cutflow.cut("no-LST-stereo + <2 other types", n_triggered_LSTs, not_LST_triggered_telescopes):
+                bad_LST_stereo = True
+                if return_stub:
+                    print(
+                        bcolors.WARNING
+                        + f"WARNING: LST_stereo is set to True"
+                        + f"\t This event has < {self.min_ntel_LST} triggered LSTs\n"
+                        + f"\t and < 2 triggered telescopes from other telescope types."
+                        + f"\t The event will be processed up to DL1b."
+                        + bcolors.ENDC
+                    )
+                    # we show this, but we proceed to analyze the event up to
+                    # DL1a/b for the associated benchmarks
+
+            # this checks for < 2 triggered telescopes of ANY type
             if self.event_cutflow.cut("min2Tels trig", len(event.r1.tel.keys())):
                 if return_stub:
                     print(
                         bcolors.WARNING
-                        + f"WARNING : < {self.min_tel} triggered telescopes!"
+                        + f"WARNING : < {self.min_ntel} triggered telescopes!"
                         + bcolors.ENDC
                     )
                     # we show this, but we proceed to analyze it
@@ -703,12 +738,77 @@ class EventPreparer:
             #                   DIRECTION RECONSTRUCTION
             # =============================================================
 
-            # n_tels["reco"] = len(hillas_dict_reco)
-            # n_tels["discri"] = len(hillas_dict)
+            if bad_LST_stereo:
+                if debug:
+                    print(
+                        bcolors.WARNING
+                        + f"WARNING: This event was triggered with 1 LST image and <2 images from other telescope types."
+                        + "\nWARNING : direction reconstruction will not be performed."
+                        + bcolors.ENDC
+                    )
+
+                # Set all the involved images as NOT good for recosntruction
+                # even though they might have been
+                # but this is because of the LST stereo trigger....
+                for tel_id in tels_with_trigger:
+                    good_for_reco[tel_id] = 0
+                # and set the number of good and bad images accordingly
+                n_tels["GOOD images"] = 0
+                n_tels["BAD images"] = n_tels["Triggered"] - n_tels["GOOD images"]
+                # create a dummy container for direction reconstruction
+                reco_result = ReconstructedShowerContainer()
+
+                if return_stub:  # if saving all events (default)
+                    if debug:
+                        print(bcolors.OKBLUE + "Recording event..." + bcolors.ENDC)
+                        print(
+                            bcolors.WARNING
+                            + "WARNING: This is event shall NOT be used further along the pipeline."
+                            + bcolors.ENDC
+                        )
+                    yield stub(  # record event with dummy info
+                        event,
+                        mc_phe_image,
+                        dl1_phe_image,
+                        dl1_phe_image_mask_reco,
+                        dl1_phe_image_mask_clusters,
+                        good_for_reco,
+                        hillas_dict,
+                        hillas_dict_reco,
+                        n_tels,
+                        leakage_dict,
+                    )
+                    continue
+                else:
+                    continue
+
+            # Now in case the only triggered telescopes were
+            # - < self.min_ntel_LST LST,
+            # - >=2 any other telescope type,
+            # we remove the single-LST image and continue reconstruction with
+            # the images from the other telescope types
+            if self.LST_stereo and (n_triggered_LSTs < self.min_ntel_LST) and (n_triggered_LSTs != 0) and (not_LST_triggered_telescopes >= 2):
+                triggered_LSTs = n_triggered["LST_LST_LSTCam"][1]
+                for tel_id in triggered_LSTs:  # in case we test for min_ntel_LST>2
+                    if not good_for_reco[tel_id]:
+                        # if this LST image was already discarded anyway due to
+                        # its quality no need to notify the user again
+                        continue
+                    else:
+                        # we don't use it for reconstruction
+                        good_for_reco[tel_id] = 0
+                        print(
+                            bcolors.WARNING
+                            + f"WARNING: This is event triggered < {self.min_ntel_LST} LSTs!\n"
+                            + f"but we have also {not_LST_triggered_telescopes} images from other telescope types!\n"
+                            + f"We removed image(s) #{triggered_LSTs}!"
+                            + bcolors.ENDC
+                        )
+                # TODO: book-keeping of this kind of events doesn't seem easy
 
             # convert dictionary in numpy array to get a "mask"
             images_status = np.asarray(list(good_for_reco.values()))
-            # record how many images will used for reconstruction
+            # record how many images will be used for reconstruction
             n_tels["GOOD images"] = len(np.extract(images_status == 1, images_status))
             n_tels["BAD images"] = n_tels["Triggered"] - n_tels["GOOD images"]
 
