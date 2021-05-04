@@ -352,10 +352,10 @@ class EventPreparer:
                                          [tel_id for tel_id in tels_ids if tel_id in tels_with_trigger],
                                          ]
             n_triggered_LSTs = n_triggered["LST_LST_LSTCam"][0]
-            not_LST_triggered_telescopes = sum(n_triggered[str(tel_type)][0] for tel_type in n_triggered if str(tel_type) != "LST_LST_LSTCam")
+            non_LST_triggered_telescopes = sum(n_triggered[str(tel_type)][0] for tel_type in n_triggered if str(tel_type) != "LST_LST_LSTCam")
 
             bad_LST_stereo = False
-            if self.LST_stereo and self.event_cutflow.cut("no-LST-stereo + <2 other types", n_triggered_LSTs, not_LST_triggered_telescopes):
+            if self.LST_stereo and self.event_cutflow.cut("no-LST-stereo + <2 other types", n_triggered_LSTs, non_LST_triggered_telescopes):
                 bad_LST_stereo = True
                 if return_stub:
                     print(
@@ -796,7 +796,7 @@ class EventPreparer:
             # - >=2 any other telescope type,
             # we remove the single-LST image and continue reconstruction with
             # the images from the other telescope types
-            if self.LST_stereo and (n_triggered_LSTs < self.min_ntel_LST) and (n_triggered_LSTs != 0) and (not_LST_triggered_telescopes >= 2):
+            if self.LST_stereo and (n_triggered_LSTs < self.min_ntel_LST) and (n_triggered_LSTs != 0) and (non_LST_triggered_telescopes >= 2):
                 triggered_LSTs = n_triggered["LST_LST_LSTCam"][1]
                 for tel_id in triggered_LSTs:  # in case we test for min_ntel_LST>2
                     if good_for_reco[tel_id]:
@@ -805,7 +805,7 @@ class EventPreparer:
                         print(
                             bcolors.WARNING
                             + f"WARNING: This is event triggered < {self.min_ntel_LST} LSTs!\n"
-                            + f"but we have also {not_LST_triggered_telescopes} images from other telescope types!\n"
+                            + f"but we have also {non_LST_triggered_telescopes} images from other telescope types!\n"
                             + f"We removed image(s) #{triggered_LSTs}!"
                             + bcolors.ENDC
                         )
