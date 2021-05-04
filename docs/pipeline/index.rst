@@ -104,22 +104,6 @@ per event.
 The camera corrections correspond to those of *ctapipe* and are performed inside
 the reconstructor.
 
-Proposals for improvements and/or fixes
----------------------------------------
-
-.. note::
-
-  This section will be moved to the repository as a issues.
-  Any further update will appear there.
-
-
-* The EventPreparer class is a bit messy: it should return the event and one container
-  with several results (hillas parameters, reconstructed shower, etc.). In addition
-  some things are hard-coded , e.g. for now calibration is done in the same way
-  (not a problem since only LSTCam and NectarCam have been considered until now),
-  camera radius is also hard-coded for LST and MST, and computation of the impact
-  parameters in the frame of the shower system should be better implemented.
-
 Reference/API
 -------------
 
