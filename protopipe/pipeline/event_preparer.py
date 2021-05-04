@@ -234,8 +234,17 @@ class EventPreparer:
 
         # Add cuts on events
         self.min_ntel = config["Reconstruction"]["min_tel"]
-        self.min_ntel_LST = 2 # LST stereo trigger
-        self.LST_stereo = config["Reconstruction"]["LST_stereo"]
+        self.min_ntel_LST = 2  # LST stereo trigger
+        try:
+            self.LST_stereo = config["Reconstruction"]["LST_stereo"]
+        except KeyError:
+            print(
+                bcolors.WARNING
+                + "WARNING: the 'LST_stereo' setting has not been specified in the analysis configuration file."
+                + "\t It has been set to 'True'!"
+                + bcolors.ENDC
+            )
+            self.LST_stereo = True
         self.event_cutflow.set_cuts(
             OrderedDict(
                 [
@@ -351,10 +360,10 @@ class EventPreparer:
                 if return_stub:
                     print(
                         bcolors.WARNING
-                        + f"WARNING: LST_stereo is set to True"
+                        + "WARNING: LST_stereo is set to 'True'"
                         + f"\t This event has < {self.min_ntel_LST} triggered LSTs\n"
-                        + f"\t and < 2 triggered telescopes from other telescope types."
-                        + f"\t The event will be processed up to DL1b."
+                        + "\t and < 2 triggered telescopes from other telescope types."
+                        + "\t The event will be processed up to DL1b."
                         + bcolors.ENDC
                     )
                     # we show this, but we proceed to analyze the event up to
@@ -742,7 +751,7 @@ class EventPreparer:
                 if debug:
                     print(
                         bcolors.WARNING
-                        + f"WARNING: This event was triggered with 1 LST image and <2 images from other telescope types."
+                        + "WARNING: This event was triggered with 1 LST image and <2 images from other telescope types."
                         + "\nWARNING : direction reconstruction will not be performed."
                         + bcolors.ENDC
                     )
@@ -790,11 +799,7 @@ class EventPreparer:
             if self.LST_stereo and (n_triggered_LSTs < self.min_ntel_LST) and (n_triggered_LSTs != 0) and (not_LST_triggered_telescopes >= 2):
                 triggered_LSTs = n_triggered["LST_LST_LSTCam"][1]
                 for tel_id in triggered_LSTs:  # in case we test for min_ntel_LST>2
-                    if not good_for_reco[tel_id]:
-                        # if this LST image was already discarded anyway due to
-                        # its quality no need to notify the user again
-                        continue
-                    else:
+                    if good_for_reco[tel_id]:
                         # we don't use it for reconstruction
                         good_for_reco[tel_id] = 0
                         print(
