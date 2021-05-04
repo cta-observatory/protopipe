@@ -91,12 +91,17 @@ ImageSelection:
 
 # Minimal number of telescopes to consider events
 Reconstruction:
- min_tel: 2
+  # for events with <2 LST images the single-LST image is removed
+  # before shower geometry
+  LST_stereo: True
+  # after this we check if the remaining images satisfy the min_tel condition
+  min_tel: 2 # any tel_type
+  
 
 # Parameters for energy estimation
 EnergyRegressor:
- # Name of the regression method (e.g. AdaBoostRegressor, etc.)
- method_name: 'AdaBoostRegressor'
+  # Name of the regression method (e.g. AdaBoostRegressor, etc.)
+  method_name: 'AdaBoostRegressor'
 
 # Parameters for g/h separation
 GammaHadronClassifier:
