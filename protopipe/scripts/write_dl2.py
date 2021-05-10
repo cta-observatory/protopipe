@@ -518,7 +518,7 @@ def main():
                             score_tel[idx] = model.decision_function(features_values)
                         else:
                             gammaness_tel[idx] = model.predict_proba(features_values)[:, 1]
-                        weight_tel[idx] = data["estimation_weight_energy"]
+                        weight_tel[idx] = data["estimation_weight_classification"]
                     else:
                         # WARNING:
                         # this is true only because we use telescope-wise
