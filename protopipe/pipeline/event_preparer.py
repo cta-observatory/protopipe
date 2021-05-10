@@ -165,10 +165,19 @@ class EventPreparer:
         self.image_cutflow = image_cutflow or CutFlow("ImageCutFlow")
 
         # Add quality cuts on images
-        charge_bounds = config["ImageSelection"]["charge"]
-        npix_bounds = config["ImageSelection"]["pixel"]
-        ellipticity_bounds = config["ImageSelection"]["ellipticity"]
-        nominal_distance_bounds = config["ImageSelection"]["nominal_distance"]
+        try:
+            self.image_selection_source = config["ImageSelection"]["source"]
+            charge_bounds = config["ImageSelection"]["charge"]
+            npix_bounds = config["ImageSelection"]["pixel"]
+            ellipticity_bounds = config["ImageSelection"]["ellipticity"]
+            nominal_distance_bounds = config["ImageSelection"]["nominal_distance"]
+        except KeyError:
+            # defaults for a CTAMARS-like analysis
+            self.image_selection_source = "extended"
+            charge_bounds = [50., 1.e10]
+            npix_bounds = [3, 1e10]
+            ellipticity_bounds = [0.1, 0.6]
+            nominal_distance_bounds = [0., 0.8]
 
         if debug:
             camera_radius(
@@ -541,7 +550,7 @@ class EventPreparer:
                             # could this go into `hillas_parameters` ...?
                             max_signals[tel_id] = np.max(image_extended)
 
-                    except FileNotFoundError as e:  # JLK, WHAT?
+                    except FileNotFoundError as e:
                         print(e)
                         continue
 
@@ -551,8 +560,15 @@ class EventPreparer:
 
                 cleaned_image_is_good = True  # we assume this
 
+                if self.image_selection_source == "extended":
+                    cleaned_image_to_use = image_extended
+                elif self.image_selection_source == "biggest":
+                    cleaned_image_to_use = image_biggest
+                else:
+                    raise ValueError("Only supported cleanings are 'biggest' or 'extended'.")
+
                 # Apply some selection
-                if self.image_cutflow.cut("min pixel", image_biggest):
+                if self.image_cutflow.cut("min pixel", cleaned_image_to_use):
                     if debug:
                         print(
                             bcolors.WARNING
@@ -562,7 +578,7 @@ class EventPreparer:
                     good_for_reco[tel_id] = 0  # we record it as BAD
                     cleaned_image_is_good = False
 
-                if self.image_cutflow.cut("min charge", np.sum(image_biggest)):
+                if self.image_cutflow.cut("min charge", np.sum(cleaned_image_to_use)):
                     if debug:
                         print(
                             bcolors.WARNING
@@ -617,12 +633,16 @@ class EventPreparer:
                         # ===================================================
                         #             PARAMETRIZED IMAGE SELECTION
                         # ===================================================
+                        if self.image_selection_source == "extended":
+                            moments_to_use = moments
+                        else:
+                            moments_to_use = moments_reco
 
                         # if width and/or length are zero (e.g. when there is
                         # only only one pixel or when all  pixel are exactly
                         # in one row), the parametrisation
                         # won't be very useful: skip
-                        if self.image_cutflow.cut("poor moments", moments_reco):
+                        if self.image_cutflow.cut("poor moments", moments_to_use):
                             if debug:
                                 print(
                                     bcolors.WARNING
@@ -632,20 +652,20 @@ class EventPreparer:
                             good_for_reco[tel_id] = 0  # we record it as BAD
 
                         if self.image_cutflow.cut(
-                            "close to the edge", moments_reco, camera.camera_name
+                            "close to the edge", moments_to_use, camera.camera_name
                         ):
                             if debug:
                                 print(
                                     bcolors.WARNING
                                     + "WARNING : out of containment radius!\n"
                                     + f"Camera radius = {self.camera_radius[camera.camera_name]}\n"
-                                    + f"COG radius = {moments_reco.r}"
+                                    + f"COG radius = {moments_to_use.r}"
                                     + bcolors.ENDC
                                 )
 
                             good_for_reco[tel_id] = 0
 
-                        if self.image_cutflow.cut("bad ellipticity", moments_reco):
+                        if self.image_cutflow.cut("bad ellipticity", moments_to_use):
                             if debug:
                                 print(
                                     bcolors.WARNING
@@ -703,9 +723,6 @@ class EventPreparer:
             #                   DIRECTION RECONSTRUCTION
             # =============================================================
 
-            # n_tels["reco"] = len(hillas_dict_reco)
-            # n_tels["discri"] = len(hillas_dict)
-
             # convert dictionary in numpy array to get a "mask"
             images_status = np.asarray(list(good_for_reco.values()))
             # record how many images will used for reconstruction
@@ -759,34 +776,39 @@ class EventPreparer:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
 
+                    if self.image_selection_source == "extended":
+                        hillas_dict_to_use = hillas_dict
+                    else:
+                        hillas_dict_to_use = hillas_dict_reco
+
                     # use only the successfully parametrized images
                     # to reconstruct the direction of this event
                     successfull_hillas = np.where(images_status == 1)[0]
                     all_images = np.asarray(list(good_for_reco.keys()))
                     good_images = set(all_images[successfull_hillas])
-                    good_hillas_dict_reco = {
-                        k: v for k, v in hillas_dict_reco.items() if k in good_images
+                    good_hillas_dict = {
+                        k: v for k, v in hillas_dict_to_use.items() if k in good_images
                     }
 
                     if debug:
                         print(
                             bcolors.PURPLE
-                            + f"{len(good_hillas_dict_reco)} images will be "
+                            + f"{len(good_hillas_dict)} images will be "
                             + "used to recover the shower's direction..."
                             + bcolors.ENDC
                         )
 
                     # Reconstruction results
                     reco_result = self.shower_reco.predict(
-                        good_hillas_dict_reco,
+                        good_hillas_dict,
                         source.subarray,
                         SkyCoord(alt=alt, az=az, frame="altaz"),
                         None,  # use the array direction
                     )
 
-                    # Impact parameter for energy estimation (/ tel)
+                    # Impact parameter for telescope-wise energy estimation
                     subarray = source.subarray
-                    for tel_id in hillas_dict.keys():
+                    for tel_id in hillas_dict_to_use.keys():
 
                         pos = subarray.positions[tel_id]
 
