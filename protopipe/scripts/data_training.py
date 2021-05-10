@@ -107,8 +107,12 @@ def main():
     signal_handler = SignalHandler()
     signal.signal(signal.SIGINT, signal_handler)
 
-    # Regressor method
+    # Regressor information
     regressor_method = cfg["EnergyRegressor"]["method_name"]
+    try:
+        estimation_weight = cfg["EnergyRegressor"]["estimation_weight"]
+    except KeyError:
+        estimation_weight = "STD"
 
     # wrapper for the scikit-learn regressor
     if args.estimate_energy is True:
@@ -359,8 +363,16 @@ def main():
 
                     ############################################################
 
-                    energy_tel[idx] = model.predict(features_values)
-                    weight_tel[idx] = moments.intensity
+                    if estimation_weight == "STD":
+                        # Get an array of trees
+                        predictions_trees = np.array([tree.predict(features_values) for tree in model.estimators_])
+                        energy_tel[idx] = np.mean(predictions_trees, axis=0)
+                        weight_tel[idx] = np.std(predictions_trees, axis=0)
+                    else:
+                        data.eval(f'estimation_weight = {estimation_weight}', inplace=True)
+                        energy_tel[idx] = model.predict(features_values)
+                        weight_tel[idx] = data["estimation_weight"]
+
                     reco_energy_tel[tel_id] = energy_tel[idx]
 
                 reco_energy = np.sum(weight_tel * energy_tel) / sum(weight_tel)
