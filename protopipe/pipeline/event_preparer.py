@@ -11,7 +11,10 @@ from collections import namedtuple, OrderedDict
 from ctapipe.containers import ReconstructedShowerContainer
 from ctapipe.calib import CameraCalibrator
 from ctapipe.image.extractor import TwoPassWindowSum
-from ctapipe.image import leakage_parameters, number_of_islands, largest_island
+from ctapipe.image import (leakage_parameters,
+                           number_of_islands,
+                           largest_island,
+                           concentration_parameters)
 from ctapipe.utils.CutFlow import CutFlow
 from ctapipe.coordinates import GroundFrame, TelescopeFrame, CameraFrame
 
@@ -56,6 +59,7 @@ PreparedEvent = namedtuple(
         "hillas_dict",
         "hillas_dict_reco",
         "leakage_dict",
+        "concentration_dict",
         "n_tels",
         "max_signals",
         "n_cluster_dict",
@@ -78,6 +82,7 @@ def stub(
     hillas_dict_reco,
     n_tels,
     leakage_dict,
+    concentration_dict
 ):
     """Default container for images that did not survive cleaning."""
     return PreparedEvent(
@@ -91,6 +96,7 @@ def stub(
         hillas_dict=hillas_dict,
         hillas_dict_reco=hillas_dict_reco,
         leakage_dict=leakage_dict,
+        concentration_dict=concentration_dict,
         n_tels=n_tels,
         max_signals=dict.fromkeys(hillas_dict_reco.keys(), np.nan),  # no charge
         n_cluster_dict=dict.fromkeys(hillas_dict_reco.keys(), 0),  # no clusters
@@ -369,6 +375,7 @@ class EventPreparer:
             hillas_dict_reco = {}  # for direction reconstruction
             hillas_dict = {}  # for discrimination
             leakage_dict = {}
+            concentration_dict = {}
             n_tels = {
                 "Triggered": len(event.r1.tel.keys()),
                 "LST_LST_LSTCam": 0,
@@ -630,6 +637,13 @@ class EventPreparer:
                             print("Image parameters from all-clusters cleaning:")
                             print(moments)
 
+                        # Add concentration parameters
+                        concentrations = {}
+                        concentrations_extended = concentration_parameters(camera_extended_tel, image_extended, moments)
+                        concentrations["concentration_cog"] = concentrations_extended["cog"]
+                        concentrations["concentration_core"] = concentrations_extended["core"]
+                        concentrations["concentration_pixel"] = concentrations_extended["pixel"]
+
                         # ===================================================
                         #             PARAMETRIZED IMAGE SELECTION
                         # ===================================================
@@ -695,6 +709,7 @@ class EventPreparer:
                         hillas_dict_reco[tel_id] = moments_reco
                         n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                         leakage_dict[tel_id] = leakages
+                        concentration_dict[tel_id] = concentrations
 
                     except (
                         FloatingPointError,
@@ -716,6 +731,7 @@ class EventPreparer:
                         ] = HillasParametersTelescopeFrameContainer()
                         n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                         leakage_dict[tel_id] = leakages
+                        concentration_dict[tel_id] = concentrations
 
                 # END OF THE CYCLE OVER THE TELESCOPES
 
@@ -760,6 +776,7 @@ class EventPreparer:
                         hillas_dict_reco,
                         n_tels,
                         leakage_dict,
+                        concentration_dict
                     )
                     continue
                 else:
@@ -854,6 +871,7 @@ class EventPreparer:
                         hillas_dict_reco,
                         n_tels,
                         leakage_dict,
+                        concentration_dict
                     )
                 else:
                     continue
@@ -884,6 +902,7 @@ class EventPreparer:
                         hillas_dict_reco,
                         n_tels,
                         leakage_dict,
+                        concentration_dict
                     )
                 else:
                     continue
@@ -906,6 +925,7 @@ class EventPreparer:
                 hillas_dict=hillas_dict,
                 hillas_dict_reco=hillas_dict_reco,
                 leakage_dict=leakage_dict,
+                concentration_dict=concentration_dict,
                 n_tels=n_tels,
                 max_signals=max_signals,
                 n_cluster_dict=n_cluster_dict,

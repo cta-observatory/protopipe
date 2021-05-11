@@ -98,6 +98,7 @@ Reconstruction:
 EnergyRegressor:
  # Name of the regression method (e.g. AdaBoostRegressor, etc.)
  method_name: 'RandomForestRegressor'
+ estimation_weight: 'STD'
 
 # Parameters for g/h separation
 GammaHadronClassifier:
@@ -105,3 +106,4 @@ GammaHadronClassifier:
  method_name: 'RandomForestClassifier'
  # Use probability output or score
  use_proba: True
+ estimation_weight: hillas_intensity**0.54 # empirical value from CTAMARS
