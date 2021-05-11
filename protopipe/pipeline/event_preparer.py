@@ -802,6 +802,7 @@ class EventPreparer:
                         hillas_dict_reco,
                         n_tels,
                         leakage_dict,
+                        concentration_dict
                     )
                     continue
                 else:
