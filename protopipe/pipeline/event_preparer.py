@@ -15,7 +15,7 @@ from ctapipe.image import (leakage_parameters,
                            number_of_islands,
                            largest_island,
                            concentration_parameters)
-from ctapipe.utils.CutFlow import CutFlow
+from ctapipe.utils import CutFlow
 from ctapipe.coordinates import GroundFrame, TelescopeFrame, CameraFrame
 
 # from ctapipe.image.timing_parameters import timing_parameters
