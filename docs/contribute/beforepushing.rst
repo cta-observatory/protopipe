@@ -84,7 +84,7 @@ Same for *pyirf*.
 Integration tests
 ^^^^^^^^^^^^^^^^^
 
-These are neither unit-tests nor benchmarks, but rather functions that tests
+These are neither unit-tests nor benchmarks, but rather functions that test
 whole functionalities and not just single API functions.
 
 In the case of the pipeline, such functionalities are the scripts/tools
