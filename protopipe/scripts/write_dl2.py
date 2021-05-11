@@ -11,7 +11,7 @@ import astropy.units as u
 
 # ctapipe
 from ctapipe.io import EventSource
-from ctapipe.utils.CutFlow import CutFlow
+from ctapipe.utils import CutFlow
 
 # Utilities
 from protopipe.pipeline import EventPreparer
@@ -122,7 +122,12 @@ def main():
 
     # Regressor and classifier methods
     regressor_method = cfg["EnergyRegressor"]["method_name"]
+    try:
+        estimation_weight_energy = cfg["EnergyRegressor"]["estimation_weight"]
+    except KeyError:
+        estimation_weight_energy = "STD"
     classifier_method = cfg["GammaHadronClassifier"]["method_name"]
+    estimation_weight_classification = cfg["GammaHadronClassifier"]["estimation_weight"]
     use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
 
     if regressor_method in ["None", "none", None]:
@@ -283,6 +288,7 @@ def main():
             hillas_dict,
             hillas_dict_reco,
             leakage_dict,
+            concentration_dict,
             n_tels,
             max_signals,
             n_cluster_dict,
@@ -386,6 +392,9 @@ def main():
                         "leakage_intensity_width_2_reco": [leakage_dict[tel_id]['leak2_reco']],
                         "leakage_intensity_width_1": [leakage_dict[tel_id]['leak1']],
                         "leakage_intensity_width_2": [leakage_dict[tel_id]['leak2']],
+                        "concentration_cog": [concentration_dict[tel_id]['concentration_cog']],
+                        "concentration_core": [concentration_dict[tel_id]['concentration_core']],
+                        "concentration_pixel": [concentration_dict[tel_id]['concentration_pixel']],
                         "az": [reco_result.az.to("deg").value],
                         "alt": [reco_result.alt.to("deg").value],
                         "h_max": [h_max.value],
@@ -406,12 +415,17 @@ def main():
 
                     ############################################################
 
-                    if good_for_reco[tel_id] == 1:
+                    if (good_for_reco[tel_id] == 1) and (estimation_weight_energy == "STD"):
+                        # Get an array of trees
+                        predictions_trees = np.array([tree.predict(features_values) for tree in model.estimators_])
+                        energy_tel[idx] = np.mean(predictions_trees, axis=0)
+                        weight_tel[idx] = np.std(predictions_trees, axis=0)
+                    elif (good_for_reco[tel_id] == 1):
+                        data.eval(f'estimation_weight_energy = {estimation_weight_energy}', inplace=True)
                         energy_tel[idx] = model.predict(features_values)
+                        weight_tel[idx] = data["estimation_weight_energy"]
                     else:
                         energy_tel[idx] = np.nan
-
-                    weight_tel[idx] = moments.intensity
 
                     # Record the values regardless of the validity
                     # We don't use this now, but it should be recorded
@@ -473,6 +487,9 @@ def main():
                         "leakage_intensity_width_2_reco": [leakage_dict[tel_id]['leak2_reco']],
                         "leakage_intensity_width_1": [leakage_dict[tel_id]['leak1']],
                         "leakage_intensity_width_2": [leakage_dict[tel_id]['leak2']],
+                        "concentration_cog": [concentration_dict[tel_id]['concentration_cog']],
+                        "concentration_core": [concentration_dict[tel_id]['concentration_core']],
+                        "concentration_pixel": [concentration_dict[tel_id]['concentration_pixel']],
                         "az": [reco_result.az.to("deg").value],
                         "alt": [reco_result.alt.to("deg").value],
                         "h_max": [h_max.value],
@@ -495,6 +512,9 @@ def main():
 
                     ############################################################
 
+                    # add weigth to event dataframe
+                    data.eval(f'estimation_weight_classification = {estimation_weight_classification}', inplace=True)
+
                     # Here we check for valid telescope-wise energies
                     # Because it means that it's a good image
                     # WARNING: currently we should REQUIRE to estimate both
@@ -505,7 +525,7 @@ def main():
                             score_tel[idx] = model.decision_function(features_values)
                         else:
                             gammaness_tel[idx] = model.predict_proba(features_values)[:, 1]
-                        weight_tel[idx] = np.sqrt(moments.intensity)
+                        weight_tel[idx] = data["estimation_weight_classification"]
                     else:
                         # WARNING:
                         # this is true only because we use telescope-wise

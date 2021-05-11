@@ -4,7 +4,7 @@ from pkg_resources import resource_filename
 import tables
 import pytest
 
-from protopipe.pipeline.temp import get_dataset_path
+from ctapipe.utils.datasets import get_dataset_path
 from protopipe.scripts import data_training, build_model, write_dl2
 
 
