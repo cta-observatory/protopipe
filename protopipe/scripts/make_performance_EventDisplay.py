@@ -42,7 +42,7 @@ from pyirf.io import (
     create_rad_max_hdu,
     create_background_2d_hdu,
 )
-from pyirf.benchmarks import energy_bias_resolution, angular_resolution
+from protopipe.perf.temp import energy_bias_resolution, angular_resolution
 
 log = logging.getLogger("pyirf")
 
