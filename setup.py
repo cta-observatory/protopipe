@@ -14,6 +14,7 @@ extras_require = {
         "numpy",
         "ctapipe==0.11.0",
         "pyirf",
+        "pandas"
     ],
     "tests": [
         "pytest",
