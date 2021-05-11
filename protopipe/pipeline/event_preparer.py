@@ -356,21 +356,14 @@ class EventPreparer:
             # LST stereo condition
             # whenever there is only 1 LST in an event, we remove that telescope
             # if the remaining telescopes are less than min_tel we remove the event
-            n_triggered = {}
-            subarray = source.subarray
-            for i, tel_type in enumerate(subarray.telescope_types):
-                tel_type_name = f"{subarray.telescope_types[i].type}_{subarray.telescope_types[i].optics.name}_{subarray.telescope_types[i].camera.camera_name}"
-                tels_with_trigger = event.trigger.tels_with_trigger
-                tels_ids = source.subarray.get_tel_ids_for_type(tel_type_name)
-                # for each telescope type we save how many and which telescopes have been triggered
-                n_triggered[str(tel_type)] = [sum(tel_id in tels_with_trigger for tel_id in tels_ids),
-                                         [tel_id for tel_id in tels_ids if tel_id in tels_with_trigger],
-                                         ]
-            n_triggered_LSTs = n_triggered["LST_LST_LSTCam"][0]
-            non_LST_triggered_telescopes = sum(n_triggered[str(tel_type)][0] for tel_type in n_triggered if str(tel_type) != "LST_LST_LSTCam")
+
+            lst_tel_ids = set(source.subarray.get_tel_ids_for_type("LST_LSTCam"))
+            triggered_LSTs = set(event.r0.tel.keys()).intersection(lst_tel_ids)
+            n_triggered_LSTs = len(triggered_LSTs)
+            n_triggered_non_LSTs = len(event.r0.tel.keys()) - n_triggered_LSTs
 
             bad_LST_stereo = False
-            if self.LST_stereo and self.event_cutflow.cut("no-LST-stereo + <2 other types", n_triggered_LSTs, non_LST_triggered_telescopes):
+            if self.LST_stereo and self.event_cutflow.cut("no-LST-stereo + <2 other types", n_triggered_LSTs, n_triggered_non_LSTs):
                 bad_LST_stereo = True
                 if return_stub:
                     print(
@@ -795,7 +788,7 @@ class EventPreparer:
                 # Set all the involved images as NOT good for recosntruction
                 # even though they might have been
                 # but this is because of the LST stereo trigger....
-                for tel_id in tels_with_trigger:
+                for tel_id in event.r0.tel.keys():
                     good_for_reco[tel_id] = 0
                 # and set the number of good and bad images accordingly
                 n_tels["GOOD images"] = 0
@@ -833,19 +826,19 @@ class EventPreparer:
             # - >=2 any other telescope type,
             # we remove the single-LST image and continue reconstruction with
             # the images from the other telescope types
-            if self.LST_stereo and (n_triggered_LSTs < self.min_ntel_LST) and (n_triggered_LSTs != 0) and (non_LST_triggered_telescopes >= 2):
-                triggered_LSTs = n_triggered["LST_LST_LSTCam"][1]
+            if self.LST_stereo and (n_triggered_LSTs < self.min_ntel_LST) and (n_triggered_LSTs != 0) and (n_triggered_non_LSTs >= 2):
                 for tel_id in triggered_LSTs:  # in case we test for min_ntel_LST>2
                     if good_for_reco[tel_id]:
                         # we don't use it for reconstruction
                         good_for_reco[tel_id] = 0
-                        print(
-                            bcolors.WARNING
-                            + f"WARNING: This is event triggered < {self.min_ntel_LST} LSTs!\n"
-                            + f"but we have also {non_LST_triggered_telescopes} images from other telescope types!\n"
-                            + f"We removed image(s) #{triggered_LSTs}!"
-                            + bcolors.ENDC
-                        )
+                print(
+                    bcolors.WARNING
+                    + f"WARNING: LST stereo trigger condition is active."
+                    + f"This event triggered < {self.min_ntel_LST} LSTs.\n"
+                    + f"but there are also {n_triggered_non_LSTs} images from other telescope types.\n"
+                    + f"LST image(s) #{triggered_LSTs} have been removed."
+                    + bcolors.ENDC
+                )
                 # TODO: book-keeping of this kind of events doesn't seem easy
 
             # convert dictionary in numpy array to get a "mask"
