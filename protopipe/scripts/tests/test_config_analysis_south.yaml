@@ -84,6 +84,7 @@ ImageCleaning:
 
 # Cut for image selection
 ImageSelection:
+ source: "extended" # biggest or extended
  charge: [50., 1e10]
  pixel: [3, 1e10]
  ellipticity: [0.1, 0.8]
