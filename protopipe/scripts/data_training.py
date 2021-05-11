@@ -169,36 +169,39 @@ def main():
         leakage_intensity_width_2_reco=tb.Float32Col(dflt=np.nan, pos=29),
         leakage_intensity_width_1=tb.Float32Col(dflt=np.nan, pos=30),
         leakage_intensity_width_2=tb.Float32Col(dflt=np.nan, pos=31),
+        concentration_cog=tb.Float32Col(dflt=np.nan, pos=32),
+        concentration_core=tb.Float32Col(dflt=np.nan, pos=33),
+        concentration_pixel=tb.Float32Col(dflt=np.nan, pos=34),
         # The following are missing from current ctapipe DL1 output
         # Not sure if it's worth to add them
-        hillas_ellipticity_reco=tb.FloatCol(dflt=1, pos=32),
-        hillas_ellipticity=tb.FloatCol(dflt=1, pos=33),
-        max_signal_cam=tb.Float32Col(dflt=1, pos=34),
-        pixels=tb.Int16Col(dflt=1, pos=35),
-        clusters=tb.Int16Col(dflt=-1, pos=36),
+        hillas_ellipticity_reco=tb.FloatCol(dflt=1, pos=35),
+        hillas_ellipticity=tb.FloatCol(dflt=1, pos=36),
+        max_signal_cam=tb.Float32Col(dflt=1, pos=37),
+        pixels=tb.Int16Col(dflt=1, pos=38),
+        clusters=tb.Int16Col(dflt=-1, pos=39),
         # ======================================================================
         # DL2 - DIRECTION RECONSTRUCTION
-        impact_dist=tb.Float32Col(dflt=1, pos=37),
-        h_max=tb.Float32Col(dflt=1, pos=38),
-        alt=tb.Float32Col(dflt=np.nan, pos=39),
-        az=tb.Float32Col(dflt=np.nan, pos=40),
-        err_est_pos=tb.Float32Col(dflt=1, pos=41),
-        err_est_dir=tb.Float32Col(dflt=1, pos=42),
-        xi=tb.Float32Col(dflt=np.nan, pos=43),
-        offset=tb.Float32Col(dflt=np.nan, pos=44),
-        mc_core_x=tb.FloatCol(dflt=1, pos=45),
-        mc_core_y=tb.FloatCol(dflt=1, pos=46),
-        reco_core_x=tb.FloatCol(dflt=1, pos=47),
-        reco_core_y=tb.FloatCol(dflt=1, pos=48),
-        mc_h_first_int=tb.FloatCol(dflt=1, pos=49),
-        mc_x_max=tb.Float32Col(dflt=np.nan, pos=50),
-        is_valid=tb.BoolCol(dflt=False, pos=51),
-        good_image=tb.Int16Col(dflt=1, pos=52),
+        impact_dist=tb.Float32Col(dflt=1, pos=40),
+        h_max=tb.Float32Col(dflt=1, pos=41),
+        alt=tb.Float32Col(dflt=np.nan, pos=42),
+        az=tb.Float32Col(dflt=np.nan, pos=43),
+        err_est_pos=tb.Float32Col(dflt=1, pos=44),
+        err_est_dir=tb.Float32Col(dflt=1, pos=45),
+        xi=tb.Float32Col(dflt=np.nan, pos=46),
+        offset=tb.Float32Col(dflt=np.nan, pos=47),
+        mc_core_x=tb.FloatCol(dflt=1, pos=48),
+        mc_core_y=tb.FloatCol(dflt=1, pos=49),
+        reco_core_x=tb.FloatCol(dflt=1, pos=50),
+        reco_core_y=tb.FloatCol(dflt=1, pos=51),
+        mc_h_first_int=tb.FloatCol(dflt=1, pos=52),
+        mc_x_max=tb.Float32Col(dflt=np.nan, pos=53),
+        is_valid=tb.BoolCol(dflt=False, pos=54),
+        good_image=tb.Int16Col(dflt=1, pos=55),
         # ======================================================================
         # DL2 - ENERGY ESTIMATION
-        true_energy=tb.FloatCol(dflt=1, pos=53),
-        reco_energy=tb.FloatCol(dflt=np.nan, pos=54),
-        reco_energy_tel=tb.Float32Col(dflt=np.nan, pos=55),
+        true_energy=tb.FloatCol(dflt=1, pos=56),
+        reco_energy=tb.FloatCol(dflt=np.nan, pos=57),
+        reco_energy_tel=tb.Float32Col(dflt=np.nan, pos=58),
         # ======================================================================
         # DL1 IMAGES
         # this is optional data saved by the user
@@ -235,6 +238,7 @@ def main():
             hillas_dict,
             hillas_dict_reco,
             leakage_dict,
+            concentration_dict,
             n_tels,
             max_signals,
             n_cluster_dict,
@@ -330,6 +334,9 @@ def main():
                         "leakage_intensity_width_2_reco": [leakage_dict[tel_id]['leak2_reco']],
                         "leakage_intensity_width_1": [leakage_dict[tel_id]['leak1']],
                         "leakage_intensity_width_2": [leakage_dict[tel_id]['leak2']],
+                        "concentration_cog": [concentration_dict[tel_id]['concentration_cog']],
+                        "concentration_core": [concentration_dict[tel_id]['concentration_core']],
+                        "concentration_pixel": [concentration_dict[tel_id]['concentration_pixel']],
                         "az": [reco_result.az.to("deg").value],
                         "alt": [reco_result.alt.to("deg").value],
                         "h_max": [h_max.value],
@@ -482,6 +489,15 @@ def main():
                 ]
                 outData[cam_id]["leakage_intensity_width_2"] = leakage_dict[tel_id][
                     "leak2"
+                ]
+                outData[cam_id]["concentration_cog"] = concentration_dict[tel_id][
+                    "concentration_cog"
+                ]
+                outData[cam_id]["concentration_core"] = concentration_dict[tel_id][
+                    "concentration_core"
+                ]
+                outData[cam_id]["concentration_pixel"] = concentration_dict[tel_id][
+                    "concentration_pixel"
                 ]
 
                 # =======================
