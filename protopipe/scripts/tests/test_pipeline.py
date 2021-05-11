@@ -446,3 +446,9 @@ def test_GET_DL3_ED_prod3b(test_case, pipeline_testdir):
     # check that the output file exists and it is not empty
     path = Path(pipeline_testdir) / f"test_DL3_{test_case}.fits.gz"
     assert path.exists() and (path.stat().st_size > 0)
+
+    from astropy.io import fits
+    with fits.open(path) as hdul:
+        assert len(hdul) == 19  # check that all HDUs are there
+        for hdu in hdul[1:]:
+            assert hdu.size > 0  # check presence of data
