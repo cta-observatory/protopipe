@@ -1,3 +1,4 @@
+from pathlib import Path
 from os import system
 from pkg_resources import resource_filename
 
@@ -5,7 +6,10 @@ import tables
 import pytest
 
 from protopipe.pipeline.temp import get_dataset_path
-from protopipe.scripts import data_training, build_model, write_dl2
+from protopipe.scripts import (data_training,
+                               build_model,
+                               write_dl2,
+                               make_performance_EventDisplay)
 
 
 # PROD 3B
@@ -16,6 +20,7 @@ config_prod3b_CTAS = resource_filename("protopipe", "scripts/tests/test_config_a
 config_AdaBoostRegressor = resource_filename("protopipe", "scripts/tests/test_AdaBoostRegressor.yaml")
 config_RandomForestRegressor = resource_filename("protopipe", "scripts/tests/test_RandomForestRegressor.yaml")
 config_RandomForestClassifier = resource_filename("protopipe", "scripts/tests/test_RandomForestClassifier.yaml")
+config_DL3_ED_prod3b = resource_filename("protopipe", "scripts/tests/test_performance_ED_prod3b.yaml")
 
 # TEST FILES
 
@@ -298,7 +303,7 @@ def test_GET_DL2_GAMMAS(test_case, pipeline_testdir):
 
     regressor_path = pipeline_testdir / f"energy_model_{test_case}"
     classifier_path = pipeline_testdir / f"classification_model_{test_case}"
-    outpath = pipeline_testdir / f"test_gamma3_noImages_{test_case}.h5"
+    outpath = pipeline_testdir / f"test_DL2_tail_gamma_noImages_{test_case}.h5"
 
     command = f"python {write_dl2.__file__}\
     --config_file {input_data[test_case]['config']}\
@@ -338,7 +343,7 @@ def test_GET_DL2_PROTONS(test_case, pipeline_testdir):
 
     regressor_path = pipeline_testdir / f"energy_model_{test_case}"
     classifier_path = pipeline_testdir / f"classification_model_{test_case}"
-    outpath = pipeline_testdir / f"test_gamma3_noImages_{test_case}.h5"
+    outpath = pipeline_testdir / f"test_DL2_tail_proton_noImages_{test_case}.h5"
 
     command = f"python {write_dl2.__file__}\
     --config_file {input_data[test_case]['config']}\
@@ -378,7 +383,7 @@ def test_GET_DL2_ELECTRONS(test_case, pipeline_testdir):
 
     regressor_path = pipeline_testdir / f"energy_model_{test_case}"
     classifier_path = pipeline_testdir / f"classification_model_{test_case}"
-    outpath = pipeline_testdir / f"test_gamma3_noImages_{test_case}.h5"
+    outpath = pipeline_testdir / f"test_DL2_tail_electron_noImages_{test_case}.h5"
 
     command = f"python {write_dl2.__file__}\
     --config_file {input_data[test_case]['config']}\
@@ -406,3 +411,38 @@ def test_GET_DL2_ELECTRONS(test_case, pipeline_testdir):
     # check that the produced HDF5 file is non-empty
     with tables.open_file(outpath) as file:
         assert file.get_filesize() > 0
+
+
+@pytest.mark.parametrize("test_case", [
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="DL3N",
+                                                                  depends=["g3N", "p2N", "elN"])),
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="DL3S",
+                                                                  depends=["g3S", "p2S", "elS"])),
+])
+def test_GET_DL3_ED_prod3b(test_case, pipeline_testdir):
+
+    template_input_file = f"test_DL2_{{}}_{{}}_noImages_{test_case}.h5"
+
+    command = f"python {make_performance_EventDisplay.__file__}\
+    --config_file {config_DL3_ED_prod3b}\
+    --indir {pipeline_testdir}\
+    --outdir_path {pipeline_testdir}\
+    --out_file_name 'test_DL3_{test_case}'\
+    --template_input_file {template_input_file}"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
+    )
+
+    exit_status = system(command)
+
+    # check that the script ends without crashing
+    assert exit_status == 0
+
+    # check that the output file exists and it is not empty
+    path = Path(pipeline_testdir) / f"test_DL3_{test_case}.fits.gz"
+    assert path.exists() and (path.stat().st_size > 0)
