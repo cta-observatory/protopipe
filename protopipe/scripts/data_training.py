@@ -10,7 +10,7 @@ import signal
 import tables as tb
 import pandas as pd
 
-from ctapipe.utils.CutFlow import CutFlow
+from ctapipe.utils import CutFlow
 from ctapipe.io import EventSource
 
 from protopipe.pipeline import EventPreparer

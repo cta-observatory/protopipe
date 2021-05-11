@@ -11,7 +11,7 @@ import astropy.units as u
 
 # ctapipe
 from ctapipe.io import EventSource
-from ctapipe.utils.CutFlow import CutFlow
+from ctapipe.utils import CutFlow
 
 # Utilities
 from protopipe.pipeline import EventPreparer
