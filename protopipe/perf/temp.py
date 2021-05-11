@@ -72,9 +72,6 @@ def energy_bias_resolution(
     return result
 
 
-ONE_SIGMA_QUANTILE = norm.cdf(1) - norm.cdf(-1)
-
-
 def angular_resolution(
     events, energy_bins, energy_type="true",
 ):
@@ -97,6 +94,9 @@ def angular_resolution(
         Table containing the 68% containment of the angular
         distance distribution per each reconstructed energy bin.
     """
+
+    ONE_SIGMA_QUANTILE = norm.cdf(1) - norm.cdf(-1)
+
     # create a table to make use of groupby operations
     table = Table(events[[f"{energy_type}_energy", "theta"]])
 
