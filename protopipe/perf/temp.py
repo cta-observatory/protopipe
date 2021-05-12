@@ -18,6 +18,7 @@ def energy_bias_resolution(
 ):
     """
     Calculate bias and energy resolution.
+
     Parameters
     ----------
     events: astropy.table.QTable
@@ -31,6 +32,7 @@ def energy_bias_resolution(
         Function used to calculate the energy bias
     resolution_function: callable
         Function used to calculate the energy resolution
+
     Returns
     -------
     result : astropy.table.Table
@@ -77,8 +79,10 @@ def angular_resolution(
 ):
     """
     Calculate the angular resolution.
+
     This implementation corresponds to the 68% containment of the angular
     distance distribution.
+
     Parameters
     ----------
     events : astropy.table.QTable
@@ -88,11 +92,12 @@ def angular_resolution(
     energy_type: str
         Either "true" or "reco" energy.
         Default is "true".
+
     Returns
     -------
     result : astropy.table.Table
-        Table containing the 68% containment of the angular
-        distance distribution per each reconstructed energy bin.
+        Table containing the 68% containment of the angular distance
+        distribution per each reconstructed energy bin.
     """
 
     ONE_SIGMA_QUANTILE = norm.cdf(1) - norm.cdf(-1)
