@@ -29,7 +29,7 @@ docs/api
 docs/_build
 
 # Benchmark plots
-plots/
+plots
 
 # Eclipse editor project files
 .project
