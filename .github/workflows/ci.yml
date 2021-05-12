@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7, 3.8]
-        install-method: ["conda"]
+        install-method: ["pip", "conda"]
 
     steps:
       - uses: actions/checkout@v2
@@ -38,9 +38,11 @@ jobs:
         env:
           INSTALL_METHOD: ${{ matrix.install-method }}
         run: |
-          source $CONDA/etc/profile.d/conda.sh
-          conda activate protopipe
-          conda list
+          if [[ "$INSTALL_METHOD" == "conda" ]]; then
+            source $CONDA/etc/profile.d/conda.sh
+            conda activate protopipe
+            conda list
+          fi
           ctapipe-info --version
           pytest --cov=protopipe --cov-report=xml
       - uses: codecov/codecov-action@v1
@@ -58,7 +60,9 @@ jobs:
           pre-build-command: |
             apt update --yes && apt install --yes git build-essential pandoc
             pip install -U pip setuptools wheel
-            pip install --use-feature=2020-resolver -e .[docs]
+            pip install -e .[docs]
+          # treat warnings as errors, make sure links are working
+          build-command: make html SPHINXOPTS="-W --keep-going -n --color -w /tmp/sphinx-log"
       - name: Deploy to github pages
         # only run on push to master
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
