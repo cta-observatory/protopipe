@@ -15,14 +15,11 @@ By invoking the help argument, you can get help about how the script works:
 
 .. code-block::
 
-  usage: protopipe-DL2 [-h] --config_file CONFIG_FILE -o OUTFILE [-m MAX_EVENTS]
-                       [-i INDIR] [-f [INFILE_LIST [INFILE_LIST ...]]]
-                       [--cam_ids [CAM_IDS [CAM_IDS ...]]] [--wave_dir WAVE_DIR]
-                       [--wave_temp_dir WAVE_TEMP_DIR] [--wave | --tail]
-                       [--debug] [--regressor_dir REGRESSOR_DIR]
-                       [--classifier_dir CLASSIFIER_DIR]
-                       [--force_tailcut_for_extended_cleaning FORCE_TAILCUT_FOR_EXTENDED_CLEANING]
-                       [--save_images]
+  usage: protopipe-DL2 [-h] --config_file CONFIG_FILE -o OUTFILE [-m MAX_EVENTS] [-i INDIR] [-f [INFILE_LIST [INFILE_LIST ...]]]
+                     [--cam_ids [CAM_IDS [CAM_IDS ...]]] [--wave_dir WAVE_DIR] [--wave_temp_dir WAVE_TEMP_DIR] [--wave | --tail] [--debug]
+                     [--regressor_dir REGRESSOR_DIR] [--classifier_dir CLASSIFIER_DIR]
+                     [--force_tailcut_for_extended_cleaning FORCE_TAILCUT_FOR_EXTENDED_CLEANING] [--save_images]
+                     [--regressor_config REGRESSOR_CONFIG] [--classifier_config CLASSIFIER_CONFIG]
 
   optional arguments:
     -h, --help            show this help message and exit
@@ -35,11 +32,9 @@ By invoking the help argument, you can get help about how the script works:
                           give a specific list of files to run on
     --cam_ids [CAM_IDS [CAM_IDS ...]]
                           give the specific list of camera types to run on
-    --wave_dir WAVE_DIR   directory where to find mr_filter. if not set look in
-                          $PATH
+    --wave_dir WAVE_DIR   directory where to find mr_filter. if not set look in $PATH
     --wave_temp_dir WAVE_TEMP_DIR
-                          directory where mr_filter to store the temporary fits
-                          files
+                          directory where mr_filter to store the temporary fits files
     --wave                if set, use wavelet cleaning -- default
     --tail                if set, use tail cleaning, otherwise wavelets
     --debug               Print debugging information
@@ -50,3 +45,7 @@ By invoking the help argument, you can get help about how the script works:
     --force_tailcut_for_extended_cleaning FORCE_TAILCUT_FOR_EXTENDED_CLEANING
                           For tailcut cleaning for energy/score estimation
     --save_images         Save images in images.h5 (one file testing)
+    --regressor_config REGRESSOR_CONFIG
+                          Configuration file used to produce regressor model
+    --classifier_config CLASSIFIER_CONFIG
+                          Configuration file used to produce classification model

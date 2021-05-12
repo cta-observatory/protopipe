@@ -8,10 +8,10 @@ from sys import exit as sys_exit
 from glob import glob
 import signal
 import tables as tb
+import pandas as pd
 
-from ctapipe.utils.CutFlow import CutFlow
-from ctapipe.io import event_source
-from ctapipe.reco.energy_regressor import EnergyRegressor
+from ctapipe.utils import CutFlow
+from ctapipe.io import EventSource
 
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
@@ -21,6 +21,7 @@ from protopipe.pipeline.utils import (
     load_config,
     SignalHandler,
     bcolors,
+    load_models,
 )
 
 
@@ -47,6 +48,13 @@ def main():
     parser.add_argument(
         "--regressor_dir", type=str, default="./", help="regressors directory"
     )
+    parser.add_argument(
+        "--regressor_config",
+        type=str,
+        default=None,
+        help="Configuration file used to produce regressor model"
+    )
+
     args = parser.parse_args()
 
     # Read configuration file
@@ -99,13 +107,21 @@ def main():
     signal_handler = SignalHandler()
     signal.signal(signal.SIGINT, signal_handler)
 
-    # Regressor method
+    # Regressor information
     regressor_method = cfg["EnergyRegressor"]["method_name"]
+    try:
+        estimation_weight = cfg["EnergyRegressor"]["estimation_weight"]
+    except KeyError:
+        estimation_weight = "STD"
 
     # wrapper for the scikit-learn regressor
     if args.estimate_energy is True:
+
+        # Read configuration file
+        regressor_config = load_config(args.regressor_config)
+
         regressor_files = (
-            args.regressor_dir + "/regressor_{mode}_{cam_id}_{regressor}.pkl.gz"
+            args.regressor_dir + "/regressor_{cam_id}_{regressor}.pkl.gz"
         )
         reg_file = regressor_files.format(
             **{
@@ -116,7 +132,7 @@ def main():
             }
         )
 
-        regressor = EnergyRegressor.load(reg_file, cam_id_list=cams_and_foclens.keys())
+        regressors = load_models(reg_file, cam_id_list=cams_and_foclens.keys())
 
     # COLUMN DESCRIPTOR AS DICTIONARY
     # Column descriptor for the file containing output training data."""
@@ -157,36 +173,39 @@ def main():
         leakage_intensity_width_2_reco=tb.Float32Col(dflt=np.nan, pos=29),
         leakage_intensity_width_1=tb.Float32Col(dflt=np.nan, pos=30),
         leakage_intensity_width_2=tb.Float32Col(dflt=np.nan, pos=31),
+        concentration_cog=tb.Float32Col(dflt=np.nan, pos=32),
+        concentration_core=tb.Float32Col(dflt=np.nan, pos=33),
+        concentration_pixel=tb.Float32Col(dflt=np.nan, pos=34),
         # The following are missing from current ctapipe DL1 output
         # Not sure if it's worth to add them
-        hillas_ellipticity_reco=tb.FloatCol(dflt=1, pos=32),
-        hillas_ellipticity=tb.FloatCol(dflt=1, pos=33),
-        max_signal_cam=tb.Float32Col(dflt=1, pos=34),
-        pixels=tb.Int16Col(dflt=1, pos=35),
-        clusters=tb.Int16Col(dflt=-1, pos=36),
+        hillas_ellipticity_reco=tb.FloatCol(dflt=1, pos=35),
+        hillas_ellipticity=tb.FloatCol(dflt=1, pos=36),
+        max_signal_cam=tb.Float32Col(dflt=1, pos=37),
+        pixels=tb.Int16Col(dflt=1, pos=38),
+        clusters=tb.Int16Col(dflt=-1, pos=39),
         # ======================================================================
         # DL2 - DIRECTION RECONSTRUCTION
-        impact_dist=tb.Float32Col(dflt=1, pos=37),
-        h_max=tb.Float32Col(dflt=1, pos=38),
-        alt=tb.Float32Col(dflt=np.nan, pos=39),
-        az=tb.Float32Col(dflt=np.nan, pos=40),
-        err_est_pos=tb.Float32Col(dflt=1, pos=41),
-        err_est_dir=tb.Float32Col(dflt=1, pos=42),
-        xi=tb.Float32Col(dflt=np.nan, pos=43),
-        offset=tb.Float32Col(dflt=np.nan, pos=44),
-        mc_core_x=tb.FloatCol(dflt=1, pos=45),
-        mc_core_y=tb.FloatCol(dflt=1, pos=46),
-        reco_core_x=tb.FloatCol(dflt=1, pos=47),
-        reco_core_y=tb.FloatCol(dflt=1, pos=48),
-        mc_h_first_int=tb.FloatCol(dflt=1, pos=49),
-        mc_x_max=tb.Float32Col(dflt=np.nan, pos=50),
-        is_valid=tb.BoolCol(dflt=False, pos=51),
-        good_image=tb.Int16Col(dflt=1, pos=52),
+        impact_dist=tb.Float32Col(dflt=1, pos=40),
+        h_max=tb.Float32Col(dflt=1, pos=41),
+        alt=tb.Float32Col(dflt=np.nan, pos=42),
+        az=tb.Float32Col(dflt=np.nan, pos=43),
+        err_est_pos=tb.Float32Col(dflt=1, pos=44),
+        err_est_dir=tb.Float32Col(dflt=1, pos=45),
+        xi=tb.Float32Col(dflt=np.nan, pos=46),
+        offset=tb.Float32Col(dflt=np.nan, pos=47),
+        mc_core_x=tb.FloatCol(dflt=1, pos=48),
+        mc_core_y=tb.FloatCol(dflt=1, pos=49),
+        reco_core_x=tb.FloatCol(dflt=1, pos=50),
+        reco_core_y=tb.FloatCol(dflt=1, pos=51),
+        mc_h_first_int=tb.FloatCol(dflt=1, pos=52),
+        mc_x_max=tb.Float32Col(dflt=np.nan, pos=53),
+        is_valid=tb.BoolCol(dflt=False, pos=54),
+        good_image=tb.Int16Col(dflt=1, pos=55),
         # ======================================================================
         # DL2 - ENERGY ESTIMATION
-        true_energy=tb.FloatCol(dflt=1, pos=53),
-        reco_energy=tb.FloatCol(dflt=np.nan, pos=54),
-        reco_energy_tel=tb.Float32Col(dflt=np.nan, pos=55),
+        true_energy=tb.FloatCol(dflt=1, pos=56),
+        reco_energy=tb.FloatCol(dflt=np.nan, pos=57),
+        reco_energy_tel=tb.Float32Col(dflt=np.nan, pos=58),
         # ======================================================================
         # DL1 IMAGES
         # this is optional data saved by the user
@@ -207,7 +226,7 @@ def main():
 
         print("file: {} filename = {}".format(i, filename))
 
-        source = event_source(
+        source = EventSource(
             input_url=filename, allowed_tels=allowed_tels, max_events=args.max_events
         )
 
@@ -223,6 +242,7 @@ def main():
             hillas_dict,
             hillas_dict_reco,
             leakage_dict,
+            concentration_dict,
             n_tels,
             max_signals,
             n_cluster_dict,
@@ -234,18 +254,15 @@ def main():
             source, save_images=args.save_images, debug=args.debug
         ):
 
-            # Angular quantities
-            run_array_direction = event.mcheader.run_array_direction
-
             if good_event:
 
                 xi = angular_separation(
-                    event.mc.az, event.mc.alt, reco_result.az, reco_result.alt
+                    event.simulation.shower.az, event.simulation.shower.alt, reco_result.az, reco_result.alt
                 )
 
                 offset = angular_separation(
-                    run_array_direction[0],  # az
-                    run_array_direction[1],  # alt
+                    event.pointing.array_azimuth,
+                    event.pointing.array_altitude,
                     reco_result.az,
                     reco_result.alt,
                 )
@@ -295,20 +312,74 @@ def main():
 
                     cam_id = source.subarray.tel[tel_id].camera.camera_name
                     moments = hillas_dict[tel_id]
-                    model = regressor.model_dict[cam_id]
+                    model = regressors[cam_id]
 
-                    features_img = np.array(
-                        [
-                            np.log10(moments.intensity),
-                            np.log10(impact_dict[tel_id].value),
-                            moments.width.value,
-                            moments.length.value,
-                            h_max.value,
-                        ]
-                    )
+                    ############################################################
+                    #                  GET FEATURES
+                    ############################################################
 
-                    energy_tel[idx] = model.predict([features_img])
-                    weight_tel[idx] = moments.intensity
+                    # Read feature list from model configutation file
+                    features_basic = regressor_config["FeatureList"]["Basic"]
+                    features_derived = regressor_config["FeatureList"]["Derived"]
+                    features = features_basic + list(features_derived)
+
+                    # Create a pandas Dataframe with basic quantities
+                    # This is needed in order to connect the I/O system of the
+                    # model inputs to the in-memory computation of this script
+                    data = pd.DataFrame({
+                        "hillas_intensity": [moments.intensity],
+                        "hillas_width": [moments.width.to("deg").value],
+                        "hillas_length": [moments.length.to("deg").value],
+                        "hillas_x": [moments.x.to("deg").value],
+                        "hillas_y": [moments.y.to("deg").value],
+                        "hillas_phi": [moments.phi.to("deg").value],
+                        "hillas_r": [moments.r.to("deg").value],
+                        "leakage_intensity_width_1_reco": [leakage_dict[tel_id]['leak1_reco']],
+                        "leakage_intensity_width_2_reco": [leakage_dict[tel_id]['leak2_reco']],
+                        "leakage_intensity_width_1": [leakage_dict[tel_id]['leak1']],
+                        "leakage_intensity_width_2": [leakage_dict[tel_id]['leak2']],
+                        "concentration_cog": [concentration_dict[tel_id]['concentration_cog']],
+                        "concentration_core": [concentration_dict[tel_id]['concentration_core']],
+                        "concentration_pixel": [concentration_dict[tel_id]['concentration_pixel']],
+                        "az": [reco_result.az.to("deg").value],
+                        "alt": [reco_result.alt.to("deg").value],
+                        "h_max": [h_max.value],
+                        "impact_dist": [impact_dict[tel_id].to("m").value],
+                    })
+
+                    # Compute derived features and add them to the dataframe
+                    for key, expression in features_derived.items():
+                        data.eval(f'{key} = {expression}', inplace=True)
+
+                    # features_img = np.array(
+                    #     [
+                    #         np.log10(moments.intensity),
+                    #         np.log10(impact_dict[tel_id].value),
+                    #         moments.width.value,
+                    #         moments.length.value,
+                    #         h_max.value,
+                    #     ]
+                    # )
+
+                    # sort features_to_use alphabetically to ensure order
+                    # preservation with model.fit in protopipe.mva
+                    features = sorted(features)
+
+                    # Select the values for the full set of features
+                    features_values = data[features].to_numpy()
+
+                    ############################################################
+
+                    if estimation_weight == "STD":
+                        # Get an array of trees
+                        predictions_trees = np.array([tree.predict(features_values) for tree in model.estimators_])
+                        energy_tel[idx] = np.mean(predictions_trees, axis=0)
+                        weight_tel[idx] = np.std(predictions_trees, axis=0)
+                    else:
+                        data.eval(f'estimation_weight = {estimation_weight}', inplace=True)
+                        energy_tel[idx] = model.predict(features_values)
+                        weight_tel[idx] = data["estimation_weight"]
+
                     reco_energy_tel[tel_id] = energy_tel[idx]
 
                 reco_energy = np.sum(weight_tel * energy_tel) / sum(weight_tel)
@@ -377,7 +448,7 @@ def main():
                 outData[cam_id]["h_max"] = h_max.to("m").value
                 outData[cam_id]["err_est_pos"] = np.nan
                 outData[cam_id]["err_est_dir"] = np.nan
-                outData[cam_id]["true_energy"] = event.mc.energy.to("TeV").value
+                outData[cam_id]["true_energy"] = event.simulation.shower.energy.to("TeV").value
                 outData[cam_id]["hillas_x"] = moments.x.to("deg").value
                 outData[cam_id]["hillas_y"] = moments.y.to("deg").value
                 outData[cam_id]["hillas_phi"] = moments.phi.to("deg").value
@@ -392,13 +463,13 @@ def main():
                 outData[cam_id]["hillas_ellipticity"] = ellipticity.value
                 outData[cam_id]["clusters"] = n_cluster_dict[tel_id]
                 outData[cam_id]["n_tel_discri"] = n_tels["GOOD images"]
-                outData[cam_id]["mc_core_x"] = event.mc.core_x.to("m").value
-                outData[cam_id]["mc_core_y"] = event.mc.core_y.to("m").value
+                outData[cam_id]["mc_core_x"] = event.simulation.shower.core_x.to("m").value
+                outData[cam_id]["mc_core_y"] = event.simulation.shower.core_y.to("m").value
                 outData[cam_id]["reco_core_x"] = reco_core_x.to("m").value
                 outData[cam_id]["reco_core_y"] = reco_core_y.to("m").value
-                outData[cam_id]["mc_h_first_int"] = event.mc.h_first_int.to("m").value
+                outData[cam_id]["mc_h_first_int"] = event.simulation.shower.h_first_int.to("m").value
                 outData[cam_id]["offset"] = offset.to("deg").value
-                outData[cam_id]["mc_x_max"] = event.mc.x_max.value  # g / cm2
+                outData[cam_id]["mc_x_max"] = event.simulation.shower.x_max.value  # g / cm2
                 outData[cam_id]["alt"] = reco_result.alt.to("deg").value
                 outData[cam_id]["az"] = reco_result.az.to("deg").value
                 outData[cam_id]["reco_energy_tel"] = reco_energy_tel[tel_id]
@@ -430,6 +501,15 @@ def main():
                 ]
                 outData[cam_id]["leakage_intensity_width_2"] = leakage_dict[tel_id][
                     "leak2"
+                ]
+                outData[cam_id]["concentration_cog"] = concentration_dict[tel_id][
+                    "concentration_cog"
+                ]
+                outData[cam_id]["concentration_core"] = concentration_dict[tel_id][
+                    "concentration_core"
+                ]
+                outData[cam_id]["concentration_pixel"] = concentration_dict[tel_id][
+                    "concentration_pixel"
                 ]
 
                 # =======================

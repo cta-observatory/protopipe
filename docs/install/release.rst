@@ -3,8 +3,12 @@
 Released version
 ================
 
-To install a released version >= ``0.4.0`` it is sufficient to install the
+To install the latest released version it is sufficient to install the
 package from ``PyPI`` with ``pip install protopipe``.
+
+If you prefer to work from an Anaconda virtual environment you can create it with,
+
+``conda env create -f environment_latest_release.yml``
 
 For previous releases,
 

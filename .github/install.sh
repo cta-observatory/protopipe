@@ -7,7 +7,7 @@ conda update -q conda  # get latest conda version
 # Useful for debugging any issues with conda
 conda info -a
 
-sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment.yml
+sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment_development.yml
 conda install -c conda-forge mamba
-mamba env create -n protopipe --file environment.yml
+mamba env create -n protopipe --file environment_development.yml
 conda activate protopipe

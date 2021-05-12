@@ -35,8 +35,27 @@ You will have to fix any warning that appears during documentation building,
 because the documentation also runs on `readthedocs <https://readthedocs.org/>`__
 with an option to treat warnings as errors.
 
+Testing
+-------
+
+All testing code is called by issuing the ``pytest`` command.
+
+This command can be called from any place within the cloned repository and it
+will always run from the root directory of the project.
+
+For debugging purposes you can add the ``-s`` option which will allow to 
+visualise any ``print`` statement within the test module(s).
+
+Testing is automatically triggered by the CI every time a new
+pull-request is pushed to the repository, and its correct
+execution is one of the mandatory condition for merging.
+
 Unit tests
-----------
+^^^^^^^^^^
+
+You can follow 
+`these guidelines <https://cta-observatory.github.io/ctapipe/development/code-guidelines.html#unit-tests>`__
+to understand what a unit-test is supposed to do.
 
 .. note::
   This is a maintenance activity which has being long overdue and we need
@@ -65,6 +84,12 @@ Same for *pyirf*.
 Integration tests
 ^^^^^^^^^^^^^^^^^
 
+These are neither unit-tests nor benchmarks, but rather functions that tests
+whole functionalities and not just single API functions.
+
+In the case of the pipeline, such functionalities are the scripts/tools
+that make up its workflow.
+
 .. note::
   For more information on how to contribute to this effort check
   `this issue <https://github.com/cta-observatory/protopipe/issues/70>`__.
@@ -79,13 +104,7 @@ CTAN and CTAS produced with the following Corsika settings,
 - protons, ``NSHOW=10 ESLOPE=-2.0 EMIN=100 EMAX=200 NSCAT=1 CSCAT=200 VIEWCONE=3``
 - electrons, ``NSHOW=10 ESLOPE=-2.0 EMIN=10 EMAX=20 NSCAT=1 CSCAT=200 VIEWCONE=3``
 
-in the same proportions as a standard full-scale analysis.
-
-The pipeline integration testing can be executed directly from the main folder 
-of *protopipe* by launching ``pytest``.
-It is also automatically triggered by the CI every time a new
-pull-request is pushed to the repository, and its correct
-execution is a mandatory condition for merging.
+and it is analysed using the same workflow as in a standard full-scale analysis.
 
 Benchmarks
 ----------

@@ -48,7 +48,7 @@ class TrainModel(object):
             to build a classifier
         """
 
-        if self.case in "regressor":
+        if self.case == "regressor":
             (
                 X_train,
                 X_test,
@@ -65,7 +65,7 @@ class TrainModel(object):
             weight = np.ones(len(self.data_train))
             weight_train = weight / sum(weight)
 
-        elif self.case in "classifier":
+        else:
             (
                 X_train_sig,
                 X_test_sig,
@@ -74,7 +74,7 @@ class TrainModel(object):
                 data_train_sig,
                 data_test_sig,
             ) = split_train_test(
-                ds=data_sig,
+                survived_images=data_sig,
                 train_fraction=train_fraction,
                 feature_name_list=self.feature_name_list,
                 target_name=self.target_name,
@@ -88,13 +88,13 @@ class TrainModel(object):
                 data_train_bkg,
                 data_test_bkg,
             ) = split_train_test(
-                ds=data_bkg,
+                survived_images=data_bkg,
                 train_fraction=train_fraction,
                 feature_name_list=self.feature_name_list,
                 target_name=self.target_name,
             )
 
-            max_events = -1
+            max_events = None
 
             if force_same_nsig_nbkg is True:
                 if len(X_train_bkg) <= len(X_train_sig):

@@ -1,0 +1,83 @@
+General:
+  # [...] = your analysis local full path OUTSIDE the Vagrant box
+  data_dir: '../../data/'
+  data_sig_file: 'TRAINING_energy_tail_gamma_merged.h5'
+  outdir: './'
+  
+  # List of cameras to use (you can override this from the CLI)
+  cam_id_list: ['LSTCam', 'NectarCam']
+
+# If train_fraction is 1, all the TRAINING dataset will be used to train the
+# model and benchmarking can only be done from the benchmarking notebook
+# TRAINING/benchmarks_DL2_to_classification.ipynb
+Split:
+  train_fraction: 0.8
+  use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+
+# Optimize the hyper-parameters of the estimator with a grid search
+# If True parameters should be provided as lists
+# If False the model used will be the one based on the chosen single-valued hyper-parameters
+GridSearchCV:
+  use: False # True or False
+  # if False the following two variables are irrelevant
+  scoring: 'explained_variance'
+  cv: 2
+
+Method:
+  name: 'sklearn.ensemble.AdaBoostRegressor'
+  target_name: 'true_energy'
+  # Please, see scikit-learn's API for what each parameter means
+  # NOTE: null == None
+  base_estimator:
+    name: 'sklearn.tree.DecisionTreeRegressor'
+    parameters:
+      # NOTE: here we set the parameters relevant for sklearn.tree.DecisionTreeRegressor
+      criterion: "mse" # "mse", "friedman_mse", "mae" or "poisson"
+      splitter: "best" # "best" or "random"
+      max_depth: null # null or integer
+      min_samples_split: 2 # integer or float
+      min_samples_leaf: 1 # int or float
+      min_weight_fraction_leaf: 0.0 # float
+      max_features: null # null, "auto", "sqrt", "log2", int or float
+      max_leaf_nodes: null # null or integer
+      min_impurity_decrease: 0.0 # float
+      random_state: 0 # null or integer or RandomState
+      ccp_alpha: 0.0 # non-negative float
+  tuned_parameters:
+    n_estimators: 50
+    learning_rate: 1
+    loss: 'linear' # 'linear', 'square' or 'exponential'
+    random_state: 0 # int, RandomState instance or None
+
+# List of the features to use to train the model
+# You can:
+# - comment/uncomment the ones you see here,
+# - add new ones here if they can be evaluated with pandas.DataFrame.eval
+# - if not you can propose modifications to protopipe.mva.utils.prepare_data
+FeatureList:
+  Basic: # single-named, they need to correspond to input data columns
+  - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
+  - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
+  - 'hillas_width'  # Image Width
+  - 'hillas_length' # Image Length
+  # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
+  - 'leakage_intensity_width_1_reco' # fraction of total Intensity which is contained in the outermost pixels of the camera
+  Derived: # custom evaluations of basic features that will be added to the data
+    # column name : expression to evaluate using basic column names
+    log10_WLS: log10(hillas_width*hillas_length/hillas_intensity)
+    log10_intensity: log10(hillas_intensity)
+    r_origin: (sqrt((hillas_x - az)**2 + (hillas_y - alt)**2))**2
+    phi_origin: arctan2(hillas_y - alt, hillas_x - az)
+
+# These cuts select the input data BEFORE training
+SigFiducialCuts:
+  - 'good_image == 1'
+  - 'is_valid == True'
+  - 'hillas_intensity_reco > 0'
+
+Diagnostic:
+ # Energy binning (used for reco and true energy)
+ energy:
+  nbins: 15
+  min: 0.0125
+  max: 125

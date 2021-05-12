@@ -18,21 +18,48 @@ def load_obj(name):
         return pickle.load(f)
 
 
-def prepare_data(ds, cuts, label=None):
-    """Add variables in data frame"""
-    ds["log10_hillas_intensity"] = np.log10(
-        ds["hillas_intensity_reco"]
-    )  # THIS SHOULDN'T BE HARDCODED!!!
-    ds["log10_impact_dist"] = np.log10(ds["impact_dist"])
-    ds["log10_true_energy"] = np.log10(ds["true_energy"])
-    try:  # for classification
-        ds["log10_reco_energy"] = np.log10(ds["reco_energy"])
-        ds["log10_reco_energy_tel"] = np.log10(ds["reco_energy_tel"])
-        ds["label"] = np.full(len(ds), label)
-    except:
-        pass
+def prepare_data(ds, derived_features, cuts, select_data=True, label=None):
+    """Add custom variables to the input data and optionally select it.
 
-    ds = ds.query(cuts)
+    Parameters
+    ----------
+    ds : pandas.DataFrame
+        Input data not yet selected.
+    derived_features: dict
+        Dictionary of more complex featuresread from the configuration file.
+    cuts: str
+        Fiducial cuts from protopipe.mva.utils.make_cut_list
+    select_data: bool
+        If True apply cuts to the final dataframe.
+    label: str
+        Name of the classifier target label if any.
+
+    Returns
+    -------
+    ds : pandas.DataFrame
+        Input data integrated with new variables and optionally selected for
+        the fiducial cuts.
+    """
+
+    # This is always useful
+    ds["log10_true_energy"] = np.log10(ds["true_energy"])
+
+    if label is not None:  # only for classification
+        ds["label"] = np.full(len(ds), label)
+
+        # This is needed because our reference analysis uses energy as
+        # feature for classification
+        # We should propably support a more elastic choice in the future.
+        if not all(i in derived_features for i in ["log10_reco_energy", "log10_reco_energy_tel"]):
+            raise ValueError('log10_reco_energy and log10_reco_energy_tel need to be model features.')
+
+    # Compute derived features and add them to the dataframe
+    for feature_name, feature_expression in derived_features.items():
+        ds.eval(f'{feature_name} = {feature_expression}',
+                inplace=True)
+
+    if select_data:
+        ds = ds.query(cuts)
 
     return ds
 
