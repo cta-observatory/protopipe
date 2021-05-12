@@ -195,9 +195,9 @@ def final_array_to_use(sim_array, array, subarrays=None):
     """
     if subarrays:
         tel_ids = subarrays[array]
-        subarray = sim_array.select_subarray("", tel_ids)
+        subarray = sim_array.select_subarray(tel_ids, name="selected_subarray")
     else:
-        subarray = sim_array.select_subarray("", array)
+        subarray = sim_array.select_subarray(array, name="selected_subarray")
         tel_ids = subarray.tel_ids
     tel_types = subarray.telescope_types
     cams_and_foclens = {

@@ -48,7 +48,7 @@ class TrainModel(object):
             to build a classifier
         """
 
-        if self.case in "regressor":
+        if self.case == "regressor":
             (
                 X_train,
                 X_test,
@@ -65,7 +65,7 @@ class TrainModel(object):
             weight = np.ones(len(self.data_train))
             weight_train = weight / sum(weight)
 
-        elif self.case in "classifier":
+        else:
             (
                 X_train_sig,
                 X_test_sig,

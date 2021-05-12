@@ -4,8 +4,8 @@ from pkg_resources import resource_filename
 import tables
 import pytest
 
-from protopipe.pipeline.temp import get_dataset_path
-from protopipe.scripts import data_training, build_model
+from ctapipe.utils.datasets import get_dataset_path
+from protopipe.scripts import data_training, build_model, write_dl2
 
 
 # PROD 3B
@@ -13,6 +13,9 @@ from protopipe.scripts import data_training, build_model
 # CONFIG FILES
 config_prod3b_CTAN = resource_filename("protopipe", "scripts/tests/test_config_analysis_north.yaml")
 config_prod3b_CTAS = resource_filename("protopipe", "scripts/tests/test_config_analysis_south.yaml")
+config_AdaBoostRegressor = resource_filename("protopipe", "scripts/tests/test_AdaBoostRegressor.yaml")
+config_RandomForestRegressor = resource_filename("protopipe", "scripts/tests/test_RandomForestRegressor.yaml")
+config_RandomForestClassifier = resource_filename("protopipe", "scripts/tests/test_RandomForestClassifier.yaml")
 
 # TEST FILES
 
@@ -27,8 +30,14 @@ input_data = {
                                                     url=f"{URL_PROD3B_CTAN}"),
                          "gamma2": get_dataset_path("gamma2.simtel.gz",
                                                     url=f"{URL_PROD3B_CTAN}"),
+                         "gamma3": get_dataset_path("gamma3.simtel.gz",
+                                                    url=f"{URL_PROD3B_CTAN}"),
                          "proton1": get_dataset_path("proton1.simtel.gz",
                                                      url=f"{URL_PROD3B_CTAN}"),
+                         "proton2": get_dataset_path("proton2.simtel.gz",
+                                                     url=f"{URL_PROD3B_CTAN}"),
+                         "electron1": get_dataset_path("electron1.simtel.gz",
+                                                       url=f"{URL_PROD3B_CTAN}")
                          },
 
     "PROD3B_CTA_SOUTH": {"config": config_prod3b_CTAS,
@@ -36,8 +45,14 @@ input_data = {
                                                     url=f"{URL_PROD3B_CTAS}"),
                          "gamma2": get_dataset_path("gamma2.simtel.gz",
                                                     url=f"{URL_PROD3B_CTAS}"),
+                         "gamma3": get_dataset_path("gamma3.simtel.gz",
+                                                    url=f"{URL_PROD3B_CTAS}"),
                          "proton1": get_dataset_path("proton1.simtel.gz",
                                                      url=f"{URL_PROD3B_CTAS}"),
+                         "proton2": get_dataset_path("proton2.simtel.gz",
+                                                     url=f"{URL_PROD3B_CTAS}"),
+                         "electron1": get_dataset_path("electron1.simtel.gz",
+                                                       url=f"{URL_PROD3B_CTAS}"),
                          }
 
 }
@@ -57,7 +72,7 @@ def test_GET_GAMMAS_FOR_ENERGY_MODEL_WITH_IMAGES(test_case, pipeline_testdir):
 
     print(  # only with "pytest -s"
         f'''
-        /n You can reproduce this test by running the following command,
+        You can reproduce this test by running the following command,
 
         {command}
         '''
@@ -89,7 +104,7 @@ def test_GET_GAMMAS_FOR_ENERGY_MODEL(test_case, pipeline_testdir):
 
     print(  # only with "pytest -s"
         f'''
-        /n You can reproduce this test by running the following command,
+        You can reproduce this test by running the following command,
 
         {command}
         '''
@@ -106,28 +121,56 @@ def test_GET_GAMMAS_FOR_ENERGY_MODEL(test_case, pipeline_testdir):
 
 
 @pytest.mark.parametrize("test_case", [
-    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="EN",
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="EN_1",
                                                                   depends=["g1N"])),
-    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="ES",
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="ES_1",
                                                                   depends=["g1S"])),
 ])
 def test_BUILD_ENERGY_MODEL_AdaBoost_DecisionTreeRegressor(test_case, pipeline_testdir):
-    """Launch protopipe.scripts.build_model for a AdaBoost DecisionTreeRegressor."""
+    """Launch protopipe.scripts.build_model for a AdaBoostRegressor based on DecisionTreeRegressor."""
 
     infile = pipeline_testdir / f"test_gamma1_noImages_{test_case}.h5"
     outdir = pipeline_testdir / f"energy_model_{test_case}"
 
-    config = resource_filename("protopipe", "scripts/tests/test_regressor.yaml")
-
     command = f"python {build_model.__file__}\
-    --config_file {config}\
+    --config_file {config_AdaBoostRegressor}\
     --infile_signal {infile}\
     --outdir {outdir}\
     --cameras_from_file"
 
     print(  # only with "pytest -s"
         f'''
-        /n You can reproduce this test by running the following command,
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
+    )
+
+    exit_status = system(command)
+    assert exit_status == 0
+
+
+@pytest.mark.parametrize("test_case", [
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="EN_2",
+                                                                  depends=["g1N"])),
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="ES_2",
+                                                                  depends=["g1S"])),
+])
+def test_BUILD_ENERGY_MODEL_RandomForestRegressor(test_case, pipeline_testdir):
+    """Launch protopipe.scripts.build_model for a RandomForestRegressor."""
+
+    infile = pipeline_testdir / f"test_gamma1_noImages_{test_case}.h5"
+    outdir = pipeline_testdir / f"energy_model_{test_case}"
+
+    command = f"python {build_model.__file__}\
+    --config_file {config_RandomForestRegressor}\
+    --infile_signal {infile}\
+    --outdir {outdir}\
+    --cameras_from_file"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
 
         {command}
         '''
@@ -139,9 +182,9 @@ def test_BUILD_ENERGY_MODEL_AdaBoost_DecisionTreeRegressor(test_case, pipeline_t
 
 @pytest.mark.parametrize("test_case", [
     pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="g2N",
-                                                                  depends=["EN"])),
+                                                                  depends=["EN_2"])),
     pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="g2S",
-                                                                  depends=["ES"])),
+                                                                  depends=["ES_2"])),
 ])
 def test_GET_GAMMAS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
 
@@ -154,11 +197,12 @@ def test_GET_GAMMAS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
     -i {input_data[test_case]['gamma2'].parent}\
     -f {input_data[test_case]['gamma2'].name}\
     --estimate_energy True\
+    --regressor_config {config_RandomForestRegressor}\
     --regressor_dir {modelpath}"
 
     print(  # only with "pytest -s"
         f'''
-        /n You can reproduce this test by running the following command,
+        You can reproduce this test by running the following command,
 
         {command}
         '''
@@ -176,9 +220,9 @@ def test_GET_GAMMAS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
 
 @pytest.mark.parametrize("test_case", [
     pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="p1N",
-                                                                  depends=["EN"])),
+                                                                  depends=["EN_2"])),
     pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="p1S",
-                                                                  depends=["ES"])),
+                                                                  depends=["ES_2"])),
 ])
 def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
 
@@ -191,11 +235,12 @@ def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
     -i {input_data[test_case]['proton1'].parent}\
     -f {input_data[test_case]['proton1'].name}\
     --estimate_energy True\
+    --regressor_config {config_RandomForestRegressor}\
     --regressor_dir {modelpath}"
 
     print(  # only with "pytest -s"
         f'''
-        /n You can reproduce this test by running the following command,
+        You can reproduce this test by running the following command,
 
         {command}
         '''
@@ -217,17 +262,15 @@ def test_GET_PROTONS_FOR_CLASSIFICATION_MODEL(test_case, pipeline_testdir):
     pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="C2",
                                                                   depends=["g2S", "p1S"])),
 ])
-def test_BUILD_CLASSIFICATION_MODEL_RandomForest(test_case, pipeline_testdir):
+def test_BUILD_CLASSIFICATION_MODEL_RandomForestClassifier(test_case, pipeline_testdir):
     """Launch protopipe.scripts.build_model for a Random Forest classifier."""
 
     infile_signal = pipeline_testdir / f"test_gamma2_noImages_{test_case}.h5"
     infile_background = pipeline_testdir / f"test_proton1_noImages_{test_case}.h5"
     outdir = pipeline_testdir / f"classification_model_{test_case}"
 
-    config = resource_filename("protopipe", "scripts/tests/test_classifier.yaml")
-
     command = f"python {build_model.__file__}\
-    --config_file {config}\
+    --config_file {config_RandomForestClassifier}\
     --infile_signal {infile_signal}\
     --infile_background {infile_background}\
     --outdir {outdir}\
@@ -235,7 +278,7 @@ def test_BUILD_CLASSIFICATION_MODEL_RandomForest(test_case, pipeline_testdir):
 
     print(  # only with "pytest -s"
         f'''
-        /n You can reproduce this test by running the following command,
+        You can reproduce this test by running the following command,
 
         {command}
         '''
@@ -243,3 +286,123 @@ def test_BUILD_CLASSIFICATION_MODEL_RandomForest(test_case, pipeline_testdir):
 
     exit_status = system(command)
     assert exit_status == 0
+
+
+@pytest.mark.parametrize("test_case", [
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="g3N",
+                                                                  depends=["C1"])),
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="g3S",
+                                                                  depends=["C2"])),
+])
+def test_GET_DL2_GAMMAS(test_case, pipeline_testdir):
+
+    regressor_path = pipeline_testdir / f"energy_model_{test_case}"
+    classifier_path = pipeline_testdir / f"classification_model_{test_case}"
+    outpath = pipeline_testdir / f"test_gamma3_noImages_{test_case}.h5"
+
+    command = f"python {write_dl2.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    -i {input_data[test_case]['gamma3'].parent}\
+    -f {input_data[test_case]['gamma3'].name}\
+    --regressor_config {config_RandomForestRegressor}\
+    --regressor_dir {regressor_path}\
+    --classifier_config {config_RandomForestClassifier}\
+    --classifier_dir {classifier_path}"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
+    )
+
+    exit_status = system(command)
+
+    # check that the script ends without crashing
+    assert exit_status == 0
+
+    # check that the produced HDF5 file is non-empty
+    with tables.open_file(outpath) as file:
+        assert file.get_filesize() > 0
+
+
+@pytest.mark.parametrize("test_case", [
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="p2N",
+                                                                  depends=["C1"])),
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="p2S",
+                                                                  depends=["C2"])),
+])
+def test_GET_DL2_PROTONS(test_case, pipeline_testdir):
+
+    regressor_path = pipeline_testdir / f"energy_model_{test_case}"
+    classifier_path = pipeline_testdir / f"classification_model_{test_case}"
+    outpath = pipeline_testdir / f"test_gamma3_noImages_{test_case}.h5"
+
+    command = f"python {write_dl2.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    -i {input_data[test_case]['proton2'].parent}\
+    -f {input_data[test_case]['proton2'].name}\
+    --regressor_config {config_RandomForestRegressor}\
+    --regressor_dir {regressor_path}\
+    --classifier_config {config_RandomForestClassifier}\
+    --classifier_dir {classifier_path}"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
+    )
+
+    exit_status = system(command)
+
+    # check that the script ends without crashing
+    assert exit_status == 0
+
+    # check that the produced HDF5 file is non-empty
+    with tables.open_file(outpath) as file:
+        assert file.get_filesize() > 0
+
+
+@pytest.mark.parametrize("test_case", [
+    pytest.param("PROD3B_CTA_NORTH", marks=pytest.mark.dependency(name="elN",
+                                                                  depends=["C1"])),
+    pytest.param("PROD3B_CTA_SOUTH", marks=pytest.mark.dependency(name="elS",
+                                                                  depends=["C2"])),
+])
+def test_GET_DL2_ELECTRONS(test_case, pipeline_testdir):
+
+    regressor_path = pipeline_testdir / f"energy_model_{test_case}"
+    classifier_path = pipeline_testdir / f"classification_model_{test_case}"
+    outpath = pipeline_testdir / f"test_gamma3_noImages_{test_case}.h5"
+
+    command = f"python {write_dl2.__file__}\
+    --config_file {input_data[test_case]['config']}\
+    -o {outpath}\
+    -i {input_data[test_case]['electron1'].parent}\
+    -f {input_data[test_case]['electron1'].name}\
+    --regressor_config {config_RandomForestRegressor}\
+    --regressor_dir {regressor_path}\
+    --classifier_config {config_RandomForestClassifier}\
+    --classifier_dir {classifier_path}"
+
+    print(  # only with "pytest -s"
+        f'''
+        You can reproduce this test by running the following command,
+
+        {command}
+        '''
+    )
+
+    exit_status = system(command)
+
+    # check that the script ends without crashing
+    assert exit_status == 0
+
+    # check that the produced HDF5 file is non-empty
+    with tables.open_file(outpath) as file:
+        assert file.get_filesize() > 0
