@@ -1,3 +1,4 @@
+import argparse
 import logging
 
 import numpy as np
@@ -10,6 +11,55 @@ import astropy.units as u
 
 from pyirf.simulations import SimulatedEventsInfo
 
+
+def initialize_script_arguments():
+    """Initialize the parser of any protopipe.scripts.make_performance_XXX script.
+
+    Returns
+    -------
+    args : argparse.Namespace
+        Populated argparse namespace.
+    """
+
+    parser = argparse.ArgumentParser(description='Make performance files')
+    parser.add_argument('--config_file', type=str, required=True, help='')
+
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument('--wave', dest="mode", action='store_const',
+                            const="wave", default="tail",
+                            help="if set, use wavelet cleaning")
+    mode_group.add_argument('--tail', dest="mode", action='store_const',
+                            const="tail",
+                            help="if set, use tail cleaning (default)")
+    parser.add_argument(
+        "-i",
+        "--indir",
+        type=str,
+        default=None,
+        help="Directory containing the required DL2 input files"
+    )
+    parser.add_argument(
+        "--template_input_file",
+        type=str,
+        default=None,
+        help="template for the filename of DL2 files (default: read from config file)",
+    )
+    parser.add_argument(
+        "--outdir_path",
+        type=str,
+        default=None,
+        help="Output directory for DL3 file"
+    )
+    parser.add_argument(
+        "--out_file_name",
+        type=str,
+        default=None,
+        help="Desired name for DL3 file"
+    )
+
+    args = parser.parse_args()
+
+    return args
 
 def percentiles(values, bin_values, bin_edges, percentile):
     # Seems complicated for vector defined as [inf, inf, .., inf]

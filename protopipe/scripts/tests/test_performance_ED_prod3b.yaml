@@ -1,0 +1,52 @@
+general:
+ # Directory with input data file
+ # [...] = your analysis local full path OUTSIDE the Vagrant box
+ indir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/DL2'
+ # Template name for output file
+ prod: 'Prod3b'
+ site: 'North'
+ array: 'baseline_full_array'
+ zenith: '20deg'
+ azimuth: '180deg' # 0deg -> north 180deg -> south
+ template_input_file: 'DL2_{}_{}_merged.h5' # filled with mode and particle type
+ # Directory for output files
+ outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/DL3'
+
+analysis:
+ obs_time:
+   value: 50
+   unit: 'h'
+ cut_on_multiplicity: 4
+ # Normalisation between ON and OFF regions
+ alpha: 0.2
+
+ # Radius to use for calculating bg rate
+ max_bg_radius: 1.
+
+particle_information:
+ gamma:
+  num_use: 10
+  num_showers: 100000
+  e_min: 0.003
+  e_max: 330
+  gen_radius: 1400
+  gen_gamma: -2
+  diff_cone: 0
+
+ proton:
+  num_use: 20
+  num_showers: 200000
+  e_min: 0.004
+  e_max: 600
+  gen_radius: 1900
+  gen_gamma: -2
+  diff_cone: 10
+
+ electron:
+  num_use: 20
+  num_showers: 100000
+  e_min: 0.003
+  e_max: 330
+  gen_radius: 1900
+  gen_gamma: -2
+  diff_cone: 10

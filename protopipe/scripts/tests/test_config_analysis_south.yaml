@@ -59,7 +59,7 @@ ImageCleaning:
     - DigiCam: [0,0] # values left unset for future studies
     - CHEC: [0,0] # values left unset for future studies
     - SCTCam: [0,0] # values left unset for future studies
-   keep_isolated_pixels: False
+   keep_isolated_pixels: True
    min_number_picture_neighbors: 1
 
   wave:
@@ -92,7 +92,11 @@ ImageSelection:
 
 # Minimal number of telescopes to consider events
 Reconstruction:
- min_tel: 2
+  # for events with <2 LST images the single-LST image is removed
+  # before shower geometry
+  LST_stereo: False
+  # after this we check if the remaining images satisfy the min_tel condition
+  min_tel: 2 # any tel_type
 
 # Parameters for energy estimation
 EnergyRegressor:

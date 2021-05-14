@@ -5,12 +5,11 @@ import os
 import astropy.units as u
 from astropy import table
 from astropy.io import fits
-import argparse
 import numpy as np
 import operator
 
 from protopipe.pipeline.utils import load_config
-from protopipe.perf.utils import read_DL2_pyirf
+from protopipe.perf.utils import initialize_script_arguments, read_DL2_pyirf
 
 from pyirf.binning import (
     add_overflow_bins,
@@ -43,7 +42,6 @@ from pyirf.io import (
     create_rad_max_hdu,
     create_background_2d_hdu,
 )
-# from pyirf.benchmarks import energy_bias_resolution, angular_resolution
 from protopipe.perf.temp import energy_bias_resolution, angular_resolution
 
 log = logging.getLogger("pyirf")
@@ -51,36 +49,44 @@ log = logging.getLogger("pyirf")
 
 def main():
 
-    # Read arguments
-    parser = argparse.ArgumentParser(description='Make performance files')
-    parser.add_argument('--config_file', type=str, required=True, help='')
+    # INITIALIZE CLI arguments
+    args = initialize_script_arguments()
 
-    mode_group = parser.add_mutually_exclusive_group()
-    mode_group.add_argument('--wave', dest="mode", action='store_const',
-                            const="wave", default="tail",
-                            help="if set, use wavelet cleaning")
-    mode_group.add_argument('--tail', dest="mode", action='store_const',
-                            const="tail",
-                            help="if set, use tail cleaning (default)")
-
-    args = parser.parse_args()
-
-    # Read configuration file
+    # LOAD CONFIGURATION FILE
     cfg = load_config(args.config_file)
 
-    # Create output directory if necessary
-    outdir = os.path.join(cfg['general']['outdir'], 'performance_protopipe_{}_CTA{}_{}_Zd{}_{}_Time{:.2f}{}'.format(
-        cfg['general']['prod'],
-        cfg['general']['site'],
-        cfg['general']['array'],
-        cfg['general']['zenith'],
-        cfg['general']['azimuth'],
-        cfg['analysis']['obs_time']['value'],
-        cfg['analysis']['obs_time']['unit']),
-    )
+    # Set final input parameters
+    # Command line as higher priority on configuration file
+    if args.indir is None:
+        indir = cfg["general"]["indir"]
+    else:
+        indir = args.indir
 
-    indir = cfg['general']['indir']
-    template_input_file = cfg['general']['template_input_file']
+    if args.outdir_path is None:
+        outdir_path = cfg["general"]["outdir"]
+    else:
+        outdir_path = args.outdir_path
+    if not os.path.exists(outdir_path):
+        os.makedirs(outdir_path)
+
+    if args.indir is None:
+        template_input_file = cfg['general']['template_input_file']
+    else:
+        template_input_file = args.template_input_file
+
+    if args.out_file_name is None:
+        out_file_name = 'performance_protopipe_{}_CTA{}_{}_Zd{}_{}_Time{:.2f}{}'.format(
+            cfg['general']['prod'],
+            cfg['general']['site'],
+            cfg['general']['array'],
+            cfg['general']['zenith'],
+            cfg['general']['azimuth'],
+            cfg['analysis']['obs_time']['value'],
+            cfg['analysis']['obs_time']['unit'])
+    else:
+        out_file_name = args.out_file_name
+
+    outdir = os.path.join(outdir_path, out_file_name)
 
     T_OBS = cfg['analysis']['obs_time']['value'] * u.Unit(cfg['analysis']['obs_time']['unit'])
 
