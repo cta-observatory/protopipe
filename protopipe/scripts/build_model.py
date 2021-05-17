@@ -71,6 +71,13 @@ def main():
     train_fraction = cfg["Split"]["train_fraction"]
     # Name of target quantity
     target_name = cfg["Method"]["target_name"]
+    try:
+        log_10_target = cfg["Method"]["log_10_target"]
+    except KeyError:
+        log_10_target = True
+
+    if log_10_target:
+        target_name = f"log_10_{target_name}"
 
     # Get list of features
     features_basic = cfg["FeatureList"]["Basic"]
