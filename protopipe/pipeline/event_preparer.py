@@ -144,6 +144,14 @@ class EventPreparer:
         debug=False,
     ):
         """Initiliaze an EventPreparer object."""
+
+        # Calibscale
+        try:
+            self.calibscale = config["Calibration"]["calibscale"]
+        except KeyError:
+            # defaults for no calibscale applied
+            self.calibscale = 1.0
+
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
             config=config["ImageCleaning"]["biggest"],
@@ -458,7 +466,8 @@ class EventPreparer:
                 n_tels[tel_type] += 1
 
                 # use ctapipe's functionality to get the calibrated image
-                pmt_signal = event.dl1.tel[tel_id].image
+                # and scale the reconstructed values if required
+                pmt_signal = event.dl1.tel[tel_id].image / self.calibscale
 
                 # If required...
                 if save_images is True:
