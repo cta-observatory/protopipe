@@ -71,13 +71,6 @@ def main():
     train_fraction = cfg["Split"]["train_fraction"]
     # Name of target quantity
     target_name = cfg["Method"]["target_name"]
-    try:
-        log_10_target = cfg["Method"]["log_10_target"]
-    except KeyError:
-        log_10_target = True
-
-    if log_10_target:
-        target_name = f"log10_{target_name}"
 
     # Get list of features
     features_basic = cfg["FeatureList"]["Basic"]
@@ -129,6 +122,14 @@ def main():
                    "classifier": ["RandomForestClassifier"]}
 
     if class_name in model_types["regressor"]:
+
+        try:
+            log_10_target = cfg["Method"]["log_10_target"]
+        except KeyError:
+            log_10_target = True
+
+        if log_10_target:
+            target_name = f"log10_{target_name}"
 
         # Get the selection cuts
         cuts = make_cut_list(cfg["SigFiducialCuts"])
