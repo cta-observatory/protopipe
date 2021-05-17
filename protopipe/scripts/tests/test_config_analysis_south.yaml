@@ -11,6 +11,12 @@ General:
  array: full_array
  cam_id_list : ['LSTCam', 'FlashCam', 'CHEC'] # Selected cameras (disabled option)
 
+Calibration:
+  # factor to transform the integrated charges (in ADC counts) into number of
+  # photoelectrons
+  # the pixel-wise one calculated by simtelarray is 0.92
+  calibscale: 0.92
+
 # Cleaning for reconstruction
 ImageCleaning:
 
