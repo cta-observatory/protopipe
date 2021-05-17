@@ -77,7 +77,7 @@ def main():
         log_10_target = True
 
     if log_10_target:
-        target_name = f"log_10_{target_name}"
+        target_name = f"log10_{target_name}"
 
     # Get list of features
     features_basic = cfg["FeatureList"]["Basic"]
