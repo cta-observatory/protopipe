@@ -969,8 +969,8 @@ class EventPreparer:
                         tel_tilted = tel_ground.transform_to(tilted_frame)
 
                         # but this not
-                        core_tilted = SkyCoord(x=core_ground[0] * u.m,
-                                               y=core_ground[1] * u.m,
+                        core_tilted = SkyCoord(x=core_ground.x,
+                                               y=core_ground.y,
                                                frame=tilted_frame
                                                )
 
