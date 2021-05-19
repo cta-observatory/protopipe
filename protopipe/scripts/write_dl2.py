@@ -183,6 +183,7 @@ def main():
 
         # Read configuration file
         regressor_config = load_config(args.regressor_config)
+        log_10_target = regressor_config["Method"]["log_10_target"]
 
         regressor_files = (
             args.regressor_dir + "/regressor_{cam_id}_{regressor}.pkl.gz"
@@ -426,6 +427,10 @@ def main():
                         weight_tel[idx] = data["estimation_weight_energy"]
                     else:
                         energy_tel[idx] = np.nan
+
+                    if log_10_target:
+                        energy_tel[idx] = 10**energy_tel[idx]
+                        weight_tel[idx] = 10**weight_tel[idx]
 
                     # Record the values regardless of the validity
                     # We don't use this now, but it should be recorded

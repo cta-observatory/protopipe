@@ -26,7 +26,8 @@ GridSearchCV:
 # Definition of the model algorithm/method used and its hyper-parameters
 Method:
   name: 'sklearn.ensemble.RandomForestRegressor' # DO NOT CHANGE
-  target_name: 'log10_true_energy'
+  target_name: 'true_energy'
+  log_10_target: True # this makes the model use log10(target_name)
   tuned_parameters:
     # Please, see scikit-learn's API for what each parameter means
     # NOTE: null == None
