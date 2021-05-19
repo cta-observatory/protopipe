@@ -445,7 +445,7 @@ class EventPreparer:
             # Array pointing in AltAz frame
             az = event.pointing.array_azimuth
             alt = event.pointing.array_altitude
-            array_pointing = SkyCoord(alt, az, frame=AltAz())
+            array_pointing = SkyCoord(az, alt, frame=AltAz())
 
             ground_frame = GroundFrame()
 
