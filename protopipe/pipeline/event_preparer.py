@@ -2,7 +2,7 @@
 import numpy as np
 
 from astropy import units as u
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, AltAz
 import warnings
 from traitlets.config import Config
 from collections import namedtuple, OrderedDict
@@ -16,7 +16,10 @@ from ctapipe.image import (leakage_parameters,
                            largest_island,
                            concentration_parameters)
 from ctapipe.utils import CutFlow
-from ctapipe.coordinates import GroundFrame, TelescopeFrame, CameraFrame
+from ctapipe.coordinates import (GroundFrame,
+                                 TelescopeFrame,
+                                 CameraFrame,
+                                 TiltedGroundFrame)
 
 # from ctapipe.image.timing_parameters import timing_parameters
 from ctapipe.image.hillas import hillas_parameters, HillasParameterizationError
@@ -442,8 +445,11 @@ class EventPreparer:
             # Array pointing in AltAz frame
             az = event.pointing.array_azimuth
             alt = event.pointing.array_altitude
+            array_pointing = SkyCoord(alt, az, frame=AltAz())
 
             ground_frame = GroundFrame()
+
+            tilted_frame = TiltedGroundFrame(pointing_direction=array_pointing)
 
             for tel_id in event.r1.tel.keys():
 
@@ -957,10 +963,20 @@ class EventPreparer:
                             frame=ground_frame,
                         )
 
-                        # Should be better handled (tilted frame)
+                        # Go back to the tilted frame
+
+                        # this should be the same...
+                        tel_tilted = tel_ground.transform_to(tilted_frame)
+
+                        # but this not
+                        core_tilted = SkyCoord(x=core_ground[0] * u.m,
+                                               y=core_ground[1] * u.m,
+                                               frame=tilted_frame
+                                               )
+
                         impact_dict_reco[tel_id] = np.sqrt(
-                            (core_ground.x - tel_ground.x) ** 2
-                            + (core_ground.y - tel_ground.y) ** 2
+                            (core_tilted.x - tel_tilted.x) ** 2
+                            + (core_tilted.y - tel_tilted.y) ** 2
                         )
 
             except (Exception, TooFewTelescopesException, InvalidWidthException) as e:
