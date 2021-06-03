@@ -288,7 +288,7 @@ def main():
                 effective_area[..., np.newaxis],  # +1 dimension for FOV offset
                 true_energy_bins,
                 fov_offset_bins,
-                extname="EFFECTIVE_AREA" + label,
+                extname="EFFECTIVE AREA" + label,
             )
         )
         edisp = energy_dispersion(
