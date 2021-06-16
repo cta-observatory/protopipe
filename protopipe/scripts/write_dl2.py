@@ -8,12 +8,13 @@ import signal
 from astropy.coordinates.angle_utilities import angular_separation
 import tables as tb
 import astropy.units as u
+from traitlets.config import Config
 
 # ctapipe
-from ctapipe.io import EventSource
 from ctapipe.utils import CutFlow
 
 # Utilities
+from protopipe.pipeline.temp import MySimTelEventSource
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
     bcolors,
@@ -272,11 +273,24 @@ def main():
         images_outfile = tb.open_file("images.h5", mode="w")
         images_table = {}
         images_phe = {}
+        
+    # Configuration options for MySimTelEventSource
+    try:
+        calib_scale = cfg["Calibration"]["calib_scale"]
+    except KeyError:
+        # defaults for no calibscale applied
+        calib_scale = 1.0
+
+    cfg_SimTelEventSource = Config()
+    cfg_SimTelEventSource.MySimTelEventSource.calib_scale = calib_scale
 
     for i, filename in enumerate(filenamelist):
 
-        source = EventSource(
-            input_url=filename, allowed_tels=allowed_tels, max_events=args.max_events
+        source = MyEventSource(
+            input_url=filename,
+            config=cfg_SimTelEventSource,
+            allowed_tels=allowed_tels,
+            max_events=args.max_events
         )
         # loop that cleans and parametrises the images and performs the reconstruction
         for (
