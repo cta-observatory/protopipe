@@ -239,7 +239,7 @@ def main():
 
         print("file: {} filename = {}".format(i, filename))
 
-        source = MyEventSource(
+        source = MySimTelEventSource(
             input_url=filename,
             config=cfg_SimTelEventSource,
             allowed_tels=allowed_tels,
