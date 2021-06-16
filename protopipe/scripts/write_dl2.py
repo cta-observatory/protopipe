@@ -286,7 +286,7 @@ def main():
 
     for i, filename in enumerate(filenamelist):
 
-        source = MyEventSource(
+        source = MySimTelEventSource(
             input_url=filename,
             config=cfg_SimTelEventSource,
             allowed_tels=allowed_tels,
