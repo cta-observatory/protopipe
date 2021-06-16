@@ -123,6 +123,14 @@ def main():
 
     if class_name in model_types["regressor"]:
 
+        try:
+            log_10_target = cfg["Method"]["log_10_target"]
+        except KeyError:
+            log_10_target = True
+
+        if log_10_target:
+            target_name = f"log10_{target_name}"
+
         # Get the selection cuts
         cuts = make_cut_list(cfg["SigFiducialCuts"])
 

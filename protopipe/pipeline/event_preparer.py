@@ -2,7 +2,7 @@
 import numpy as np
 
 from astropy import units as u
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, AltAz
 import warnings
 from traitlets.config import Config
 from collections import namedtuple, OrderedDict
@@ -16,7 +16,10 @@ from ctapipe.image import (leakage_parameters,
                            largest_island,
                            concentration_parameters)
 from ctapipe.utils import CutFlow
-from ctapipe.coordinates import GroundFrame, TelescopeFrame, CameraFrame
+from ctapipe.coordinates import (GroundFrame,
+                                 TelescopeFrame,
+                                 CameraFrame,
+                                 TiltedGroundFrame)
 
 # from ctapipe.image.timing_parameters import timing_parameters
 from ctapipe.image.hillas import hillas_parameters, HillasParameterizationError
@@ -144,6 +147,14 @@ class EventPreparer:
         debug=False,
     ):
         """Initiliaze an EventPreparer object."""
+
+        # Calibscale
+        try:
+            self.calibscale = config["Calibration"]["calibscale"]
+        except KeyError:
+            # defaults for no calibscale applied
+            self.calibscale = 1.0
+
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
             config=config["ImageCleaning"]["biggest"],
@@ -434,8 +445,11 @@ class EventPreparer:
             # Array pointing in AltAz frame
             az = event.pointing.array_azimuth
             alt = event.pointing.array_altitude
+            array_pointing = SkyCoord(az, alt, frame=AltAz())
 
             ground_frame = GroundFrame()
+
+            tilted_frame = TiltedGroundFrame(pointing_direction=array_pointing)
 
             for tel_id in event.r1.tel.keys():
 
@@ -458,7 +472,8 @@ class EventPreparer:
                 n_tels[tel_type] += 1
 
                 # use ctapipe's functionality to get the calibrated image
-                pmt_signal = event.dl1.tel[tel_id].image
+                # and scale the reconstructed values if required
+                pmt_signal = event.dl1.tel[tel_id].image / self.calibscale
 
                 # If required...
                 if save_images is True:
@@ -948,10 +963,20 @@ class EventPreparer:
                             frame=ground_frame,
                         )
 
-                        # Should be better handled (tilted frame)
+                        # Go back to the tilted frame
+
+                        # this should be the same...
+                        tel_tilted = tel_ground.transform_to(tilted_frame)
+
+                        # but this not
+                        core_tilted = SkyCoord(x=core_ground.x,
+                                               y=core_ground.y,
+                                               frame=tilted_frame
+                                               )
+
                         impact_dict_reco[tel_id] = np.sqrt(
-                            (core_ground.x - tel_ground.x) ** 2
-                            + (core_ground.y - tel_ground.y) ** 2
+                            (core_tilted.x - tel_tilted.x) ** 2
+                            + (core_tilted.y - tel_tilted.y) ** 2
                         )
 
             except (Exception, TooFewTelescopesException, InvalidWidthException) as e:
