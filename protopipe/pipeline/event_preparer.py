@@ -243,12 +243,7 @@ class EventPreparer:
             )
         )
 
-        # Configuration for the image extractor
-
-        cfg = Config()
-        cfg.TwoPassWindowSum.apply_integration_correction = self.apply_integration_correction
-
-        extractor = TwoPassWindowSum(config=cfg, subarray=subarray)
+        extractor = TwoPassWindowSum(subarray=subarray, apply_integration_correction=self.apply_integration_correction)
         # Get the name of the image extractor in order to adapt some options
         # specific to TwoPassWindowSum later on
         self.extractorName = list(extractor.get_current_config().items())[0][0]
