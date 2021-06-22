@@ -281,14 +281,11 @@ def main():
         # defaults for no calibscale applied
         calib_scale = 1.0
 
-    cfg_SimTelEventSource = Config()
-    cfg_SimTelEventSource.MySimTelEventSource.calib_scale = calib_scale
-
     for i, filename in enumerate(filenamelist):
 
         source = MySimTelEventSource(
             input_url=filename,
-            config=cfg_SimTelEventSource,
+            calib_scale=calib_scale,
             allowed_tels=allowed_tels,
             max_events=args.max_events
         )
