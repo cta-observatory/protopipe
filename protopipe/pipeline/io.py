@@ -23,11 +23,12 @@ def get_camera_names(input_directory=None,
     """
     if (input_directory is None) or (file_name is None):
         print("ERROR: check input")
+
     input_file = input_directory / file_name
-    h5file = tables.open_file(input_file, mode='r')
-    group = h5file.get_node("/")
-    camera_names = [x.name for x in group._f_list_nodes()]
-    h5file.close()
+
+    with tables.open_file(input_file, 'r') as f:
+        camera_names = [cam.name for cam in f.root]
+
     return camera_names
 
 
