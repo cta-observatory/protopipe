@@ -147,6 +147,13 @@ class EventPreparer:
         debug=False,
     ):
         """Initiliaze an EventPreparer object."""
+        
+        # Readout window integration correction
+        try:
+            self.apply_integration_correction = config["Calibration"]["apply_integration_correction"]
+        except KeyError:
+            # defaults to enabled
+            self.apply_integration_correction = True
 
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
@@ -232,17 +239,13 @@ class EventPreparer:
             )
         )
 
-        # Configuration for the camera calibrator
-
-        cfg = Config()
-
-        extractor = TwoPassWindowSum(config=cfg, subarray=subarray)
+        extractor = TwoPassWindowSum(subarray=subarray, apply_integration_correction=self.apply_integration_correction)
         # Get the name of the image extractor in order to adapt some options
         # specific to TwoPassWindowSum later on
         self.extractorName = list(extractor.get_current_config().items())[0][0]
 
         self.calib = CameraCalibrator(
-            config=cfg, image_extractor=extractor, subarray=subarray,
+            image_extractor=extractor, subarray=subarray,
         )
 
         # Reconstruction
