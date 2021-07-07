@@ -297,9 +297,14 @@ def main():
             impact_dict,
             good_event,
             good_for_reco,
-        ) in preper.prepare_event(
-            source, save_images=args.save_images, debug=args.debug
-        ):
+        ) in tqdm(
+                    preper.prepare_event(source,
+                                         save_images=args.save_images,
+                                         debug=args.debug),
+                    desc=source.__class__.__name__,
+                    total=source.max_events,
+                    unit="event"
+                 ):
 
             # True direction
             true_az = event.simulation.shower.az
