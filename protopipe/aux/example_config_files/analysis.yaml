@@ -1,7 +1,8 @@
 # General informations
+# WARNING: the settings recorded here are unstable and used here only to give an example
 # NOTE: only Prod3b simulations are currently supported.
 General:
- config_name: 'v0.4.0_dev1'
+ config_name: 'test'
  site: 'north'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
@@ -16,6 +17,7 @@ Calibration:
   # photoelectrons
   # the pixel-wise one calculated by simtelarray is 0.92
   calibscale: 0.92
+  apply_integration_correction: false
 
 # Cleaning for reconstruction
 ImageCleaning:
@@ -24,8 +26,8 @@ ImageCleaning:
  biggest:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6.61, 3.30]
-    - NectarCam: [5.75, 2.88]
+    - LSTCam: [5.0, 2.5]
+    - NectarCam: [5.0, 2.5]
     - FlashCam: [4,2] # dummy values for reliable unit-testing
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies
@@ -58,8 +60,8 @@ ImageCleaning:
  extended:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [6.61, 3.30]
-    - NectarCam: [5.75, 2.88]
+    - LSTCam: [5.0, 2.5]
+    - NectarCam: [5.0, 2.5]
     - FlashCam: [4,2] # dummy values for reliable unit-testing
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies
@@ -91,7 +93,7 @@ ImageCleaning:
 # Cut for image selection
 ImageSelection:
  source: "extended" # biggest or extended
- charge: [50., 1e10]
+ charge: [55., 1e10]
  pixel: [3, 1e10]
  ellipticity: [0.1, 0.6]
  nominal_distance: [0., 0.8]  # in camera radius
