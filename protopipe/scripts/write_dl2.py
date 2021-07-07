@@ -8,7 +8,7 @@ import signal
 from astropy.coordinates.angle_utilities import angular_separation
 import tables as tb
 import astropy.units as u
-from traitlets.config import Config
+from tqdm import tqdm
 
 # ctapipe
 from ctapipe.utils import CutFlow
@@ -308,9 +308,14 @@ def main():
             impact_dict,
             good_event,
             good_for_reco,
-        ) in preper.prepare_event(
-            source, save_images=args.save_images, debug=args.debug
-        ):
+        ) in tqdm(
+                    preper.prepare_event(source,
+                                         save_images=args.save_images,
+                                         debug=args.debug),
+                    desc=source.__class__.__name__,
+                    total=source.max_events,
+                    unit="event"
+                 ):
 
             # True direction
             true_az = event.simulation.shower.az
