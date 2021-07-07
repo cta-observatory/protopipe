@@ -8,6 +8,7 @@ import signal
 from astropy.coordinates.angle_utilities import angular_separation
 import tables as tb
 import astropy.units as u
+from tqdm import tqdm
 
 # ctapipe
 from ctapipe.io import EventSource
