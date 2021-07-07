@@ -9,6 +9,7 @@ from glob import glob
 import signal
 import tables as tb
 import pandas as pd
+from tqdm import tqdm
 
 from ctapipe.utils import CutFlow
 from ctapipe.io import EventSource
