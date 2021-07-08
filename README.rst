@@ -20,15 +20,20 @@ protopipe |CI| |codacy| |coverage| |documentation| |doilatest|
 A pipeline prototype for the `Cherenkov Telescope Array (CTA) <www.cta-observatory.org>`_.
 
 - based on the `ctapipe <https://cta-observatory.github.io/ctapipe/>`_ and
-  `pyirf <https://cta-observatory.github.io/pyirf/>`__ libraries plus original code
-- successfully tested code migrated and imported from each new release
-- allows for full-scale analyses on the `DIRAC <http://diracgrid.org/>`__ computing grid
+  `pyirf <https://cta-observatory.github.io/pyirf/>`__ libraries plus original code,
+- successfully tested code migrated and imported from each new release,
+- allows for full-scale analyses on the `DIRAC <http://diracgrid.org/>`__ computing grid thanks to its `interface <https://github.com/HealthyPear/protopipe-grid-interface#readme>`__.
 
 Resources
 ---------
 
-- Source code: `GitHub repository <https://github.com/cta-observatory/protopipe>`__
-- Documentation (master branch): `GitHub Pages <https://cta-observatory.github.io/protopipe>`__
+- Source code (protopipe): `GitHub repository <https://github.com/cta-observatory/protopipe>`__
+- Source code (DIRAC grid interface): `GitHub repository <https://github.com/HealthyPear/protopipe-grid-interface>`__
+- Documentation:
+
+  - `GitHub Pages <https://cta-observatory.github.io/protopipe>`__ (only development version)
+  - `readthedocs <https://protopipe.readthedocs.io/en/latest/>`__ (also latest releases)
+
 - Current performance: `RedMine <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__
 
 - Slack channels:
