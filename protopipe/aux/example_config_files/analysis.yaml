@@ -2,7 +2,7 @@
 # WARNING: the settings recorded here are unstable and used here only to give an example
 # NOTE: only Prod3b simulations are currently supported.
 General:
- config_name: 'test'
+ config_name: ''
  site: 'north'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
@@ -13,11 +13,11 @@ General:
  cam_id_list : ['LSTCam', 'NectarCam'] # Selected cameras (disabled option)
 
 Calibration:
+  apply_integration_correction: false # for CTAMARS-like analysis use false
   # factor to transform the integrated charges (in ADC counts) into number of
-  # photoelectrons
-  # the pixel-wise one calculated by simtelarray is 0.92
+  # photoelectrons (on top of the DC-to-PHE factor)
+  # the pixel-wise one calculated by simtelarray is 0.92 for CTAMARS
   calibscale: 0.92
-  apply_integration_correction: false
 
 # Cleaning for reconstruction
 ImageCleaning:
