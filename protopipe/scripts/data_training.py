@@ -34,6 +34,12 @@ def main():
     parser.add_argument(
         "--debug", action="store_true", help="Print debugging information",
     )
+    
+    parser.add_argument(
+        "--show_progress_bar",
+        action="store_true",
+        help="Show information about execution progress",
+    )
 
     parser.add_argument(
         "--save_images", action="store_true", help="Save also all images",
@@ -269,7 +275,8 @@ def main():
                                          debug=args.debug),
                     desc=source.__class__.__name__,
                     total=source.max_events,
-                    unit="event"
+                    unit="event",
+                    disable= not args.show_progress_bar
                  ):
 
             if good_event:
