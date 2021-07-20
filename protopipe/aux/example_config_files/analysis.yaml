@@ -16,7 +16,7 @@ Calibration:
   # factor to transform the integrated charges (in ADC counts) into number of
   # photoelectrons
   # the pixel-wise one calculated by simtelarray is 0.92
-  calibscale: 0.92
+  calib_scale: 0.92
   apply_integration_correction: false
 
 # Cleaning for reconstruction

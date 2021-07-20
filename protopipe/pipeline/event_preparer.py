@@ -779,7 +779,13 @@ class EventPreparer:
                         ] = HillasParametersTelescopeFrameContainer()
                         n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
                         leakage_dict[tel_id] = leakages
+                        
+                        concentrations = {}
+                        concentrations["concentration_cog"] = np.nan
+                        concentrations["concentration_core"] = np.nan
+                        concentrations["concentration_pixel"] = np.nan
                         concentration_dict[tel_id] = concentrations
+
 
                 # END OF THE CYCLE OVER THE TELESCOPES
 
