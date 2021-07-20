@@ -17,13 +17,184 @@ from numpy import nan
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 
+from ctapipe.io import SimTelEventSource
+from ctapipe.containers import (ArrayEventContainer,
+                                SimulatedCameraContainer,
+                                SimulatedEventContainer,
+                                EventType)
 from ctapipe.core import Container, Field
+from ctapipe.core.traits import Float
 from ctapipe.coordinates import CameraFrame, TelescopeFrame
 from ctapipe.instrument import CameraGeometry
 from ctapipe.reco.hillas_reconstructor import HillasReconstructor
 from ctapipe.reco.hillas_reconstructor import HillasPlane
 
 logger = logging.getLogger(__name__)
+
+
+def apply_simtel_r1_calibration(r0_waveforms,
+                                pedestal,
+                                dc_to_pe,
+                                gain_selector,
+                                calib_scale=1.0,
+                                calib_shift=0.0):
+    """
+    Perform the R1 calibration for R0 simtel waveforms. This includes:
+        - Gain selection
+        - Pedestal subtraction
+        - Conversion of samples into units proportional to photoelectrons
+          (If the full signal in the waveform was integrated, then the resulting
+          value would be in photoelectrons.)
+          (Also applies flat-fielding)
+    Parameters
+    ----------
+    r0_waveforms : ndarray
+        Raw ADC waveforms from a simtel file. All gain channels available.
+        Shape: (n_channels, n_pixels, n_samples)
+    pedestal : ndarray
+        Pedestal stored in the simtel file for each gain channel
+        Shape: (n_channels, n_pixels)
+    dc_to_pe : ndarray
+        Conversion factor between R0 waveform samples and ~p.e., stored in the
+        simtel file for each gain channel
+        Shape: (n_channels, n_pixels)
+    gain_selector : ctapipe.calib.camera.gainselection.GainSelector
+    calib_scale : float
+        Extra global scale factor for calibration.
+        Conversion factor to transform the integrated charges
+        (in ADC counts) into number of photoelectrons on top of dc_to_pe.
+        Defaults to no scaling.
+    calib_shift: float
+        Shift the resulting R1 output in p.e. for simulating miscalibration.
+        Defaults to no shift.
+    Returns
+    -------
+    r1_waveforms : ndarray
+        Calibrated waveforms
+        Shape: (n_pixels, n_samples)
+    selected_gain_channel : ndarray
+        The gain channel selected for each pixel
+        Shape: (n_pixels)
+    """
+    n_channels, n_pixels, n_samples = r0_waveforms.shape
+    ped = pedestal[..., np.newaxis]
+    DC_to_PHE = dc_to_pe[..., np.newaxis]
+    gain = DC_to_PHE * calib_scale
+    r1_waveforms = (r0_waveforms - ped) * gain + calib_shift
+    if n_channels == 1:
+        selected_gain_channel = np.zeros(n_pixels, dtype=np.int8)
+        r1_waveforms = r1_waveforms[0]
+    else:
+        selected_gain_channel = gain_selector(r0_waveforms)
+        r1_waveforms = r1_waveforms[selected_gain_channel, np.arange(n_pixels)]
+    return r1_waveforms, selected_gain_channel
+
+
+class MySimTelEventSource(SimTelEventSource):
+    """ Read events from a SimTelArray data file (in EventIO format)."""
+
+    calib_scale = Float(
+        default_value=1.0,
+        help=(
+            "Factor to transform ADC counts into number of photoelectrons."
+            " Corrects the DC_to_PHE factor."
+        )
+    ).tag(config=True)
+
+    calib_shift = Float(
+        default_value=0.0,
+        help=(
+            "Factor to shift the R1 photoelectron samples. "
+            "Can be used to simulate mis-calibration."
+        )
+    ).tag(config=True)
+
+    def _generate_events(self):
+        data = ArrayEventContainer()
+        data.simulation = SimulatedEventContainer()
+        data.meta["origin"] = "hessio"
+        data.meta["input_url"] = self.input_url
+        data.meta["max_events"] = self.max_events
+
+        self._fill_array_pointing(data)
+
+        for counter, array_event in enumerate(self.file_):
+
+            event_id = array_event.get("event_id", -1)
+            obs_id = self.file_.header["run"]
+            data.count = counter
+            data.index.obs_id = obs_id
+            data.index.event_id = event_id
+
+            self._fill_trigger_info(data, array_event)
+
+            if data.trigger.event_type == EventType.SUBARRAY:
+                self._fill_simulated_event_information(data, array_event)
+
+            # this should be done in a nicer way to not re-allocate the
+            # data each time (right now it's just deleted and garbage
+            # collected)
+            data.r0.tel.clear()
+            data.r1.tel.clear()
+            data.dl0.tel.clear()
+            data.dl1.tel.clear()
+            data.pointing.tel.clear()
+            data.simulation.tel.clear()
+
+            telescope_events = array_event["telescope_events"]
+            tracking_positions = array_event["tracking_positions"]
+
+            for tel_id, telescope_event in telescope_events.items():
+                adc_samples = telescope_event.get("adc_samples")
+                if adc_samples is None:
+                    adc_samples = telescope_event["adc_sums"][:, :, np.newaxis]
+
+                n_gains, n_pixels, n_samples = adc_samples.shape
+                true_image = (
+                    array_event.get("photoelectrons", {})
+                    .get(tel_id - 1, {})
+                    .get("photoelectrons", None)
+                )
+
+                data.simulation.tel[tel_id] = SimulatedCameraContainer(
+                    true_image=true_image
+                )
+
+                data.pointing.tel[tel_id] = self._fill_event_pointing(
+                    tracking_positions[tel_id]
+                )
+
+                r0 = data.r0.tel[tel_id]
+                r1 = data.r1.tel[tel_id]
+                r0.waveform = adc_samples
+
+                cam_mon = array_event["camera_monitorings"][tel_id]
+                pedestal = cam_mon["pedestal"] / cam_mon["n_ped_slices"]
+                dc_to_pe = array_event["laser_calibrations"][tel_id]["calib"]
+
+                # fill dc_to_pe and pedestal_per_sample info into monitoring
+                # container
+                mon = data.mon.tel[tel_id]
+                mon.calibration.dc_to_pe = dc_to_pe
+                mon.calibration.pedestal_per_sample = pedestal
+
+                r1.waveform, r1.selected_gain_channel = apply_simtel_r1_calibration(
+                    adc_samples,
+                    pedestal,
+                    dc_to_pe,
+                    self.gain_selector,
+                    self.calib_scale,
+                    self.calib_shift
+                )
+
+                # get time_shift from laser calibration
+                time_calib = array_event["laser_calibrations"][tel_id]["tm_calib"]
+                pix_index = np.arange(n_pixels)
+
+                dl1_calib = data.calibration.tel[tel_id].dl1
+                dl1_calib.time_shift = time_calib[r1.selected_gain_channel, pix_index]
+
+            yield data
 
 
 class HillasParametersTelescopeFrameContainer(Container):

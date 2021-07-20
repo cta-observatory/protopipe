@@ -9,9 +9,10 @@ from glob import glob
 import signal
 import tables as tb
 import pandas as pd
+from tqdm import tqdm
 
 from ctapipe.utils import CutFlow
-from ctapipe.io import EventSource
+from protopipe.pipeline.temp import MySimTelEventSource
 
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
@@ -32,6 +33,12 @@ def main():
 
     parser.add_argument(
         "--debug", action="store_true", help="Print debugging information",
+    )
+    
+    parser.add_argument(
+        "--show_progress_bar",
+        action="store_true",
+        help="Show information about execution progress",
     )
 
     parser.add_argument(
@@ -222,13 +229,24 @@ def main():
     outfile = tb.open_file(args.outfile, mode="w")
     outTable = {}
     outData = {}
+    
+    # Configuration options for SimTelEventSource
+    # Readout window integration correction
+    try:
+        calib_scale = cfg["Calibration"]["calib_scale"]
+    except KeyError:
+        # defaults for no calibscale applied
+        calib_scale = 1.0
 
     for i, filename in enumerate(filenamelist):
 
         print("file: {} filename = {}".format(i, filename))
 
-        source = EventSource(
-            input_url=filename, allowed_tels=allowed_tels, max_events=args.max_events
+        source = MySimTelEventSource(
+            input_url=filename,
+            calib_scale = calib_scale,
+            allowed_tels=allowed_tels,
+            max_events=args.max_events
         )
 
         # loop that cleans and parametrises the images and performs the
@@ -251,9 +269,15 @@ def main():
             impact_dict,
             good_event,
             good_for_reco,
-        ) in preper.prepare_event(
-            source, save_images=args.save_images, debug=args.debug
-        ):
+        ) in tqdm(
+                    preper.prepare_event(source,
+                                         save_images=args.save_images,
+                                         debug=args.debug),
+                    desc=source.__class__.__name__,
+                    total=source.max_events,
+                    unit="event",
+                    disable= not args.show_progress_bar
+                 ):
 
             if good_event:
 
