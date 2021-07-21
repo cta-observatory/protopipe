@@ -4,6 +4,7 @@ import argparse
 import math
 import joblib
 
+import numpy
 import astropy.units as u
 import matplotlib.pyplot as plt
 import os.path as path
@@ -503,14 +504,36 @@ def load_models(path, cam_id_list):
     -------
     model_dict: dict
         Dictionary with `cam_id` as keys and pickled models as values.
-    
     """
     
     model_dict = {}
     for key in cam_id_list:
-            try:
-                model_dict[key] = joblib.load(path.format(cam_id=key))
-            except IndexError:
-                model_dict[key] = joblib.load(path.format(key))
+        try:
+            model_dict[key] = joblib.load(path.format(cam_id=key))
+        except IndexError:
+            model_dict[key] = joblib.load(path.format(key))
                 
     return model_dict
+
+
+def add_stats(data, ax, x=0.70, y=0.85, fontsize=10):
+    """Add a textbox containing statistical information."""
+    mu = data.mean()
+    median = np.median(data)
+    sigma = data.std()
+    textstr = '\n'.join((
+        r'$\mu=%.2f$' % (mu, ),
+        r'$\mathrm{median}=%.2f$' % (median, ),
+        r'$\sigma=%.2f$' % (sigma, )))
+
+    # these are matplotlib.patch.Patch properties
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+    # place a text box in upper left in axes coords
+    ax.text(x, y,
+            textstr,
+            transform=ax.transAxes,
+            fontsize=fontsize,
+            horizontalalignment='left',
+            verticalalignment='center',
+            bbox=props)
