@@ -2,7 +2,7 @@
 # WARNING: the settings recorded here are unstable and used here only to give an example
 # NOTE: only Prod3b simulations are currently supported.
 General:
- config_name: 'test'
+ config_name: ''
  site: 'north'  # 'north' or 'south'
  # array can be either
  # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
@@ -111,7 +111,7 @@ Reconstruction:
 EnergyRegressor:
  # Name of the regression method (e.g. AdaBoostRegressor, etc.)
  method_name: 'RandomForestRegressor'
- estimation_weight: 'STD'
+ estimation_weight: 'CTAMARS' # CTAMARS == 1/RMS^2 (RMS from the RF trees)
 
 # Parameters for g/h separation
 GammaHadronClassifier:
