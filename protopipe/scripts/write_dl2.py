@@ -132,7 +132,7 @@ def main():
     try:
         estimation_weight_energy = cfg["EnergyRegressor"]["estimation_weight"]
     except KeyError:
-        estimation_weight_energy = "STD"
+        estimation_weight_energy = "CTAMARS"
     classifier_method = cfg["GammaHadronClassifier"]["method_name"]
     estimation_weight_classification = cfg["GammaHadronClassifier"]["estimation_weight"]
     use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
@@ -384,6 +384,7 @@ def main():
                 energy_tel = np.zeros(len(hillas_dict.keys()))
                 energy_tel_classifier = {}
                 weight_tel = np.zeros(len(hillas_dict.keys()))
+                weight_statistic_tel = np.zeros(len(hillas_dict.keys()))
 
                 for idx, tel_id in enumerate(hillas_dict.keys()):
 
@@ -439,11 +440,11 @@ def main():
 
                     ############################################################
 
-                    if (good_for_reco[tel_id] == 1) and (estimation_weight_energy == "STD"):
+                    if (good_for_reco[tel_id] == 1) and (estimation_weight_energy == "CTAMARS"):
                         # Get an array of trees
                         predictions_trees = np.array([tree.predict(features_values) for tree in model.estimators_])
                         energy_tel[idx] = np.mean(predictions_trees, axis=0)
-                        weight_tel[idx] = np.std(predictions_trees, axis=0)
+                        weight_statistic_tel[idx] = np.std(predictions_trees, axis=0)
                     elif (good_for_reco[tel_id] == 1):
                         data.eval(f'estimation_weight_energy = {estimation_weight_energy}', inplace=True)
                         energy_tel[idx] = model.predict(features_values)
@@ -454,6 +455,12 @@ def main():
                     if log_10_target:
                         energy_tel[idx] = 10**energy_tel[idx]
                         weight_tel[idx] = 10**weight_tel[idx]
+                        weight_statistic_tel[idx] = 10**weight_statistic_tel[idx]
+
+                    if estimation_weight_energy == "CTAMARS":
+                        # in CTAMARS the average is done after converting
+                        # energy and weight to linear energy scale
+                        weight_tel[idx] = 1 / (weight_statistic_tel[idx]**2)
 
                     # Record the values regardless of the validity
                     # We don't use this now, but it should be recorded
