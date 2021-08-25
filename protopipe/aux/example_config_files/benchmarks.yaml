@@ -1,0 +1,46 @@
+# This configuration file simplifies the usage of benchmarks throughout the
+# entire analysis.
+# It is recommended to fill it and specify any remaining options using
+# the --kwargs flag of protopipe-BENCHMARKS
+# Better use full paths to specify directories
+
+# General settings for you analysis
+# analyses_directory should be something like "[...]/shared_folder/analyses"
+analyses_directory: ""
+analysis_name: "" # should be filled by the interface
+
+# Requirements data
+load_requirements: True
+requirements_input_directory: ''
+
+# CTAMARS reference data
+# available at https://forge.in2p3.fr/projects/step-by-step-reference-mars-analysis/wiki
+load_CTAMARS_2019: True
+# change the paths according to your local setup
+input_directory_CTAMARS:
+   parent_directory: ""
+   TRAINING/DL1: "TRAINING/DL1"
+   TRAINING/DL2: "TRAINING/DL2"
+   DL2: "" # not available
+   DL3: "DL3"
+
+# EVENTDISPLAY reference data (only ROOT format, for the moment)
+# available from https://forge.in2p3.fr/projects/cta_analysis-and-simulations/wiki#Instrument-Response-Functions 
+EventDisplay_input_directory: ""
+
+# This can be any run from the production you analyze
+input_simtel_file: ""
+
+# This is data produced with protopipe
+input_filenames:
+  TRAINING_energy_gamma: "TRAINING_energy_tail_gamma_merged.h5"
+  TRAINING_classification_gamma: "TRAINING_classification_tail_gamma_merged.h5"
+  DL2_gamma: "TRAINING_energy_tail_gamma_merged.h5"
+  DL2_proton: "TRAINING_energy_tail_gamma_merged.h5"
+  DL2_electron: "TRAINING_energy_tail_gamma_merged.h5"
+  DL3: "TRAINING_energy_tail_gamma_merged.h5"
+
+# This must be data produced with ctapipe-stage1
+input_filenames_ctapipe:
+  DL1a_gamma: "events_protopipe_CTAMARS_calibration_1stPass.dl1.h5"
+  DL1a_gamma_2ndPass: "events_protopipe_CTAMARS_calibration_2ndPass.dl1.h5"
