@@ -68,6 +68,7 @@ setup(
             'protopipe-MODEL=protopipe.scripts.build_model:main',
             'protopipe-DL2=protopipe.scripts.write_dl2:main',
             'protopipe-DL3-EventDisplay=protopipe.scripts.make_performance_EventDisplay:main',
+            'protopipe-BENCHMARK=protopipe.scripts.launch_benchmark:main'
         ],
     },
 )
