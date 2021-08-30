@@ -2,12 +2,11 @@
 # entire analysis.
 # It is recommended to fill it and specify any remaining options using
 # the --kwargs flag of protopipe-BENCHMARKS
-# Better use full paths to specify directories
+# To specify directories, please provide full paths OUTSIDE the container
 
 # General settings for you analysis
-# analyses_directory should be something like "[...]/shared_folder/analyses"
 analyses_directory: ""
-analysis_name: "" # should be filled by the interface
+analysis_name: ""
 
 # Requirements data
 load_requirements: True
