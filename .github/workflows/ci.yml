@@ -53,16 +53,23 @@ jobs:
       - uses: actions/checkout@v2
         with:
             fetch-depth: 0
-
-      - uses: ammaraskar/sphinx-action@master
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          docs-folder: "docs/"
-          pre-build-command: |
-            apt update --yes && apt install --yes git build-essential pandoc
-            pip install -U pip setuptools wheel
-            pip install -e .[docs]
-          # treat warnings as errors, make sure links are working
-          build-command: make html SPHINXOPTS="-W --keep-going -n --color -w /tmp/sphinx-log"
+          python-version: 3.8
+      
+      - name: Install doc dependencies
+        run: |
+          sudo apt update --yes && sudo apt install --yes git build-essential pandoc graphviz
+          pip install -U pip setuptools wheel
+          pip install -e .[docs]
+          git describe --tags
+          python -c 'import protopipe; print(protopipe.__version__)'
+
+      - name: Build docs
+        run: cd docs && make html SPHINXOPTS="-W --keep-going -n --color -j auto"
+      
       - name: Deploy to github pages
         # only run on push to master
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
