@@ -12,8 +12,9 @@ DIRAC GRID certificate
 In order to access the GRID utilities you will need a certificate associated with an
 account.
 
-You can find all necessary information 
-`here <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Prerequisites>`_.
+You can find all necessary information at
+`this <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Prerequisites>`_
+Redmine wikipage.
 
 Source code for the interface
 +++++++++++++++++++++++++++++
