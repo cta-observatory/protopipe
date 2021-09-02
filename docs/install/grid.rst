@@ -27,7 +27,7 @@ Source code for the interface
 Getting a released version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can find the latest released version `here <https://github.com/cta-observatory/protopipe/releases>`__
+The latest released version are stored `at this GitHub repository <https://github.com/cta-observatory/protopipe/releases>`__
 
 .. list-table:: compatibility between *protopipe* and its interface
     :widths: 25 25
@@ -93,8 +93,8 @@ Please, refer to the Docker documentation for other use cases.
 
 .. warning::
   If you are using *macos* you could encounter some disk space issues.
-  Please check `here <https://docs.docker.com/docker-for-mac/space/>`_ and
-  `here <https://djs55.github.io/jekyll/update/2017/11/27/docker-for-mac-disk-space.html>`_
+  Please check `this page <https://docs.docker.com/docker-for-mac/space/>`_ and
+  `this other page <https://djs55.github.io/jekyll/update/2017/11/27/docker-for-mac-disk-space.html>`_
   on how to manage disk space.
 
 Vagrant
