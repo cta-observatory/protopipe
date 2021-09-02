@@ -22,6 +22,24 @@ Current performance is stored internally at `this RedMine page <https://forge.in
 .. warning::
   This is not yet stable code, so expect large and rapid changes.
 
+Resources
+---------
+
+- Source code (protopipe): `GitHub repository <https://github.com/cta-observatory/protopipe>`__
+- Source code (DIRAC grid interface): `GitHub repository <https://github.com/HealthyPear/protopipe-grid-interface>`__
+- Documentation:
+
+  - `GitHub Pages <https://cta-observatory.github.io/protopipe>`__ (only development version)
+  - `readthedocs <https://protopipe.readthedocs.io/en/latest/>`__ (also latest releases)
+
+- Current performance: `RedMine <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__
+
+- Slack channels:
+
+  - `#protopipe <https://cta-aswg.slack.com/archives/CPTN4U7U7>`__
+  - `#protopipe_github <https://cta-aswg.slack.com/archives/CPUSPPHST>`__
+  - `#protopipe-grid <https://cta-aswg.slack.com/archives/C01FWH8E0TT>`__
+
 Citing this software
 --------------------
 
