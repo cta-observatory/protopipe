@@ -1,13 +1,17 @@
 .. _install-grid:
 
+================
 Grid environment
 ================
 
+.. contents::
+   :local:
+
 Requirements
-------------
+************
 
 DIRAC GRID certificate
-++++++++++++++++++++++
+======================
 
 In order to access the GRID utilities you will need a certificate associated with an
 account.
@@ -17,7 +21,7 @@ You can find all necessary information at
 Redmine wikipage.
 
 Source code for the interface
-+++++++++++++++++++++++++++++
+=============================
 
 .. warning::
   Usage of the pipeline on an infrastucture different than the DIRAC grid has not been fully tested.
@@ -25,7 +29,7 @@ Source code for the interface
   could be easily adapted to different infrastructures.
 
 Getting a released version
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 The latest released version are stored `at this GitHub repository <https://github.com/cta-observatory/protopipe/releases>`__
 
@@ -46,14 +50,14 @@ The latest released version of the GRID interface is also compatible with
 the development version of *protopipe*.
 
 Getting the development version
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------
 
 This version is always compatible *only* with the development version of *protopipe*.
 
 ``git clone https://github.com/HealthyPear/protopipe-grid-interface.git``
 
 Container and options for containerization
-------------------------------------------
+==========================================
 
 .. note::
   Any of the following containerization choices constitutes a requirement.
@@ -70,14 +74,18 @@ Container and options for containerization
   - on *Windows* or *macos*, you will need to install *Vagrant*.
 
 Docker
-++++++
+------
 
 The container used by the interface requires the 
 `installation of Docker <https://docs.docker.com/get-docker/>`_.
 
 To enter the container (and the first time downloading the image),
 
-``docker run --rm -v $HOME/.globus:/home/dirac/.globus -v $PWD/shared_folder:/home/dirac/shared_folder -v [...]/protopipe:/home/dirac/protopipe -v [...]/protopipe-grid-interface:/home/dirac/protopipe-grid-interface -it ctadirac/client``
+| ``docker run --rm -v $HOME/.globus:/home/dirac/.globus``
+| ``-v $PWD/shared_folder:/home/dirac/shared_folder``
+| ``-v [...]/protopipe-grid-interface:/home/dirac/protopipe-grid-interface``
+| ``-v [...]/protopipe:/home/dirac/protopipe``
+| ``-it ctadirac/client``
 
 where ``[...]`` is the path of your source code on the host and the ``--rm`` 
 flag will erase the container at exit
@@ -98,7 +106,7 @@ Please, refer to the Docker documentation for other use cases.
   on how to manage disk space.
 
 Vagrant
-+++++++
+-------
 
 .. note::
   Only required for users that want to use a *Singularity*
@@ -120,7 +128,7 @@ The *VagrantFile* defines creates automatically also the ``shared_folder``
 used by the interface to setup the analysis.
 
 Singularity
-+++++++++++
+-----------
 
 .. warning::
   Support for *Singularity* has been dropped by the mantainers of *CTADIRAC*.
@@ -198,7 +206,7 @@ otherwise you have to either,
   (for this you will need to interface with that servce to generate an access token)
 
 Setup the working environment
------------------------------
+*****************************
 
 The CTADIRAC container doesn't provide everything *protopipe* needs,
 but this can be solved easily by issuing the following command inside the container's home directory,
