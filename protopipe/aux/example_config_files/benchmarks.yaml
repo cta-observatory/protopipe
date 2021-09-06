@@ -6,8 +6,8 @@
 
 # General settings for you analysis
 # analyses_directory should be something like "[...]/shared_folder/analyses"
-analyses_directory: ""
-analysis_name: "" # should be filled by the interface
+analyses_directory: ''
+analysis_name: ''
 
 # Requirements data
 load_requirements: True
