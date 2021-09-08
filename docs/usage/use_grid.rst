@@ -20,34 +20,29 @@ Usage
 -----
 
 .. note::
-  
-  It is here assumed that you are working on a DIRAC-based grid environment.
 
   You will work with two different virtual environments:
 
-  - protopipe (Python >=3.5, conda environment)
-  - GRID interface (Python 2.7, inside the container).
+  - protopipe (Python >=3.7)
+  - GRID interface (Python 2.7)
+  
+  Their location and activation will depend on your installation if choice
+  (see :ref:`install-grid`).
 
-  Open 1 tab for each of these environments on you terminal so you can work seamlessly between the 2.
-
-  To monitor the jobs you can use the
+  To monitor the jobs you can the 
   `DIRAC Web Interface <https://ccdcta-web.in2p3.fr/DIRAC/?view=tabs&theme=Crisp&url_state=1|*DIRAC.JobMonitor.classes.JobMonitor:,>`_
 
 1. **Setup analysis** (GRID enviroment)
 
-  After having entered the container, and assuming your username is _johndoe_
-  with an output directory called e.g. _cta_analyses_
+  After having entered the container use the script
   
-  | ``python $GRID_INTERFACE/create_analysis_tree.py --analysis_name myAnalysis``
-  | ``--GRID-is-DIRAC --GRID-home /vo.cta.in2p3.fr/user/j/johndoe --GRID-path-from-home cta_analyses``
+  ``python $GRID_INTERFACE/create_analysis_tree.py``
 
-  This command will store and partially edit for you all the necessary
+  to create a complete analysis directory depending on your setup.
+  The script will store and partially edit for you all the necessary
   configuration files under the ``configs`` folder as well as the operational
   scripts to download and upload data and model files under ``data`` and
   ``estimators`` respectively.
-  
-  Throughout the following instructions ``$ANALYSIS`` will be a label for the analysis
-  name.
 
   .. figure:: ./AnalysisTree.png
     :width: 250
@@ -56,7 +51,7 @@ Usage
 2. **Obtain training data for energy estimation** (GRID enviroment)
 
   1. edit ``grid.yaml`` to use gammas without energy estimation
-  2. ``python $GRID_INTERFACE/submit_jobs.py --analysis_name=$ANALYSIS --output_type=TRAINING``
+  2. ``python $GRID_INTERFACE/submit_jobs.py --analysis_path=[...]/test_analysis --output_type=TRAINING``
   3. edit and execute ``$ANALYSIS/data/download_and_merge.sh`` once the files are ready
 
 3. **Build the model for energy estimation** (both enviroments)
@@ -70,7 +65,7 @@ Usage
 4. **Obtain training data for particle classification** (GRID enviroment)
 
   1. edit ``grid.yaml`` to use gammas **with** energy estimation
-  2. ``python $GRID_INTERFACE/submit_jobs.py --analysis_name=$ANALYSIS --output_type=TRAINING``
+  2. ``python $GRID_INTERFACE/submit_jobs.py --analysis_path=[...]/test_analysis --output_type=TRAINING``
   3. edit and execute ``$ANALYSIS/data/download_and_merge.sh`` once the files are ready
   4. repeat the first 3 points for protons
   5. use ``protopipe-BENCHMARK`` to check the estimated energies
@@ -87,7 +82,7 @@ Usage
 
 Execute points 1 and 2 for gammas, protons, and electrons separately.
 
-  1. ``python $GRID_INTERFACE/submit_jobs.py --analysis_name=$ANALYSIS --output_type=DL2``
+  1. ``python $GRID_INTERFACE/submit_jobs.py --analysis_path=[...]/test_analysis --output_type=DL2``
   2. edit and execute ``download_and_merge.sh``
   3. use ``protopipe-BENCHMARK`` to check the quality of the generated DL2 data
 
@@ -135,9 +130,16 @@ Something went wrong during the download phase, either because of your network
 connection (check for possible instabilities) or because of a problem
 on the server side (in which case the solution is out of your control).
 
-The best approach is:
+First let the process finish and eliminate the incomplete merged file, then
+the recommended approach is to use the DIRAC's command,
 
-- let the process finish and eliminate the incomplete merged file,
+``dirac-dms-directory-sync source destination``
+
+where ``source`` is the LFN on DIRAC's FileCatalog and ``destination`` is the
+target folder under you analysis directory tree.
+
+If this doesn't work, a more manual approach is:
+
 - go to the GRID, copy the list of files and dump it into e.g. ``grid.list``,
 - do the same with the local files into e.g. ``local.list``,
 - do ``diff <(sort local.list) <(sort grid.list)``,
