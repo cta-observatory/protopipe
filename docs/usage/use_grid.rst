@@ -59,7 +59,7 @@ Usage
   1. switch to the ``protopipe environment``
   2. edit the configuration file of your model of choice
   3. use ``protopipe-MODEL`` with this configuration file
-  4. use ``protopipe-BENCHMARK`` to check the performance of the generated models
+  4. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the performance of the generated models
   5. return to the ``GRID environment`` to edit and execute ``upload_models.sh`` from the estimators folder
 
 4. **Obtain training data for particle classification** (GRID enviroment)
@@ -68,14 +68,14 @@ Usage
   2. ``python $GRID_INTERFACE/submit_jobs.py --analysis_path=[...]/test_analysis --output_type=TRAINING``
   3. edit and execute ``$ANALYSIS/data/download_and_merge.sh`` once the files are ready
   4. repeat the first 3 points for protons
-  5. use ``protopipe-BENCHMARK`` to check the estimated energies
+  5. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the estimated energies
 
 4. **Build a model for particle classification** (both enviroments)
 
   1. switch to the ``protopipe environment``
   2. edit ``RandomForestClassifier.yaml``
   3. use ``protopipe-MODEL`` with this configuration file
-  4. use ``protopipe-BENCHMARK`` to check the performance of the generated models
+  4. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the performance of the generated models
   5. return to the ``GRID environment`` to edit and execute ``upload_models.sh`` from the ``estimators`` folder
 
 5. **Get DL2 data** (GRID enviroment)
@@ -84,13 +84,13 @@ Execute points 1 and 2 for gammas, protons, and electrons separately.
 
   1. ``python $GRID_INTERFACE/submit_jobs.py --analysis_path=[...]/test_analysis --output_type=DL2``
   2. edit and execute ``download_and_merge.sh``
-  3. use ``protopipe-BENCHMARK`` to check the quality of the generated DL2 data
+  3. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the quality of the generated DL2 data
 
 6. **Estimate the performance** (protopipe enviroment)
 
   1. edit ``performance.yaml``
   2. launch the performance script with this configuration file and an observation time
-  3. use ``protopipe-BENCHMARK`` to check the quality of the generated DL3 data
+  3. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the quality of the generated DL3 data
 
 
 Troubleshooting
