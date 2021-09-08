@@ -24,8 +24,10 @@ Source code for the interface
 =============================
 
 .. warning::
-  Usage of the pipeline on an infrastucture different than the DIRAC grid has not been fully tested.
-  This interface code is higly bound to DIRAC, but the scripts which manage download, merge and upload of files
+  Usage of the pipeline on an infrastucture different than the DIRAC grid has
+  not been fully tested.
+  This interface code is **highly** bound to DIRAC,
+  but the scripts which manage download, merge and upload of files
   could be easily adapted to different infrastructures.
 
 Getting a released version
@@ -62,16 +64,22 @@ Container and options for containerization
 .. note::
   Any of the following containerization choices constitutes a requirement.
 
-- **Single user working from personal machine**
+- **Single user working from a personal Linux machine**
+
+  CTADIRAC can be installed natively on Linux (see `here <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Native-client-installation-SL6-CentOS67>`_).
+  In this case make sure that the protopipe-grid-interface source code
+  resides at the same path as protopipe.
+
+- **Single user working from a personal macos or Windows machine**
 
   The *Docker* container should be enough.
 
-- **User working on a more or less shared environment (HPC machine or server)**
+- **User working on a shared environment (HPC machine or server)**
 
   In case you are not allowed to use *Docker* for security reasons, another supported option is *Singularity*.
 
-  - on *Linux* make sure *Singularity* is installed and accessible to your user,
-  - on *Windows* or *macos*, you will need to install *Vagrant*.
+  - on *Linux*, if you can't install natively make sure that either *Singularity* or *Docker* are available and accessible to your user,
+  - on *Windows* or *macos*, if you can't use *Docker* you will need to use *Singularity* via *Vagrant*.
 
 Docker
 ------
@@ -87,8 +95,8 @@ To enter the container (and the first time downloading the image),
 | ``-v [...]/protopipe:/home/dirac/protopipe``
 | ``-it ctadirac/client``
 
-where ``[...]`` is the path of your source code on the host and the ``--rm`` 
-flag will erase the container at exit
+where ``[...]`` is the path of your source code on the host.
+The ``--rm`` flag will erase the container at exit
 to save disk space (the data stored in the ``shared_folder`` won't disappear).
 Please, refer to the Docker documentation for other use cases.
 
@@ -213,9 +221,10 @@ but this can be solved easily by issuing the following command inside the contai
 
 ``source protopipe-grid-interface/setup.sh``
 
-This will not only install the missing Python packages,
-but also provide convenient environment variables ``$INTERFACE`` and ``$PROTOPIPE``
-for the source code.
+This will not only install some missing Python packages,
+but also provide convenient environment variables ``$GRID_INTERFACE`` and ``$PROTOPIPE``
+for the source code and check that the DIRAC interface has been properly
+installed and initialized.
 
 From here,
 
