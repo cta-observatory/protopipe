@@ -110,4 +110,4 @@ Reference/API
 .. automodapi:: protopipe.pipeline
     :no-inheritance-diagram:
     :include-all-objects:
-    :skip: EventSource
+    :skip: Path, Table, EventSource

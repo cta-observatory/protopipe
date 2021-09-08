@@ -34,6 +34,12 @@ def main():
     parser.add_argument(
         "--debug", action="store_true", help="Print debugging information",
     )
+    
+    parser.add_argument(
+        "--show_progress_bar",
+        action="store_true",
+        help="Show information about execution progress",
+    )
 
     parser.add_argument(
         "--save_images", action="store_true", help="Save also all images",
@@ -113,7 +119,7 @@ def main():
     try:
         estimation_weight = cfg["EnergyRegressor"]["estimation_weight"]
     except KeyError:
-        estimation_weight = "STD"
+        estimation_weight = "CTAMARS"
 
     # wrapper for the scikit-learn regressor
     if args.estimate_energy is True:
@@ -269,7 +275,8 @@ def main():
                                          debug=args.debug),
                     desc=source.__class__.__name__,
                     total=source.max_events,
-                    unit="event"
+                    unit="event",
+                    disable= not args.show_progress_bar
                  ):
 
             if good_event:
@@ -315,6 +322,7 @@ def main():
             # Estimate energy only if the shower was reconstructed
             if (args.estimate_energy is True) and is_valid:
                 weight_tel = np.zeros(len(hillas_dict.keys()))
+                weight_statistic_tel = np.zeros(len(hillas_dict.keys()))
                 energy_tel = np.zeros(len(hillas_dict.keys()))
 
                 for idx, tel_id in enumerate(hillas_dict.keys()):
@@ -388,19 +396,25 @@ def main():
 
                     ############################################################
 
-                    if estimation_weight == "STD":
+                    if estimation_weight == "CTAMARS":
                         # Get an array of trees
                         predictions_trees = np.array([tree.predict(features_values) for tree in model.estimators_])
                         energy_tel[idx] = np.mean(predictions_trees, axis=0)
-                        weight_tel[idx] = np.std(predictions_trees, axis=0)
+                        weight_statistic_tel[idx] = np.std(predictions_trees, axis=0)
                     else:
                         data.eval(f'estimation_weight = {estimation_weight}', inplace=True)
                         energy_tel[idx] = model.predict(features_values)
                         weight_tel[idx] = data["estimation_weight"]
-
+                    
                     if log_10_target:
                         energy_tel[idx] = 10**energy_tel[idx]
                         weight_tel[idx] = 10**weight_tel[idx]
+                        weight_statistic_tel[idx] = 10**weight_statistic_tel[idx]
+
+                    if estimation_weight == "CTAMARS":
+                        # in CTAMARS the average is done after converting
+                        # energy and weight to linear energy scale
+                        weight_tel[idx] = 1 / (weight_statistic_tel[idx]**2)
 
                     reco_energy_tel[tel_id] = energy_tel[idx]
 

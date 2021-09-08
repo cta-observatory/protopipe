@@ -13,9 +13,10 @@ General:
  cam_id_list : ['LSTCam', 'NectarCam'] # Selected cameras (disabled option)
 
 Calibration:
-  apply_integration_correction: false # for CTAMARS-like analysis use false
+  # for a CTAMARS-like analysis disable integration correction
+  apply_integration_correction: false
   # factor to transform the integrated charges (in ADC counts) into number of
-  # photoelectrons (on top of the DC-to-PHE factor)
+  # photoelectrons (on top of the DC-to-PHE factor!)
   # the pixel-wise one calculated by simtelarray is 0.92 for CTAMARS
   calibscale: 0.92
 
@@ -93,7 +94,7 @@ ImageCleaning:
 # Cut for image selection
 ImageSelection:
  source: "extended" # biggest or extended
- charge: [55., 1e10]
+ charge: [50., 1e10]
  pixel: [3, 1e10]
  ellipticity: [0.1, 0.6]
  nominal_distance: [0., 0.8]  # in camera radius
@@ -111,7 +112,7 @@ Reconstruction:
 EnergyRegressor:
  # Name of the regression method (e.g. AdaBoostRegressor, etc.)
  method_name: 'RandomForestRegressor'
- estimation_weight: 'STD'
+ estimation_weight: 'CTAMARS' # CTAMARS == 1/RMS^2 (RMS from the RF trees)
 
 # Parameters for g/h separation
 GammaHadronClassifier:
