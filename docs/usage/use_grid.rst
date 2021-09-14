@@ -23,22 +23,26 @@ Usage
 
   You will work with two different virtual environments:
 
-  - protopipe (Python >=3.5, conda environment)
-  - GRID interface (Python 2.7, inside the container).
+  - protopipe (Python >=3.7)
+  - GRID interface (Python 2.7)
+  
+  Their location and activation will depend on your installation if choice
+  (see :ref:`install-grid`).
 
-  Open 1 tab for each of these environments on you terminal so you can work seamlessly between the 2.
-
-  To monitor the jobs you can use the
+  To monitor the jobs you can the 
   `DIRAC Web Interface <https://ccdcta-web.in2p3.fr/DIRAC/?view=tabs&theme=Crisp&url_state=1|*DIRAC.JobMonitor.classes.JobMonitor:,>`_
 
 1. **Setup analysis** (GRID enviroment)
 
-  1. Enter the container
-  2. ``python $GRID/create_analysis_tree.py --analysis_name myAnalysis``
+  After having entered the container use the script
+  
+  ``python $GRID_INTERFACE/create_analysis_tree.py``
 
-  All configuration files for this analysis are stored under ``configs``.
-  Throughout these instructions ``$ANALYSIS`` will be a label for the analysis
-  path within or outside of the container.
+  to create a complete analysis directory depending on your setup.
+  The script will store and partially edit for you all the necessary
+  configuration files under the ``configs`` folder as well as the operational
+  scripts to download and upload data and model files under ``data`` and
+  ``estimators`` respectively.
 
   .. figure:: ./AnalysisTree.png
     :width: 250
@@ -47,45 +51,46 @@ Usage
 2. **Obtain training data for energy estimation** (GRID enviroment)
 
   1. edit ``grid.yaml`` to use gammas without energy estimation
-  2. ``python $GRID/submit_jobs.py --config_file=grid.yaml --output_type=TRAINING``
+  2. ``python $GRID_INTERFACE/submit_jobs.py --analysis_path=[...]/test_analysis --output_type=TRAINING``
   3. edit and execute ``$ANALYSIS/data/download_and_merge.sh`` once the files are ready
 
 3. **Build the model for energy estimation** (both enviroments)
 
   1. switch to the ``protopipe environment``
-  2. edit ``regressor.yaml``
-  3. launch the ``build_model.py`` script of protopipe with this configuration file
-  4. you can operate some diagnostics with ``model_diagnostic.py`` using the same configuration file
-  5. diagnostic plots are stored in subfolders together with the model files
-  6. return to the ``GRID environment`` to edit and execute ``upload_models.sh`` from the estimators folder
+  2. edit the configuration file of your model of choice
+  3. use ``protopipe-MODEL`` with this configuration file
+  4. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the performance of the generated models
+  5. return to the ``GRID environment`` to edit and execute ``upload_models.sh`` from the estimators folder
 
 4. **Obtain training data for particle classification** (GRID enviroment)
 
   1. edit ``grid.yaml`` to use gammas **with** energy estimation
-  2. ``python $GRID/submit_jobs.py --config_file=grid.yaml --output_type=TRAINING``
+  2. ``python $GRID_INTERFACE/submit_jobs.py --analysis_path=[...]/test_analysis --output_type=TRAINING``
   3. edit and execute ``$ANALYSIS/data/download_and_merge.sh`` once the files are ready
   4. repeat the first 3 points for protons
+  5. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the estimated energies
 
 4. **Build a model for particle classification** (both enviroments)
 
   1. switch to the ``protopipe environment``
-  2. edit ``classifier.yaml``
-  3. launch the ``build_model.py`` script of protopipe with this configuration file
-  4. you can operate some diagnostics with ``model_diagnostic.py`` using the same configuration file
-  5. diagnostic plots are stored in subfolders together with the model files
-  6. return to the ``GRID environment`` to edit and execute ``upload_models.sh`` from the estimators folder
+  2. edit ``RandomForestClassifier.yaml``
+  3. use ``protopipe-MODEL`` with this configuration file
+  4. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the performance of the generated models
+  5. return to the ``GRID environment`` to edit and execute ``upload_models.sh`` from the ``estimators`` folder
 
 5. **Get DL2 data** (GRID enviroment)
 
 Execute points 1 and 2 for gammas, protons, and electrons separately.
 
-  1. ``python $GRID/submit_jobs.py --config_file=grid.yaml --output_type=DL2``
+  1. ``python $GRID_INTERFACE/submit_jobs.py --analysis_path=[...]/test_analysis --output_type=DL2``
   2. edit and execute ``download_and_merge.sh``
+  3. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the quality of the generated DL2 data
 
 6. **Estimate the performance** (protopipe enviroment)
 
   1. edit ``performance.yaml``
   2. launch the performance script with this configuration file and an observation time
+  3. (development users) use the proper benchmarking notebooks under ``docs/contribute/benchmarks`` to check the quality of the generated DL3 data
 
 
 Troubleshooting
@@ -125,9 +130,16 @@ Something went wrong during the download phase, either because of your network
 connection (check for possible instabilities) or because of a problem
 on the server side (in which case the solution is out of your control).
 
-The best approach is:
+First let the process finish and eliminate the incomplete merged file, then
+the recommended approach is to use the DIRAC's command,
 
-- let the process finish and eliminate the incomplete merged file,
+``dirac-dms-directory-sync source destination``
+
+where ``source`` is the LFN on DIRAC's FileCatalog and ``destination`` is the
+target folder under you analysis directory tree.
+
+If this doesn't work, a more manual approach is:
+
 - go to the GRID, copy the list of files and dump it into e.g. ``grid.list``,
 - do the same with the local files into e.g. ``local.list``,
 - do ``diff <(sort local.list) <(sort grid.list)``,
