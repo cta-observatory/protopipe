@@ -971,10 +971,7 @@ class EventPreparer:
                         tel_tilted = tel_ground.transform_to(tilted_frame)
 
                         # but this not
-                        core_tilted = SkyCoord(x=core_ground.x,
-                                               y=core_ground.y,
-                                               frame=tilted_frame
-                                               )
+                        core_tilted = core_ground.transform_to(tilted_frame)
 
                         impact_dict_reco[tel_id] = np.sqrt(
                             (core_tilted.x - tel_tilted.x) ** 2
