@@ -140,7 +140,7 @@ def main():
 
         if (not args.overwrite) and Path(result_notebook).is_file():
             logging.critical(
-                "Result notebook exists. To overwrite it use ' - -overwrite'.")
+                "Result notebook exists. To overwrite it use '--overwrite'.")
             exit()
 
         # create output directory if necessary
