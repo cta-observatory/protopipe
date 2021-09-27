@@ -3,9 +3,11 @@ in the documentation and display the result in browser."""
 
 import argparse
 import glob
+import logging
 from pathlib import Path
 import pkg_resources
 import webbrowser
+import yaml
 
 from nbconvert.exporters import HTMLExporter
 from nbconvert.preprocessors import TagRemovePreprocessor
@@ -27,16 +29,11 @@ def main():
 
     # create the top-level parser
     parser = argparse.ArgumentParser(description="""
-
         Launch a benchmark notebook and convert it to an HTML page.
-
         USAGE EXAMPLE:
         --------------
-
         >>> protopipe-BENCHMARK list
-
-        >>> protopipe-BENCHMARK launch -n benchmarks_DL1b_image-cleaning -d TRAINING --config_file benchmarks.yaml
-
+        >>> protopipe-BENCHMARK launch -n TRAINING/benchmarks_DL1b_image-cleaning --config_file benchmarks.yaml
     """, formatter_class=argparse.RawTextHelpFormatter)
 
     # create the parser for the "launch" command
@@ -64,7 +61,7 @@ def main():
         "--config_file",
         type=str,
         required=True,
-        help="Configuration file (see example under docs/contribute/benchmarks)",
+        help="Configuration file (default: stored under analysis 'config' folder)",
     )
 
     parser_launch.add_argument('-k',
@@ -77,7 +74,7 @@ def main():
         "--outpath",
         type=str,
         default=None,
-        help="If unset it will be read from benchmaks.yaml",
+        help="If unset, the result will be stored 'benchmarks_results' within the analysis directory.",
     )
 
     parser_launch.add_argument(
@@ -89,8 +86,14 @@ def main():
     parser_launch.add_argument(
         "--suffix",
         type=str,
-        default="",
-        help="Suffix for result and HTML files.",
+        default="",  # gets set to default later
+        help="Suffix for result and HTML files (default: analysis name)",
+    )
+
+    parser_launch.add_argument(
+        "--no_export",
+        action='store_true',
+        help="Do not convert the result notebook to any other format.",
     )
 
     args = parser.parse_args()
@@ -100,8 +103,9 @@ def main():
         'protopipe', '../docs/contribute/benchmarks'))
 
     if args.command == "list":
-        # if args.list:
-        notebooks = glob.glob(str((BENCHMARKS_PATH / "**/*.ipynb")), recursive=True)
+        # Select only notebooks which name starts with benchmarks*
+        # This is to not list also results
+        notebooks = glob.glob(str((BENCHMARKS_PATH / "**/b*.ipynb")), recursive=True)
         for notebook in notebooks:
             print(notebook.split("benchmarks/")[1].split(".")[0])
         exit()
@@ -113,7 +117,7 @@ def main():
             cfg.update(args.kwargs)
 
         # Define path variables for the "launch" sub-command
-        suffix = f"_{args.suffix}" if args.suffix else ""
+        suffix = f"_{args.suffix}" if args.suffix else f"_{cfg['analysis_name']}"
         data_level = args.name.split("/")[0]
         benchmark_name = args.name.split("/")[1]
         input_notebook = Path(BENCHMARKS_PATH / data_level / f'{benchmark_name}.ipynb')
@@ -130,11 +134,14 @@ def main():
 
         # Some special cases
         if args.help_notebook:
-            print(pm.inspect_notebook(input_notebook))
+            parameters = pm.inspect_notebook(input_notebook)
+            print(yaml.dump(parameters))
             exit()
 
         if (not args.overwrite) and Path(result_notebook).is_file():
-            exit("WARNING: Result notebook exists. To overwrite it use '--overwrite'.")
+            logging.critical(
+                "Result notebook exists. To overwrite it use ' - -overwrite'.")
+            exit()
 
         # create output directory if necessary
         Path.mkdir(Path(result_notebook.parent),
@@ -149,36 +156,46 @@ def main():
             parameters=cfg
         )
 
-        # Use jupyter nbconvert to convert Markdown and output to HTML
+        if args.no_export:
 
-        # Setup config
-        c = Config()
-        c.TagRemovePreprocessor.enabled = True
-        c.TagRemovePreprocessor.remove_cell_tags = set(['remove_input'])
+            logging.info('Execution completed.')
 
-        # Configure and run out exporter
-        c.HTMLExporter.preprocessors = ["nbconvert.preprocessors.TagRemovePreprocessor"]
-        c.HTMLExporter.exclude_input = True
+        else:
 
-        html_exporter = HTMLExporter(config=c)
-        html_exporter.register_preprocessor(TagRemovePreprocessor(config=c), True)
+            # Use jupyter nbconvert to convert Markdown and output to HTML
 
-        # Configure and run exporter - returns a tuple - first element with html,
-        # second with notebook metadata
-        output = html_exporter.from_filename(result_notebook)
+            # Setup config
+            c = Config()
+            c.TagRemovePreprocessor.enabled = True
+            c.TagRemovePreprocessor.remove_cell_tags = set(['remove_input'])
 
-        # Write to output html file
-        with open(html_notebook, "w") as f:
-            f.write(output[0])
+            # Configure and run out exporter
+            c.HTMLExporter.preprocessors = [
+                "nbconvert.preprocessors.TagRemovePreprocessor"]
+            c.HTMLExporter.exclude_input = True
 
-        # open HTML file
-        new = 2  # open in a new tab, if possible
-        url = "file://" + str(html_notebook)
-        webbrowser.open(url, new=new)
+            html_exporter = HTMLExporter(config=c)
+            html_exporter.register_preprocessor(TagRemovePreprocessor(config=c), True)
+
+            # Configure and run exporter - returns a tuple - first element with html,
+            # second with notebook metadata
+            output = html_exporter.from_filename(result_notebook)
+
+            # Write to output html file
+            with open(html_notebook, "w") as f:
+                f.write(output[0])
+
+            # open HTML file
+            new = 2  # open in a new tab, if possible
+            url = "file://" + str(html_notebook)
+            webbrowser.open(url, new=new)
+
+            logging.info('Conversion completed.')
 
     else:
 
-        print("ERROR: available commands for protopipe-BENCHMARK are `list` or `launch`")
+        logging.critical(
+            "Available commands for protopipe-BENCHMARK are `list` or `launch`")
         exit()
 
 
