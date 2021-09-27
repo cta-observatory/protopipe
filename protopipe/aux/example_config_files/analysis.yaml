@@ -13,11 +13,12 @@ General:
  cam_id_list : ['LSTCam', 'NectarCam'] # Selected cameras (disabled option)
 
 Calibration:
-  # factor to transform the integrated charges (in ADC counts) into number of
-  # photoelectrons
-  # the pixel-wise one calculated by simtelarray is 0.92
-  calib_scale: 0.92
+  # for a CTAMARS-like analysis disable integration correction
   apply_integration_correction: false
+  # factor to transform the integrated charges (in ADC counts) into number of
+  # photoelectrons (on top of the DC-to-PHE factor!)
+  # the pixel-wise one calculated by simtelarray is 0.92 for CTAMARS
+  calibscale: 0.92
 
 # Cleaning for reconstruction
 ImageCleaning:
@@ -93,7 +94,7 @@ ImageCleaning:
 # Cut for image selection
 ImageSelection:
  source: "extended" # biggest or extended
- charge: [55., 1e10]
+ charge: [50., 1e10]
  pixel: [3, 1e10]
  ellipticity: [0.1, 0.6]
  nominal_distance: [0., 0.8]  # in camera radius
