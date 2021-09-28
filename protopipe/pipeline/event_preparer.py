@@ -8,6 +8,7 @@ from traitlets.config import Config
 from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
+from ctapipe.instrument import CameraGeometry
 from ctapipe.containers import ReconstructedShowerContainer
 from ctapipe.calib import CameraCalibrator
 from ctapipe.image.extractor import TwoPassWindowSum
@@ -19,7 +20,8 @@ from ctapipe.utils import CutFlow
 from ctapipe.coordinates import (GroundFrame,
                                  TelescopeFrame,
                                  CameraFrame,
-                                 TiltedGroundFrame)
+                                 TiltedGroundFrame,
+                                 MissingFrameAttributeWarning)
 
 # from ctapipe.image.timing_parameters import timing_parameters
 from ctapipe.image.hillas import hillas_parameters, HillasParameterizationError
@@ -33,14 +35,12 @@ from .image_cleaning import ImageCleaner
 from .utils import bcolors, effective_focal_lengths, camera_radius, CTAMARS_radii
 from .temp import (
     HillasParametersTelescopeFrameContainer,
-    MyCameraGeometry,
-    MyHillasReconstructor,
+    HillasReconstructor,
 )
 
 # PiWy utilities
 try:
     from pywicta.io import geometry_converter
-
     # from pywicta.io.images import simtel_event_to_images
     from pywi.processing.filtering import pixel_clusters
     from pywi.processing.filtering.pixel_clusters import filter_pixels_clusters
@@ -249,7 +249,7 @@ class EventPreparer:
         )
 
         # Reconstruction
-        self.shower_reco = MyHillasReconstructor()
+        self.shower_reco = HillasReconstructor(subarray)
 
         # Event book keeping
         self.event_cutflow = event_cutflow or CutFlow("EventCutFlow")
@@ -325,7 +325,7 @@ class EventPreparer:
             # This is planned to disappear and be imported by ctapipe
             focal_length = effective_focal_lengths(camera.camera_name)
 
-            geom_cam_tel[camera.camera_name] = MyCameraGeometry(
+            geom_cam_tel[camera.camera_name] = CameraGeometry(
                 camera_name=camera.camera_name,
                 pix_type=geom.pix_type,
                 pix_id=geom.pix_id,
@@ -372,7 +372,9 @@ class EventPreparer:
             bad_LST_stereo = False
             if self.LST_stereo and self.event_cutflow.cut("no-LST-stereo + <2 other types", n_triggered_LSTs, n_triggered_non_LSTs):
                 bad_LST_stereo = True
-                if return_stub:
+                # we proceed to analyze the event up to
+                # DL1a/b for the associated benchmarks
+                if debug:
                     print(
                         bcolors.WARNING
                         + "WARNING: LST_stereo is set to 'True'\n"
@@ -381,8 +383,6 @@ class EventPreparer:
                         + "The event will be processed up to DL1b."
                         + bcolors.ENDC
                     )
-                    # we show this, but we proceed to analyze the event up to
-                    # DL1a/b for the associated benchmarks
 
             # this checks for < 2 triggered telescopes of ANY type
             if self.event_cutflow.cut("min2Tels trig", len(event.r1.tel.keys())):
@@ -438,10 +438,23 @@ class EventPreparer:
 
             good_for_reco = {}  # 1 = success, 0 = fail
 
+            # filter warnings for missing obs time. this is needed because MC data has no obs time
+            warnings.filterwarnings(action="ignore", category=MissingFrameAttributeWarning)
+
             # Array pointing in AltAz frame
             az = event.pointing.array_azimuth
             alt = event.pointing.array_altitude
             array_pointing = SkyCoord(az, alt, frame=AltAz())
+
+            # Actual telescope pointings
+            telescope_pointings = {
+                                    tel_id: SkyCoord(
+                                        alt=event.pointing.tel[tel_id].altitude,
+                                        az=event.pointing.tel[tel_id].azimuth,
+                                        frame=AltAz(),
+                                    )
+                                    for tel_id in event.pointing.tel.keys()
+                                }
 
             ground_frame = GroundFrame()
 
@@ -856,11 +869,12 @@ class EventPreparer:
                     if good_for_reco[tel_id]:
                         # we don't use it for reconstruction
                         good_for_reco[tel_id] = 0
-                        print(
-                            bcolors.WARNING
-                            + f"WARNING: LST image #{tel_id} removed, even though it passed quality cuts."
-                            + bcolors.ENDC
-                        )
+                        if debug:
+                            print(
+                                bcolors.WARNING
+                                + f"WARNING: LST image #{tel_id} removed, even though it passed quality cuts."
+                                + bcolors.ENDC
+                            )
                 # TODO: book-keeping of this kind of events doesn't seem easy
 
             # convert dictionary in numpy array to get a "mask"
@@ -941,18 +955,25 @@ class EventPreparer:
                         )
 
                     # Reconstruction results
-                    reco_result = self.shower_reco.predict(
-                        good_hillas_dict,
-                        source.subarray,
-                        SkyCoord(alt=alt, az=az, frame="altaz"),
-                        None,  # use the array direction
-                    )
+                    # reco_result = self.shower_reco.predict(
+                    #     good_hillas_dict,
+                    #     source.subarray,
+                    #     SkyCoord(alt=alt, az=az, frame="altaz"),
+                    #     None,  # use the array direction
+                    # )
+
+
+
+                    reco_result = self.shower_reco._predict(event,
+                                                            good_hillas_dict,
+                                                            source.subarray,
+                                                            array_pointing,
+                                                            telescope_pointings)
 
                     # Impact parameter for telescope-wise energy estimation
-                    subarray = source.subarray
                     for tel_id in hillas_dict_to_use.keys():
 
-                        pos = subarray.positions[tel_id]
+                        pos = source.subarray.positions[tel_id]
 
                         tel_ground = SkyCoord(
                             pos[0], pos[1], pos[2], frame=ground_frame
