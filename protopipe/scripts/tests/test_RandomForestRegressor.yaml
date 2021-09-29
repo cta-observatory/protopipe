@@ -1,11 +1,9 @@
 General:
-  # NOTE: not used here since the testing suite needs to work from the CLI
-  data_dir: './'
-  data_sig_file: 'test_TRAINING_energy_{}_gamma_merged.h5'
-  outdir: './'
-  
+  # [...] = analysis full path (on the host if you are using a container)
+  data_dir: '[...]/data/TRAINING/for_energy_estimation/'
+  data_sig_file: 'TRAINING_energy_tail_gamma_merged.h5'
+  outdir: '[...]/estimators/energy_regressor'
   # List of cameras to use (protopipe-MODEL help output for other options)
-  # NOTE: not used here since the testing suite needs to work from the CLI
   cam_id_list: ['LSTCam', 'NectarCam']
 
 # If train_fraction is 1, all the TRAINING dataset will be used to train the
@@ -22,7 +20,10 @@ GridSearchCV:
   use: False # True or False
   # if False the following two variables are irrelevant
   scoring: 'explained_variance'
-  cv: 2
+  cv: 2 # cross-validation splitting strategy
+  refit: True # Refit the estimator using the best found parameters
+  verbose: 1 # 1,2,3,4
+  njobs: -1 # int or -1 (all processors)
 
 # Definition of the model algorithm/method used and its hyper-parameters
 Method:
@@ -34,7 +35,7 @@ Method:
     # NOTE: null == None
     n_estimators: 50 # integer
     criterion: "mse" # "mse" or "mae"
-    max_depth: null # null or integer
+    max_depth: 20 # null or integer
     min_samples_split: 5 # integer
     min_samples_leaf: 5 # integer
     min_weight_fraction_leaf: 0.0 # float
@@ -61,8 +62,8 @@ FeatureList:
   - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
   - 'hillas_width'  # Image Width
   - 'hillas_length' # Image Length
-  # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
-  - 'leakage_intensity_width_1_reco' # fraction of total Intensity which is contained in the outermost pixels of the camera
+  - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
+  - 'leakage_intensity_width_1' # fraction of total Intensity which is contained in the outermost pixels of the camera
   Derived: # custom evaluations of basic features that will be added to the data
     # column name : expression to evaluate using basic column names
     log10_WLS: log10(hillas_width*hillas_length/hillas_intensity)
@@ -74,7 +75,7 @@ FeatureList:
 SigFiducialCuts:
   - 'good_image == 1'
   - 'is_valid == True'
-  - 'hillas_intensity_reco > 0'
+  - 'hillas_intensity > 0'
 
 # Information used by the benchmarking notebook related to this model
 Diagnostic:
