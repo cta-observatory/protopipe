@@ -112,22 +112,40 @@ class TrainModel(object):
                     max_events = len(X_test_bkg)
                 else:
                     max_events = len(X_test_sig)
-            X_test = X_test_sig[0:max_events].append(X_test_bkg[0:max_events])
-            y_test = y_test_sig[0:max_events].append(y_test_bkg[0:max_events])
-            self.data_test = data_test_sig[0:max_events].append(
-                data_test_bkg[0:max_events]
-            )
+            
+            try:
+                X_test = X_test_sig[0:max_events].append(X_test_bkg[0:max_events])
+                y_test = y_test_sig[0:max_events].append(y_test_bkg[0:max_events])
+                self.data_test = data_test_sig[0:max_events].append(
+                    data_test_bkg[0:max_events]
+                )
+            except TypeError as e:
+                if str(e) != "'NoneType' object is unsubscriptable":
+                    raise
+                else:
+                    X_test = None
+                    y_test = None
+                    self.data_test = None
 
             weight = np.ones(len(X_train))
             weight_train = weight / sum(weight)
 
-        self.data_scikit = {
-            "X_train": X_train.values,
-            "X_test": X_test.values,
-            "y_train": y_train.values,
-            "y_test": y_test.values,
-            "w_train": weight_train,
-        }
+        if X_test is not None:
+            self.data_scikit = {
+                "X_train": X_train.values,
+                "X_test": X_test.values,
+                "y_train": y_train.values,
+                "y_test": y_test.values,
+                "w_train": weight_train,
+            }
+        else:
+            self.data_scikit = {
+                "X_train": X_train.values,
+                "X_test": None,
+                "y_train": y_train.values,
+                "y_test": None,
+                "w_train": weight_train,
+            }
 
     def get_optimal_model(self, init_model, tuned_parameters, scoring, cv):
         """
