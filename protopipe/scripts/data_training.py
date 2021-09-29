@@ -34,7 +34,7 @@ def main():
     parser.add_argument(
         "--debug", action="store_true", help="Print debugging information",
     )
-    
+
     parser.add_argument(
         "--show_progress_bar",
         action="store_true",
@@ -189,7 +189,7 @@ def main():
         hillas_ellipticity_reco=tb.FloatCol(dflt=1, pos=35),
         hillas_ellipticity=tb.FloatCol(dflt=1, pos=36),
         max_signal_cam=tb.Float32Col(dflt=1, pos=37),
-        pixels=tb.Int16Col(dflt=1, pos=38),
+        pixels=tb.Int16Col(dflt=-1, pos=38),
         clusters=tb.Int16Col(dflt=-1, pos=39),
         # ======================================================================
         # DL2 - DIRECTION RECONSTRUCTION
@@ -209,11 +209,15 @@ def main():
         mc_x_max=tb.Float32Col(dflt=np.nan, pos=53),
         is_valid=tb.BoolCol(dflt=False, pos=54),
         good_image=tb.Int16Col(dflt=1, pos=55),
+        true_az=tb.Float32Col(dflt=np.nan, pos=56),
+        true_alt=tb.Float32Col(dflt=np.nan, pos=57),
+        pointing_az=tb.Float32Col(dflt=np.nan, pos=58),
+        pointing_alt=tb.Float32Col(dflt=np.nan, pos=59),
         # ======================================================================
         # DL2 - ENERGY ESTIMATION
-        true_energy=tb.FloatCol(dflt=1, pos=56),
-        reco_energy=tb.FloatCol(dflt=np.nan, pos=57),
-        reco_energy_tel=tb.Float32Col(dflt=np.nan, pos=58),
+        true_energy=tb.FloatCol(dflt=np.nan, pos=60),
+        reco_energy=tb.FloatCol(dflt=np.nan, pos=61),
+        reco_energy_tel=tb.Float32Col(dflt=np.nan, pos=62),
         # ======================================================================
         # DL1 IMAGES
         # this is optional data saved by the user
@@ -224,12 +228,17 @@ def main():
         # true_image=tb.Float32Col(shape=(1855), pos=56),
         # reco_image=tb.Float32Col(shape=(1855), pos=57),
         # cleaning_mask_reco=tb.BoolCol(shape=(1855), pos=58),  # not in ctapipe
+        # =======================================================================
+        #    TEMP
+        N_reco_LST=tb.Int16Col(dflt=-1, pos=63),
+        N_reco_MST=tb.Int16Col(dflt=-1, pos=64),
     )
 
     outfile = tb.open_file(args.outfile, mode="w")
+    outfile.root._v_attrs["status"] = "incomplete"
     outTable = {}
     outData = {}
-    
+
     # Configuration options for SimTelEventSource
     # Readout window integration correction
     try:
@@ -244,7 +253,7 @@ def main():
 
         source = MySimTelEventSource(
             input_url=filename,
-            calib_scale = calib_scale,
+            calib_scale=calib_scale,
             allowed_tels=allowed_tels,
             max_events=args.max_events
         )
@@ -263,6 +272,7 @@ def main():
             leakage_dict,
             concentration_dict,
             n_tels,
+            n_tels_reco,
             max_signals,
             n_cluster_dict,
             reco_result,
@@ -270,14 +280,21 @@ def main():
             good_event,
             good_for_reco,
         ) in tqdm(
-                    preper.prepare_event(source,
-                                         save_images=args.save_images,
-                                         debug=args.debug),
-                    desc=source.__class__.__name__,
-                    total=source.max_events,
-                    unit="event",
-                    disable= not args.show_progress_bar
-                 ):
+            preper.prepare_event(source,
+                                 save_images=args.save_images,
+                                 debug=args.debug),
+            desc=source.__class__.__name__,
+            total=source.max_events,
+            unit="event",
+            disable=not args.show_progress_bar
+        ):
+            # True direction
+            true_az = event.simulation.shower.az
+            true_alt = event.simulation.shower.alt
+
+            # Array pointing in AltAz frame
+            pointing_az = event.pointing.array_azimuth
+            pointing_alt = event.pointing.array_altitude
 
             if good_event:
 
@@ -476,6 +493,8 @@ def main():
                     + n_tels["SST_ASTRI_ASTRICam"]
                     + n_tels["SST_GCT_CHEC"]
                 )
+                outData[cam_id]["N_reco_LST"] = n_tels_reco["LST_LST_LSTCam"]
+                outData[cam_id]["N_reco_MST"] = n_tels_reco["MST_MST_NectarCam"]
                 outData[cam_id]["hillas_width"] = moments.width.to("deg").value
                 outData[cam_id]["hillas_length"] = moments.length.to("deg").value
                 outData[cam_id]["hillas_psi"] = moments.psi.to("deg").value
@@ -485,6 +504,10 @@ def main():
                 outData[cam_id]["err_est_pos"] = np.nan
                 outData[cam_id]["err_est_dir"] = np.nan
                 outData[cam_id]["true_energy"] = event.simulation.shower.energy.to("TeV").value
+                outData[cam_id]["true_az"] = true_az.to("deg").value
+                outData[cam_id]["true_alt"] = true_alt.to("deg").value
+                outData[cam_id]["pointing_az"] = pointing_az.to("deg").value
+                outData[cam_id]["pointing_alt"] = pointing_alt.to("deg").value
                 outData[cam_id]["hillas_x"] = moments.x.to("deg").value
                 outData[cam_id]["hillas_y"] = moments.y.to("deg").value
                 outData[cam_id]["hillas_phi"] = moments.phi.to("deg").value
@@ -603,6 +626,15 @@ def main():
                 "DL1 file will be empty! \033[0m"
             )
         print(bcolors.ENDC)
+
+    # Conclude by writing some metadata
+    outfile.root._v_attrs["status"] = "complete"
+    outfile.root._v_attrs["num_showers"] = source.simulation_config.num_showers
+    outfile.root._v_attrs["shower_reuse"] = source.simulation_config.shower_reuse
+
+    outfile.close()
+
+    print("Job done!")
 
 
 if __name__ == "__main__":
