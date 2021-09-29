@@ -64,7 +64,7 @@ def initialize_script_arguments():
         "--indir",
         type=str,
         default=None,
-        help="Directory containing the required input file(s)"
+        help="Directory containing the required input file(s) (default: read from config file)"
     )
     parser.add_argument(
         "--infile_signal",
