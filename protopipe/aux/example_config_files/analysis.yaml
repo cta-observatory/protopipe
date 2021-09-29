@@ -13,12 +13,13 @@ General:
  cam_id_list : ['LSTCam', 'NectarCam'] # Selected cameras (disabled option)
 
 Calibration:
-  # for a CTAMARS-like analysis disable integration correction
-  apply_integration_correction: false
+  apply_integration_correction: false # for CTAMARS-like analysis use false
+  apply_peak_time_shift: false
+  apply_waveform_time_shift: false
   # factor to transform the integrated charges (in ADC counts) into number of
-  # photoelectrons (on top of the DC-to-PHE factor!)
+  # photoelectrons (on top of the DC-to-PHE factor)
   # the pixel-wise one calculated by simtelarray is 0.92 for CTAMARS
-  calibscale: 0.92
+  calib_scale: 0.897 # 0.92 - 2.5% (testing)
 
 # Cleaning for reconstruction
 ImageCleaning:
@@ -27,8 +28,8 @@ ImageCleaning:
  biggest:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [5.0, 2.5]
-    - NectarCam: [5.0, 2.5]
+    - LSTCam: [4.0, 2.0]
+    - NectarCam: [4.0, 2.0]
     - FlashCam: [4,2] # dummy values for reliable unit-testing
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies
@@ -61,8 +62,8 @@ ImageCleaning:
  extended:
   tail:  #
    thresholds:  # picture, boundary
-    - LSTCam: [5.0, 2.5]
-    - NectarCam: [5.0, 2.5]
+    - LSTCam: [4.0, 2.0]
+    - NectarCam: [4.0, 2.0]
     - FlashCam: [4,2] # dummy values for reliable unit-testing
     - ASTRICam: [4,2] # dummy values for reliable unit-testing
     - DigiCam: [0,0] # values left unset for future studies
@@ -120,4 +121,4 @@ GammaHadronClassifier:
  method_name: 'RandomForestClassifier'
  # Use probability output or score
  use_proba: True
- estimation_weight: hillas_intensity**0.54 # empirical value from CTAMARS
+ estimation_weight: 'hillas_intensity**0.54' # empirical value from CTAMARS
