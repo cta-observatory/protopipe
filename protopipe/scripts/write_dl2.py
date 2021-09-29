@@ -135,7 +135,11 @@ def main():
         estimation_weight_energy = "CTAMARS"
     classifier_method = cfg["GammaHadronClassifier"]["method_name"]
     estimation_weight_classification = cfg["GammaHadronClassifier"]["estimation_weight"]
-    use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
+    try:
+        use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
+    except KeyError:
+        # if not specified use "gammaness" as particle type score
+        use_proba_for_classifier = True
 
     if regressor_method in ["None", "none", None]:
         print(
