@@ -4,7 +4,7 @@ import argparse
 import math
 import joblib
 
-import numpy
+import numpy as np
 import astropy.units as u
 import matplotlib.pyplot as plt
 import os.path as path
@@ -487,7 +487,7 @@ def get_camera_names(inputPath=None):
 def load_models(path, cam_id_list):
     """Load the pickled dictionary of model from disk
     and fill the model dictionary.
-    
+
     Parameters
     ----------
     path : string
@@ -499,20 +499,20 @@ def load_models(path, cam_id_list):
         List of camera identifiers like telescope ID or camera ID
         and the assumed distinguishing feature in the filenames of
         the various pickled regressors.
-    
+
     Returns
     -------
     model_dict: dict
         Dictionary with `cam_id` as keys and pickled models as values.
     """
-    
+
     model_dict = {}
     for key in cam_id_list:
         try:
             model_dict[key] = joblib.load(path.format(cam_id=key))
         except IndexError:
             model_dict[key] = joblib.load(path.format(key))
-                
+
     return model_dict
 
 
