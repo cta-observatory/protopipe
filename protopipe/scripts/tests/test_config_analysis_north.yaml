@@ -25,7 +25,7 @@ Calibration:
 ImageCleaning:
 
  # Cleaning for reconstruction
- brightest:
+ biggest:
   tail:  #
    thresholds:  # picture, boundary
     - LSTCam: [4.0, 2.0]
