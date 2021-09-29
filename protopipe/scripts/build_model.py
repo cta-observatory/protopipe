@@ -62,7 +62,7 @@ def main():
         cam_ids = get_camera_names(filename_sig)
     else:
         print("GETTING CAMERAS FROM CLI")
-        cam_ids = args.cam_id_lists.split()
+        cam_ids = args.cam_id_list.split()
 
     # The names of the tables inside the HDF5 file are the camera's names
     table_name = [cam_id for cam_id in cam_ids]
@@ -86,6 +86,9 @@ def main():
     use_GridSearchCV = cfg["GridSearchCV"]["use"]
     scoring = cfg["GridSearchCV"]["scoring"]
     cv = cfg["GridSearchCV"]["cv"]
+    refit = cfg["GridSearchCV"]["refit"]
+    grid_search_verbose = cfg["GridSearchCV"]["verbose"]
+    grid_search_njobs = cfg["GridSearchCV"]["njobs"]
 
     # Hyper-parameters of the main model
     tuned_parameters = cfg["Method"]["tuned_parameters"]
@@ -98,7 +101,6 @@ def main():
     class_name = model_to_use.split('.')[-1]
     module = importlib.import_module(module_name)  # sklearn.XXX
     model = getattr(module, class_name)
-    print(f"Going to use {module_name}.{class_name}...")
 
     # Check for any base estimator if main model is a meta-estimator
     if "base_estimator" in cfg['Method']:
@@ -158,7 +160,7 @@ def main():
     else:
         raise ValueError("ERROR: not a supported model")
 
-    print("### Using {} for model construction".format(model_to_use))
+    print(f"Using {module_name}.{class_name} for model construction")
 
     print(f"LIST OF CAMERAS TO USE = {cam_ids}")
 
@@ -193,7 +195,8 @@ def main():
             # Useful to test the models before using them for DL2 production
             factory.split_data(data_sig=data_sig, train_fraction=train_fraction)
             print("Training sample: sig {}".format(len(factory.data_train)))
-            print("Test sample: sig {}".format(len(factory.data_test)))
+            if factory.data_test is not None:
+                print("Test sample: sig {}".format(len(factory.data_test)))
 
         else:  # if it's not a regressor it's a classifier
 
@@ -247,11 +250,13 @@ def main():
             )
 
         if use_GridSearchCV:
+            print("Going to perform exhaustive cross-validated grid-search over"
+                  " specified parameter values...")
             # Apply optimization of the hyper-parameters via grid search
             # and return best model
             best_model = factory.get_optimal_model(
-                initialized_model, tuned_parameters, scoring=scoring, cv=cv
-            )
+                initialized_model, tuned_parameters, scoring=scoring, cv=cv,
+                refit=refit, verbose=grid_search_verbose, njobs=grid_search_njobs)
         else:  # otherwise use directly the initial model
             best_model = initialized_model
 
