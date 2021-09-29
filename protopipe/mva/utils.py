@@ -4,6 +4,7 @@ import pickle
 import gzip
 from sklearn.metrics import auc, roc_curve
 from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
 
 def save_obj(obj, name):
@@ -75,6 +76,9 @@ def make_cut_list(cuts):
 
 def split_train_test(survived_images, train_fraction, feature_name_list, target_name):
     """Split the data selected for cuts in train and test samples.
+    
+    If the estimator is a classifier, data is split in a stratified fashion,
+    using this as the class labels.
 
     Parameters
     ----------
@@ -103,19 +107,37 @@ def split_train_test(survived_images, train_fraction, feature_name_list, target_
         Test data indexed by observation ID and event ID.
     """
 
-    data_train, data_test = train_test_split(survived_images,
-                                             train_size=train_fraction,
-                                             random_state=0,
-                                             shuffle=True)
+    # If the estimator is a classifier, data is split in a stratified fashion,
+    # using this as the class labels
+    labels = None
+    if target_name == "label":
+        labels = survived_images[target_name]
 
-    y_train = data_train[target_name]
-    X_train = data_train[feature_name_list]
+    if train_fraction != 1.0:
+        data_train, data_test = train_test_split(survived_images,
+                                                 train_size=train_fraction,
+                                                 random_state=0,
+                                                 shuffle=True,
+                                                 stratify=labels)
+        y_train = data_train[target_name]
+        X_train = data_train[feature_name_list]
 
-    y_test = data_test[target_name]
-    X_test = data_test[feature_name_list]
+        y_test = data_test[target_name]
+        X_test = data_test[feature_name_list]
 
-    data_train = data_train.set_index(["obs_id", "event_id"])
-    data_test = data_test.set_index(["obs_id", "event_id"])
+        data_train = data_train.set_index(["obs_id", "event_id"])
+        data_test = data_test.set_index(["obs_id", "event_id"])
+    else:
+        # if the user wants to use the whole input dataset
+        # there is not 'test' data, though we shuffle anyway
+        data_train = survived_images
+        shuffle(data_train, random_state=0, n_samples=None)
+        y_train = data_train[target_name]
+        X_train = data_train[feature_name_list]
+
+        data_test = None
+        y_test = None
+        X_test = None
 
     return X_train, X_test, y_train, y_test, data_train, data_test
 
