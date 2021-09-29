@@ -2,9 +2,8 @@
 import numpy as np
 
 from astropy import units as u
-from astropy.coordinates import SkyCoord, AltAz
+from astropy.coordinates import SkyCoord
 import warnings
-from traitlets.config import Config
 from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
@@ -41,12 +40,15 @@ from .temp import (
 # PiWy utilities
 try:
     from pywicta.io import geometry_converter
-    # from pywicta.io.images import simtel_event_to_images
     from pywi.processing.filtering import pixel_clusters
     from pywi.processing.filtering.pixel_clusters import filter_pixels_clusters
-except ImportError as e:
-    print("pywicta not imported-->(no wavelet cleaning)")
-    print(e)
+    from pywicta.denoising.wavelets_mrtransform import WaveletTransform
+    from pywicta.denoising import cdf
+    from pywicta.denoising.inverse_transform_sampling import EmpiricalDistribution
+    from pywicta.io import geometry_converter
+    wavelets_error = False
+except ImportError:
+    wavelets_error = True
 
 __all__ = ["EventPreparer"]
 
@@ -64,6 +66,7 @@ PreparedEvent = namedtuple(
         "leakage_dict",
         "concentration_dict",
         "n_tels",
+        "n_tels_reco",
         "max_signals",
         "n_cluster_dict",
         "reco_result",
@@ -78,12 +81,14 @@ def stub(
     event,
     true_image,
     image,
+    n_pixel_dict,
     cleaning_mask_reco,
     cleaning_mask_clusters,
     good_for_reco,
     hillas_dict,
     hillas_dict_reco,
     n_tels,
+    n_tels_reco,
     leakage_dict,
     concentration_dict
 ):
@@ -94,13 +99,14 @@ def stub(
         dl1_phe_image_mask_reco=cleaning_mask_reco,  # container for the reco cleaning mask
         dl1_phe_image_mask_clusters=cleaning_mask_clusters,
         mc_phe_image=true_image,  # container for the simulated image in phe
-        n_pixel_dict=dict.fromkeys(hillas_dict_reco.keys(), 0),
+        n_pixel_dict=n_pixel_dict,
         good_for_reco=good_for_reco,
         hillas_dict=hillas_dict,
         hillas_dict_reco=hillas_dict_reco,
         leakage_dict=leakage_dict,
         concentration_dict=concentration_dict,
         n_tels=n_tels,
+        n_tels_reco=n_tels_reco,
         max_signals=dict.fromkeys(hillas_dict_reco.keys(), np.nan),  # no charge
         n_cluster_dict=dict.fromkeys(hillas_dict_reco.keys(), 0),  # no clusters
         reco_result=ReconstructedShowerContainer(),  # defaults to nans
@@ -148,12 +154,25 @@ class EventPreparer:
     ):
         """Initiliaze an EventPreparer object."""
         
+        if mode == "wave" and wavelets_error:
+            raise ImportError("WARNING: 'pywicta' and/or 'pywi' packages could"
+                              "not be imported - wavelet cleaning will not work")
+        
         # Readout window integration correction
         try:
             self.apply_integration_correction = config["Calibration"]["apply_integration_correction"]
         except KeyError:
             # defaults to enabled
             self.apply_integration_correction = True
+
+        # Shifts in peak time and waveforms applied by the calibrator
+        try:
+            self.apply_peak_time_shift = config["Calibration"]["apply_peak_time_shift"]
+            self.apply_waveform_time_shift = config["Calibration"]["apply_waveform_time_shift"]
+        except KeyError:
+            # defaults to disabled
+            self.apply_peak_time_shift = False
+            self.apply_waveform_time_shift = False
 
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
@@ -169,7 +188,7 @@ class EventPreparer:
             if config["General"]["force_tailcut_for_extended_cleaning"] is True:
                 force_mode = config["General"]["force_mode"]
                 print("> Activate force-mode for cleaning!!!!")
-        except:
+        except KeyError:
             pass  # force_mode = mode
 
         self.cleaner_extended = ImageCleaner(  # for energy/score estimation
@@ -244,9 +263,10 @@ class EventPreparer:
         # specific to TwoPassWindowSum later on
         self.extractorName = list(extractor.get_current_config().items())[0][0]
 
-        self.calib = CameraCalibrator(
-            image_extractor=extractor, subarray=subarray,
-        )
+        self.calib = CameraCalibrator(image_extractor=extractor,
+                                      subarray=subarray,
+                                      apply_peak_time_shift=self.apply_peak_time_shift,
+                                      apply_waveform_time_shift=self.apply_waveform_time_shift)
 
         # Reconstruction
         self.shower_reco = HillasReconstructor(subarray)
@@ -288,14 +308,14 @@ class EventPreparer:
         source : ctapipe.io.EventSource
             A container of selected showers from a simtel file.
         geom_cam_tel: dict
-            Dictionary of of MyCameraGeometry objects for each camera in the file
+            Dictionary of MyCameraGeometry objects for each camera in the file
         return_stub : bool
             If True, yield also images from events that won't be reconstructed.
-            This feature is not currently available.
+            This is required for DL1 benchmarking.
         save_images : bool
             If True, save photoelectron images from reconstructed events.
         debug : bool
-            If True, print some debugging information (to be expanded).
+            If True, print debugging information.
 
         Yields
         ------
@@ -430,6 +450,15 @@ class EventPreparer:
                 "SST_ASTRI_ASTRICam": 0,
                 "SST_GCT_CHEC": 0,
             }
+            n_tels_reco = {
+                "LST_LST_LSTCam": 0,
+                "MST_MST_NectarCam": 0,
+                "MST_MST_FlashCam": 0,
+                "MST_SCT_SCTCam": 0,
+                "SST_1M_DigiCam": 0,
+                "SST_ASTRI_ASTRICam": 0,
+                "SST_GCT_CHEC": 0,
+            }
             n_cluster_dict = {}
             impact_dict_reco = {}  # impact distance measured in tilt system
 
@@ -444,17 +473,17 @@ class EventPreparer:
             # Array pointing in AltAz frame
             az = event.pointing.array_azimuth
             alt = event.pointing.array_altitude
-            array_pointing = SkyCoord(az, alt, frame=AltAz())
+            array_pointing = SkyCoord(az=az, alt=alt, frame="altaz")
 
             # Actual telescope pointings
             telescope_pointings = {
-                                    tel_id: SkyCoord(
-                                        alt=event.pointing.tel[tel_id].altitude,
-                                        az=event.pointing.tel[tel_id].azimuth,
-                                        frame=AltAz(),
-                                    )
-                                    for tel_id in event.pointing.tel.keys()
-                                }
+                tel_id: SkyCoord(
+                    alt=event.pointing.tel[tel_id].altitude,
+                    az=event.pointing.tel[tel_id].azimuth,
+                    frame="altaz",
+                )
+                for tel_id in event.pointing.tel.keys()
+            }
 
             ground_frame = GroundFrame()
 
@@ -753,7 +782,6 @@ class EventPreparer:
                             print(
                                 bcolors.OKGREEN
                                 + "Image survived and correctly parametrized."
-                                # + "\nIt will be used for direction reconstruction!"
                                 + bcolors.ENDC
                             )
                         elif debug and good_for_reco[tel_id] == 0:
@@ -761,14 +789,14 @@ class EventPreparer:
                                 bcolors.WARNING
                                 + "Image not survived or "
                                 + "not good enough for parametrization."
-                                # + "\nIt will be NOT used for direction reconstruction, "
-                                # + "BUT it's information will be recorded."
+                                + "\nIt will be NOT used for direction reconstruction, "
+                                + "BUT it's information will be recorded."
                                 + bcolors.ENDC
                             )
 
                         hillas_dict[tel_id] = moments
                         hillas_dict_reco[tel_id] = moments_reco
-                        n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
+                        n_pixel_dict[tel_id] = np.count_nonzero(image_extended)
                         leakage_dict[tel_id] = leakages
                         concentration_dict[tel_id] = concentrations
 
@@ -790,7 +818,7 @@ class EventPreparer:
                         hillas_dict_reco[
                             tel_id
                         ] = HillasParametersTelescopeFrameContainer()
-                        n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
+                        n_pixel_dict[tel_id] = np.count_nonzero(image_extended)
                         leakage_dict[tel_id] = leakages
                         
                         concentrations = {}
@@ -798,7 +826,9 @@ class EventPreparer:
                         concentrations["concentration_core"] = np.nan
                         concentrations["concentration_pixel"] = np.nan
                         concentration_dict[tel_id] = concentrations
-
+                    
+                if good_for_reco[tel_id] == 1:
+                    n_tels_reco[tel_type] += 1
 
                 # END OF THE CYCLE OVER THE TELESCOPES
 
@@ -819,12 +849,12 @@ class EventPreparer:
                 # even though they might have been
                 # but this is because of the LST stereo trigger....
                 for tel_id in event.r0.tel.keys():
-                    good_for_reco[tel_id] = 0
+                    if good_for_reco[tel_id]:
+                        good_for_reco[tel_id] = 0
+                        n_tels_reco[str(source.subarray.tel[tel_id])] -= 1
                 # and set the number of good and bad images accordingly
                 n_tels["GOOD images"] = 0
                 n_tels["BAD images"] = n_tels["Triggered"] - n_tels["GOOD images"]
-                # create a dummy container for direction reconstruction
-                reco_result = ReconstructedShowerContainer()
 
                 if return_stub:  # if saving all events (default)
                     if debug:
@@ -838,12 +868,14 @@ class EventPreparer:
                         event,
                         mc_phe_image,
                         dl1_phe_image,
+                        n_pixel_dict,
                         dl1_phe_image_mask_reco,
                         dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
                         n_tels,
+                        n_tels_reco,
                         leakage_dict,
                         concentration_dict
                     )
@@ -869,6 +901,7 @@ class EventPreparer:
                     if good_for_reco[tel_id]:
                         # we don't use it for reconstruction
                         good_for_reco[tel_id] = 0
+                        n_tels_reco[str(source.subarray.tel[tel_id])] -= 1
                         if debug:
                             print(
                                 bcolors.WARNING
@@ -892,9 +925,6 @@ class EventPreparer:
                         + bcolors.ENDC
                     )
 
-                # create a dummy container for direction reconstruction
-                reco_result = ReconstructedShowerContainer()
-
                 if return_stub:  # if saving all events (default)
                     if debug:
                         print(bcolors.OKBLUE + "Recording event..." + bcolors.ENDC)
@@ -907,12 +937,14 @@ class EventPreparer:
                         event,
                         mc_phe_image,
                         dl1_phe_image,
+                        n_pixel_dict,
                         dl1_phe_image_mask_reco,
                         dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
                         n_tels,
+                        n_tels_reco,
                         leakage_dict,
                         concentration_dict
                     )
@@ -953,16 +985,6 @@ class EventPreparer:
                             + "used to recover the shower's direction..."
                             + bcolors.ENDC
                         )
-
-                    # Reconstruction results
-                    # reco_result = self.shower_reco.predict(
-                    #     good_hillas_dict,
-                    #     source.subarray,
-                    #     SkyCoord(alt=alt, az=az, frame="altaz"),
-                    #     None,  # use the array direction
-                    # )
-
-
 
                     reco_result = self.shower_reco._predict(event,
                                                             good_hillas_dict,
@@ -1017,12 +1039,14 @@ class EventPreparer:
                         event,
                         mc_phe_image,
                         dl1_phe_image,
+                        n_pixel_dict,
                         dl1_phe_image_mask_reco,
                         dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
                         n_tels,
+                        n_tels_reco,
                         leakage_dict,
                         concentration_dict
                     )
@@ -1048,12 +1072,14 @@ class EventPreparer:
                         event,
                         mc_phe_image,
                         dl1_phe_image,
+                        n_pixel_dict,
                         dl1_phe_image_mask_reco,
                         dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
                         n_tels,
+                        n_tels_reco,
                         leakage_dict,
                         concentration_dict
                     )
@@ -1080,6 +1106,7 @@ class EventPreparer:
                 leakage_dict=leakage_dict,
                 concentration_dict=concentration_dict,
                 n_tels=n_tels,
+                n_tels_reco=n_tels_reco,
                 max_signals=max_signals,
                 n_cluster_dict=n_cluster_dict,
                 reco_result=reco_result,
