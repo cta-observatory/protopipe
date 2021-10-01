@@ -100,7 +100,7 @@ def main():
 
     # Define the path containing all available benchmarks
     BENCHMARKS_PATH = Path(pkg_resources.resource_filename(
-        'protopipe', '../docs/contribute/benchmarks'))
+        'protopipe', 'benchmarks'))
 
     if args.command == "list":
         # Select only notebooks which name starts with benchmarks*
