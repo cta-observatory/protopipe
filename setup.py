@@ -17,10 +17,16 @@ extras_require = {
         "pandas"
     ],
     "tests": [
+        # pipeline tests
         "pytest",
         "pytest-cov",
         "pytest-dependency",
         "codecov",
+        # benchmark tests
+        "papermill",
+        "nbconvert",
+        "traitlets",
+        "pandas"
     ],
 }
 
