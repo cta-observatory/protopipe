@@ -68,15 +68,19 @@ def main():
     # Read configuration file
     cfg = load_config(args.config_file)
 
+    # Check that the user specify site, array and production
     try:
         site = cfg["General"]["site"]
         array = cfg["General"]["array"]
         production = cfg["General"]["production"]
         assert all(len(x) > 0 for x in [site, array, production])
     except (KeyError, AssertionError):
-        raise ValueError("""\033[91m At least one of 'site', 'array' and
-        'production' are not properly defined in the analysis configuration
-        file.\033[0m""")
+        raise ValueError(
+            bcolors.FAIL +
+            """At least one of 'site', 'array' and
+            'production' are not properly defined in the analysis configuration
+            file.""" +
+            + bcolors.ENDC)
         sys_exit(-1)
 
     if args.infile_list:
@@ -104,7 +108,7 @@ def main():
             filenamelist[0], site, array
         )
     else:
-        raise ValueError("""\033[91m Unsupported production.\033[0m""")
+        raise ValueError(bcolors.FAIL + "Unsupported production." + bcolors.ENDC)
         sys_exit(-1)
 
     # keeping track of events and where they were rejected
