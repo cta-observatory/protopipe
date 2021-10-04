@@ -17,6 +17,7 @@ from protopipe.pipeline.temp import MySimTelEventSource
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
     make_argparser,
+    prod5N_array,
     prod3b_array,
     str2bool,
     load_config,
@@ -34,7 +35,7 @@ def main():
     parser.add_argument(
         "--debug", action="store_true", help="Print debugging information",
     )
-    
+
     parser.add_argument(
         "--show_progress_bar",
         action="store_true",
@@ -67,14 +68,15 @@ def main():
     # Read configuration file
     cfg = load_config(args.config_file)
 
-    try:  # If the user didn't specify a site and/or and array...
+    try:
         site = cfg["General"]["site"]
         array = cfg["General"]["array"]
-    except KeyError:  # ...raise an error and exit.
-        print(
-            "\033[91m ERROR: make sure that both 'site' and 'array' are "
-            "specified in the analysis configuration file! \033[0m"
-        )
+        production = cfg["General"]["production"]
+        assert all(len(x) > 0 for x in [site, array, production])
+    except (KeyError, AssertionError):
+        raise ValueError("""\033[91m At least one of 'site', 'array' and
+        'production' are not properly defined in the analysis configuration
+        file.\033[0m""")
         sys_exit(-1)
 
     if args.infile_list:
@@ -93,9 +95,17 @@ def main():
 
     # Get the IDs of the involved telescopes and associated cameras together
     # with the equivalent focal lengths from the first event
-    allowed_tels, cams_and_foclens, subarray = prod3b_array(
-        filenamelist[0], site, array
-    )
+    if production == "Prod5N":
+        allowed_tels, cams_and_foclens, subarray = prod5N_array(
+            filenamelist[0], site, array
+        )
+    elif production == "Prod3b":
+        allowed_tels, cams_and_foclens, subarray = prod3b_array(
+            filenamelist[0], site, array
+        )
+    else:
+        raise ValueError("""\033[91m Unsupported production.\033[0m""")
+        sys_exit(-1)
 
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
@@ -229,7 +239,7 @@ def main():
     outfile = tb.open_file(args.outfile, mode="w")
     outTable = {}
     outData = {}
-    
+
     # Configuration options for SimTelEventSource
     # Readout window integration correction
     try:
@@ -244,7 +254,7 @@ def main():
 
         source = MySimTelEventSource(
             input_url=filename,
-            calib_scale = calib_scale,
+            calib_scale=calib_scale,
             allowed_tels=allowed_tels,
             max_events=args.max_events
         )
@@ -270,14 +280,14 @@ def main():
             good_event,
             good_for_reco,
         ) in tqdm(
-                    preper.prepare_event(source,
-                                         save_images=args.save_images,
-                                         debug=args.debug),
-                    desc=source.__class__.__name__,
-                    total=source.max_events,
-                    unit="event",
-                    disable= not args.show_progress_bar
-                 ):
+            preper.prepare_event(source,
+                                 save_images=args.save_images,
+                                 debug=args.debug),
+            desc=source.__class__.__name__,
+            total=source.max_events,
+            unit="event",
+            disable=not args.show_progress_bar
+        ):
 
             if good_event:
 
@@ -398,14 +408,16 @@ def main():
 
                     if estimation_weight == "CTAMARS":
                         # Get an array of trees
-                        predictions_trees = np.array([tree.predict(features_values) for tree in model.estimators_])
+                        predictions_trees = np.array(
+                            [tree.predict(features_values) for tree in model.estimators_])
                         energy_tel[idx] = np.mean(predictions_trees, axis=0)
                         weight_statistic_tel[idx] = np.std(predictions_trees, axis=0)
                     else:
-                        data.eval(f'estimation_weight = {estimation_weight}', inplace=True)
+                        data.eval(
+                            f'estimation_weight = {estimation_weight}', inplace=True)
                         energy_tel[idx] = model.predict(features_values)
                         weight_tel[idx] = data["estimation_weight"]
-                    
+
                     if log_10_target:
                         energy_tel[idx] = 10**energy_tel[idx]
                         weight_tel[idx] = 10**weight_tel[idx]
@@ -484,7 +496,8 @@ def main():
                 outData[cam_id]["h_max"] = h_max.to("m").value
                 outData[cam_id]["err_est_pos"] = np.nan
                 outData[cam_id]["err_est_dir"] = np.nan
-                outData[cam_id]["true_energy"] = event.simulation.shower.energy.to("TeV").value
+                outData[cam_id]["true_energy"] = event.simulation.shower.energy.to(
+                    "TeV").value
                 outData[cam_id]["hillas_x"] = moments.x.to("deg").value
                 outData[cam_id]["hillas_y"] = moments.y.to("deg").value
                 outData[cam_id]["hillas_phi"] = moments.phi.to("deg").value
@@ -499,11 +512,14 @@ def main():
                 outData[cam_id]["hillas_ellipticity"] = ellipticity.value
                 outData[cam_id]["clusters"] = n_cluster_dict[tel_id]
                 outData[cam_id]["n_tel_discri"] = n_tels["GOOD images"]
-                outData[cam_id]["mc_core_x"] = event.simulation.shower.core_x.to("m").value
-                outData[cam_id]["mc_core_y"] = event.simulation.shower.core_y.to("m").value
+                outData[cam_id]["mc_core_x"] = event.simulation.shower.core_x.to(
+                    "m").value
+                outData[cam_id]["mc_core_y"] = event.simulation.shower.core_y.to(
+                    "m").value
                 outData[cam_id]["reco_core_x"] = reco_core_x.to("m").value
                 outData[cam_id]["reco_core_y"] = reco_core_y.to("m").value
-                outData[cam_id]["mc_h_first_int"] = event.simulation.shower.h_first_int.to("m").value
+                outData[cam_id]["mc_h_first_int"] = event.simulation.shower.h_first_int.to(
+                    "m").value
                 outData[cam_id]["offset"] = offset.to("deg").value
                 outData[cam_id]["mc_x_max"] = event.simulation.shower.x_max.value  # g / cm2
                 outData[cam_id]["alt"] = reco_result.alt.to("deg").value
