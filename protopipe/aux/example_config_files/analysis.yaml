@@ -1,6 +1,5 @@
 # General informations
 # WARNING: the settings recorded here are unstable and used here only to give an example
-# NOTE: only Prod3b simulations are currently supported.
 General:
   config_name: ''
   production: '' # Prod3b or Prod5N
