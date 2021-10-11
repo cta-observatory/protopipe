@@ -10,7 +10,8 @@ General:
  # WARNING: for simulations containing multiple copies of the telescopes,
  # only 'full_array' or custom list are supported options!
  array: full_array
- cam_id_list : ['LSTCam', 'NectarCam'] # Selected cameras (disabled option)
+ # Selected cameras to analyse, create models and upload them to the grid
+ cam_id_list : ['LSTCam', 'NectarCam']
 
 Calibration:
   apply_integration_correction: false # for CTAMARS-like analysis use false
