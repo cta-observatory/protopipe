@@ -9,8 +9,6 @@ from collections import namedtuple, OrderedDict
 # CTAPIPE utilities
 from ctapipe.instrument import CameraGeometry
 from ctapipe.containers import ReconstructedShowerContainer
-from ctapipe.calib import CameraCalibrator
-from ctapipe.image.extractor import TwoPassWindowSum
 from ctapipe.image import (leakage_parameters,
                            number_of_islands,
                            largest_island,
@@ -33,8 +31,10 @@ from ctapipe.reco.reco_algorithms import (
 from .image_cleaning import ImageCleaner
 from .utils import bcolors, effective_focal_lengths, camera_radius, CTAMARS_radii
 from .temp import (
+    MyCameraCalibrator,
+    TwoPassWindowSum,
     HillasParametersTelescopeFrameContainer,
-    HillasReconstructor,
+    HillasReconstructor
 )
 
 # PiWy utilities
@@ -42,10 +42,6 @@ try:
     from pywicta.io import geometry_converter
     from pywi.processing.filtering import pixel_clusters
     from pywi.processing.filtering.pixel_clusters import filter_pixels_clusters
-    from pywicta.denoising.wavelets_mrtransform import WaveletTransform
-    from pywicta.denoising import cdf
-    from pywicta.denoising.inverse_transform_sampling import EmpiricalDistribution
-    from pywicta.io import geometry_converter
     wavelets_error = False
 except ImportError:
     wavelets_error = True
@@ -73,6 +69,7 @@ PreparedEvent = namedtuple(
         "impact_dict",
         "good_event",
         "good_for_reco",
+        "image_extraction_status"
     ],
 )
 
@@ -90,7 +87,8 @@ def stub(
     n_tels,
     n_tels_reco,
     leakage_dict,
-    concentration_dict
+    concentration_dict,
+    passed
 ):
     """Default container for images that did not survive cleaning."""
     return PreparedEvent(
@@ -114,6 +112,7 @@ def stub(
             hillas_dict_reco, np.nan * u.m
         ),  # undefined impact parameter
         good_event=False,
+        image_extraction_status=passed
     )
 
 
@@ -153,11 +152,11 @@ class EventPreparer:
         debug=False,
     ):
         """Initiliaze an EventPreparer object."""
-        
+
         if mode == "wave" and wavelets_error:
             raise ImportError("WARNING: 'pywicta' and/or 'pywi' packages could"
                               "not be imported - wavelet cleaning will not work")
-        
+
         # Readout window integration correction
         try:
             self.apply_integration_correction = config["Calibration"]["apply_integration_correction"]
@@ -235,38 +234,40 @@ class EventPreparer:
             OrderedDict(
                 [
                     ("noCuts", None),
+                    ("bad image extraction", lambda p: p == 0),
                     ("min pixel", lambda s: np.count_nonzero(s) < npix_bounds[0]),
                     ("min charge", lambda x: x < charge_bounds[0]),
                     (
                         "poor moments",
-                        lambda m: m.width <= 0
-                        or m.length <= 0
-                        or np.isnan(m.width)
-                        or np.isnan(m.length),
+                        lambda m: m.width <= 0 or
+                        m.length <= 0 or
+                        np.isnan(m.width) or
+                        np.isnan(m.length),
                     ),
                     (
                         "bad ellipticity",
-                        lambda m: (m.width / m.length) < ellipticity_bounds[0]
-                        or (m.width / m.length) > ellipticity_bounds[-1],
+                        lambda m: (m.width / m.length) < ellipticity_bounds[0] or
+                        (m.width / m.length) > ellipticity_bounds[-1],
                     ),
                     (
                         "close to the edge",
-                        lambda m, cam_id: m.r.value
-                        > (nominal_distance_bounds[-1] * self.camera_radius[cam_id]),
+                        lambda m, cam_id: m.r.value >
+                        (nominal_distance_bounds[-1] * self.camera_radius[cam_id]),
                     ),  # in meter
                 ]
             )
         )
 
-        extractor = TwoPassWindowSum(subarray=subarray, apply_integration_correction=self.apply_integration_correction)
+        extractor = TwoPassWindowSum(
+            subarray=subarray, apply_integration_correction=self.apply_integration_correction)
         # Get the name of the image extractor in order to adapt some options
         # specific to TwoPassWindowSum later on
         self.extractorName = list(extractor.get_current_config().items())[0][0]
 
-        self.calib = CameraCalibrator(image_extractor=extractor,
-                                      subarray=subarray,
-                                      apply_peak_time_shift=self.apply_peak_time_shift,
-                                      apply_waveform_time_shift=self.apply_waveform_time_shift)
+        self.calib = MyCameraCalibrator(image_extractor=extractor,
+                                        subarray=subarray,
+                                        apply_peak_time_shift=self.apply_peak_time_shift,
+                                        apply_waveform_time_shift=self.apply_waveform_time_shift)
 
         # Reconstruction
         self.shower_reco = HillasReconstructor(subarray)
@@ -281,10 +282,10 @@ class EventPreparer:
             self.LST_stereo = config["Reconstruction"]["LST_stereo"]
         except KeyError:
             print(
-                bcolors.WARNING
-                + "WARNING: the 'LST_stereo' setting has not been specified in the analysis configuration file."
-                + "\t It has been set to 'True'!"
-                + bcolors.ENDC
+                bcolors.WARNING +
+                "WARNING: the 'LST_stereo' setting has not been specified in the analysis configuration file." +
+                "\t It has been set to 'True'!" +
+                bcolors.ENDC
             )
             self.LST_stereo = True
         self.event_cutflow.set_cuts(
@@ -292,7 +293,8 @@ class EventPreparer:
                 [
                     ("noCuts", None),
                     ("min2Tels trig", lambda x: x < self.min_ntel),
-                    ("no-LST-stereo + <2 other types", lambda x, y: (x < self.min_ntel_LST) and (y < 2)),
+                    ("no-LST-stereo + <2 other types", lambda x,
+                     y: (x < self.min_ntel_LST) and (y < 2)),
                     ("min2Tels reco", lambda x: x < self.min_ntel),
                     ("direction nan", lambda x: x.is_valid is False),
                 ]
@@ -365,14 +367,14 @@ class EventPreparer:
             # Display event counts
             if debug:
                 print(
-                    bcolors.BOLD
-                    + f"EVENT #{event.count}, EVENT_ID #{event.index.event_id}"
-                    + bcolors.ENDC
+                    bcolors.BOLD +
+                    f"EVENT #{event.count}, EVENT_ID #{event.index.event_id}" +
+                    bcolors.ENDC
                 )
                 print(
-                    bcolors.BOLD
-                    + f"has triggered telescopes {event.r1.tel.keys()}"
-                    + bcolors.ENDC
+                    bcolors.BOLD +
+                    f"has triggered telescopes {event.r1.tel.keys()}" +
+                    bcolors.ENDC
                 )
                 ievt += 1
                 # if (ievt < 10) or (ievt % 10 == 0):
@@ -396,21 +398,21 @@ class EventPreparer:
                 # DL1a/b for the associated benchmarks
                 if debug:
                     print(
-                        bcolors.WARNING
-                        + "WARNING: LST_stereo is set to 'True'\n"
-                        + f"This event has < {self.min_ntel_LST} triggered LSTs\n"
-                        + "and < 2 triggered telescopes from other telescope types.\n"
-                        + "The event will be processed up to DL1b."
-                        + bcolors.ENDC
+                        bcolors.WARNING +
+                        "WARNING: LST_stereo is set to 'True'\n" +
+                        f"This event has < {self.min_ntel_LST} triggered LSTs\n" +
+                        "and < 2 triggered telescopes from other telescope types.\n" +
+                        "The event will be processed up to DL1b." +
+                        bcolors.ENDC
                     )
 
             # this checks for < 2 triggered telescopes of ANY type
             if self.event_cutflow.cut("min2Tels trig", len(event.r1.tel.keys())):
-                if return_stub:
+                if return_stub and debug:
                     print(
-                        bcolors.WARNING
-                        + f"WARNING : < {self.min_ntel} triggered telescopes!"
-                        + bcolors.ENDC
+                        bcolors.WARNING +
+                        f"WARNING : < {self.min_ntel} triggered telescopes!" +
+                        bcolors.ENDC
                     )
                     # we show this, but we proceed to analyze it
 
@@ -420,11 +422,11 @@ class EventPreparer:
 
             if debug:
                 print(
-                    bcolors.OKBLUE
-                    + "Extracting all calibrated images..."
-                    + bcolors.ENDC
+                    bcolors.OKBLUE +
+                    "Extracting all calibrated images..." +
+                    bcolors.ENDC
                 )
-            self.calib(event)  # Calibrate the event
+            passed = self.calib(event)  # Calibrate the event
 
             # =============================================================
             #                BEGINNING OF LOOP OVER TELESCOPES
@@ -468,7 +470,8 @@ class EventPreparer:
             good_for_reco = {}  # 1 = success, 0 = fail
 
             # filter warnings for missing obs time. this is needed because MC data has no obs time
-            warnings.filterwarnings(action="ignore", category=MissingFrameAttributeWarning)
+            warnings.filterwarnings(
+                action="ignore", category=MissingFrameAttributeWarning)
 
             # Array pointing in AltAz frame
             az = event.pointing.array_azimuth
@@ -496,9 +499,9 @@ class EventPreparer:
 
                 if debug:
                     print(
-                        bcolors.OKBLUE
-                        + f"Working on telescope #{tel_id}..."
-                        + bcolors.ENDC
+                        bcolors.OKBLUE +
+                        f"Working on telescope #{tel_id}..." +
+                        bcolors.ENDC
                     )
 
                 self.image_cutflow.count("noCuts")
@@ -509,6 +512,28 @@ class EventPreparer:
                 tel_type = str(source.subarray.tel[tel_id])
                 n_tels[tel_type] += 1
 
+                # We now ASSUME that the event will be good at all levels
+                extracted_image_is_good = True
+                cleaned_image_is_good = True
+                good_for_reco[tel_id] = 1
+                # later we change to 0 at the first condition NOT satisfied
+
+                # Apply some selection over image extraction
+                if self.image_cutflow.cut("bad image extraction", passed[tel_id]):
+                    if debug:
+                        print(
+                            bcolors.WARNING
+                            + "WARNING : bad image extraction!"
+                            + "WARNING : image processed and recorded, but NOT used for DL2."
+                            + bcolors.ENDC
+                        )
+                    # we set immediately this image as BAD at all levels
+                    # for now (and for simplicity) we will process it anyway
+                    # any other failing condition will just confirm this
+                    extracted_image_is_good = False
+                    cleaned_image_is_good = False
+                    good_for_reco[tel_id] = 0
+
                 # use ctapipe's functionality to get the calibrated image
                 # and scale the reconstructed values if required
                 pmt_signal = event.dl1.tel[tel_id].image
@@ -518,10 +543,6 @@ class EventPreparer:
                     # Save the simulated and reconstructed image of the event
                     dl1_phe_image[tel_id] = pmt_signal
                     mc_phe_image[tel_id] = event.simulation.tel[tel_id].true_image
-
-                # We now ASSUME that the event will be good
-                good_for_reco[tel_id] = 1
-                # later we change to 0 if any condition is NOT satisfied
 
                 if self.cleaner_reco.mode == "tail":  # tail uses only ctapipe
 
@@ -535,7 +556,8 @@ class EventPreparer:
                     # The check on SIZE shouldn't be here, but for the moment
                     # I prefer to sacrifice elegancy...
                     if np.sum(image_biggest[mask_reco]) != 0.0:
-                        leakage_biggest = leakage_parameters(camera, image_biggest, mask_reco)
+                        leakage_biggest = leakage_parameters(
+                            camera, image_biggest, mask_reco)
                         leakages["leak1_reco"] = leakage_biggest["intensity_width_1"]
                         leakages["leak2_reco"] = leakage_biggest["intensity_width_2"]
                     else:
@@ -655,22 +677,21 @@ class EventPreparer:
                 #                PRELIMINARY IMAGE SELECTION
                 # =============================================================
 
-                cleaned_image_is_good = True  # we assume this
-
                 if self.image_selection_source == "extended":
                     cleaned_image_to_use = image_extended
                 elif self.image_selection_source == "biggest":
                     cleaned_image_to_use = image_biggest
                 else:
-                    raise ValueError("Only supported cleanings are 'biggest' or 'extended'.")
+                    raise ValueError(
+                        "Only supported cleanings are 'biggest' or 'extended'.")
 
                 # Apply some selection
                 if self.image_cutflow.cut("min pixel", cleaned_image_to_use):
                     if debug:
                         print(
-                            bcolors.WARNING
-                            + "WARNING : not enough pixels!"
-                            + bcolors.ENDC
+                            bcolors.WARNING +
+                            "WARNING : not enough pixels!" +
+                            bcolors.ENDC
                         )
                     good_for_reco[tel_id] = 0  # we record it as BAD
                     cleaned_image_is_good = False
@@ -678,22 +699,22 @@ class EventPreparer:
                 if self.image_cutflow.cut("min charge", np.sum(cleaned_image_to_use)):
                     if debug:
                         print(
-                            bcolors.WARNING
-                            + "WARNING : not enough charge!"
-                            + bcolors.ENDC
+                            bcolors.WARNING +
+                            "WARNING : not enough charge!" +
+                            bcolors.ENDC
                         )
                     good_for_reco[tel_id] = 0  # we record it as BAD
                     cleaned_image_is_good = False
 
                 if debug and (not cleaned_image_is_good):  # BAD image quality
                     print(
-                        bcolors.WARNING
-                        + "WARNING : The cleaned image didn't pass"
-                        + " preliminary cuts.\n"
-                        + "An attempt to parametrize it will be made,"
-                        + " but the image will NOT be used for"
-                        + " direction reconstruction."
-                        + bcolors.ENDC
+                        bcolors.WARNING +
+                        "WARNING : The cleaned image didn't pass" +
+                        " preliminary cuts.\n" +
+                        "An attempt to parametrize it will be made," +
+                        " but the image will NOT be used for" +
+                        " direction reconstruction." +
+                        bcolors.ENDC
                     )
 
                 # =============================================================
@@ -729,7 +750,8 @@ class EventPreparer:
 
                         # Add concentration parameters
                         concentrations = {}
-                        concentrations_extended = concentration_parameters(camera_extended_tel, image_extended, moments)
+                        concentrations_extended = concentration_parameters(
+                            camera_extended_tel, image_extended, moments)
                         concentrations["concentration_cog"] = concentrations_extended["cog"]
                         concentrations["concentration_core"] = concentrations_extended["core"]
                         concentrations["concentration_pixel"] = concentrations_extended["pixel"]
@@ -749,9 +771,9 @@ class EventPreparer:
                         if self.image_cutflow.cut("poor moments", moments_to_use):
                             if debug:
                                 print(
-                                    bcolors.WARNING
-                                    + "WARNING : poor moments!"
-                                    + bcolors.ENDC
+                                    bcolors.WARNING +
+                                    "WARNING : poor moments!" +
+                                    bcolors.ENDC
                                 )
                             good_for_reco[tel_id] = 0  # we record it as BAD
 
@@ -760,11 +782,11 @@ class EventPreparer:
                         ):
                             if debug:
                                 print(
-                                    bcolors.WARNING
-                                    + "WARNING : out of containment radius!\n"
-                                    + f"Camera radius = {self.camera_radius[camera.camera_name]}\n"
-                                    + f"COG radius = {moments_to_use.r}"
-                                    + bcolors.ENDC
+                                    bcolors.WARNING +
+                                    "WARNING : out of containment radius!\n" +
+                                    f"Camera radius = {self.camera_radius[camera.camera_name]}\n" +
+                                    f"COG radius = {moments_to_use.r}" +
+                                    bcolors.ENDC
                                 )
 
                             good_for_reco[tel_id] = 0
@@ -772,26 +794,26 @@ class EventPreparer:
                         if self.image_cutflow.cut("bad ellipticity", moments_to_use):
                             if debug:
                                 print(
-                                    bcolors.WARNING
-                                    + "WARNING : bad ellipticity"
-                                    + bcolors.ENDC
+                                    bcolors.WARNING +
+                                    "WARNING : bad ellipticity" +
+                                    bcolors.ENDC
                                 )
                             good_for_reco[tel_id] = 0
 
                         if debug and good_for_reco[tel_id] == 1:
                             print(
-                                bcolors.OKGREEN
-                                + "Image survived and correctly parametrized."
-                                + bcolors.ENDC
+                                bcolors.OKGREEN +
+                                "Image survived and correctly parametrized." +
+                                bcolors.ENDC
                             )
                         elif debug and good_for_reco[tel_id] == 0:
                             print(
-                                bcolors.WARNING
-                                + "Image not survived or "
-                                + "not good enough for parametrization."
-                                + "\nIt will be NOT used for direction reconstruction, "
-                                + "BUT it's information will be recorded."
-                                + bcolors.ENDC
+                                bcolors.WARNING +
+                                "Image not survived or " +
+                                "not good enough for parametrization." +
+                                "\nIt will be NOT used for direction reconstruction, " +
+                                "BUT it's information will be recorded." +
+                                bcolors.ENDC
                             )
 
                         hillas_dict[tel_id] = moments
@@ -807,11 +829,11 @@ class EventPreparer:
                     ) as e:
                         if debug:
                             print(
-                                bcolors.FAIL
-                                + "Parametrization error: "
-                                + f"{e}\n"
-                                + "Dummy parameters recorded."
-                                + bcolors.ENDC
+                                bcolors.FAIL +
+                                "Parametrization error: " +
+                                f"{e}\n" +
+                                "Dummy parameters recorded." +
+                                bcolors.ENDC
                             )
                         good_for_reco[tel_id] = 0
                         hillas_dict[tel_id] = HillasParametersTelescopeFrameContainer()
@@ -820,13 +842,13 @@ class EventPreparer:
                         ] = HillasParametersTelescopeFrameContainer()
                         n_pixel_dict[tel_id] = np.count_nonzero(image_extended)
                         leakage_dict[tel_id] = leakages
-                        
+
                         concentrations = {}
                         concentrations["concentration_cog"] = np.nan
                         concentrations["concentration_core"] = np.nan
                         concentrations["concentration_pixel"] = np.nan
                         concentration_dict[tel_id] = concentrations
-                    
+
                 if good_for_reco[tel_id] == 1:
                     n_tels_reco[tel_type] += 1
 
@@ -839,10 +861,10 @@ class EventPreparer:
             if bad_LST_stereo:
                 if debug:
                     print(
-                        bcolors.WARNING
-                        + "WARNING: This event was triggered with 1 LST image and <2 images from other telescope types."
-                        + "\nWARNING : direction reconstruction will not be performed."
-                        + bcolors.ENDC
+                        bcolors.WARNING +
+                        "WARNING: This event was triggered with 1 LST image and <2 images from other telescope types." +
+                        "\nWARNING : direction reconstruction will not be performed." +
+                        bcolors.ENDC
                     )
 
                 # Set all the involved images as NOT good for recosntruction
@@ -860,9 +882,9 @@ class EventPreparer:
                     if debug:
                         print(bcolors.OKBLUE + "Recording event..." + bcolors.ENDC)
                         print(
-                            bcolors.WARNING
-                            + "WARNING: This is event shall NOT be used further along the pipeline."
-                            + bcolors.ENDC
+                            bcolors.WARNING +
+                            "WARNING: This is event shall NOT be used further along the pipeline." +
+                            bcolors.ENDC
                         )
                     yield stub(  # record event with dummy info
                         event,
@@ -877,7 +899,8 @@ class EventPreparer:
                         n_tels,
                         n_tels_reco,
                         leakage_dict,
-                        concentration_dict
+                        concentration_dict,
+                        passed
                     )
                     continue
                 else:
@@ -891,11 +914,11 @@ class EventPreparer:
             if self.LST_stereo and (n_triggered_LSTs < self.min_ntel_LST) and (n_triggered_LSTs != 0) and (n_triggered_non_LSTs >= 2):
                 if debug:
                     print(
-                        bcolors.WARNING
-                        + f"WARNING: LST stereo trigger condition is active.\n"
-                        + f"This event triggered < {self.min_ntel_LST} LSTs "
-                        + f"and {n_triggered_non_LSTs} images from other telescope types.\n"
-                        + bcolors.ENDC
+                        bcolors.WARNING +
+                        f"WARNING: LST stereo trigger condition is active.\n" +
+                        f"This event triggered < {self.min_ntel_LST} LSTs " +
+                        f"and {n_triggered_non_LSTs} images from other telescope types.\n" +
+                        bcolors.ENDC
                     )
                 for tel_id in triggered_LSTs:  # in case we test for min_ntel_LST>2
                     if good_for_reco[tel_id]:
@@ -904,9 +927,9 @@ class EventPreparer:
                         n_tels_reco[str(source.subarray.tel[tel_id])] -= 1
                         if debug:
                             print(
-                                bcolors.WARNING
-                                + f"WARNING: LST image #{tel_id} removed, even though it passed quality cuts."
-                                + bcolors.ENDC
+                                bcolors.WARNING +
+                                f"WARNING: LST image #{tel_id} removed, even though it passed quality cuts." +
+                                bcolors.ENDC
                             )
                 # TODO: book-keeping of this kind of events doesn't seem easy
 
@@ -919,19 +942,19 @@ class EventPreparer:
             if self.event_cutflow.cut("min2Tels reco", n_tels["GOOD images"]):
                 if debug:
                     print(
-                        bcolors.FAIL
-                        + f"WARNING: < {self.min_ntel} ({n_tels['GOOD images']}) images remaining!"
-                        + "\nWARNING : direction reconstruction is not possible!"
-                        + bcolors.ENDC
+                        bcolors.FAIL +
+                        f"WARNING: < {self.min_ntel} ({n_tels['GOOD images']}) images remaining!" +
+                        "\nWARNING : direction reconstruction is not possible!" +
+                        bcolors.ENDC
                     )
 
                 if return_stub:  # if saving all events (default)
                     if debug:
                         print(bcolors.OKBLUE + "Recording event..." + bcolors.ENDC)
                         print(
-                            bcolors.WARNING
-                            + "WARNING: This is event shall NOT be used further along the pipeline."
-                            + bcolors.ENDC
+                            bcolors.WARNING +
+                            "WARNING: This is event shall NOT be used further along the pipeline." +
+                            bcolors.ENDC
                         )
                     yield stub(  # record event with dummy info
                         event,
@@ -946,7 +969,8 @@ class EventPreparer:
                         n_tels,
                         n_tels_reco,
                         leakage_dict,
-                        concentration_dict
+                        concentration_dict,
+                        passed
                     )
                     continue
                 else:
@@ -954,9 +978,9 @@ class EventPreparer:
 
             if debug:
                 print(
-                    bcolors.OKBLUE
-                    + "Starting direction reconstruction..."
-                    + bcolors.ENDC
+                    bcolors.OKBLUE +
+                    "Starting direction reconstruction..." +
+                    bcolors.ENDC
                 )
 
             try:
@@ -979,11 +1003,11 @@ class EventPreparer:
 
                     if debug:
                         print(
-                            bcolors.PURPLE
-                            + f"{len(good_hillas_dict)} images "
-                            + f"(from telescopes #{list(good_hillas_dict.keys())}) will be "
-                            + "used to recover the shower's direction..."
-                            + bcolors.ENDC
+                            bcolors.PURPLE +
+                            f"{len(good_hillas_dict)} images " +
+                            f"(from telescopes #{list(good_hillas_dict.keys())}) will be " +
+                            "used to recover the shower's direction..." +
+                            bcolors.ENDC
                         )
 
                     reco_result = self.shower_reco._predict(event,
@@ -1017,8 +1041,8 @@ class EventPreparer:
                         core_tilted = core_ground.transform_to(tilted_frame)
 
                         impact_dict_reco[tel_id] = np.sqrt(
-                            (core_tilted.x - tel_tilted.x) ** 2
-                            + (core_tilted.y - tel_tilted.y) ** 2
+                            (core_tilted.x - tel_tilted.x) ** 2 +
+                            (core_tilted.y - tel_tilted.y) ** 2
                         )
 
             except (Exception, TooFewTelescopesException, InvalidWidthException) as e:
@@ -1028,11 +1052,11 @@ class EventPreparer:
                 if return_stub:
                     if debug:
                         print(
-                            bcolors.FAIL
-                            + "Shower could NOT be correctly reconstructed! "
-                            + "Recording event..."
-                            + "WARNING: This is event shall NOT be used further along the pipeline."
-                            + bcolors.ENDC
+                            bcolors.FAIL +
+                            "Shower could NOT be correctly reconstructed! " +
+                            "Recording event..." +
+                            "WARNING: This is event shall NOT be used further along the pipeline." +
+                            bcolors.ENDC
                         )
 
                     yield stub(  # record event with dummy info
@@ -1048,8 +1072,10 @@ class EventPreparer:
                         n_tels,
                         n_tels_reco,
                         leakage_dict,
-                        concentration_dict
+                        concentration_dict,
+                        passed
                     )
+                    continue
                 else:
                     continue
 
@@ -1061,11 +1087,11 @@ class EventPreparer:
                 if return_stub:
                     if debug:
                         print(
-                            bcolors.FAIL
-                            + "Shower could NOT be correctly reconstructed! "
-                            + "Recording event..."
-                            + "WARNING: This is event shall NOT be used further along the pipeline."
-                            + bcolors.ENDC
+                            bcolors.FAIL +
+                            "Shower could NOT be correctly reconstructed! " +
+                            "Recording event..." +
+                            "WARNING: This is event shall NOT be used further along the pipeline." +
+                            bcolors.ENDC
                         )
 
                     yield stub(  # record event with dummy info
@@ -1081,17 +1107,19 @@ class EventPreparer:
                         n_tels,
                         n_tels_reco,
                         leakage_dict,
-                        concentration_dict
+                        concentration_dict,
+                        passed
                     )
+                    continue
                 else:
                     continue
 
             if debug:
                 print(
-                    bcolors.BOLDGREEN
-                    + "Shower correctly reconstructed! "
-                    + "Recording event..."
-                    + bcolors.ENDC
+                    bcolors.BOLDGREEN +
+                    "Shower correctly reconstructed! " +
+                    "Recording event..." +
+                    bcolors.ENDC
                 )
 
             yield PreparedEvent(
@@ -1113,4 +1141,5 @@ class EventPreparer:
                 impact_dict=impact_dict_reco,
                 good_event=True,
                 good_for_reco=good_for_reco,
+                image_extraction_status=passed
             )
