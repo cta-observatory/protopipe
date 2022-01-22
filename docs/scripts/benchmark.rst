@@ -5,13 +5,14 @@ Benchmarking
 
 ``protopipe-BENCHMARK`` is used to run benchmarks within *protopipe*.
 It allows to look for available benchmarking notebooks, interface with them
-and convert them in HTML format for easier consultation.
+and optionally convert them in HTML format for easier consultation.
 
 .. warning::
   
   This is not currently available for the *calibration* benchmark notebook
   which requires a *ctapipe* version more recent than the one which protopipe
   supports.
+  It will behave as the rest as soon as we upgrade to the latest release.
 
 By invoking the help argument, you can get help about how the script works:
 ``protopipe-BENCHMARK`` allows for 2 commands ``list`` and ``launch``,
@@ -69,19 +70,36 @@ The configuration file used by this script is ``benchmarks.yaml``,
   # Note: users which use a CTADIRAC container should use paths OUTSIDE of it
 
   # General settings for you analysis
-  analyses_directory: '' # Full path (on the host, if you are using a container)
-  analysis_name: ''
+  analyses_directory: "ANALYSES_DIRECTORY" # filled by the grid interface
+  analysis_name: "ANALYSIS_NAME" # filled by the grid interface
   # to compare with a previous release or version
   load_protopipe_previous: False # If True load data from a previous analysis
-  analysis_name_2: '' # if files have different names override them (--kwargs)
+  analysis_name_2: "" # if files have different names override them (--kwargs)
+
+  # Global plot aesthetics settings
+  use_seaborn: True
+  matplotlib_settings:
+    # recommended colormaps: 'viridis' or 'cividis'
+    cmap: "cividis"
+    # recommended styles: 'tableau-colorblind10' or 'seaborn-colorblind'
+    style: "seaborn-colorblind"
+    rc: { "font_size": 8, "font_family": "Fira Sans" }
+    scale: 1.5 # scale all plots by a factor
+  seaborn_settings:
+    theme:
+      style: "whitegrid"
+      context: "talk"
+    # override context and/or style
+    rc_context: {}
+    rc_style: { "xtick.bottom": True, "ytick.left": True }
 
   # Requirements data
   load_requirements: True
-  requirements_input_directory: ''
+  requirements_input_directory: ""
 
   # CTAMARS reference data
   # available at https://forge.in2p3.fr/projects/step-by-step-reference-mars-analysis/wiki
-  load_CTAMARS: True
+  load_CTAMARS: False
   # this is a setup *required* to run the notebooks smoothly!
   input_data_CTAMARS:
     parent_directory: ""
@@ -94,26 +112,33 @@ The configuration file used by this script is ``benchmarks.yaml``,
     label: "CTAMARS"
 
   # EVENTDISPLAY reference data (only ROOT format, for the moment)
-  # available from https://forge.in2p3.fr/projects/cta_analysis-and-simulations/wiki#Instrument-Response-Functions 
+  # available from https://forge.in2p3.fr/projects/cta_analysis-and-simulations/wiki#Instrument-Response-Functions
   load_EventDisplay: True
   input_data_EventDisplay:
     input_directory:
     input_file:
     label: "EventDisplay"
 
-  # This a test run from the production you analyze
-  # WARNING: CTAMARS comparison requires a specific simtel file, see notebook.
-  input_simtel_file: ""
-
-  # This is data produced with protopipe
+  # Input data
   input_filenames:
+    # The simtel file is supposed to be used as a test run
+    # WARNING: CTAMARS comparison requires a specific simtel file, see notebook.
+    simtel: "" # (only) this is meant to be a full path
+    # This is data produced with protopipe
+    # These files are pre-defined so you shouldn't need to edit them
     TRAINING_energy_gamma: "TRAINING_energy_tail_gamma_merged.h5"
     TRAINING_classification_gamma: "TRAINING_classification_tail_gamma_merged.h5"
     TRAINING_classification_proton: "TRAINING_classification_tail_proton_merged.h5"
     DL2_gamma: "DL2_tail_gamma_merged.h5"
     DL2_proton: "DL2_energy_tail_gamma_merged.h5"
     DL2_electron: "DL2_energy_tail_gamma_merged.h5"
-    DL3: "" # Depends on production settings (see performance.yaml)
+    # The DL3 filename depends on the simulation and analysis settings
+    # Defined by editing performance.yaml
+    DL3: ""
+
+  model_configuration_filenames:
+    energy: "RandomForestRegressor.yaml"
+    classification: "RandomForestClassifier.yaml"
 
   # This MUST be data produced with ctapipe-process
   # with the JSON files available from protopipe or custom ones
