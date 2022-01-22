@@ -6,19 +6,36 @@
 # Note: users which use a CTADIRAC container should use paths OUTSIDE of it
 
 # General settings for you analysis
-analyses_directory: '' # Full path (on the host, if you are using a container)
-analysis_name: ''
+analyses_directory: "ANALYSES_DIRECTORY" # filled by the grid interface
+analysis_name: "ANALYSIS_NAME" # filled by the grid interface
 # to compare with a previous release or version
 load_protopipe_previous: False # If True load data from a previous analysis
-analysis_name_2: '' # if files have different names override them (--kwargs)
+analysis_name_2: "" # if files have different names override them (--kwargs)
+
+# Global plot aesthetics settings
+use_seaborn: True
+matplotlib_settings:
+  # recommended colormaps: 'viridis' or 'cividis'
+  cmap: "cividis"
+  # recommended styles: 'tableau-colorblind10' or 'seaborn-colorblind'
+  style: "seaborn-colorblind"
+  rc: { "font_size": 8, "font_family": "Fira Sans" }
+  scale: 1.5 # scale all plots by a factor
+seaborn_settings:
+  theme:
+    style: "whitegrid"
+    context: "talk"
+  # override context and/or style
+  rc_context: {}
+  rc_style: { "xtick.bottom": True, "ytick.left": True }
 
 # Requirements data
 load_requirements: True
-requirements_input_directory: ''
+requirements_input_directory: ""
 
 # CTAMARS reference data
 # available at https://forge.in2p3.fr/projects/step-by-step-reference-mars-analysis/wiki
-load_CTAMARS: True
+load_CTAMARS: False
 # this is a setup *required* to run the notebooks smoothly!
 input_data_CTAMARS:
   parent_directory: ""
@@ -31,7 +48,7 @@ input_data_CTAMARS:
   label: "CTAMARS"
 
 # EVENTDISPLAY reference data (only ROOT format, for the moment)
-# available from https://forge.in2p3.fr/projects/cta_analysis-and-simulations/wiki#Instrument-Response-Functions 
+# available from https://forge.in2p3.fr/projects/cta_analysis-and-simulations/wiki#Instrument-Response-Functions
 load_EventDisplay: True
 input_data_EventDisplay:
   input_directory:
