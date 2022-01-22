@@ -1,8 +1,5 @@
-.pytest_cache
-
-.DS_Store
-
 # Compiled files
+.pytest_cache
 *.py[co]
 *.pyc
 *.a
