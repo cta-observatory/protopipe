@@ -37,14 +37,17 @@ def prepare_data(ds, derived_features, cuts, select_data=True, label=None):
         # This is needed because our reference analysis uses energy as
         # feature for classification
         # We should propably support a more elastic choice in the future.
-        if not all(i in derived_features for i in ["log10_reco_energy", "log10_reco_energy_tel"]):
+        if not all(
+            i in derived_features
+            for i in ["log10_reco_energy", "log10_reco_energy_tel"]
+        ):
             raise ValueError(
-                'log10_reco_energy and log10_reco_energy_tel need to be model features.')
+                "log10_reco_energy and log10_reco_energy_tel need to be model features."
+            )
 
     # Compute derived features and add them to the dataframe
     for feature_name, feature_expression in derived_features.items():
-        ds.eval(f'{feature_name} = {feature_expression}',
-                inplace=True)
+        ds.eval(f"{feature_name} = {feature_expression}", inplace=True)
 
     if select_data:
         ds = ds.query(cuts)
@@ -101,11 +104,13 @@ def split_train_test(survived_images, train_fraction, feature_name_list, target_
         labels = survived_images[target_name]
 
     if train_fraction != 1.0:
-        data_train, data_test = train_test_split(survived_images,
-                                                 train_size=train_fraction,
-                                                 random_state=0,
-                                                 shuffle=True,
-                                                 stratify=labels)
+        data_train, data_test = train_test_split(
+            survived_images,
+            train_size=train_fraction,
+            random_state=0,
+            shuffle=True,
+            stratify=labels,
+        )
         y_train = data_train[target_name]
         X_train = data_train[feature_name_list]
 
