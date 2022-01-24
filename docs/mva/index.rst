@@ -40,7 +40,7 @@ Reference/API
 
 .. automodapi:: protopipe.mva
     :no-inheritance-diagram:
-    :skip: auc, roc_curve, train_test_split, shuffle
+    :skip: auc, roc_curve, train_test_split, shuffle, save_obj
 
 .. _scikit-learn: https://scikit-learn.org/
 .. _GridSearchCV: https://scikit-learn.org/stable/modules/grid_search.html
