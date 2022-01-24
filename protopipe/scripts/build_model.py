@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os
 from os import path
 import importlib
@@ -9,7 +7,7 @@ import pandas as pd
 from sklearn.metrics import classification_report
 from sklearn.calibration import CalibratedClassifierCV
 
-from protopipe.pipeline.utils import load_config, get_camera_names
+from protopipe.pipeline.io import load_config, get_camera_names
 from protopipe.mva import TrainModel
 from protopipe.mva.io import initialize_script_arguments, save_output
 from protopipe.mva.utils import (
@@ -29,10 +27,10 @@ def main():
     # INPUT CONFIGURATION
 
     # Import parameters
-    if args.indir is None:
-        data_dir = cfg["General"]["data_dir"]
+    if args.indir_signal is None:
+        data_dir_signal = cfg["General"]["data_dir_signal"]
     else:
-        data_dir = args.indir
+        data_dir_signal = args.indir_signal
 
     if args.outdir is None:
         outdir = cfg["General"]["outdir"]
@@ -47,7 +45,7 @@ def main():
     else:
         data_sig_file = args.infile_signal
 
-    filename_sig = path.join(data_dir, data_sig_file)
+    filename_sig = path.join(data_dir_signal, data_sig_file)
 
     print(f"INPUT SIGNAL FILE PATH= {filename_sig}")
 
@@ -58,8 +56,8 @@ def main():
     elif args.cameras_from_file:
         print("GETTING CAMERAS FROM SIGNAL TRAINING FILE")
         # in the same analysis all particle types are analyzed in the
-        # same way so we can just use gammas
-        cam_ids = get_camera_names(filename_sig)
+        # same way so we can just use signal
+        cam_ids = get_camera_names(data_dir_signal, data_sig_file)
     else:
         print("GETTING CAMERAS FROM CLI")
         cam_ids = args.cam_id_list.split()
@@ -109,7 +107,8 @@ def main():
         base_estimator_pars = base_estimator_cfg['parameters']
         base_estimator_module_name = '.'.join(base_estimator_name.split('.', 2)[:-1])
         base_estimator_class_name = base_estimator_name.split('.')[-1]
-        base_estimator_module = importlib.import_module(base_estimator_module_name)  # sklearn.XXX
+        base_estimator_module = importlib.import_module(
+            base_estimator_module_name)  # sklearn.XXX
         base_estimator_model = getattr(base_estimator_module, base_estimator_class_name)
         initialized_base_estimator = base_estimator_model(**base_estimator_pars)
         print(f"...based on {base_estimator_module_name}.{base_estimator_class_name}")
@@ -138,16 +137,18 @@ def main():
 
     elif class_name in model_types["classifier"]:
 
+        if args.indir_background is None:
+            data_dir_background = cfg["General"]["data_dir_background"]
+        else:
+            data_dir_background = args.indir_background
+
         # read background file from either config file or CLI
         if args.infile_background is None:
             data_bkg_file = cfg["General"]["data_bkg_file"].format(args.mode)
         else:
             data_bkg_file = args.infile_background
 
-        # filename_sig = path.join(data_dir, data_sig_file)
-        filename_bkg = path.join(data_dir, data_bkg_file)
-
-        # table_name = [table_name_template + cam_id for cam_id in cam_ids]
+        filename_bkg = path.join(data_dir_background, data_bkg_file)
 
         # Get the selection cuts
         sig_cuts = make_cut_list(cfg["SigFiducialCuts"])
@@ -220,7 +221,8 @@ def main():
                 data_sig = data_sig[0:args.max_events]
                 data_bkg = data_bkg[0:args.max_events]
 
-            print(f"Going to split {len(data_sig)} SIGNAL images and {len(data_bkg)} BACKGROUND images")
+            print(
+                f"Going to split {len(data_sig)} SIGNAL images and {len(data_bkg)} BACKGROUND images")
 
             # Initialize the model
             factory = TrainModel(
