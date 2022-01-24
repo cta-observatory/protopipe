@@ -1,22 +1,8 @@
 import numpy as np
 import pandas as pd
-import pickle
-import gzip
 from sklearn.metrics import auc, roc_curve
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
-
-
-def save_obj(obj, name):
-    """Save object in binary"""
-    with gzip.open(name, "wb") as f:
-        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
-
-
-def load_obj(name):
-    """Load object in binary"""
-    with gzip.open(name, "rb") as f:
-        return pickle.load(f)
 
 
 def prepare_data(ds, derived_features, cuts, select_data=True, label=None):
@@ -52,7 +38,8 @@ def prepare_data(ds, derived_features, cuts, select_data=True, label=None):
         # feature for classification
         # We should propably support a more elastic choice in the future.
         if not all(i in derived_features for i in ["log10_reco_energy", "log10_reco_energy_tel"]):
-            raise ValueError('log10_reco_energy and log10_reco_energy_tel need to be model features.')
+            raise ValueError(
+                'log10_reco_energy and log10_reco_energy_tel need to be model features.')
 
     # Compute derived features and add them to the dataframe
     for feature_name, feature_expression in derived_features.items():
@@ -76,7 +63,7 @@ def make_cut_list(cuts):
 
 def split_train_test(survived_images, train_fraction, feature_name_list, target_name):
     """Split the data selected for cuts in train and test samples.
-    
+
     If the estimator is a classifier, data is split in a stratified fashion,
     using this as the class labels.
 

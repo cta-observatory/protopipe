@@ -4,7 +4,7 @@ import argparse
 import joblib
 from os import path
 
-from protopipe.mva.utils import save_obj
+from protopipe.pipeline.io import save_obj
 
 
 def initialize_script_arguments():
@@ -60,11 +60,16 @@ def initialize_script_arguments():
                        help="Select cameras like 'LSTCam CHEC' (Priority 3)",)
 
     parser.add_argument(
-        "-i",
-        "--indir",
+        "--indir_signal",
         type=str,
         default=None,
-        help="Directory containing the required input file(s) (default: read from config file)"
+        help="Directory containing the required SIGNAL input file(s) (default: read from config file)"
+    )
+    parser.add_argument(
+        "--indir_background",
+        type=str,
+        default=None,
+        help="Directory containing the required BACKGROUND input file(s) (default: read from config file)"
     )
     parser.add_argument(
         "--infile_signal",
