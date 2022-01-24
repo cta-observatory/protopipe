@@ -113,7 +113,7 @@ class TrainModel(object):
                     max_events = len(X_test_bkg)
                 else:
                     max_events = len(X_test_sig)
-            
+
             try:
                 X_test = X_test_sig[0:max_events].append(X_test_bkg[0:max_events])
                 y_test = y_test_sig[0:max_events].append(y_test_bkg[0:max_events])
@@ -195,7 +195,7 @@ class TrainModel(object):
         print("Best parameters set found on development set:")
         for key in model.best_params_.keys():
             print(" - {}: {}".format(key, model.best_params_[key]))
-        
+
         print("Grid scores on development set:")
         means = model.cv_results_["mean_test_score"]
         stds = model.cv_results_["std_test_score"]
