@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from sys import exit
+from sys import exit as sys_exit
 import numpy as np
 import pandas as pd
 from glob import glob
@@ -16,14 +14,14 @@ from ctapipe.utils import CutFlow
 # Utilities
 from protopipe.pipeline.temp import MySimTelEventSource
 from protopipe.pipeline import EventPreparer
+from protopipe.pipeline.io import load_config, load_models
 from protopipe.pipeline.utils import (
     bcolors,
     make_argparser,
+    prod5N_array,
     prod3b_array,
     str2bool,
-    load_config,
-    load_models,
-    SignalHandler,
+    SignalHandler
 )
 
 
@@ -35,7 +33,7 @@ def main():
     parser.add_argument(
         "--debug", action="store_true", help="Print debugging information",
     )
-    
+
     parser.add_argument(
         "--show_progress_bar",
         action="store_true",
@@ -86,6 +84,21 @@ def main():
         )
         exit()
 
+    # Check that the user specify site, array and production
+    try:
+        site = cfg["General"]["site"]
+        array = cfg["General"]["array"]
+        production = cfg["General"]["production"]
+        assert all(len(x) > 0 for x in [site, array, production])
+    except (KeyError, AssertionError):
+        raise ValueError(
+            bcolors.FAIL +
+            """At least one of 'site', 'array' and
+            'production' are not properly defined in the analysis configuration
+            file.""" +
+            + bcolors.ENDC)
+        sys_exit(-1)
+
     # Add force_tailcut_for_extended_cleaning in configuration
     cfg["General"][
         "force_tailcut_for_extended_cleaning"
@@ -105,13 +118,21 @@ def main():
 
     if not filenamelist:
         print("no files found; check indir: {}".format(args.indir))
-        exit(-1)
+        sys_exit(-1)
 
     # Get the IDs of the involved telescopes and associated cameras together
     # with the equivalent focal lengths from the first event
-    allowed_tels, cams_and_foclens, subarray = prod3b_array(
-        filenamelist[0], site, array
-    )
+    if production == "Prod5N":
+        allowed_tels, cams_and_foclens, subarray = prod5N_array(
+            filenamelist[0], site, array
+        )
+    elif production == "Prod3b":
+        allowed_tels, cams_and_foclens, subarray = prod3b_array(
+            filenamelist[0], site, array
+        )
+    else:
+        raise ValueError(bcolors.FAIL + "Unsupported production." + bcolors.ENDC)
+        sys_exit(-1)
 
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
@@ -135,7 +156,11 @@ def main():
         estimation_weight_energy = "CTAMARS"
     classifier_method = cfg["GammaHadronClassifier"]["method_name"]
     estimation_weight_classification = cfg["GammaHadronClassifier"]["estimation_weight"]
-    use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
+    try:
+        use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
+    except KeyError:
+        # if not specified use "gammaness" as particle type score
+        use_proba_for_classifier = True
 
     if regressor_method in ["None", "none", None]:
         print(
@@ -219,21 +244,21 @@ def main():
 
     # Declaration of the column descriptor for the (possible) images file
     StoredImages = dict(
-        event_id = tb.Int32Col(dflt=1, pos=0),
-        tel_id = tb.Int16Col(dflt=1, pos=1)
+        event_id=tb.Int32Col(dflt=-1, pos=0),
+        tel_id=tb.Int16Col(dflt=-1, pos=1)
         # reco_image, true_image and cleaning_mask_reco
         # are defined later sicne they depend on the number of pixels
-        )
+    )
 
     # this class defines the reconstruction parameters to keep track of
     class RecoEvent(tb.IsDescription):
         obs_id = tb.Int16Col(dflt=-1, pos=0)
         event_id = tb.Int32Col(dflt=-1, pos=1)
-        NTels_trig = tb.Int16Col(dflt=0, pos=2)
-        NTels_reco = tb.Int16Col(dflt=0, pos=3)
-        NTels_reco_lst = tb.Int16Col(dflt=0, pos=4)
-        NTels_reco_mst = tb.Int16Col(dflt=0, pos=5)
-        NTels_reco_sst = tb.Int16Col(dflt=0, pos=6)
+        NTels_trig = tb.Int16Col(dflt=-1, pos=2)
+        NTels_reco = tb.Int16Col(dflt=-1, pos=3)
+        N_reco_LST = tb.Int16Col(dflt=-1, pos=4)
+        N_reco_MST = tb.Int16Col(dflt=-1, pos=5)
+        N_reco_SST = tb.Int16Col(dflt=-1, pos=6)
         pointing_az = tb.Float32Col(dflt=np.nan, pos=7)
         pointing_alt = tb.Float32Col(dflt=np.nan, pos=8)
         true_az = tb.Float32Col(dflt=np.nan, pos=9)
@@ -254,7 +279,10 @@ def main():
         reco_core_y = tb.Float32Col(dflt=np.nan, pos=24)
         true_core_x = tb.Float32Col(dflt=np.nan, pos=25)
         true_core_y = tb.Float32Col(dflt=np.nan, pos=26)
-        is_valid=tb.BoolCol(dflt=False, pos=27)
+        is_valid = tb.BoolCol(dflt=False, pos=27)
+        N_LST = tb.Int16Col(dflt=-1, pos=28)
+        N_MST = tb.Int16Col(dflt=-1, pos=29)
+        N_SST = tb.Int16Col(dflt=-1, pos=30)
 
     reco_outfile = tb.open_file(
         mode="w",
@@ -270,7 +298,7 @@ def main():
             }
         )
     )
-
+    reco_outfile.root._v_attrs["status"] = "incomplete"
     reco_table = reco_outfile.create_table("/", "reco_events", RecoEvent)
     reco_event = reco_table.row
 
@@ -279,7 +307,7 @@ def main():
         images_outfile = tb.open_file("images.h5", mode="w")
         images_table = {}
         images_phe = {}
-        
+
     # Configuration options for MySimTelEventSource
     try:
         calib_scale = cfg["Calibration"]["calib_scale"]
@@ -308,21 +336,23 @@ def main():
             leakage_dict,
             concentration_dict,
             n_tels,
+            n_tels_reco,
             max_signals,
             n_cluster_dict,
             reco_result,
             impact_dict,
             good_event,
             good_for_reco,
+            image_extraction_status
         ) in tqdm(
-                    preper.prepare_event(source,
-                                         save_images=args.save_images,
-                                         debug=args.debug),
-                    desc=source.__class__.__name__,
-                    total=source.max_events,
-                    unit="event",
-                    disable= not args.show_progress_bar
-                 ):
+            preper.prepare_event(source,
+                                 save_images=args.save_images,
+                                 debug=args.debug),
+            desc=source.__class__.__name__,
+            total=source.max_events,
+            unit="event",
+            disable=not args.show_progress_bar
+        ):
 
             # True direction
             true_az = event.simulation.shower.az
@@ -442,11 +472,13 @@ def main():
 
                     if (good_for_reco[tel_id] == 1) and (estimation_weight_energy == "CTAMARS"):
                         # Get an array of trees
-                        predictions_trees = np.array([tree.predict(features_values) for tree in model.estimators_])
+                        predictions_trees = np.array(
+                            [tree.predict(features_values) for tree in model.estimators_])
                         energy_tel[idx] = np.mean(predictions_trees, axis=0)
                         weight_statistic_tel[idx] = np.std(predictions_trees, axis=0)
                     elif (good_for_reco[tel_id] == 1):
-                        data.eval(f'estimation_weight_energy = {estimation_weight_energy}', inplace=True)
+                        data.eval(
+                            f'estimation_weight_energy = {estimation_weight_energy}', inplace=True)
                         energy_tel[idx] = model.predict(features_values)
                         weight_tel[idx] = data["estimation_weight_energy"]
                     else:
@@ -548,7 +580,8 @@ def main():
                     ############################################################
 
                     # add weigth to event dataframe
-                    data.eval(f'estimation_weight_classification = {estimation_weight_classification}', inplace=True)
+                    data.eval(
+                        f'estimation_weight_classification = {estimation_weight_classification}', inplace=True)
 
                     # Here we check for valid telescope-wise energies
                     # Because it means that it's a good image
@@ -559,7 +592,8 @@ def main():
                         if use_proba_for_classifier is False:
                             score_tel[idx] = model.decision_function(features_values)
                         else:
-                            gammaness_tel[idx] = model.predict_proba(features_values)[:, 1]
+                            gammaness_tel[idx] = model.predict_proba(features_values)[
+                                :, 1]
                         weight_tel[idx] = data["estimation_weight_classification"]
                     else:
                         # WARNING:
@@ -655,19 +689,31 @@ def main():
             # Now we start recording the data to file
             reco_event["event_id"] = event.index.event_id
             reco_event["obs_id"] = event.index.obs_id
-            reco_event["NTels_trig"] = len(event.r1.tel.keys())
-            reco_event["NTels_reco"] = len(hillas_dict)
-            reco_event["NTels_reco_lst"] = n_tels["LST_LST_LSTCam"]
-            reco_event["NTels_reco_mst"] = (
+            reco_event["NTels_trig"] = n_tels["Triggered"]
+            reco_event["N_LST"] = n_tels["LST_LST_LSTCam"]
+            reco_event["N_MST"] = (
                 n_tels["MST_MST_NectarCam"]
                 + n_tels["MST_MST_FlashCam"]
                 + n_tels["MST_SCT_SCTCam"]
             )
-            reco_event["NTels_reco_sst"] = (
+            reco_event["N_SST"] = (
                 n_tels["SST_1M_DigiCam"]
                 + n_tels["SST_ASTRI_ASTRICam"]
                 + n_tels["SST_GCT_CHEC"]
             )
+            reco_event["N_reco_LST"] = n_tels_reco["LST_LST_LSTCam"]
+            reco_event["N_reco_MST"] = (
+                n_tels_reco["MST_MST_NectarCam"]
+                + n_tels_reco["MST_MST_FlashCam"]
+                + n_tels_reco["MST_SCT_SCTCam"]
+            )
+            reco_event["N_reco_SST"] = (
+                n_tels_reco["SST_1M_DigiCam"]
+                + n_tels_reco["SST_ASTRI_ASTRICam"]
+                + n_tels_reco["SST_GCT_CHEC"]
+            )
+            reco_event["NTels_reco"] = reco_event["N_reco_LST"] + \
+                reco_event["N_reco_MST"] + reco_event["N_reco_SST"]
             reco_event["pointing_az"] = pointing_az.to("deg").value
             reco_event["pointing_alt"] = pointing_alt.to("deg").value
             reco_event["reco_energy"] = reco_energy
@@ -722,7 +768,15 @@ def main():
     except ZeroDivisionError:
         pass
 
+    # Conclude by writing some metadata
+    reco_outfile.root._v_attrs["status"] = "complete"
+    reco_outfile.root._v_attrs["num_showers"] = source.simulation_config.num_showers
+    reco_outfile.root._v_attrs["shower_reuse"] = source.simulation_config.shower_reuse
+
+    reco_outfile.close()
+
     print("Job done!")
+
 
 if __name__ == "__main__":
     main()
