@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.metrics import classification_report
 from sklearn.calibration import CalibratedClassifierCV
 
-from protopipe.pipeline.utils import load_config, get_camera_names
+from protopipe.pipeline.io import load_config, get_camera_names
 from protopipe.mva import TrainModel
 from protopipe.mva.io import initialize_script_arguments, save_output
 from protopipe.mva.utils import (
