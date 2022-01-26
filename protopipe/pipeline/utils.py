@@ -179,7 +179,7 @@ def final_array_to_use(
         list given by 'array'.
     original_array : `ctapipe.instrument.SubarrayDescription`
         Full simulated array from the first event.
-    subarray_selection : {``str`, `list` [`int`]}
+    subarray_selection : {`str`, `list` [`int`]}
         Custom list of telescope IDs that the user wants to use or name of
         specific subarray.
 
@@ -227,7 +227,7 @@ def prod5N_array(file_name, site: str, subarray_selection: Union[str, List[int]]
     ----------
     file_name : `str`
         Name of the first file of the list of files given by the user.
-    subarray_selection : {``str`, `list` [`int`]}
+    subarray_selection : {`str`, `list` [`int`]}
         Name or list if telescope IDs which identifies the subarray to extract.
     site : `str`
         Can be only "north" or "south".
@@ -387,7 +387,7 @@ def prod3b_array(file_name, site, array):
     ----------
     file_name : `str`
         Name of the first file of the list of files given by the user.
-    array : {``str`, `list` [`int`]}
+    array : {`str`, `list` [`int`]}
         Name of the subarray or - if not supported - a custom list of telescope
         IDs that the user wants to use
     site : `str`
