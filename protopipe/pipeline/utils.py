@@ -52,11 +52,11 @@ def load_config(name):
 
 
 class SignalHandler:
-    """ handles ctrl+c signals; set up via
-        `signal_handler = SignalHandler()
-        `signal.signal(signal.SIGINT, signal_handler)`
-        # or for two step interupt:
-        `signal.signal(signal.SIGINT, signal_handler.stop_drawing)`
+    """handles ctrl+c signals; set up via
+    `signal_handler = SignalHandler()
+    `signal.signal(signal.SIGINT, signal_handler)`
+    # or for two step interupt:
+    `signal.signal(signal.SIGINT, signal_handler.stop_drawing)`
     """
 
     def __init__(self):
@@ -163,7 +163,9 @@ def make_argparser():
     return parser
 
 
-def final_array_to_use(original_array, subarray_selection: Union[str, List[int]], subarrays=None):
+def final_array_to_use(
+    original_array, subarray_selection: Union[str, List[int]], subarrays=None
+):
     """Infer IDs of telescopes and cameras with equivalent focal lengths.
 
     This is an helper function for utils.prod3b_array.
@@ -199,14 +201,18 @@ def final_array_to_use(original_array, subarray_selection: Union[str, List[int]]
     if subarrays:
         tel_ids = subarrays[subarray_selection]
         selected_subarray = original_array.select_subarray(
-            tel_ids, name="selected_subarray")
+            tel_ids, name="selected_subarray"
+        )
     else:
         selected_subarray = original_array.select_subarray(
-            subarray_selection, name="selected_subarray")
+            subarray_selection, name="selected_subarray"
+        )
         tel_ids = selected_subarray.tel_ids
     tel_types = selected_subarray.telescope_types
     cams_and_foclens = {
-        tel_types[i].camera.camera_name: tel_types[i].optics.equivalent_focal_length.value
+        tel_types[i]
+        .camera.camera_name: tel_types[i]
+        .optics.equivalent_focal_length.value
         for i in range(len(tel_types))
     }
     return set(tel_ids), cams_and_foclens, selected_subarray
@@ -242,8 +248,9 @@ def prod5N_array(file_name, site: str, subarray_selection: Union[str, List[int]]
 
     """
 
-    source = EventSource(input_url=file_name, max_events=1)
-    original_array = source.subarray
+    with EventSource(input_url=file_name, max_events=1) as source:
+        original_array = source.subarray
+
     tot_num_tels = original_array.num_tels
 
     # prod5N_alpha_north
@@ -256,41 +263,92 @@ def prod5N_array(file_name, site: str, subarray_selection: Union[str, List[int]]
     # Prod5 layout S-M6C5-14MSTs37SSTs-MSTF
     # 0 LSTs and 14 MSTs (FlashCam type), 37 SSTs
 
-    site_to_subarray_name = {"north": ["prod5N_alpha_north"],
-                             "south": ["prod5N_alpha_south"]}
+    site_to_subarray_name = {
+        "north": ["prod5N_alpha_north"],
+        "south": ["prod5N_alpha_south"],
+    }
 
     name_to_tel_ids = {
         "full_array": original_array.tel_ids,
         "prod5N_alpha_north": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 35],
-        "prod5N_alpha_south": [5, 6, 8, 10, 11, 12, 13, 14, 126, 16, 125, 20, 24,
-                               26, 30, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
-                               44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 133, 59, 61,
-                               66, 67, 68, 69, 70, 71, 72, 73, 143, 144, 145, 146]}
+        "prod5N_alpha_south": [
+            5,
+            6,
+            8,
+            10,
+            11,
+            12,
+            13,
+            14,
+            126,
+            16,
+            125,
+            20,
+            24,
+            26,
+            30,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            133,
+            59,
+            61,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            143,
+            144,
+            145,
+            146,
+        ],
+    }
 
     # Add subarrays by telescope type for the full original array
     # and extract the same from the alpha congiguration subarrays
     for tel_type in original_array.telescope_types:
         name_to_tel_ids[f"full_array_{tel_type}"] = original_array.get_tel_ids_for_type(
-            tel_type)
+            tel_type
+        )
         name_to_tel_ids[f"prod5N_alpha_north_subarray_{tel_type}"] = set(
-            name_to_tel_ids[f"full_array_{tel_type}"]).intersection(name_to_tel_ids["prod5N_alpha_north"])
+            name_to_tel_ids[f"full_array_{tel_type}"]
+        ).intersection(name_to_tel_ids["prod5N_alpha_north"])
         name_to_tel_ids[f"prod5N_alpha_south_subarray_{tel_type}"] = set(
-            name_to_tel_ids[f"full_array_{tel_type}"]).intersection(name_to_tel_ids["prod5N_alpha_south"])
+            name_to_tel_ids[f"full_array_{tel_type}"]
+        ).intersection(name_to_tel_ids["prod5N_alpha_south"])
 
     # Check if the user is using the correct file for the site declared in
     # the configuration
     if site.lower() == "north" and (tot_num_tels > 84):
-        raise ValueError(
-            "\033[91m Input simtel file and site are uncorrelated!\033[0m"
-        )
+        raise ValueError("\033[91m Input simtel file and site are uncorrelated!\033[0m")
     if site.lower() == "south" and (tot_num_tels < 180):
-        raise ValueError(
-            "\033[91m infile and site uncorrelated! \033[0m"
-        )
+        raise ValueError("\033[91m infile and site uncorrelated! \033[0m")
 
     # Validate the subarray selection in case it is a string
-    if (type(subarray_selection) is str):
-        if (subarray_selection not in name_to_tel_ids):
+    if type(subarray_selection) is str:
+        if subarray_selection not in name_to_tel_ids:
             raise ValueError(
                 f"""\033[91m {subarray_selection} is not a supported subarray_selection for this production.
                 Possible choices are:
@@ -304,10 +362,16 @@ def prod5N_array(file_name, site: str, subarray_selection: Union[str, List[int]]
                 """
             )
         else:
-            print(f"\033[94m Extracting telescope IDs for {subarray_selection}...\033[0m")
-            return final_array_to_use(original_array, subarray_selection, name_to_tel_ids)
+            print(
+                f"\033[94m Extracting telescope IDs for {subarray_selection}...\033[0m"
+            )
+            return final_array_to_use(
+                original_array, subarray_selection, name_to_tel_ids
+            )
     else:  # subarray_selection is a list of telescope IDs
-        print(f"\033[94m Extracting telescope IDs list = {subarray_selection}...\033[0m")
+        print(
+            f"\033[94m Extracting telescope IDs list = {subarray_selection}...\033[0m"
+        )
         return final_array_to_use(original_array, subarray_selection)
 
     return final_array_to_use(original_array, subarray_selection)
@@ -340,8 +404,8 @@ def prod3b_array(file_name, site, array):
         This will feed both the estimators and the image cleaning.
 
     """
-    source = EventSource(input_url=file_name, max_events=1)
-    original_array = source.subarray  # get simulated array
+    with EventSource(input_url=file_name, max_events=1) as source:
+        original_array = source.subarray  # get simulated array
 
     # Dictionaries of subarray names for BASELINE simulations
     subarrays_N = {  # La Palma has only 2 cameras
@@ -432,7 +496,9 @@ def prod3b_array(file_name, site, array):
                     )
                 else:
                     if original_array.num_tels == 98:  # this is gamma_test_large
-                        subarrays_S["subarray_SSTs"] = original_array.get_tel_ids_for_type(
+                        subarrays_S[
+                            "subarray_SSTs"
+                        ] = original_array.get_tel_ids_for_type(
                             "SST_ASTRI_ASTRICam"  # in this file SSTs are ASTRI
                         )
                     return final_array_to_use(original_array, array, subarrays_S)
@@ -574,7 +640,7 @@ def get_camera_names(inputPath=None):
     """
     if inputPath is None:
         print("ERROR: check input")
-    h5file = tables.open_file(inputPath, mode='r')
+    h5file = tables.open_file(inputPath, mode="r")
     group = h5file.get_node("/")
     camera_names = [x.name for x in group._f_list_nodes()]
     h5file.close()
@@ -618,19 +684,25 @@ def add_stats(data, ax, x=0.70, y=0.85, fontsize=10):
     mu = data.mean()
     median = np.median(data)
     sigma = data.std()
-    textstr = '\n'.join((
-        r'$\mu=%.2f$' % (mu, ),
-        r'$\mathrm{median}=%.2f$' % (median, ),
-        r'$\sigma=%.2f$' % (sigma, )))
+    textstr = "\n".join(
+        (
+            r"$\mu=%.2f$" % (mu,),
+            r"$\mathrm{median}=%.2f$" % (median,),
+            r"$\sigma=%.2f$" % (sigma,),
+        )
+    )
 
     # these are matplotlib.patch.Patch properties
-    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
 
     # place a text box in upper left in axes coords
-    ax.text(x, y,
-            textstr,
-            transform=ax.transAxes,
-            fontsize=fontsize,
-            horizontalalignment='left',
-            verticalalignment='center',
-            bbox=props)
+    ax.text(
+        x,
+        y,
+        textstr,
+        transform=ax.transAxes,
+        fontsize=fontsize,
+        horizontalalignment="left",
+        verticalalignment="center",
+        bbox=props,
+    )
