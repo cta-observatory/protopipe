@@ -36,7 +36,7 @@ def initialize_script_arguments():
         "--indir",
         type=str,
         default=None,
-        help="Directory containing the required DL2 input files"
+        help="Directory containing the required DL2 input files (default: read from config file)"
     )
     parser.add_argument(
         "--template_input_file",
@@ -48,18 +48,19 @@ def initialize_script_arguments():
         "--outdir_path",
         type=str,
         default=None,
-        help="Output directory for DL3 file"
+        help="Output directory for DL3 file (default: read from config file)"
     )
     parser.add_argument(
         "--out_file_name",
         type=str,
         default=None,
-        help="Desired name for DL3 file"
+        help="Desired name for DL3 file (default: built from config file)"
     )
 
     args = parser.parse_args()
 
     return args
+
 
 def percentiles(values, bin_values, bin_edges, percentile):
     # Seems complicated for vector defined as [inf, inf, .., inf]

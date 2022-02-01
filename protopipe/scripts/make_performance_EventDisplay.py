@@ -88,7 +88,8 @@ def main():
 
     outdir = os.path.join(outdir_path, out_file_name)
 
-    T_OBS = cfg['analysis']['obs_time']['value'] * u.Unit(cfg['analysis']['obs_time']['unit'])
+    T_OBS = cfg['analysis']['obs_time']['value'] * \
+        u.Unit(cfg['analysis']['obs_time']['unit'])
 
     # scaling between on and off region.
     # Make off region 5 times larger than on region for better
@@ -120,10 +121,11 @@ def main():
 
     for particle_type, p in particles.items():
         log.info(f"Simulated {particle_type.title()} Events:")
-        p["events"], p["simulation_info"] = read_DL2_pyirf(p["file"],p["run_header"])
+        p["events"], p["simulation_info"] = read_DL2_pyirf(p["file"], p["run_header"])
 
         # Multiplicity cut
-        p["events"] = p["events"][p["events"]["multiplicity"] >= cfg['analysis']['cut_on_multiplicity']].copy()
+        p["events"] = p["events"][p["events"]["multiplicity"]
+                                  >= cfg['analysis']['cut_on_multiplicity']].copy()
 
         p["simulated_spectrum"] = PowerLaw.from_simulation(p["simulation_info"], T_OBS)
         # Weight events
@@ -163,10 +165,9 @@ def main():
 
     # event display uses much finer bins for the theta cut than
     # for the sensitivity
-    theta_bins = add_overflow_bins(
-        create_bins_per_decade(10 ** (-1.9) * u.TeV, 10 ** 2.3005 * u.TeV, 50,)
-    )
-
+    theta_bins = add_overflow_bins(create_bins_per_decade(10 ** (-1.9) * u.TeV,
+                                                          10 ** 2.31 * u.TeV,
+                                                          50))
     # theta cut is 68 percent containmente of the gammas
     # for now with a fixed global, unoptimized score cut
     mask_theta_cuts = gammas["gh_score"] >= INITIAL_GH_CUT
@@ -181,11 +182,9 @@ def main():
     )
 
     # same bins as event display uses
-    sensitivity_bins = add_overflow_bins(
-        create_bins_per_decade(
-            10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, bins_per_decade=5
-        )
-    )
+    sensitivity_bins = add_overflow_bins(create_bins_per_decade(10 ** -1.9 * u.TeV,
+                                                                10 ** 2.31 * u.TeV,
+                                                                bins_per_decade=5))
 
     log.info("Optimizing G/H separation cut for best sensitivity")
     gh_cut_efficiencies = np.arange(
@@ -267,15 +266,12 @@ def main():
     }
 
     # binnings for the irfs
-    true_energy_bins = add_overflow_bins(
-        create_bins_per_decade(10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, 10)
-    )
-    reco_energy_bins = add_overflow_bins(
-        create_bins_per_decade(10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, 5)
-    )
+    true_energy_bins = create_bins_per_decade(10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, 10)
+    reco_energy_bins = create_bins_per_decade(10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, 5)
+
     fov_offset_bins = [0, 0.5] * u.deg
     source_offset_bins = np.arange(0, 1 + 1e-4, 1e-3) * u.deg
-    energy_migration_bins = np.geomspace(0.2, 5, 200)
+    energy_migration_bins = np.arange(0, 5, 0.01)
 
     for label, mask in masks.items():
         effective_area = effective_area_per_energy(
@@ -288,7 +284,7 @@ def main():
                 effective_area[..., np.newaxis],  # +1 dimension for FOV offset
                 true_energy_bins,
                 fov_offset_bins,
-                extname="EFFECTIVE_AREA" + label,
+                extname="EFFECTIVE AREA" + label,
             )
         )
         edisp = energy_dispersion(
@@ -313,7 +309,7 @@ def main():
         gammas[gammas["selected"]],
         reco_energy_bins,
         energy_type="reco"
-        )
+    )
 
     # Here we use reconstructed energy instead of true energy for the sake of
     # current pipelines comparisons
@@ -321,7 +317,7 @@ def main():
         gammas[gammas["selected_gh"]],
         reco_energy_bins,
         energy_type="reco"
-        )
+    )
 
     psf = psf_table(
         gammas[gammas["selected_gh"]],
