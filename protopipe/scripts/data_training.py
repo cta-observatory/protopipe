@@ -238,6 +238,9 @@ def main():
         # true_image=tb.Float32Col(shape=(1855), pos=56),
         # reco_image=tb.Float32Col(shape=(1855), pos=57),
         # cleaning_mask_reco=tb.BoolCol(shape=(1855), pos=58),  # not in ctapipe
+        # =======================================================================
+        #    TEMP
+        image_extraction=tb.Int16Col(dflt=-1, pos=59),
     )
 
     outfile = tb.open_file(args.outfile, mode="w")
@@ -283,6 +286,7 @@ def main():
             impact_dict,
             good_event,
             good_for_reco,
+            image_extraction_status
         ) in tqdm(
             preper.prepare_event(source,
                                  save_images=args.save_images,
@@ -567,6 +571,7 @@ def main():
                 outData[cam_id]["concentration_pixel"] = concentration_dict[tel_id][
                     "concentration_pixel"
                 ]
+                outData[cam_id]["image_extraction"] = image_extraction_status[tel_id]
 
                 # =======================
                 # IMAGES INFORMATION

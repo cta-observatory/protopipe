@@ -10,8 +10,6 @@ from collections import namedtuple, OrderedDict
 # CTAPIPE utilities
 from ctapipe.instrument import CameraGeometry
 from ctapipe.containers import ReconstructedShowerContainer
-from ctapipe.calib import CameraCalibrator
-from ctapipe.image.extractor import TwoPassWindowSum
 from ctapipe.image import (leakage_parameters,
                            number_of_islands,
                            largest_island,
@@ -34,8 +32,10 @@ from ctapipe.reco.reco_algorithms import (
 from .image_cleaning import ImageCleaner
 from .utils import bcolors, effective_focal_lengths, camera_radius, CTAMARS_radii
 from .temp import (
+    MyCameraCalibrator,
+    TwoPassWindowSum,
     HillasParametersTelescopeFrameContainer,
-    HillasReconstructor,
+    HillasReconstructor
 )
 
 # PiWy utilities
@@ -70,6 +70,7 @@ PreparedEvent = namedtuple(
         "impact_dict",
         "good_event",
         "good_for_reco",
+        "image_extraction_status"
     ],
 )
 
@@ -85,7 +86,8 @@ def stub(
     hillas_dict_reco,
     n_tels,
     leakage_dict,
-    concentration_dict
+    concentration_dict,
+    passed
 ):
     """Default container for images that did not survive cleaning."""
     return PreparedEvent(
@@ -108,6 +110,7 @@ def stub(
             hillas_dict_reco, np.nan * u.m
         ),  # undefined impact parameter
         good_event=False,
+        image_extraction_status=passed
     )
 
 
@@ -216,6 +219,7 @@ class EventPreparer:
             OrderedDict(
                 [
                     ("noCuts", None),
+                    ("bad image extraction", lambda p: p == 0),
                     ("min pixel", lambda s: np.count_nonzero(s) < npix_bounds[0]),
                     ("min charge", lambda x: x < charge_bounds[0]),
                     (
@@ -244,7 +248,7 @@ class EventPreparer:
         # specific to TwoPassWindowSum later on
         self.extractorName = list(extractor.get_current_config().items())[0][0]
 
-        self.calib = CameraCalibrator(
+        self.calib = MyCameraCalibrator(
             image_extractor=extractor, subarray=subarray,
         )
 
@@ -291,7 +295,7 @@ class EventPreparer:
             Dictionary of of MyCameraGeometry objects for each camera in the file
         return_stub : bool
             If True, yield also images from events that won't be reconstructed.
-            This feature is not currently available.
+            This is required for DL1 benchmarking.
         save_images : bool
             If True, save photoelectron images from reconstructed events.
         debug : bool
@@ -404,7 +408,7 @@ class EventPreparer:
                     + "Extracting all calibrated images..."
                     + bcolors.ENDC
                 )
-            self.calib(event)  # Calibrate the event
+            passed = self.calib(event)  # Calibrate the event
 
             # =============================================================
             #                BEGINNING OF LOOP OVER TELESCOPES
@@ -480,6 +484,28 @@ class EventPreparer:
                 tel_type = str(source.subarray.tel[tel_id])
                 n_tels[tel_type] += 1
 
+                # We now ASSUME that the event will be good at all levels
+                extracted_image_is_good = True
+                cleaned_image_is_good = True
+                good_for_reco[tel_id] = 1
+                # later we change to 0 at the first condition NOT satisfied
+
+                # Apply some selection over image extraction
+                if self.image_cutflow.cut("bad image extraction", passed[tel_id]):
+                    if debug:
+                        print(
+                            bcolors.WARNING +
+                            "WARNING : bad image extraction!" +
+                            "WARNING : image processed and recorded, but NOT used for DL2." +
+                            bcolors.ENDC
+                        )
+                    # we set immediately this image as BAD at all levels
+                    # for now (and for simplicity) we will process it anyway
+                    # any other failing condition will just confirm this
+                    extracted_image_is_good = False
+                    cleaned_image_is_good = False
+                    good_for_reco[tel_id] = 0
+                
                 # use ctapipe's functionality to get the calibrated image
                 # and scale the reconstructed values if required
                 pmt_signal = event.dl1.tel[tel_id].image
@@ -489,10 +515,6 @@ class EventPreparer:
                     # Save the simulated and reconstructed image of the event
                     dl1_phe_image[tel_id] = pmt_signal
                     mc_phe_image[tel_id] = event.simulation.tel[tel_id].true_image
-
-                # We now ASSUME that the event will be good
-                good_for_reco[tel_id] = 1
-                # later we change to 0 if any condition is NOT satisfied
 
                 if self.cleaner_reco.mode == "tail":  # tail uses only ctapipe
 
@@ -625,8 +647,6 @@ class EventPreparer:
                 # =============================================================
                 #                PRELIMINARY IMAGE SELECTION
                 # =============================================================
-
-                cleaned_image_is_good = True  # we assume this
 
                 if self.image_selection_source == "extended":
                     cleaned_image_to_use = image_extended
@@ -845,7 +865,8 @@ class EventPreparer:
                         hillas_dict_reco,
                         n_tels,
                         leakage_dict,
-                        concentration_dict
+                        concentration_dict,
+                        passed
                     )
                     continue
                 else:
@@ -914,7 +935,8 @@ class EventPreparer:
                         hillas_dict_reco,
                         n_tels,
                         leakage_dict,
-                        concentration_dict
+                        concentration_dict,
+                        passed
                     )
                     continue
                 else:
@@ -1024,8 +1046,10 @@ class EventPreparer:
                         hillas_dict_reco,
                         n_tels,
                         leakage_dict,
-                        concentration_dict
+                        concentration_dict,
+                        passed
                     )
+                    continue
                 else:
                     continue
 
@@ -1055,8 +1079,10 @@ class EventPreparer:
                         hillas_dict_reco,
                         n_tels,
                         leakage_dict,
-                        concentration_dict
+                        concentration_dict,
+                        passed
                     )
+                    continue
                 else:
                     continue
 
@@ -1086,4 +1112,5 @@ class EventPreparer:
                 impact_dict=impact_dict_reco,
                 good_event=True,
                 good_for_reco=good_for_reco,
+                image_extraction_status=passed
             )

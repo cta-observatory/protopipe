@@ -338,6 +338,7 @@ def main():
             impact_dict,
             good_event,
             good_for_reco,
+            image_extraction_status
         ) in tqdm(
             preper.prepare_event(source,
                                  save_images=args.save_images,
