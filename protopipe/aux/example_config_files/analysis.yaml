@@ -1,16 +1,16 @@
 # General informations
 # WARNING: the settings recorded here are unstable and used here only to give an example
-# NOTE: only Prod3b simulations are currently supported.
 General:
- config_name: ''
- site: 'north'  # 'north' or 'south'
- # array can be either
- # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
- # - a custom list of telescope IDs
- # WARNING: for simulations containing multiple copies of the telescopes,
- # only 'full_array' or custom list are supported options!
- array: full_array
- cam_id_list : ['LSTCam', 'NectarCam'] # Selected cameras (disabled option)
+  config_name: ''
+  production: '' # Prod3b or Prod5N
+  site: ''  # 'north' or 'south'
+  # 'array' can be either
+  # - a custom list of telescope IDs
+  # - 'full_array', 'prod5N_alpha_north' or 'prod5N_alpha_south'
+  # If a string, you can select a telescope-type subarray by
+  # adding e.g. '_LST_LST_LSTCam'
+  # NOTE: the 'full_array' is the total original array without any selection
+  array: ''
 
 Calibration:
   # for a CTAMARS-like analysis disable integration correction
