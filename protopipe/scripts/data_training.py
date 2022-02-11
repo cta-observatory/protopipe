@@ -17,6 +17,7 @@ from protopipe.pipeline.temp import MySimTelEventSource
 from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
     make_argparser,
+    prod5N_array,
     prod3b_array,
     str2bool,
     load_config,
@@ -32,7 +33,9 @@ def main():
     parser = make_argparser()
 
     parser.add_argument(
-        "--debug", action="store_true", help="Print debugging information",
+        "--debug",
+        action="store_true",
+        help="Print debugging information",
     )
 
     parser.add_argument(
@@ -42,7 +45,9 @@ def main():
     )
 
     parser.add_argument(
-        "--save_images", action="store_true", help="Save also all images",
+        "--save_images",
+        action="store_true",
+        help="Save also all images",
     )
 
     parser.add_argument(
@@ -59,7 +64,7 @@ def main():
         "--regressor_config",
         type=str,
         default=None,
-        help="Configuration file used to produce regressor model"
+        help="Configuration file used to produce regressor model",
     )
 
     args = parser.parse_args()
@@ -67,13 +72,19 @@ def main():
     # Read configuration file
     cfg = load_config(args.config_file)
 
-    try:  # If the user didn't specify a site and/or and array...
+    # Check that the user specify site, array and production
+    try:
         site = cfg["General"]["site"]
         array = cfg["General"]["array"]
-    except KeyError:  # ...raise an error and exit.
-        print(
-            "\033[91m ERROR: make sure that both 'site' and 'array' are "
-            "specified in the analysis configuration file! \033[0m"
+        production = cfg["General"]["production"]
+        assert all(len(x) > 0 for x in [site, array, production])
+    except (KeyError, AssertionError):
+        raise ValueError(
+            bcolors.FAIL
+            + """At least one of 'site', 'array' and
+            'production' are not properly defined in the analysis configuration
+            file."""
+            + +bcolors.ENDC
         )
         sys_exit(-1)
 
@@ -93,9 +104,17 @@ def main():
 
     # Get the IDs of the involved telescopes and associated cameras together
     # with the equivalent focal lengths from the first event
-    allowed_tels, cams_and_foclens, subarray = prod3b_array(
-        filenamelist[0], site, array
-    )
+    if production == "Prod5N":
+        allowed_tels, cams_and_foclens, subarray = prod5N_array(
+            filenamelist[0], site, array
+        )
+    elif production == "Prod3b":
+        allowed_tels, cams_and_foclens, subarray = prod3b_array(
+            filenamelist[0], site, array
+        )
+    else:
+        raise ValueError(bcolors.FAIL + "Unsupported production." + bcolors.ENDC)
+        sys_exit(-1)
 
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
@@ -128,9 +147,7 @@ def main():
         regressor_config = load_config(args.regressor_config)
         log_10_target = regressor_config["Method"]["log_10_target"]
 
-        regressor_files = (
-            args.regressor_dir + "/regressor_{cam_id}_{regressor}.pkl.gz"
-        )
+        regressor_files = args.regressor_dir + "/regressor_{cam_id}_{regressor}.pkl.gz"
         reg_file = regressor_files.format(
             **{
                 "mode": args.mode,
@@ -232,6 +249,7 @@ def main():
         #    TEMP
         N_reco_LST=tb.Int16Col(dflt=-1, pos=63),
         N_reco_MST=tb.Int16Col(dflt=-1, pos=64),
+        image_extraction=tb.Int16Col(dflt=-1, pos=65),
     )
 
     outfile = tb.open_file(args.outfile, mode="w")
@@ -255,7 +273,7 @@ def main():
             input_url=filename,
             calib_scale=calib_scale,
             allowed_tels=allowed_tels,
-            max_events=args.max_events
+            max_events=args.max_events,
         )
 
         # loop that cleans and parametrises the images and performs the
@@ -279,14 +297,15 @@ def main():
             impact_dict,
             good_event,
             good_for_reco,
+            image_extraction_status,
         ) in tqdm(
-            preper.prepare_event(source,
-                                 save_images=args.save_images,
-                                 debug=args.debug),
+            preper.prepare_event(
+                source, save_images=args.save_images, debug=args.debug
+            ),
             desc=source.__class__.__name__,
             total=source.max_events,
             unit="event",
-            disable=not args.show_progress_bar
+            disable=not args.show_progress_bar,
         ):
             # True direction
             true_az = event.simulation.shower.az
@@ -299,7 +318,10 @@ def main():
             if good_event:
 
                 xi = angular_separation(
-                    event.simulation.shower.az, event.simulation.shower.alt, reco_result.az, reco_result.alt
+                    event.simulation.shower.az,
+                    event.simulation.shower.alt,
+                    reco_result.az,
+                    reco_result.alt,
                 )
 
                 offset = angular_separation(
@@ -369,30 +391,46 @@ def main():
                     # Create a pandas Dataframe with basic quantities
                     # This is needed in order to connect the I/O system of the
                     # model inputs to the in-memory computation of this script
-                    data = pd.DataFrame({
-                        "hillas_intensity": [moments.intensity],
-                        "hillas_width": [moments.width.to("deg").value],
-                        "hillas_length": [moments.length.to("deg").value],
-                        "hillas_x": [moments.x.to("deg").value],
-                        "hillas_y": [moments.y.to("deg").value],
-                        "hillas_phi": [moments.phi.to("deg").value],
-                        "hillas_r": [moments.r.to("deg").value],
-                        "leakage_intensity_width_1_reco": [leakage_dict[tel_id]['leak1_reco']],
-                        "leakage_intensity_width_2_reco": [leakage_dict[tel_id]['leak2_reco']],
-                        "leakage_intensity_width_1": [leakage_dict[tel_id]['leak1']],
-                        "leakage_intensity_width_2": [leakage_dict[tel_id]['leak2']],
-                        "concentration_cog": [concentration_dict[tel_id]['concentration_cog']],
-                        "concentration_core": [concentration_dict[tel_id]['concentration_core']],
-                        "concentration_pixel": [concentration_dict[tel_id]['concentration_pixel']],
-                        "az": [reco_result.az.to("deg").value],
-                        "alt": [reco_result.alt.to("deg").value],
-                        "h_max": [h_max.value],
-                        "impact_dist": [impact_dict[tel_id].to("m").value],
-                    })
+                    data = pd.DataFrame(
+                        {
+                            "hillas_intensity": [moments.intensity],
+                            "hillas_width": [moments.width.to("deg").value],
+                            "hillas_length": [moments.length.to("deg").value],
+                            "hillas_x": [moments.x.to("deg").value],
+                            "hillas_y": [moments.y.to("deg").value],
+                            "hillas_phi": [moments.phi.to("deg").value],
+                            "hillas_r": [moments.r.to("deg").value],
+                            "leakage_intensity_width_1_reco": [
+                                leakage_dict[tel_id]["leak1_reco"]
+                            ],
+                            "leakage_intensity_width_2_reco": [
+                                leakage_dict[tel_id]["leak2_reco"]
+                            ],
+                            "leakage_intensity_width_1": [
+                                leakage_dict[tel_id]["leak1"]
+                            ],
+                            "leakage_intensity_width_2": [
+                                leakage_dict[tel_id]["leak2"]
+                            ],
+                            "concentration_cog": [
+                                concentration_dict[tel_id]["concentration_cog"]
+                            ],
+                            "concentration_core": [
+                                concentration_dict[tel_id]["concentration_core"]
+                            ],
+                            "concentration_pixel": [
+                                concentration_dict[tel_id]["concentration_pixel"]
+                            ],
+                            "az": [reco_result.az.to("deg").value],
+                            "alt": [reco_result.alt.to("deg").value],
+                            "h_max": [h_max.value],
+                            "impact_dist": [impact_dict[tel_id].to("m").value],
+                        }
+                    )
 
                     # Compute derived features and add them to the dataframe
                     for key, expression in features_derived.items():
-                        data.eval(f'{key} = {expression}', inplace=True)
+                        data.eval(f"{key} = {expression}", inplace=True)
 
                     # features_img = np.array(
                     #     [
@@ -415,23 +453,30 @@ def main():
 
                     if estimation_weight == "CTAMARS":
                         # Get an array of trees
-                        predictions_trees = np.array([tree.predict(features_values) for tree in model.estimators_])
+                        predictions_trees = np.array(
+                            [
+                                tree.predict(features_values)
+                                for tree in model.estimators_
+                            ]
+                        )
                         energy_tel[idx] = np.mean(predictions_trees, axis=0)
                         weight_statistic_tel[idx] = np.std(predictions_trees, axis=0)
                     else:
-                        data.eval(f'estimation_weight = {estimation_weight}', inplace=True)
+                        data.eval(
+                            f"estimation_weight = {estimation_weight}", inplace=True
+                        )
                         energy_tel[idx] = model.predict(features_values)
                         weight_tel[idx] = data["estimation_weight"]
-                    
+
                     if log_10_target:
-                        energy_tel[idx] = 10**energy_tel[idx]
-                        weight_tel[idx] = 10**weight_tel[idx]
-                        weight_statistic_tel[idx] = 10**weight_statistic_tel[idx]
+                        energy_tel[idx] = 10 ** energy_tel[idx]
+                        weight_tel[idx] = 10 ** weight_tel[idx]
+                        weight_statistic_tel[idx] = 10 ** weight_statistic_tel[idx]
 
                     if estimation_weight == "CTAMARS":
                         # in CTAMARS the average is done after converting
                         # energy and weight to linear energy scale
-                        weight_tel[idx] = 1 / (weight_statistic_tel[idx]**2)
+                        weight_tel[idx] = 1 / (weight_statistic_tel[idx] ** 2)
 
                     reco_energy_tel[tel_id] = energy_tel[idx]
 
@@ -464,7 +509,9 @@ def main():
                         )  # not in ctapipe
 
                     outTable[cam_id] = outfile.create_table(
-                        "/", cam_id, DataTrainingOutput,
+                        "/",
+                        cam_id,
+                        DataTrainingOutput,
                     )
                     outData[cam_id] = outTable[cam_id].row
 
@@ -503,7 +550,9 @@ def main():
                 outData[cam_id]["h_max"] = h_max.to("m").value
                 outData[cam_id]["err_est_pos"] = np.nan
                 outData[cam_id]["err_est_dir"] = np.nan
-                outData[cam_id]["true_energy"] = event.simulation.shower.energy.to("TeV").value
+                outData[cam_id]["true_energy"] = event.simulation.shower.energy.to(
+                    "TeV"
+                ).value
                 outData[cam_id]["true_az"] = true_az.to("deg").value
                 outData[cam_id]["true_alt"] = true_alt.to("deg").value
                 outData[cam_id]["pointing_az"] = pointing_az.to("deg").value
@@ -522,13 +571,21 @@ def main():
                 outData[cam_id]["hillas_ellipticity"] = ellipticity.value
                 outData[cam_id]["clusters"] = n_cluster_dict[tel_id]
                 outData[cam_id]["n_tel_discri"] = n_tels["GOOD images"]
-                outData[cam_id]["mc_core_x"] = event.simulation.shower.core_x.to("m").value
-                outData[cam_id]["mc_core_y"] = event.simulation.shower.core_y.to("m").value
+                outData[cam_id]["mc_core_x"] = event.simulation.shower.core_x.to(
+                    "m"
+                ).value
+                outData[cam_id]["mc_core_y"] = event.simulation.shower.core_y.to(
+                    "m"
+                ).value
                 outData[cam_id]["reco_core_x"] = reco_core_x.to("m").value
                 outData[cam_id]["reco_core_y"] = reco_core_y.to("m").value
-                outData[cam_id]["mc_h_first_int"] = event.simulation.shower.h_first_int.to("m").value
+                outData[cam_id][
+                    "mc_h_first_int"
+                ] = event.simulation.shower.h_first_int.to("m").value
                 outData[cam_id]["offset"] = offset.to("deg").value
-                outData[cam_id]["mc_x_max"] = event.simulation.shower.x_max.value  # g / cm2
+                outData[cam_id][
+                    "mc_x_max"
+                ] = event.simulation.shower.x_max.value  # g / cm2
                 outData[cam_id]["alt"] = reco_result.alt.to("deg").value
                 outData[cam_id]["az"] = reco_result.az.to("deg").value
                 outData[cam_id]["reco_energy_tel"] = reco_energy_tel[tel_id]
@@ -570,6 +627,7 @@ def main():
                 outData[cam_id]["concentration_pixel"] = concentration_dict[tel_id][
                     "concentration_pixel"
                 ]
+                outData[cam_id]["image_extraction"] = image_extraction_status[tel_id]
 
                 # =======================
                 # IMAGES INFORMATION

@@ -1,10 +1,35 @@
 """Utility functions mainly used in benchmarking notebooks."""
 
 from pathlib import Path
+import yaml
+import pickle
+import gzip
 
+from astropy.table import Table
 import tables
 import pandas
-from astropy.table import Table
+import joblib
+
+
+def load_config(name):
+    """Load a YAML configuration file.
+
+    Parameters
+    ----------
+    name: str or pathlib.Path
+
+    Returns
+    -------
+    cfg: object
+        Python object (usually a dictionary).
+    """
+    try:
+        with open(name, "r") as stream:
+            cfg = yaml.load(stream, Loader=yaml.FullLoader)
+    except FileNotFoundError as e:
+        raise e
+
+    return cfg
 
 
 def get_camera_names(input_directory=None,
@@ -93,3 +118,47 @@ def read_TRAINING_per_tel_type_with_images(input_directory=None,
                 table[camera][key] = h5file.get_node(f"/{camera}").col(key)
 
     return table
+
+
+def load_models(path, cam_id_list):
+    """Load the pickled dictionary of model from disk
+    and fill the model dictionary.
+
+    Parameters
+    ----------
+    path : string
+        The path where the pre-trained, pickled models are
+        stored. `path` is assumed to contain a `{cam_id}` keyword
+        to be replaced by each camera identifier in `cam_id_list`
+        (or at least a naked `{}`).
+    cam_id_list : list
+        List of camera identifiers like telescope ID or camera ID
+        and the assumed distinguishing feature in the filenames of
+        the various pickled regressors.
+
+    Returns
+    -------
+    model_dict: dict
+        Dictionary with `cam_id` as keys and pickled models as values.
+    """
+
+    model_dict = {}
+    for key in cam_id_list:
+        try:
+            model_dict[key] = joblib.load(path.format(cam_id=key))
+        except IndexError:
+            model_dict[key] = joblib.load(path.format(key))
+
+    return model_dict
+
+
+def load_obj(name):
+    """Load object in binary"""
+    with gzip.open(name, "rb") as f:
+        return pickle.load(f)
+
+
+def save_obj(obj, name):
+    """Save object in binary"""
+    with gzip.open(name, "wb") as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)

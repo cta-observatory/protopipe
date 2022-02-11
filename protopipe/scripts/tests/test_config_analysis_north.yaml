@@ -1,16 +1,15 @@
 # General informations
-# WARNING: the settings recorded here are unstable and used here only to give an example
-# NOTE: only Prod3b simulations are currently supported.
 General:
- config_name: 'test_CTA_North'
- site: 'north'  # 'north' or 'south'
- # array can be either
- # - 'subarray_LSTs', 'subarray_MSTs', 'subarray_SSTs' or 'full_array'
- # - a custom list of telescope IDs
- # WARNING: for simulations containing multiple copies of the telescopes,
- # only 'full_array' or custom list are supported options!
- array: full_array
- cam_id_list : ['LSTCam', 'NectarCam'] # Selected cameras (disabled option)
+  config_name: "test_CTA_North"
+  production: "Prod3b" # Prod3b or Prod5N
+  site: "north" # 'north' or 'south'
+  # 'array' can be either
+  # - a custom list of telescope IDs
+  # - 'full_array', 'prod5N_alpha_north' or 'prod5N_alpha_south'
+  # If a string, you can select a telescope-type subarray by
+  # adding e.g. '_LST_LST_LSTCam'
+  # NOTE: the 'full_array' is the total original array without any selection
+  array: "full_array"
 
 Calibration:
   apply_integration_correction: false # for CTAMARS-like analysis use false
@@ -23,82 +22,81 @@ Calibration:
 
 # Cleaning for reconstruction
 ImageCleaning:
+  # Cleaning for reconstruction
+  biggest:
+    tail: #
+      thresholds: # picture, boundary
+        - LSTCam: [4.0, 2.0]
+        - NectarCam: [4.0, 2.0]
+        - FlashCam: [4, 2] # dummy values for reliable unit-testing
+        - ASTRICam: [4, 2] # dummy values for reliable unit-testing
+        - DigiCam: [0, 0] # values left unset for future studies
+        - CHEC: [0, 0] # values left unset for future studies
+        - SCTCam: [0, 0] # values left unset for future studies
+      keep_isolated_pixels: False
+      min_number_picture_neighbors: 1
 
- # Cleaning for reconstruction
- biggest:
-  tail:  #
-   thresholds:  # picture, boundary
-    - LSTCam: [4.0, 2.0]
-    - NectarCam: [4.0, 2.0]
-    - FlashCam: [4,2] # dummy values for reliable unit-testing
-    - ASTRICam: [4,2] # dummy values for reliable unit-testing
-    - DigiCam: [0,0] # values left unset for future studies
-    - CHEC: [0,0] # values left unset for future studies
-    - SCTCam: [0,0] # values left unset for future studies
-   keep_isolated_pixels: False
-   min_number_picture_neighbors: 1
+    wave:
+      # Directory to write temporary files
+      #tmp_files_directory: '/dev/shm/'
+      tmp_files_directory: "./"
+      options:
+        LSTCam:
+          type_of_filtering: "hard_filtering"
+          filter_thresholds: [3, 0.2]
+          last_scale_treatment: "drop"
+          kill_isolated_pixels: True
+          detect_only_positive_structures: False
+          clusters_threshold: 0
+        NectarCam: # TBC
+          type_of_filtering: "hard_filtering"
+          filter_thresholds: [3, 0.2]
+          last_scale_treatment: "drop"
+          kill_isolated_pixels: True
+          detect_only_positive_structures: False
+          clusters_threshold: 0
 
-  wave:
-   # Directory to write temporary files
-   #tmp_files_directory: '/dev/shm/'
-   tmp_files_directory: './'
-   options:
-    LSTCam:
-     type_of_filtering: 'hard_filtering'
-     filter_thresholds: [3, 0.2]
-     last_scale_treatment: 'drop'
-     kill_isolated_pixels: True
-     detect_only_positive_structures: False
-     clusters_threshold: 0
-    NectarCam:  # TBC
-     type_of_filtering: 'hard_filtering'
-     filter_thresholds: [3, 0.2]
-     last_scale_treatment: 'drop'
-     kill_isolated_pixels: True
-     detect_only_positive_structures: False
-     clusters_threshold: 0
+  # Cleaning for energy/score estimation
+  extended:
+    tail: #
+      thresholds: # picture, boundary
+        - LSTCam: [4.0, 2.0]
+        - NectarCam: [4.0, 2.0]
+        - FlashCam: [4, 2] # dummy values for reliable unit-testing
+        - ASTRICam: [4, 2] # dummy values for reliable unit-testing
+        - DigiCam: [0, 0] # values left unset for future studies
+        - CHEC: [0, 0] # values left unset for future studies
+        - SCTCam: [0, 0] # values left unset for future studies
+      keep_isolated_pixels: False
+      min_number_picture_neighbors: 1
 
- # Cleaning for energy/score estimation
- extended:
-  tail:  #
-   thresholds:  # picture, boundary
-    - LSTCam: [4.0, 2.0]
-    - NectarCam: [4.0, 2.0]
-    - FlashCam: [4,2] # dummy values for reliable unit-testing
-    - ASTRICam: [4,2] # dummy values for reliable unit-testing
-    - DigiCam: [0,0] # values left unset for future studies
-    - CHEC: [0,0] # values left unset for future studies
-    - SCTCam: [0,0] # values left unset for future studies
-   keep_isolated_pixels: False
-   min_number_picture_neighbors: 1
-
-  wave:
-   # Directory to write temporary files
-   #tmp_files_directory: '/dev/shm/'
-   tmp_files_directory: './'
-   options:
-    LSTCam:
-     type_of_filtering: 'hard_filtering'
-     filter_thresholds: [3, 0.2]
-     last_scale_treatment: 'posmask'
-     kill_isolated_pixels: True
-     detect_only_positive_structures: False
-     clusters_threshold: 0
-    NectarCam:  # TBC
-     type_of_filtering: 'hard_filtering'
-     filter_thresholds: [3, 0.2]
-     last_scale_treatment: 'posmask'
-     kill_isolated_pixels: True
-     detect_only_positive_structures: False
-     clusters_threshold: 0
+    wave:
+      # Directory to write temporary files
+      #tmp_files_directory: '/dev/shm/'
+      tmp_files_directory: "./"
+      options:
+        LSTCam:
+          type_of_filtering: "hard_filtering"
+          filter_thresholds: [3, 0.2]
+          last_scale_treatment: "posmask"
+          kill_isolated_pixels: True
+          detect_only_positive_structures: False
+          clusters_threshold: 0
+        NectarCam: # TBC
+          type_of_filtering: "hard_filtering"
+          filter_thresholds: [3, 0.2]
+          last_scale_treatment: "posmask"
+          kill_isolated_pixels: True
+          detect_only_positive_structures: False
+          clusters_threshold: 0
 
 # Cut for image selection
 ImageSelection:
- source: "extended" # biggest or extended
- charge: [50., 1e10]
- pixel: [3, 1e10]
- ellipticity: [0.1, 0.6]
- nominal_distance: [0., 0.8]  # in camera radius
+  source: "extended" # biggest or extended
+  charge: [50., 1e10]
+  pixel: [3, 1e10]
+  ellipticity: [0.1, 0.6]
+  nominal_distance: [0., 0.8] # in camera radius
 
 # Minimal number of telescopes to consider events
 Reconstruction:
@@ -110,14 +108,14 @@ Reconstruction:
 
 # Parameters for energy estimation
 EnergyRegressor:
- # Name of the regression method (e.g. AdaBoostRegressor, etc.)
- method_name: 'RandomForestRegressor'
- estimation_weight: 'CTAMARS' # CTAMARS == 1/RMS^2 (RMS from the RF trees)
+  # Name of the regression method (e.g. AdaBoostRegressor, etc.)
+  method_name: "RandomForestRegressor"
+  estimation_weight: "CTAMARS" # CTAMARS == 1/RMS^2 (RMS from the RF trees)
 
 # Parameters for g/h separation
 GammaHadronClassifier:
- # Name of the classification method (e.g. AdaBoostRegressor, etc.)
- method_name: 'RandomForestClassifier'
- # Use probability output or score
- use_proba: True
- estimation_weight: 'hillas_intensity**0.54' # empirical value from CTAMARS
+  # Name of the classification method (e.g. AdaBoostRegressor, etc.)
+  method_name: "RandomForestClassifier"
+  # Use probability output or score
+  use_proba: True
+  estimation_weight: "hillas_intensity**0.54" # empirical value from CTAMARS

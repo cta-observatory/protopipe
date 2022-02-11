@@ -57,8 +57,10 @@ Calibration
 The current calibration is performed using:
 
 * automatic gain channel selection (when more than one) above 4000 ADC counts at RO level,
-* charge and pulse times extraction via ``ctapipe.image.extractors.TwoPassWindowSum``
-* correction for the integration window.
+* charge and pulse times extraction via ``ctapipe.image.extractors.TwoPassWindowSum``,
+* correction for the integration window,
+* each image is labeled with an integer status that describes if its 2nd pass extraction
+  was successful; the default analysis up to DL2 (CTAMARS-like) will use only such images. 
 
 .. figure:: ./double-pass-image-extraction.png
   :width: 800
@@ -86,6 +88,7 @@ but the settings are user-dependent.
 
 **Selection** is performed by the following requirements:
 
+* image extraction status = 1
 * at least 50 phe (still biased units),
 * image's center of gravity (COG) within 80% of camera radius (radii stored in ``protopipe.pipeline.utils``),
 * ellipticity between 0.1 and 0.6,
