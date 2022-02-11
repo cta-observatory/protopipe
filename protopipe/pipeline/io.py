@@ -32,8 +32,7 @@ def load_config(name):
     return cfg
 
 
-def get_camera_names(input_directory=None,
-                     file_name=None):
+def get_camera_names(input_directory=None, file_name=None):
     """Read the names of the cameras.
 
     Parameters
@@ -53,15 +52,15 @@ def get_camera_names(input_directory=None,
 
     input_file = Path(input_directory) / file_name
 
-    with tables.open_file(input_file, 'r') as f:
+    with tables.open_file(input_file, "r") as f:
         camera_names = [cam.name for cam in f.root]
 
     return camera_names
 
 
-def read_protopipe_TRAINING_per_tel_type(input_directory=None,
-                                         file_name=None,
-                                         camera_names=None):
+def read_protopipe_TRAINING_per_tel_type(
+    input_directory=None, file_name=None, camera_names=None
+):
     """Read a TRAINING file and extract the data per telescope type.
 
     Parameters
@@ -88,9 +87,9 @@ def read_protopipe_TRAINING_per_tel_type(input_directory=None,
     return dataFrames
 
 
-def read_TRAINING_per_tel_type_with_images(input_directory=None,
-                                           input_filename=None,
-                                           camera_names=None):
+def read_TRAINING_per_tel_type_with_images(
+    input_directory=None, input_filename=None, camera_names=None
+):
     """Read a TRAINING file and extract the data per telescope type.
 
     Parameters
@@ -111,7 +110,7 @@ def read_TRAINING_per_tel_type_with_images(input_directory=None,
 
     table = {}
 
-    with tables.open_file(input_file, mode='r') as h5file:
+    with tables.open_file(input_file, mode="r") as h5file:
         for camera in camera_names:
             table[camera] = Table()
             for key in h5file.get_node(f"/{camera}").colnames:

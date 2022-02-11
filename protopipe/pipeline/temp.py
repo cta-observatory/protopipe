@@ -18,27 +18,21 @@ from typing import Tuple
 import numpy as np
 from numpy import nan
 from astropy import units as u
-from astropy.coordinates import (
-    SkyCoord,
-    AltAz,
-    spherical_to_cartesian,
-    cartesian_to_spherical,
-)
+from astropy.coordinates import SkyCoord, AltAz, cartesian_to_spherical
 from traitlets import Bool
 from scipy.ndimage.filters import convolve1d
 
 from ctapipe.io import SimTelEventSource
-from ctapipe.containers import (ArrayEventContainer,
-                                SimulatedCameraContainer,
-                                SimulatedEventContainer,
-                                EventType)
-from ctapipe.core import Container, Field
-from ctapipe.core.traits import (
-    Float,
-    FloatTelescopeParameter,
-    BoolTelescopeParameter
+from ctapipe.containers import (
+    ArrayEventContainer,
+    SimulatedCameraContainer,
+    SimulatedEventContainer,
+    EventType,
 )
+from ctapipe.core import Container, Field
+from ctapipe.core.traits import Float, FloatTelescopeParameter, BoolTelescopeParameter
 from ctapipe.calib import CameraCalibrator
+from ctapipe.calib.camera.calibrator import shift_waveforms
 from ctapipe.image import (
     extract_around_peak,
     integration_correction,
@@ -49,22 +43,29 @@ from ctapipe.image import (
     hillas_parameters,
     HillasParameterizationError,
     timing_parameters,
-    camera_to_shower_coordinates
+    camera_to_shower_coordinates,
 )
-from ctapipe.reco.hillas_reconstructor import HillasPlane, normalise, angle, line_line_intersection_3d
+from ctapipe.reco.hillas_reconstructor import (
+    HillasPlane,
+    normalise,
+    angle,
+    line_line_intersection_3d,
+)
 from ctapipe.reco.reco_algorithms import (
     Reconstructor,
     InvalidWidthException,
     TooFewTelescopesException,
 )
-from ctapipe.containers import (HillasParametersContainer,
-                                TimingParametersContainer,
-                                LeakageContainer,
-                                MorphologyContainer,
-                                ConcentrationContainer,
-                                IntensityStatisticsContainer,
-                                PeakTimeStatisticsContainer,
-                                ReconstructedShowerContainer)
+from ctapipe.containers import (
+    HillasParametersContainer,
+    TimingParametersContainer,
+    LeakageContainer,
+    MorphologyContainer,
+    ConcentrationContainer,
+    IntensityStatisticsContainer,
+    PeakTimeStatisticsContainer,
+    ReconstructedShowerContainer,
+)
 
 from ctapipe.coordinates import (
     CameraFrame,
@@ -78,12 +79,9 @@ from ctapipe.coordinates import (
 logger = logging.getLogger(__name__)
 
 
-def apply_simtel_r1_calibration(r0_waveforms,
-                                pedestal,
-                                dc_to_pe,
-                                gain_selector,
-                                calib_scale=1.0,
-                                calib_shift=0.0):
+def apply_simtel_r1_calibration(
+    r0_waveforms, pedestal, dc_to_pe, gain_selector, calib_scale=1.0, calib_shift=0.0
+):
     """
     Perform the R1 calibration for R0 simtel waveforms. This includes:
         - Gain selection
@@ -144,7 +142,7 @@ class MySimTelEventSource(SimTelEventSource):
         help=(
             "Factor to transform ADC counts into number of photoelectrons."
             " Corrects the DC_to_PHE factor."
-        )
+        ),
     ).tag(config=True)
 
     calib_shift = Float(
@@ -152,7 +150,7 @@ class MySimTelEventSource(SimTelEventSource):
         help=(
             "Factor to shift the R1 photoelectron samples. "
             "Can be used to simulate mis-calibration."
-        )
+        ),
     ).tag(config=True)
 
     def _generate_events(self):
@@ -230,7 +228,7 @@ class MySimTelEventSource(SimTelEventSource):
                     dc_to_pe,
                     self.gain_selector,
                     self.calib_scale,
-                    self.calib_shift
+                    self.calib_shift,
                 )
 
                 # get time_shift from laser calibration
@@ -244,7 +242,6 @@ class MySimTelEventSource(SimTelEventSource):
 
 
 class MyCameraCalibrator(CameraCalibrator):
-
     def _calibrate_dl1(self, event, telid):
         waveforms = event.dl0.tel[telid].waveform
         selected_gain_channel = event.dl0.tel[telid].selected_gain_channel
@@ -566,7 +563,9 @@ class TwoPassWindowSum(ImageExtractor):
 
         if num_islands > 0:
             # ...find the brightest one
-            mask_brightest_island = brightest_island(num_islands, labels, charge_1stpass)
+            mask_brightest_island = brightest_island(
+                num_islands, labels, charge_1stpass
+            )
         else:
             mask_brightest_island = mask_clean
 
@@ -574,7 +573,8 @@ class TwoPassWindowSum(ImageExtractor):
         # preliminary image, the waveform will be integrated once more (2nd pass)
 
         mask_2nd_pass = ~mask_brightest_island | (
-            mask_brightest_island & (charge_1stpass < core_th))
+            mask_brightest_island & (charge_1stpass < core_th)
+        )
 
         # STEP 4
 
@@ -589,9 +589,7 @@ class TwoPassWindowSum(ImageExtractor):
         charge_brightest = charge_1stpass[mask_brightest_island]
         try:
             hillas = hillas_parameters(camera_geometry_brightest, charge_brightest)
-        except (FloatingPointError,
-                HillasParameterizationError,
-                ValueError):
+        except (FloatingPointError, HillasParameterizationError, ValueError):
             # we return the 1st pass information
             passed = 0
             return charge_1stpass, pulse_time_1stpass, passed
@@ -657,7 +655,8 @@ class TwoPassWindowSum(ImageExtractor):
         integration_before_readout = integration_windows_start < 0
         # or after
         integration_after_readout = integration_windows_end > (
-            waveforms_to_repass.shape[1] - 1)
+            waveforms_to_repass.shape[1] - 1
+        )
 
         # If the resulting 5-samples window falls before the readout
         # window we take the first 5 samples
@@ -721,8 +720,12 @@ class TwoPassWindowSum(ImageExtractor):
                 telid, window_width_after, window_shift_after
             )[selected_gain_channel][mask_2nd_pass]
 
-            correction[integration_before_readout] = correction_before[integration_before_readout]
-            correction[integration_after_readout] = correction_after[integration_after_readout]
+            correction[integration_before_readout] = correction_before[
+                integration_before_readout
+            ]
+            correction[integration_after_readout] = correction_after[
+                integration_after_readout
+            ]
 
             reintegrated_charge *= correction
 
@@ -779,7 +782,7 @@ class TwoPassWindowSum(ImageExtractor):
             return (
                 (charge1 * correction1[selected_gain_channel]).astype("float32"),
                 pulse_time1.astype("float32"),
-                passed
+                passed,
             )
 
         charge2, pulse_time2, passed = self._apply_second_pass(
