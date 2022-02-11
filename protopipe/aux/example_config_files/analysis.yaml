@@ -1,31 +1,31 @@
 # General informations
 # WARNING: the settings recorded here are unstable and used here only to give an example
 General:
-  config_name: ""
-  production: "" # Prod3b or Prod5N
+  config_name: "ANALYSIS_NAME" # filled by the GRID interface
+  production: "" # 'Prod3b' or 'Prod5N'
   site: "" # 'north' or 'south'
   # 'array' can be either
   # - a custom list of telescope IDs
-  # - 'full_array', 'prod5N_alpha_north' or 'prod5N_alpha_south'
+  # - 'full_array', 'prod5N_alpha_north', 'prod5N_alpha_south', 'prod5N_alpha_south_NectarCam'
   # If a string, you can select a telescope-type subarray by
   # adding e.g. '_LST_LST_LSTCam'
   # NOTE: the 'full_array' is the total original array without any selection
   array: ""
+  cam_id_list: [] # to upload the required models
 
 Calibration:
-  apply_integration_correction: false # for CTAMARS-like analysis use false
+  apply_integration_correction: true # for CTAMARS-like analysis use false
   apply_peak_time_shift: false
   apply_waveform_time_shift: false
   # factor to transform the integrated charges (in ADC counts) into number of
   # photoelectrons (on top of the DC-to-PHE factor)
   # the pixel-wise one calculated by simtelarray is 0.92 for CTAMARS
-  calib_scale: 0.897 # 0.92 - 2.5% (testing)
+  calib_scale: 1.0
 
-# Cleaning for reconstruction
-ImageCleaning:
-  # Cleaning for reconstruction
+ImageCleaning: # NOTE: these are EXAMPLE values
+  # Use only the biggest cluster of surviving pixels
   biggest:
-    tail: #
+    tail: # Cleaning based on the "tailcut" technique
       thresholds: # picture, boundary
         - LSTCam: [4.0, 2.0]
         - NectarCam: [4.0, 2.0]
@@ -37,7 +37,7 @@ ImageCleaning:
       keep_isolated_pixels: False
       min_number_picture_neighbors: 1
 
-    wave:
+    wave: # Cleaning based on the "wavelets" technique
       # Directory to write temporary files
       #tmp_files_directory: '/dev/shm/'
       tmp_files_directory: "./"
@@ -57,9 +57,9 @@ ImageCleaning:
           detect_only_positive_structures: False
           clusters_threshold: 0
 
-  # Cleaning for energy/score estimation
+  # Use all clusters of surviving pixels
   extended:
-    tail: #
+    tail: # Cleaning based on the "tailcut" technique
       thresholds: # picture, boundary
         - LSTCam: [4.0, 2.0]
         - NectarCam: [4.0, 2.0]
@@ -71,7 +71,7 @@ ImageCleaning:
       keep_isolated_pixels: False
       min_number_picture_neighbors: 1
 
-    wave:
+    wave: # Cleaning based on the "wavelets" technique
       # Directory to write temporary files
       #tmp_files_directory: '/dev/shm/'
       tmp_files_directory: "./"
@@ -91,7 +91,8 @@ ImageCleaning:
           detect_only_positive_structures: False
           clusters_threshold: 0
 
-# Cut for image selection
+# Image selection cuts
+# NOTE: these are EXAMPLE values
 ImageSelection:
   source: "extended" # biggest or extended
   charge: [50., 1e10]
