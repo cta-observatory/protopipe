@@ -13,8 +13,8 @@ extras_require = {
         "pytest",
         "numpy",
         "ctapipe==0.11.0",
-        "pyirf==0.4.0",
-        "pandas",
+        "pyirf==0.5.0",
+        "pandas>=1.0.0",
     ],
     "tests": [
         # pipeline tests
@@ -26,7 +26,7 @@ extras_require = {
         "papermill",
         "nbconvert",
         "traitlets",
-        "pandas",
+        "pandas>=1.0.0",
     ],
 }
 
@@ -52,7 +52,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "ctapipe==0.11.0",
-        "pyirf==0.4.0",
+        "pyirf==0.5.0",
         "pandas>=1.0.0",
         "jupyterlab",
         "papermill",
@@ -67,7 +67,7 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.8",
     ],
-    python_requires=">=3.8",
+    python_requires=">=3.7",
     extras_require={
         "all": extras_require["tests"] + extras_require["docs"],
         "tests": extras_require["tests"],
