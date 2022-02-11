@@ -21,22 +21,31 @@ def initialize_script_arguments():
         Populated argparse namespace.
     """
 
-    parser = argparse.ArgumentParser(description='Make performance files')
-    parser.add_argument('--config_file', type=str, required=True, help='')
+    parser = argparse.ArgumentParser(description="Make performance files")
+    parser.add_argument("--config_file", type=str, required=True, help="")
 
     mode_group = parser.add_mutually_exclusive_group()
-    mode_group.add_argument('--wave', dest="mode", action='store_const',
-                            const="wave", default="tail",
-                            help="if set, use wavelet cleaning")
-    mode_group.add_argument('--tail', dest="mode", action='store_const',
-                            const="tail",
-                            help="if set, use tail cleaning (default)")
+    mode_group.add_argument(
+        "--wave",
+        dest="mode",
+        action="store_const",
+        const="wave",
+        default="tail",
+        help="if set, use wavelet cleaning",
+    )
+    mode_group.add_argument(
+        "--tail",
+        dest="mode",
+        action="store_const",
+        const="tail",
+        help="if set, use tail cleaning (default)",
+    )
     parser.add_argument(
         "-i",
         "--indir",
         type=str,
         default=None,
-        help="Directory containing the required DL2 input files (default: read from config file)"
+        help="Directory containing the required DL2 input files (default: read from config file)",
     )
     parser.add_argument(
         "--template_input_file",
@@ -48,13 +57,13 @@ def initialize_script_arguments():
         "--outdir_path",
         type=str,
         default=None,
-        help="Output directory for DL3 file (default: read from config file)"
+        help="Output directory for DL3 file (default: read from config file)",
     )
     parser.add_argument(
         "--out_file_name",
         type=str,
         default=None,
-        help="Desired name for DL3 file (default: built from config file)"
+        help="Desired name for DL3 file (default: built from config file)",
     )
 
     args = parser.parse_args()
@@ -104,7 +113,7 @@ def plot_hist(ax, data, edges, norm=False, yerr=False, hist_kwargs={}, error_kw=
         width=width,
         yerr=yerr,
         error_kw=error_kw,
-        **hist_kwargs
+        **hist_kwargs,
     )
 
     return ax
@@ -118,7 +127,7 @@ def save_obj(obj, name):
 
 def load_obj(name):
     """Load object in binary"""
-    with gzip.open(name, 'rb') as f:
+    with gzip.open(name, "rb") as f:
         return pickle.load(f)
 
 
@@ -143,41 +152,44 @@ def read_DL2_pyirf(infile, run_header):
     log.debug(f"Reading {infile}")
     df = pd.read_hdf(infile, "/reco_events")
 
-    events = QTable([list(df['obs_id']),
-                     list(df['event_id']),
-                     list(df['true_energy']) * u.TeV,
-                     list(df['reco_energy']) * u.TeV,
-                     list(df['gammaness']),
-                     list(df['NTels_reco']),
-                     list(df['reco_alt']) * u.deg,
-                     list(df['reco_az']) * u.deg,
-                     list(df['true_alt']) * u.deg,
-                     list(df['true_az']) * u.deg,
-                     list(df['pointing_alt']) * u.deg,
-                     list(df['pointing_az']) * u.deg,
-                     list(df['success']),
-                     ],
-                    names=('obs_id',
-                           'event_id',
-                           'true_energy',
-                           'reco_energy',
-                           'gh_score',
-                           'multiplicity',
-                           'reco_alt',
-                           'reco_az',
-                           'true_alt',
-                           'true_az',
-                           'pointing_alt',
-                           'pointing_az',
-                           'success'
-                           ),
-                    )
+    events = QTable(
+        [
+            list(df["obs_id"]),
+            list(df["event_id"]),
+            list(df["true_energy"]) * u.TeV,
+            list(df["reco_energy"]) * u.TeV,
+            list(df["gammaness"]),
+            list(df["NTels_reco"]),
+            list(df["reco_alt"]) * u.deg,
+            list(df["reco_az"]) * u.deg,
+            list(df["true_alt"]) * u.deg,
+            list(df["true_az"]) * u.deg,
+            list(df["pointing_alt"]) * u.deg,
+            list(df["pointing_az"]) * u.deg,
+            list(df["success"]),
+        ],
+        names=(
+            "obs_id",
+            "event_id",
+            "true_energy",
+            "reco_energy",
+            "gh_score",
+            "multiplicity",
+            "reco_alt",
+            "reco_az",
+            "true_alt",
+            "true_az",
+            "pointing_alt",
+            "pointing_az",
+            "success",
+        ),
+    )
 
     # Select only DL2 events marked as fully reconstructed
-    mask = events['success']
+    mask = events["success"]
     events = events[mask]
 
-    n_runs = len(set(events['obs_id']))
+    n_runs = len(set(events["obs_id"]))
     log.info(f"Estimated number of runs from obs ids: {n_runs}")
 
     n_showers = n_runs * run_header["num_use"] * run_header["num_showers"]

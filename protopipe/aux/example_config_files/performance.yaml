@@ -1,52 +1,71 @@
 general:
- # Directory with input data file
- # [...] = your analysis local full path OUTSIDE the Vagrant box
- indir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/DL2'
- # Template name for output file
- prod: 'Prod3b'
- site: 'North'
- array: 'baseline_full_array'
- zenith: '20deg'
- azimuth: '180deg' # 0deg -> north 180deg -> south
- template_input_file: 'DL2_{}_{}_merged.h5' # filled with mode and particle type
- # Directory for output files
- outdir: '[...]/shared_folder/analyses/v0.4.0_dev1/data/DL3'
+  # Directory with input data file
+  # [...] = your analysis local full path in the protopipe environment
+  indir: "ANALYSES_DIRECTORY/ANALYSIS_NAME/data/DL2"
+  # Template name for output file
+  prod: ""
+  site: "" # North or South
+  array: ""
+  zenith: "" # Xdeg
+  azimuth: "" # 0deg -> north, 180deg -> south
+  template_input_file: "DL2_{}_{}_merged.h5" # filled with mode and particle type
+  # Directory for output files
+  outdir: "ANALYSES_DIRECTORY/ANALYSIS_NAME/data/DL3"
 
 analysis:
- obs_time:
-   value: 50
-   unit: 'h'
- cut_on_multiplicity: 4
- # Normalisation between ON and OFF regions
- alpha: 0.2
-
- # Radius to use for calculating bg rate
- max_bg_radius: 1.
+  obs_time:
+    value: 50
+    unit: "h"
+  cut_on_multiplicity: 3
+  alpha: 0.2 # Normalisation between ON and OFF regions
+  max_bg_radius: 1. # Radius to use for calculating bg rate
+  source_offset:
+    min: 0 # deg
+    max: 1 # deg
+    nbins: 1000
+  fov_offset:
+    min: 0 # deg
+    max: 0.5 # deg
+    nbins: 1
+  reconstructed_energy:
+    min: 0.0125 # TeV
+    max: 205 # TeV
+    bins_per_decade: 5
+  true_energy:
+    min: 0.0125 # TeV
+    max: 205 # TeV
+    bins_per_decade: 10
+  energy_migration:
+    min: 0
+    max: 5
+    nbins: 100
 
 particle_information:
- gamma:
-  num_use: 10
-  num_showers: 100000
-  e_min: 0.003
-  e_max: 330
-  gen_radius: 1400
-  gen_gamma: -2
-  diff_cone: 0
+  # WARNING: this hardcoded here! It depends on the production...
+  # TODO: read instead from the files
+  gamma:
+    num_use: 10
+    num_showers: 20000
+    e_min: 0.003
+    e_max: 330
+    gen_radius: 1400
+    gen_gamma: -2
+    diff_cone: 0
 
- proton:
-  num_use: 20
-  num_showers: 200000
-  e_min: 0.004
-  e_max: 600
-  gen_radius: 1900
-  gen_gamma: -2
-  diff_cone: 10
+  proton:
+    num_use: 20
+    num_showers: 50000
+    e_min: 0.004
+    e_max: 600
+    gen_radius: 1900
+    gen_gamma: -2
+    diff_cone: 10
 
- electron:
-  num_use: 20
-  num_showers: 100000
-  e_min: 0.003
-  e_max: 330
-  gen_radius: 1900
-  gen_gamma: -2
-  diff_cone: 10
+  electron:
+    num_use: 20
+    num_showers: 50000
+    e_min: 0.003
+    e_max: 330
+    gen_radius: 1900
+    gen_gamma: -2
+    diff_cone: 10
