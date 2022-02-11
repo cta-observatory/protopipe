@@ -53,7 +53,7 @@ setup(
     install_requires=[
         "ctapipe==0.11.0",
         "pyirf==0.4.0",
-        "pandas",
+        "pandas>=1.0.0",
         "jupyterlab",
         "papermill",
     ],
