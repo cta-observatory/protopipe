@@ -24,7 +24,6 @@ from ctapipe.coordinates import (
     MissingFrameAttributeWarning,
 )
 
-# from ctapipe.image.timing_parameters import timing_parameters
 from ctapipe.image.hillas import hillas_parameters, HillasParameterizationError
 from ctapipe.reco.reco_algorithms import (
     TooFewTelescopesException,
@@ -33,7 +32,12 @@ from ctapipe.reco.reco_algorithms import (
 
 # Pipeline utilities
 from .image_cleaning import ImageCleaner
-from .utils import bcolors, effective_focal_lengths, camera_radius, CTAMARS_radii
+from .utils import (
+    bcolors,
+    effective_focal_lengths,
+    camera_radius,
+    get_cameras_radii,
+)
 from .temp import (
     MyCameraCalibrator,
     TwoPassWindowSum,
@@ -230,15 +234,12 @@ class EventPreparer:
                 cams_and_foclens, "all"
             )  # Display all registered camera radii
 
-        # Radii in meters from CTA-MARS
-        # self.camera_radius = {
-        #     cam_id: camera_radius(cams_and_foclens, cam_id)
-        #     for cam_id in cams_and_foclens.keys()
-        # }
-
-        # Radii in degrees from CTA-MARS
+        # Get available cameras radii in degrees using ctapipe...
+        cameras_radii = get_cameras_radii(
+            subarray, frame=TelescopeFrame(), ctamars=False
+        )
         self.camera_radius = {
-            cam_id: CTAMARS_radii(cam_id) for cam_id in cams_and_foclens.keys()
+            cam_id: cameras_radii[cam_id].value for cam_id in cams_and_foclens.keys()
         }
 
         self.image_cutflow.set_cuts(
@@ -264,7 +265,7 @@ class EventPreparer:
                         "close to the edge",
                         lambda m, cam_id: m.r.value
                         > (nominal_distance_bounds[-1] * self.camera_radius[cam_id]),
-                    ),  # in meter
+                    ),
                 ]
             )
         )
@@ -470,6 +471,7 @@ class EventPreparer:
                 "SST_1M_DigiCam": 0,
                 "SST_ASTRI_ASTRICam": 0,
                 "SST_GCT_CHEC": 0,
+                "SST_ASTRI_CHEC": 0,
             }
             n_tels_reco = {
                 "LST_LST_LSTCam": 0,
@@ -479,6 +481,7 @@ class EventPreparer:
                 "SST_1M_DigiCam": 0,
                 "SST_ASTRI_ASTRICam": 0,
                 "SST_GCT_CHEC": 0,
+                "SST_ASTRI_CHEC": 0,
             }
             n_cluster_dict = {}
             impact_dict_reco = {}  # impact distance measured in tilt system
