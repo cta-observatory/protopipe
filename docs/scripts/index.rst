@@ -1,7 +1,7 @@
 .. _scripts:
 
-scripts
-=======
+Scripts (``protopipe.scripts``)
+===============================
 
 Introduction
 ------------

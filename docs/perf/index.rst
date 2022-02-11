@@ -1,7 +1,7 @@
 .. _perf:
 
-perf
-====
+Performance generation (``protopipe.perf``)
+===========================================
 
 Introduction
 ------------

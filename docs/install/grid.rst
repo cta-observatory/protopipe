@@ -1,17 +1,68 @@
 .. _install-grid:
 
-================
-Grid environment
-================
+===========================
+Interface to the DIRAC grid
+===========================
 
 .. contents::
    :local:
 
 Requirements
-************
+============
+
+.. _base_env_protopipe_CTADIRAC:
+
+Base environment
+----------------
+
+The software/packages required to work with the DIRAC interface for protopipe
+are the following,
+
+- `DIRAC <https://dirac.readthedocs.io/en/latest/>`_
+- `CTADIRAC <https://gitlab.cta-observatory.org/cta-computing/dpps/CTADIRAC>`_
+- `VOMS <https://italiangrid.github.io/voms/>`_
+- `pytables <https://www.pytables.org/>`_
+- `pyyaml <https://pyyaml.org/>`_
+
+For convenience, a ready-to-use conda environment recipe is reported below.
+You can also find it in the `root directory of the interface <https://github.com/HealthyPear/protopipe-grid-interface>`_.
+You can create the corresponding environment with a command like this,
+
+``conda env create -f my_env_recipe.yml -n my_env``
+
+.. code-block:: yaml
+
+  name: protopipe-CTADIRAC
+  channels:
+    - conda-forge
+  dependencies:
+    - python=3.8
+    - pip
+    - dirac-grid
+    - voms
+    - pytables
+    - pyyaml
+    - eventio # required for protopipe with ctapipe <0.12.0
+    - gammapy=0.18 # required for protopipe with ctapipe <0.12.0
+    - pip:
+        - CTADIRAC
+
+In this environment you can then install first protopipe and then the interface.
+
+If you want to install them in their released versions, integrate the ``pip`` section
+with,
+
+- ``protopipe``/``protopipe=x.y.z`` for a latest/specific released version of protopipe,
+- ``git+https://github.com/HealthyPear/protopipe-grid-interface@vx.y.z`` for a released version of its interface.
+
+An overview of the versioning between the two sofware is described below (:ref:`versioning`)
+
+If you are a developer, or you want to work with the development version,
+please refer to the development installation instructions for protopipe (:ref:`install-development`)
+and its interface (:ref:`install-grid-dev`).
 
 DIRAC GRID certificate
-======================
+----------------------
 
 In order to access the GRID utilities you will need a certificate associated with an
 account.
@@ -20,218 +71,117 @@ You can find all necessary information at
 `this <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Prerequisites>`_
 Redmine wikipage.
 
-Source code for the interface
-=============================
-
-.. warning::
-  Usage of the pipeline on an infrastucture different than the DIRAC grid has
-  not been fully tested.
-  This interface code is **highly** bound to DIRAC,
-  but the scripts which manage download, merge and upload of files
-  could be easily adapted to different infrastructures.
+The interface
+=============
 
 Getting a released version
 --------------------------
 
-The latest released version are stored `at this GitHub repository <https://github.com/cta-observatory/protopipe/releases>`__
+For versions >=0.4.0 you can install it as a Python3-based package in your environment as explained
+above.
+
+The following table refers to all versions and their compatibility with _protopipe_.
 
 .. list-table:: compatibility between *protopipe* and its interface
+    :name: versioning
     :widths: 25 25
     :header-rows: 0
 
     * - protopipe
       - GRID interface
-    * - v0.2.X
-      - v0.2.X
-    * - v0.3.X
-      - v0.2.X
+    * - v0.5.X
+      - v0.4.X
     * - v0.4.X
       - v0.3.X
+    * - v0.3.X
+      - v0.2.X
+    * - v0.2.X
+      - v0.2.X
 
-The latest released version of the GRID interface is also compatible with
+The latest released version of the interface is also compatible with
 the development version of *protopipe*.
+
+.. warning::
+
+  After the Python3 upgrade of DIRAC and CTADIRAC,
+  the interface installation and usage have changed considerably,
+  while its relation with _protopipe_ has only improved.
+  It is very unlikely that you will ever need to work with a version older than v0.4.0,
+  but if this were to happen, please check older versions of this documentation
+  either from readthedocs or from the repository of _protopipe_.
+
+.. _install-grid-dev:
 
 Getting the development version
 -------------------------------
 
-This version is always compatible *only* with the development version of *protopipe*.
+This version is:
+- always compatible with the development version of *protopipe*,
+- possibly compatible with the latest release of *protopipe*,
 
-``git clone https://github.com/HealthyPear/protopipe-grid-interface.git``
+The procedure to install with this version is similar to the same one
+for _protopipe_:
 
-Container and options for containerization
-==========================================
-
-.. note::
-  Any of the following containerization choices constitutes a requirement.
-
-- **Single user working from a personal Linux machine**
-
-  CTADIRAC can be installed natively on Linux (see `here <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Native-client-installation-SL6-CentOS67>`_).
-  In this case make sure that the protopipe-grid-interface source code
-  resides at the same path as protopipe.
-
-- **Single user working from a personal macos or Windows machine**
-
-  The *Docker* container should be enough.
-
-- **User working on a shared environment (HPC machine or server)**
-
-  In case you are not allowed to use *Docker* for security reasons, another supported option is *Singularity*.
-
-  - on *Linux*, if you can't install natively make sure that either *Singularity* or *Docker* are available and accessible to your user,
-  - on *Windows* or *macos*, if you can't use *Docker* you will need to use *Singularity* via *Vagrant*.
-
-Docker
-------
-
-The container used by the interface requires the 
-`installation of Docker <https://docs.docker.com/get-docker/>`_.
-
-To enter the container (and the first time downloading the image),
-
-| ``docker run --rm -v $HOME/.globus:/home/dirac/.globus``
-| ``-v $PWD/shared_folder:/home/dirac/shared_folder``
-| ``-v [...]/protopipe-grid-interface:/home/dirac/protopipe-grid-interface``
-| ``-v [...]/protopipe:/home/dirac/protopipe``
-| ``-it ctadirac/client``
-
-where ``[...]`` is the path of your source code on the host.
-The ``--rm`` flag will erase the container at exit
-to save disk space (the data stored in the ``shared_folder`` won't disappear).
-Please, refer to the Docker documentation for other use cases.
-
-.. note::
-  In case you are using a released version of *protopipe*, there is no container
-  at the moment and the GRID environment based on CTADIRAC still requires Python2.
-  In this case you can link the source code folder from your python environment
-  installation on the host just like you would do with the development
-  version (``import protopipe; protopipe.__path__``).
-
-.. warning::
-  If you are using *macos* you could encounter some disk space issues.
-  Please check `this page <https://docs.docker.com/docker-for-mac/space/>`_ and
-  `this other page <https://djs55.github.io/jekyll/update/2017/11/27/docker-for-mac-disk-space.html>`_
-  on how to manage disk space.
-
-Vagrant
--------
-
-.. note::
-  Only required for users that want to use a *Singularity*
-  container on a *macos* and *Microsoft Windows* machine.
-
-All users, regardless of their operative systems, can use this interface via
-`Vagrant <https://www.vagrantup.com/>`_. 
-
-The *VagrantFile* provided with the interface code allows to download a virtual 
-machine in form of a *Vagrant box* which will host the actual container.
-
-The user needs to,
-
-1. copy the ``VagrantFile`` from the interface
-2. edit lines from 48 to 59 according to the local setup
-3. enter the virtual machine with``vagrant up && vagrant ssh``
-
-The *VagrantFile* defines creates automatically also the ``shared_folder``
-used by the interface to setup the analysis.
-
-Singularity
------------
-
-.. warning::
-  Support for *Singularity* has been dropped by the mantainers of *CTADIRAC*.
-  The following solutions have not been tested in all possible cases.
-
-- **macos / Microsoft Windows**
-
-  `Singularity <https://sylabs.io/docs/>`_ is already installed and ready to use from the *Vagrant box* 
-  obtained by using the *VagrantFile*.
-
-- **Linux**
-  
-  users that do not want to use *Vagrant* will need to have *Singularity* installed
-  on their systems and they will need to edit their own environment accordingly.
-
-  For pure-*Singularity* users (aka on Linux machines without *Vagrant*) 
-  bind mounts for *protopipe*, its grid interface and the shared_folder 
-  will work in the same way: ``--bind path_on_host:path_on_container``.
-
-The DIRAC grid certificate should be already available since *Singularity* 
-mounts the user's home by default.
-For more details, please check e.g. 
-`system-defined bind paths <https://sylabs.io/guides/3.8/user-guide/bind_paths_and_mounts.html#system-defined-bind-paths>`_.
-
-Depending on the privileges granted on the host there are 2 ways to get a working container.
-
-Using the CTADIRAC Docker image
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-**Method #1**
-
-Provided you have at least *Singularity 3.3*, you can pull directly the CTADIRAC Docker image from *DockerHub*,
-but you will need to use the ``fakeroot`` mode.
-This mode grants you root privileges only *inside* the container.
-
-``singularity build --fakeroot ctadirac_client_latest.sif docker://ctadirac/client``
-
-``singularity shell --fakeroot ctadirac_client_latest``
-
-``. /home/dirac/dirac_env.sh``
-
-**Method #2**
-
-You shouldn't need root privileges for this to work (not throughly tested, though),
-
-``singularity build --sandbox --fix-perms ctadirac_client_latest.sif docker://ctadirac/client``
-
-``singularity shell ctadirac_client_latest``
-
-``. /home/dirac/dirac_env.sh``
-
-Building the Singularity image
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Support for *Singularity* has been dropped by the mantainers of *CTADIRAC*,
-but the recipe for the container has been saved here.
-
-In this case you won't need to do ``. /home/dirac/dirac_env.sh``: the 
-commands will be already stored in your ``$PATH``.
-
-.. warning::
-  The recipe ``CTADIRAC_singularity`` is maintained by the author; if any bug arises,
-  reverting to the methods described above (if possible) will provide you with a working environment.
-
-If you have root privileges you can just build your own image with,
-
-``singularity build ctadirac_client_latest.sif CTADIRAC_singularity``
-
-otherwise you have to either,
-
-- revert to the ``--fakeroot`` mode 
-  (use it also to enter the container just like the methods above)
-
-- build the image remotely at ``https://cloud.sylabs.io`` using the ``--remote`` flag
-  (for this you will need to interface with that servce to generate an access token)
+- ``git clone https://github.com/HealthyPear/protopipe-grid-interface.git``
+- ``cd protopipe-grid-interface``
+- ``pip install -e '.[all]'``
 
 Setup the working environment
-*****************************
+=============================
 
-The CTADIRAC container doesn't provide everything *protopipe* needs,
-but this can be solved easily by issuing the following command inside the container's home directory,
+In order to be able to download and upload files from and to the DIRAC grid
+you need to initialize the Virtual Organisation Membership Service (VOMS).
 
-``source protopipe-grid-interface/setup.sh``
+This is a one time operation to be perfomed after the environment creation and activation:
 
-This will not only install some missing Python packages,
-but also provide convenient environment variables ``$GRID_INTERFACE`` and ``$PROTOPIPE``
-for the source code and check that the DIRAC interface has been properly
-installed and initialized.
+.. code-block:: shell
 
-From here,
+   conda env config vars set X509_CERT_DIR=$CONDA_PREFIX/etc/grid-security/certificates
+   conda env config vars set X509_VOMS_DIR=$CONDA_PREFIX/etc/grid-security/vomsdir
+   conda env config vars set X509_VOMSES=$CONDA_PREFIX/etc/grid-security/vomses
+   conda activate protopipe-CTADIRAC
 
-- activate the GRID environment with ``dirac-proxy-init``
-- the ``shared_folder`` contains the folders
+Also only the first time, in order to use the CTADIRAC production instance,
+you should configure your client using the ``dirac-configure`` command.
+You will be asked to generate your proxy and then to choose the ``Setup`` and the ``Configuration`` server.
+You need to choose the default values.
 
-  - ``analyses`` to store all your analyses
-  - ``productions`` to store lists of simulated files
+.. warning::
+  The defaults right now are lacking redundance in the configuration system.
+  It is suggested to edit the configuration file that you can find inside your conda enviroment
+  under ``etc/dirac.cfg`` like the following,
+
+  .. code-block::
+
+    DIRAC
+    {
+    Setup = CTA
+    Configuration
+    {
+      Servers = dips://dcta-servers02.pic.es:9135/Configuration/Server
+      Servers += dips://dcta-servers02.pic.es:9135/Configuration/Server
+      Servers += dips://dcta-agents02.pic.es:9135/Configuration/Server
+      Servers += dips://ccdcta-server04.in2p3.fr:9135/Configuration/Server
+      Servers += dips://ccdcta-server05.in2p3.fr:9135/Configuration/Server
+      Servers += dips://ccdcta-web01.in2p3.fr:9135/Configuration/Server
+    }
+    Security
+    {
+      UseServerCertificate = no
+    }
+    }
+    LocalInstallation
+    {
+    Setup = CTA
+    ConfigurationServer = dips://dcta-servers02.pic.es:9135/Configuration/Server
+    ConfigurationServer += dips://dcta-agents02.pic.es:9135/Configuration/Server
+    ConfigurationServer += dips://ccdcta-server04.in2p3.fr:9135/Configuration/Server
+    ConfigurationServer += dips://ccdcta-server05.in2p3.fr:9135/Configuration/Server
+    ConfigurationServer += dips://ccdcta-web01.in2p3.fr:9135/Configuration/Server
+    SkipCAChecks = True
+    }
+
+For the subsequent times, it will be sufficient to generate the proxy 
+with ``dirac-proxy-init`` (it will lasts up to 24h if you don't exit the environment before).
 
 Now you can proceed with the analysis workflow (:ref:`use-grid`).
