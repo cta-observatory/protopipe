@@ -1,20 +1,17 @@
 General:
-  # [...] = your analysis local full path OUTSIDE the Vagrant box
-  # NOTE: not used here since the testing suite needs to work from the CLI
-  data_dir: '../../data/'
-  data_sig_file: 'TRAINING_energy_tail_gamma_merged.h5'
-  outdir: './'
-  
-  # List of cameras to use (you can override this from the CLI)
-  # NOTE: not used here since the testing suite needs to work from the CLI
-  cam_id_list: ['LSTCam', 'NectarCam']
+  # [...] = analysis full path (on the host if you are using a container)
+  data_dir_signal: "[...]/data/TRAINING/for_energy_estimation/"
+  data_sig_file: "TRAINING_energy_tail_gamma_merged.h5"
+  outdir: "[...]/estimators/energy_regressor"
+  # List of cameras to use (protopipe-MODEL help output for other options)
+  cam_id_list: ["LSTCam", "NectarCam"]
 
 # If train_fraction is 1, all the TRAINING dataset will be used to train the
 # model and benchmarking can only be done from the benchmarking notebook
 # TRAINING/benchmarks_DL2_to_classification.ipynb
 Split:
   train_fraction: 0.8
-  use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+  use_same_number_of_sig_and_bkg_for_training: False # Lowest statistics will drive the split
 
 # Optimize the hyper-parameters of the estimator with a grid search
 # If True parameters should be provided as lists
@@ -22,17 +19,20 @@ Split:
 GridSearchCV:
   use: False # True or False
   # if False the following two variables are irrelevant
-  scoring: 'explained_variance'
-  cv: 2
+  scoring: "explained_variance"
+  cv: 2 # cross-validation splitting strategy
+  refit: True # Refit the estimator using the best found parameters
+  verbose: 1 # 1,2,3,4
+  njobs: -1 # int or -1 (all processors)
 
 Method:
-  name: 'sklearn.ensemble.AdaBoostRegressor'
-  target_name: 'true_energy'
+  name: "sklearn.ensemble.AdaBoostRegressor"
+  target_name: "true_energy"
   log_10_target: True # this makes the model use log10(target_name)
   # Please, see scikit-learn's API for what each parameter means
   # NOTE: null == None
   base_estimator:
-    name: 'sklearn.tree.DecisionTreeRegressor'
+    name: "sklearn.tree.DecisionTreeRegressor"
     parameters:
       # NOTE: here we set the parameters relevant for sklearn.tree.DecisionTreeRegressor
       criterion: "mse" # "mse", "friedman_mse", "mae" or "poisson"
@@ -49,7 +49,7 @@ Method:
   tuned_parameters:
     n_estimators: 50
     learning_rate: 1
-    loss: 'linear' # 'linear', 'square' or 'exponential'
+    loss: "linear" # 'linear', 'square' or 'exponential'
     random_state: 0 # int, RandomState instance or None
 
 # List of the features to use to train the model
@@ -59,12 +59,12 @@ Method:
 # - if not you can propose modifications to protopipe.mva.utils.prepare_data
 FeatureList:
   Basic: # single-named, they need to correspond to input data columns
-  - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
-  - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
-  - 'hillas_width'  # Image Width
-  - 'hillas_length' # Image Length
-  # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
-  - 'leakage_intensity_width_1_reco' # fraction of total Intensity which is contained in the outermost pixels of the camera
+    - "h_max" # Height of shower maximum from stereoscopic reconstruction
+    - "impact_dist" # Impact parameter from stereoscopic reconstruction
+    - "hillas_width" # Image Width
+    - "hillas_length" # Image Length
+    - "concentration_pixel" # Percentage of photo-electrons in the brightest pixel
+    - "leakage_intensity_width_1" # fraction of total Intensity which is contained in the outermost pixels of the camera
   Derived: # custom evaluations of basic features that will be added to the data
     # column name : expression to evaluate using basic column names
     log10_WLS: log10(hillas_width*hillas_length/hillas_intensity)
@@ -74,13 +74,13 @@ FeatureList:
 
 # These cuts select the input data BEFORE training
 SigFiducialCuts:
-  - 'good_image == 1'
-  - 'is_valid == True'
-  - 'hillas_intensity_reco > 0'
+  - "good_image == 1"
+  - "is_valid == True"
+  - "hillas_intensity > 0"
 
 Diagnostic:
- # Energy binning (used for reco and true energy)
- energy:
-  nbins: 15
-  min: 0.0125
-  max: 125
+  # Energy binning (used for reco and true energy)
+  energy:
+    nbins: 15
+    min: 0.0125
+    max: 125

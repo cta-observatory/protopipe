@@ -4,7 +4,7 @@ import argparse
 import joblib
 from os import path
 
-from protopipe.mva.utils import save_obj
+from protopipe.pipeline.io import save_obj
 
 
 def initialize_script_arguments():
@@ -48,23 +48,34 @@ def initialize_script_arguments():
     # These last CL arguments can overwrite the values from the config
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--cameras_from_config',
-                       action='store_true',
-                       help="Get cameras configuration file (Priority 1)",)
-    group.add_argument('--cameras_from_file',
-                       action='store_true',
-                       help="Get cameras from input file (Priority 2)",)
-    group.add_argument('--cam_id_list',
-                       type=str,
-                       default=None,
-                       help="Select cameras like 'LSTCam CHEC' (Priority 3)",)
-
-    parser.add_argument(
-        "-i",
-        "--indir",
+    group.add_argument(
+        "--cameras_from_config",
+        action="store_true",
+        help="Get cameras configuration file (Priority 1)",
+    )
+    group.add_argument(
+        "--cameras_from_file",
+        action="store_true",
+        help="Get cameras from input file (Priority 2)",
+    )
+    group.add_argument(
+        "--cam_id_list",
         type=str,
         default=None,
-        help="Directory containing the required input file(s)"
+        help="Select cameras like 'LSTCam CHEC' (Priority 3)",
+    )
+
+    parser.add_argument(
+        "--indir_signal",
+        type=str,
+        default=None,
+        help="Directory containing the required SIGNAL input file(s) (default: read from config file)"
+    )
+    parser.add_argument(
+        "--indir_background",
+        type=str,
+        default=None,
+        help="Directory containing the required BACKGROUND input file(s) (default: read from config file)"
     )
     parser.add_argument(
         "--infile_signal",
@@ -85,13 +96,7 @@ def initialize_script_arguments():
     return args
 
 
-def save_output(models,
-                cam_id,
-                factory,
-                best_model,
-                model_types,
-                method_name,
-                outdir):
+def save_output(models, cam_id, factory, best_model, model_types, method_name, outdir):
     """Save model and data used to produce it per camera-type.
 
     Parameters
@@ -114,9 +119,7 @@ def save_output(models,
 
     models[cam_id] = best_model
     model_type = [k for k, v in model_types.items() if method_name in v][0]
-    outname = "{}_{}_{}.pkl.gz".format(
-        model_type, cam_id, method_name
-    )
+    outname = "{}_{}_{}.pkl.gz".format(model_type, cam_id, method_name)
     joblib.dump(best_model, path.join(outdir, outname))
 
     # SAVE DATA
@@ -124,24 +127,18 @@ def save_output(models,
         factory.data_scikit,
         path.join(
             outdir,
-            "data_scikit_{}_{}_{}.pkl.gz".format(
-                model_type, method_name, cam_id
-            ),
+            "data_scikit_{}_{}_{}.pkl.gz".format(model_type, method_name, cam_id),
         ),
     )
     factory.data_train.to_pickle(
         path.join(
             outdir,
-            "data_train_{}_{}_{}.pkl.gz".format(
-                model_type, method_name, cam_id
-            ),
+            "data_train_{}_{}_{}.pkl.gz".format(model_type, method_name, cam_id),
         )
     )
     factory.data_test.to_pickle(
         path.join(
             outdir,
-            "data_test_{}_{}_{}.pkl.gz".format(
-                model_type, method_name, cam_id
-            ),
+            "data_test_{}_{}_{}.pkl.gz".format(model_type, method_name, cam_id),
         )
     )
