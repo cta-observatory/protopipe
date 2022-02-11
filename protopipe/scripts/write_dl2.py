@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from sys import exit as sys_exit
 import numpy as np
 import pandas as pd
@@ -16,14 +14,13 @@ from ctapipe.utils import CutFlow
 # Utilities
 from protopipe.pipeline.temp import MySimTelEventSource
 from protopipe.pipeline import EventPreparer
+from protopipe.pipeline.io import load_config, load_models
 from protopipe.pipeline.utils import (
     bcolors,
     make_argparser,
     prod5N_array,
     prod3b_array,
     str2bool,
-    load_config,
-    load_models,
     SignalHandler,
 )
 
@@ -34,9 +31,7 @@ def main():
     parser = make_argparser()
 
     parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Print debugging information",
+        "--debug", action="store_true", help="Print debugging information"
     )
 
     parser.add_argument(
@@ -382,10 +377,7 @@ def main():
                 # - center of the array's FoV
                 # - reconstructed direction
                 offset = angular_separation(
-                    pointing_az,
-                    pointing_alt,
-                    reco_result.az,
-                    reco_result.alt,
+                    pointing_az, pointing_alt, reco_result.az, reco_result.alt
                 )
 
                 # Reconstructed height of shower maximum
