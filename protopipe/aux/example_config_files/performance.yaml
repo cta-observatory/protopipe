@@ -1,7 +1,10 @@
 general:
   # Directory with input data file
   # [...] = your analysis local full path in the protopipe environment
-  indir: "ANALYSES_DIRECTORY/ANALYSIS_NAME/data/DL2"
+  indir_parent: "ANALYSES_DIRECTORY/ANALYSIS_NAME/data/DL2"
+  indir_gamma: "gamma"
+  indir_proton: "proton"
+  indir_electron: "electron"
   # Template name for output file
   prod: ""
   site: "" # North or South

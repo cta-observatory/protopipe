@@ -42,10 +42,28 @@ def initialize_script_arguments():
     )
     parser.add_argument(
         "-i",
-        "--indir",
+        "--indir_parent",
         type=str,
         default=None,
         help="Directory containing the required DL2 input files (default: read from config file)",
+    )
+    parser.add_argument(
+        "--indir_gamma",
+        type=str,
+        default=None,
+        help="Sub-directory containing the required gamma DL2 input files (default: read from config file)",
+    )
+    parser.add_argument(
+        "--indir_proton",
+        type=str,
+        default=None,
+        help="Sub-directory containing the required proton DL2 input files (default: read from config file)",
+    )
+    parser.add_argument(
+        "--indir_electron",
+        type=str,
+        default=None,
+        help="Sub-directory containing the required electron DL2 input files (default: read from config file)",
     )
     parser.add_argument(
         "--template_input_file",

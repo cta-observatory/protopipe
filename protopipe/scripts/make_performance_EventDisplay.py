@@ -55,10 +55,25 @@ def main():
 
     # Set final input parameters
     # Command line as higher priority on configuration file
-    if args.indir is None:
-        indir = cfg["general"]["indir"]
+    if args.indir_parent is None:
+        indir_parent = cfg["general"]["indir_parent"]
     else:
-        indir = args.indir
+        indir_parent = args.indir_parent
+    if args.indir_gamma is None:
+        indir_gamma = cfg["general"]["indir_gamma"]
+    else:
+        indir_gamma = args.indir_gamma
+    if args.indir_proton is None:
+        indir_proton = cfg["general"]["indir_proton"]
+    else:
+        indir_proton = args.indir_proton
+    if args.indir_electron is None:
+        indir_electron = cfg["general"]["indir_electron"]
+    else:
+        indir_electron = args.indir_electron
+
+    if indir_parent is None:
+        raise ValueError("Base DL2 input directory unspecified.")
 
     if args.outdir_path is None:
         outdir_path = cfg["general"]["outdir"]
@@ -67,20 +82,24 @@ def main():
     if not os.path.exists(outdir_path):
         os.makedirs(outdir_path)
 
-    if args.indir is None:
+    if args.template_input_file is None:
         template_input_file = cfg["general"]["template_input_file"]
     else:
         template_input_file = args.template_input_file
+    if template_input_file is None:
+        raise ValueError("template_input_file is unspecified")
 
     if args.out_file_name is None:
-        out_file_name = "performance_protopipe_{}_CTA{}_{}_Zd{}_Az{}_Time{:.2f}{}".format(
-            cfg["general"]["prod"],
-            cfg["general"]["site"],
-            cfg["general"]["array"],
-            cfg["general"]["zenith"],
-            cfg["general"]["azimuth"],
-            cfg["analysis"]["obs_time"]["value"],
-            cfg["analysis"]["obs_time"]["unit"],
+        out_file_name = (
+            "performance_protopipe_{}_CTA{}_{}_Zd{}_Az{}_Time{:.2f}{}".format(
+                cfg["general"]["prod"],
+                cfg["general"]["site"],
+                cfg["general"]["array"],
+                cfg["general"]["zenith"],
+                cfg["general"]["azimuth"],
+                cfg["analysis"]["obs_time"]["value"],
+                cfg["analysis"]["obs_time"]["unit"],
+            )
         )
     else:
         out_file_name = args.out_file_name
@@ -101,21 +120,27 @@ def main():
     particles = {
         "gamma": {
             "file": os.path.join(
-                indir, "gamma", template_input_file.format(args.mode, "gamma")
+                indir_parent,
+                indir_gamma,
+                template_input_file.format(args.mode, "gamma"),
             ),
             "target_spectrum": CRAB_HEGRA,
             "run_header": cfg["particle_information"]["gamma"],
         },
         "proton": {
             "file": os.path.join(
-                indir, "proton", template_input_file.format(args.mode, "proton")
+                indir_parent,
+                indir_proton,
+                template_input_file.format(args.mode, "proton"),
             ),
             "target_spectrum": IRFDOC_PROTON_SPECTRUM,
             "run_header": cfg["particle_information"]["proton"],
         },
         "electron": {
             "file": os.path.join(
-                indir, "electron", template_input_file.format(args.mode, "electron")
+                indir_parent,
+                indir_electron,
+                template_input_file.format(args.mode, "electron"),
             ),
             "target_spectrum": IRFDOC_ELECTRON_SPECTRUM,
             "run_header": cfg["particle_information"]["electron"],
