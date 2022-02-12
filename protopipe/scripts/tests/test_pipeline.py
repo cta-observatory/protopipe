@@ -490,7 +490,7 @@ def test_GET_DL3_ED_prod3b(test_case, pipeline_testdir):
 
     command = f"python {make_performance_EventDisplay.__file__}\
     --config_file {config_DL3_ED_prod3b}\
-    --indir {pipeline_testdir}\
+    --indir_parent {pipeline_testdir}\
     --outdir_path {pipeline_testdir}\
     --out_file_name 'test_DL3_{test_case}'\
     --template_input_file {template_input_file}"

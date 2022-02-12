@@ -1,7 +1,9 @@
 general:
   # Directory with input data file
-  # [...] = your analysis local full path OUTSIDE the Vagrant box
-  indir: "[...]/shared_folder/analyses/v0.4.0_dev1/data/DL2"
+  indir_parent: "ANALYSES_DIRECTORY/ANALYSIS_NAME/data/DL2"
+  indir_gamma: ""
+  indir_proton: ""
+  indir_electron: ""
   # Template name for output file
   prod: "Prod3b"
   site: "North"
