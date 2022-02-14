@@ -1,6 +1,5 @@
 general:
-  # Directory with input data file
-  # [...] = your analysis local full path in the protopipe environment
+  # Directories with DL2 input data files
   indir_parent: "ANALYSES_DIRECTORY/ANALYSIS_NAME/data/DL2"
   indir_gamma: "gamma"
   indir_proton: "proton"
