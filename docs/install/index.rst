@@ -7,11 +7,11 @@ Installation
 Basic requirements
 ==================
 
-- ``Python >= 3.8``
-- ``pip``
+- ``python 3``
+- the ``pip`` package manager
 
-*protopipe* can be installed using only ``pip``, so any virtual environment solution
-providing it should suffice.
+*protopipe* can be only be installed using the ``pip`` package installer for Python,
+so any virtual environment solution providing it should suffice.
 Though, if you want to use *protopipe* on the *DIRAC* grid, an *Anaconda*-based virtual
 environment is the only currently supported solution.
 

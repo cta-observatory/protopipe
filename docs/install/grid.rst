@@ -24,6 +24,10 @@ are the following,
 - `pytables <https://www.pytables.org/>`_
 - `pyyaml <https://pyyaml.org/>`_
 
+.. note:: Python version
+  Even if *protopipe* itself allows for Python 3.7, the minimum version required to use
+  Dirac is 3.8.
+
 For convenience, a ready-to-use conda environment recipe is reported below.
 You can also find it in the `root directory of the interface <https://github.com/HealthyPear/protopipe-grid-interface>`_.
 You can create the corresponding environment with a command like this,
@@ -36,7 +40,7 @@ You can create the corresponding environment with a command like this,
   channels:
     - conda-forge
   dependencies:
-    - python=3.8
+    - python>=3.8
     - pip
     - dirac-grid
     - voms
