@@ -17,6 +17,7 @@ from pathlib import Path
 from astropy.table import Table, Column
 import astropy.units as u
 from scipy.stats import binned_statistic
+from scipy.interpolate import RectBivariateSpline
 import numpy as np
 
 
@@ -229,3 +230,100 @@ def get_evt_subarray_model_output(
     new_data = new_data[~new_data.index.duplicated(keep="first")]
 
     return new_data
+
+
+def sum_of_squares(x):
+    x = np.asanyarray(x)
+    if len(x) == 0:
+        return 0
+    mean = x.mean()
+    return np.sum((x - mean) ** 2)
+
+
+class OnlineBinnedStats:
+    def __init__(self, bin_edges):
+        self.bin_edges = bin_edges
+        self.n_bins = len(bin_edges) - 1
+        self.n = np.zeros(self.n_bins)
+        self._mean = np.zeros(self.n_bins)
+        self._m2 = np.zeros(self.n_bins)
+
+    def update(self, x, values):
+        n = binned_statistic(x, values, "count", self.bin_edges).statistic
+        mean = binned_statistic(x, values, "mean", bins=self.bin_edges).statistic
+        m2 = binned_statistic(x, values, sum_of_squares, bins=self.bin_edges).statistic
+
+        # empty bins are nan, but we need 0
+        empty = n == 0
+        mean[empty] = 0
+        m2[empty] = 0
+
+        n_total = self.n + n
+        delta = self._mean - mean
+        v = n_total > 0  # to avoid dividing by 0 and remove more NaNs
+        self._mean[v] = (self.n[v] * self._mean[v] + n[v] * mean[v]) / n_total[v]
+        self._m2[v] += m2[v] + delta[v] ** 2 * self.n[v] * n[v] / n_total[v]
+        self.n = n_total
+
+    @property
+    def mean(self):
+        mean = np.full(self.n_bins, np.nan)
+        valid = self.n > 0
+        mean[valid] = self._mean[valid]
+        return mean
+
+    @property
+    def std(self):
+        std = np.full(self.n_bins, np.nan)
+        valid = self.n > 1
+        std[valid] = np.sqrt(self._m2[valid] / (self.n[valid] - 1))
+        return std
+
+    @property
+    def bin_centers(self):
+        return 0.5 * (self.bin_edges[:-1] + self.bin_edges[1:])
+
+    @property
+    def bin_width(self):
+        return np.diff(self.bin_edges)
+
+
+def create_lookup_function(binned_stat):
+    """
+    Returns a function f(x,y) that evaluates the lookup at a point.
+    """
+    cx = 0.5 * (binned_stat.x_edge[0:-1] + binned_stat.x_edge[1:])
+    cy = 0.5 * (binned_stat.y_edge[0:-1] + binned_stat.y_edge[1:])
+    z = binned_stat.statistic
+    z[~np.isfinite(z)] = 0  # make sure there are no infs or nans
+    interpolator = RectBivariateSpline(x=cx, y=cy, z=z, kx=1, ky=1, s=0)
+    return lambda x, y: interpolator.ev(x, y)  # go back to TeV and evaluate
+
+
+def compute_psf(data, ebins, radius):
+    nbin = len(ebins) - 1
+    psf = np.zeros(nbin)
+    psf_err = np.zeros(nbin)
+    for idx in range(nbin):
+        emin = ebins[idx]
+        emax = ebins[idx + 1]
+        sel = data.loc[
+            (data["true_energy"] >= emin) & (data["true_energy"] < emax), ["xi"]
+        ]
+        if len(sel) != 0:
+            psf[idx] = np.percentile(sel["xi"], radius)
+            psf_err[idx] = psf[idx] / np.sqrt(len(sel))
+        else:
+            psf[idx] = 0.0
+            psf_err[idx] = 0.0
+    return psf, psf_err
+
+def load_tel_id(file_name = None, tel_id = None):
+    """Load R0 and R1 waveforms for 1 telescope."""
+    
+    if file_name is None:
+        raise ValueError("input information is undefined")
+    else:
+        r0_waveforms = read_table(file_name, f"/r0/event/telescope/tel_{tel_id:03d}")
+        r1_waveforms = read_table(file_name, f"/r1/event/telescope/tel_{tel_id:03d}")
+        return r0_waveforms, r1_waveforms

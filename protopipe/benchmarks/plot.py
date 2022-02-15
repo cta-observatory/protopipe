@@ -20,6 +20,7 @@ from matplotlib.colors import LogNorm
 from scipy.stats import binned_statistic, norm
 from sklearn.metrics import auc, roc_curve, accuracy_score
 from scipy.optimize import curve_fit
+from pyirf.utils import cone_solid_angle
 
 
 LOWER_SIGMA_QUANTILE, UPPER_SIGMA_QUANTILE = norm().cdf([-1, 1])
@@ -434,6 +435,86 @@ def plot_roc_curve(ax, model_output, y, **kwargs):
     label = "{} (area={:.2f})".format(kwargs.pop("label"), roc_auc)  # Remove label
     ax.plot(fpr, tpr, label=label, **kwargs)
     return ax
+
+
+def plot_evt_roc_curve_variation(ax, data_test, cut_list, model_output_name):
+    """
+
+    Parameters
+    ----------
+    ax: `~matplotlib.axes.Axes`
+        Axis
+    data_test: `~pd.DataFrame`
+        Test data
+    cut_list: `list`
+         Cut list
+
+    Returns
+    -------
+    ax:  `~matplotlib.axes.Axes`
+        Axis
+    """
+    color = 1.0
+    step_color = 1.0 / (len(cut_list))
+    for i, cut in enumerate(cut_list):
+        c = color - (i + 1) * step_color
+
+        data = data_test.query(cut)
+        if len(data) == 0:
+            continue
+
+        opt = dict(
+            color=str(c), lw=2, label="{}".format(cut.replace("reco_energy", "E"))
+        )
+        plot_roc_curve(ax, data[model_output_name], data["label"], **opt)
+    ax.plot([0, 1], [0, 1], color="navy", lw=2, linestyle="--")
+
+    return ax
+
+
+def plot_psf(ax, x, y, err, **kwargs):
+
+    label = kwargs.get("label", "")
+    xlabel = kwargs.get("xlabel", "")
+    xlim = kwargs.get("xlim", None)
+
+    ax.errorbar(x, y, yerr=err, fmt="o", label=label)
+    ax.set_ylabel("PSF (68% containment)")
+    ax.set_xlabel("True energy [TeV]")
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    return ax
+
+
+def plot_background_rate(input_file, ax, label, color):
+
+    color = color if color else None
+
+    rad_max = QTable.read(input_file, hdu="RAD_MAX")[0]
+    bg_rate = QTable.read(input_file, hdu="BACKGROUND")[0]
+
+    reco_bins = np.append(bg_rate["ENERG_LO"], bg_rate["ENERG_HI"][-1])
+
+    # first fov bin, [0, 1] deg
+    fov_bin = 0
+    rate_bin = bg_rate["BKG"].T[:, fov_bin]
+
+    # interpolate theta cut for given e reco bin
+    e_center_bg = 0.5 * (bg_rate["ENERG_LO"] + bg_rate["ENERG_HI"])
+    e_center_theta = 0.5 * (rad_max["ENERG_LO"] + rad_max["ENERG_HI"])
+    theta_cut = np.interp(e_center_bg, e_center_theta, rad_max["RAD_MAX"].T[:, 0])
+
+    # undo normalization
+    rate_bin *= cone_solid_angle(theta_cut)
+    rate_bin *= np.diff(reco_bins)
+    ax.errorbar(
+        0.5 * (bg_rate["ENERG_LO"] + bg_rate["ENERG_HI"]).to_value(u.TeV)[1:-1],
+        rate_bin.to_value(1 / u.s)[1:-1],
+        xerr=np.diff(reco_bins).to_value(u.TeV)[1:-1] / 2,
+        ls="",
+        label=label,
+        color=color,
+    )
 
 
 class BoostedDecisionTreeDiagnostic(object):
