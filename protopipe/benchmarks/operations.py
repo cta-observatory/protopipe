@@ -1,12 +1,23 @@
+"""
+This module contains functions to perform varius operation over data.
+
+The contents of the module can be used separately,
+but they are also used used by the benchmarking notebooks.
+
+Notes
+-----
+This module has been created essentially to clean-up/refactor the
+notebooks.
+The implementation of functions and classes is far from perfect and
+we should really try to synchronize in some way with ctaplot/ctabenchmarks.
+"""
+
+from pathlib import Path
+
 from astropy.table import Table, Column
 import astropy.units as u
 from scipy.stats import binned_statistic
 import numpy as np
-
-__all__ = ["compute_weight_BTEL1010",
-           "average_bias_of_charge_resolution",
-           "calculate_RMS_around_1",
-           "prepare_requirements"]
 
 
 def compute_weight_BTEL1010(true_energy, simtel_spectral_slope=-2.0):
@@ -17,11 +28,11 @@ def compute_weight_BTEL1010(true_energy, simtel_spectral_slope=-2.0):
     true_energy: array_like
     simtel_spectral_slope: float
         Spectral slope from the simulation.
-        """
+    """
     target_slope = -2.62  # spectral slope from B-TEL-1010
     spec_slope = simtel_spectral_slope
     # each pixel of the same image (row of data table) needs the same weight
-    weight = np.power(true_energy / 200., target_slope - spec_slope)
+    weight = np.power(true_energy / 200.0, target_slope - spec_slope)
     return weight
 
 
@@ -40,11 +51,9 @@ def add_BTEL1010_weigths_to_data(data, subarray=None):
     return data
 
 
-def average_bias_of_charge_resolution(x_bin_edges,
-                                      y_bin_edges,
-                                      hist,
-                                      min_phe=50,
-                                      max_phe=500):
+def average_bias_of_charge_resolution(
+    x_bin_edges, y_bin_edges, hist, min_phe=50, max_phe=500
+):
     """Calculate the average bias of charge resolution.
 
     Default limits are in true photoelectrons and chosen to be safely
@@ -74,7 +83,7 @@ def average_bias_of_charge_resolution(x_bin_edges,
 
     y_bin_centers = 0.5 * (y_bin_edges[1:] + y_bin_edges[:-1])
 
-    bias = 1. / np.average(y_bin_centers, weights=proj)
+    bias = 1.0 / np.average(y_bin_centers, weights=proj)
 
     return bias
 
@@ -98,7 +107,7 @@ def calculate_RMS_around_1(values, weights):
 
     """
     average = np.average(values, weights=weights)
-    variance = np.average((values - average)**2, weights=weights)
+    variance = np.average((values - average) ** 2, weights=weights)
     standard_deviation = np.sqrt(variance)
     a = np.power(standard_deviation, 2)
     b = np.power(average - 1, 2)
@@ -107,36 +116,116 @@ def calculate_RMS_around_1(values, weights):
 
 
 def prepare_requirements(input_directory, site, obs_time):
-    requirements_input_filenames = {"sens": f'/{site}-{obs_time}.dat',
-                                    "AngRes": f'/{site}-{obs_time}-AngRes.dat',
-                                    "ERes": f'/{site}-{obs_time}-ERes.dat'}
+    """Prepare requirements data as a dictionary.
+
+    Parameters
+    ----------
+    input_directory : str or pathlib.Path
+        Directory where the requirements files are stored.
+    site: str
+        Site identifier as in the name of the requirement files
+    obs_time: int
+        Observation time as in the name of the requirement files
+
+    Returns
+    -------
+    requirements: dict
+        Extracted requirements organized by benchmark.
+
+    """
+    requirements_input_filenames = {
+        "sens": f"/{site}-{obs_time}.dat",
+        "AngRes": f"/{site}-{obs_time}-AngRes.dat",
+        "ERes": f"/{site}-{obs_time}-ERes.dat",
+    }
     requirements = {}
 
     for key in requirements_input_filenames.keys():
         requirements[key] = Table.read(
-            input_directory + requirements_input_filenames[key], format='ascii')
-    requirements['sens'].add_column(
-        Column(data=(10**requirements['sens']['col1']), name='ENERGY'))
-    requirements['sens'].add_column(
-        Column(data=requirements['sens']['col2'], name='SENSITIVITY'))
+            Path(input_directory) / requirements_input_filenames[key], format="ascii"
+        )
+    requirements["sens"].add_column(
+        Column(data=(10 ** requirements["sens"]["col1"]), name="ENERGY")
+    )
+    requirements["sens"].add_column(
+        Column(data=requirements["sens"]["col2"], name="SENSITIVITY")
+    )
 
     return requirements
 
 
-def compute_resolution(x_bin_edges, reco, true, mask=None,
-                       statistic=lambda x: np.percentile(np.abs(x), 68)):
+def compute_resolution(
+    x_bin_edges, reco, true, mask=None, statistic=lambda x: np.percentile(np.abs(x), 68)
+):
     """Compute a resolution as a binned statistic."""
-    resolution = binned_statistic(np.log10(true[mask]),
-                                  reco / true[mask] - 1,
-                                  statistic=statistic,
-                                  bins=x_bin_edges)
+    resolution = binned_statistic(
+        np.log10(true[mask]),
+        reco / true[mask] - 1,
+        statistic=statistic,
+        bins=x_bin_edges,
+    )
     return resolution
 
 
 def compute_bias(x_bin_edges, reco, true, mask=None, statistic="median"):
     """Compute bias as a binned statistic."""
-    bias = binned_statistic(np.log10(true[mask]),
-                            reco[mask] / true[mask] - 1,
-                            statistic=statistic,
-                            bins=x_bin_edges)
+    bias = binned_statistic(
+        np.log10(true[mask]),
+        reco[mask] / true[mask] - 1,
+        statistic=statistic,
+        bins=x_bin_edges,
+    )
     return bias
+
+
+def get_evt_subarray_model_output(
+    data,
+    weight_name="reco_energy_tel_weigth",
+    keep_cols=["reco_energy"],
+    model_output_name="reco_energy_tel",
+    model_output_name_evt="reco_energy",
+):
+    """
+    Returns DataStore with keepcols + score/target columns of model at the
+    level-subarray-event.
+
+    Parameters
+    ----------
+    data: `~pandas.DataFrame`
+        Data frame
+    weight_name: `str`
+        Variable name in data frame to weight events with
+    keep_cols: `list`, optional
+        List of variables to keep in resulting data frame
+    model_output_name: `str`, optional
+        Name of model output (image level)
+    model_output_name_evt: `str`, optional
+        Name of averaged model output (shower level)
+
+    Returns
+    --------
+    data: `~pandas.DataFrame`
+        Data frame
+    """
+
+    keep_cols += [model_output_name]
+    keep_cols += [weight_name]
+    new_data = data[keep_cols].copy(deep=True)
+
+    new_data[model_output_name_evt] = np.zeros(len(new_data))
+    new_data.set_index(["tel_id"], append=True, inplace=True)
+
+    new_data[model_output_name_evt] = new_data.groupby(["obs_id", "event_id"]).apply(
+        lambda g: np.average(g[model_output_name], weights=g[weight_name])
+    )
+
+    # Remove columns
+    if (
+        model_output_name != "reco_energy_tel"
+    ):  # we want to keep the telescope-wise energy (might keep also gammaness in the future)
+        new_data = new_data.drop(columns=[model_output_name])
+
+    # Remove duplicates
+    new_data = new_data[~new_data.index.duplicated(keep="first")]
+
+    return new_data

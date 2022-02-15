@@ -26,10 +26,15 @@ def string_to_boolean(variables):
     """
 
     def check_str(x):
-        return x if type(x) == bool \
-            else True if x == "True" \
-            else False if x == "False" \
+        return (
+            x
+            if type(x) == bool
+            else True
+            if x == "True"
+            else False
+            if x == "False"
             else raise_(ValueError(f"{x} is not a valid boolean."))
+        )
 
     return list(map(check_str, variables))
 
@@ -39,19 +44,41 @@ def add_stats(data, ax, x=0.70, y=0.85, fontsize=10):
     mu = data.mean()
     median = np.median(data)
     sigma = data.std()
-    textstr = '\n'.join((
-        r'$\mu=%.2f$' % (mu, ),
-        r'$\mathrm{median}=%.2f$' % (median, ),
-        r'$\sigma=%.2f$' % (sigma, )))
+    textstr = "\n".join(
+        (
+            r"$\mu=%.2f$" % (mu,),
+            r"$\mathrm{median}=%.2f$" % (median,),
+            r"$\sigma=%.2f$" % (sigma,),
+        )
+    )
 
     # these are matplotlib.patch.Patch properties
-    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
 
     # place a text box in upper left in axes coords
-    ax.text(x, y,
-            textstr,
-            transform=ax.transAxes,
-            fontsize=fontsize,
-            horizontalalignment='left',
-            verticalalignment='center',
-            bbox=props)
+    ax.text(
+        x,
+        y,
+        textstr,
+        transform=ax.transAxes,
+        fontsize=fontsize,
+        horizontalalignment="left",
+        verticalalignment="center",
+        bbox=props,
+    )
+
+
+def get_fig_size(ratio=None, scale=None):
+    """Get size of figure given a ratio and a scale.
+
+    Parameters
+    ----------
+    ratio: float
+        Something like 16:9 or 4:3
+    scale: float
+        A multiplicative factor to ccale the original figure keeping its ratio"""
+    ratio = 4 / 3.0 if ratio is None else ratio
+    scale = 1.0 if scale is None else scale
+    height = 5
+    width = height * ratio
+    return (width * scale, height * scale)
