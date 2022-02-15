@@ -1,21 +1,20 @@
-.. _benchmark:
+.. _benchmark_script:
 
 Benchmarking
 ============
 
-``protopipe-BENCHMARK`` is used to run benchmarks within *protopipe*.
-It allows to look for available benchmarking notebooks, interface with them
+``protopipe-BENCHMARK`` is used to run benchmarks.
+It allows to list available benchmarking notebooks, interface with them
 and optionally convert them in HTML format for easier consultation.
 
 .. warning::
   
   This is not currently available for the *calibration* benchmark notebook
   which requires a *ctapipe* version more recent than the one which protopipe
-  supports.
-  It will behave as the rest as soon as we upgrade to the latest release.
+  supports (`ctapipe >= 0.12.0`).
 
 By invoking the help argument, you can get help about how the script works:
-``protopipe-BENCHMARK`` allows for 2 commands ``list`` and ``launch``,
+``protopipe-BENCHMARK`` has 2 sub-commands ``list`` and ``launch``,
 
 .. code-block::
 
@@ -36,7 +35,7 @@ By invoking the help argument, you can get help about how the script works:
   optional arguments:
     -h, --help     show this help message and exit
 
-In particular, the ``launch`` command is essentially a convenient wrapper
+The ``launch`` command is essentially a convenient wrapper
 around `papermill <https://papermill.readthedocs.io/en/latest/>`__ and
 (optionally) `jupyter nbconvert <https://nbconvert.readthedocs.io/en/latest/>`__.
 
@@ -58,7 +57,7 @@ around `papermill <https://papermill.readthedocs.io/en/latest/>`__ and
     --suffix SUFFIX       Suffix for result and HTML files (default: analysis name)
     --no_export           Do not convert the result notebook to any other format.
 
-The configuration file used by this script is ``benchmarks.yaml``,
+The configuration file used by this script is ``benchmarks.yaml`` of which an example is reported here,
 
 .. code-block:: yaml
 
@@ -73,7 +72,7 @@ The configuration file used by this script is ``benchmarks.yaml``,
   analyses_directory: "ANALYSES_DIRECTORY" # filled by the grid interface
   analysis_name: "ANALYSIS_NAME" # filled by the grid interface
   # to compare with a previous release or version
-  load_protopipe_previous: False # If True load data from a previous analysis
+  load_protopipe_previous: False # If True load data from a previous analysis
   analysis_name_2: "" # if files have different names override them (--kwargs)
 
   # Global plot aesthetics settings
@@ -145,3 +144,4 @@ The configuration file used by this script is ``benchmarks.yaml``,
   input_filenames_ctapipe:
     DL1a_gamma: "events_protopipe_CTAMARS_calibration_1stPass.dl1.h5"
     DL1a_gamma_2ndPass: "events_protopipe_CTAMARS_calibration_2ndPass.dl1.h5"
+
