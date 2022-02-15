@@ -23,7 +23,7 @@ Details
     model_diagnostics
     DL2
     optimization_cuts_IRFs
-    benchmark
+    benchmark_script
 
 The tables created in the :ref:`data_training` and :ref:`DL2` steps are written
 on disk in HDF5_ format using the PyTables_ Python module.
