@@ -3,7 +3,6 @@
 # It is recommended to fill it and specify any remaining options using
 # the --kwargs flag of protopipe-BENCHMARKS
 # To specify directories, please provide full paths
-# Note: users which use a CTADIRAC container should use paths OUTSIDE of it
 
 # General settings for you analysis
 analyses_directory: "ANALYSES_DIRECTORY" # filled by the grid interface
