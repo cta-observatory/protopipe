@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os
 import pandas as pd
 import numpy as np
@@ -11,7 +9,8 @@ from astropy.table import Table, Column
 
 import joblib
 
-from protopipe.pipeline.utils import load_config, save_fig
+from protopipe.pipeline.io import load_obj, load_config
+from protopipe.pipeline.utils import save_fig
 
 from protopipe.mva import (
     RegressorDiagnostic,
@@ -19,7 +18,6 @@ from protopipe.mva import (
     BoostedDecisionTreeDiagnostic,
 )
 from protopipe.mva.utils import (
-    load_obj,
     get_evt_subarray_model_output,
     plot_roc_curve,
     plot_hist,

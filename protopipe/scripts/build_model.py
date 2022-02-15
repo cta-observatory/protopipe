@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os
 from os import path
 import importlib
@@ -9,7 +7,7 @@ import pandas as pd
 from sklearn.metrics import classification_report
 from sklearn.calibration import CalibratedClassifierCV
 
-from protopipe.pipeline.utils import load_config, get_camera_names
+from protopipe.pipeline.io import load_config, get_camera_names
 from protopipe.mva import TrainModel
 from protopipe.mva.io import initialize_script_arguments, save_output
 from protopipe.mva.utils import (
@@ -29,10 +27,10 @@ def main():
     # INPUT CONFIGURATION
 
     # Import parameters
-    if args.indir is None:
-        data_dir = cfg["General"]["data_dir"]
+    if args.indir_signal is None:
+        data_dir_signal = cfg["General"]["data_dir_signal"]
     else:
-        data_dir = args.indir
+        data_dir_signal = args.indir_signal
 
     if args.outdir is None:
         outdir = cfg["General"]["outdir"]
@@ -47,7 +45,7 @@ def main():
     else:
         data_sig_file = args.infile_signal
 
-    filename_sig = path.join(data_dir, data_sig_file)
+    filename_sig = path.join(data_dir_signal, data_sig_file)
 
     print(f"INPUT SIGNAL FILE PATH= {filename_sig}")
 
@@ -58,11 +56,11 @@ def main():
     elif args.cameras_from_file:
         print("GETTING CAMERAS FROM SIGNAL TRAINING FILE")
         # in the same analysis all particle types are analyzed in the
-        # same way so we can just use gammas
-        cam_ids = get_camera_names(filename_sig)
+        # same way so we can just use signal
+        cam_ids = get_camera_names(data_dir_signal, data_sig_file)
     else:
         print("GETTING CAMERAS FROM CLI")
-        cam_ids = args.cam_id_lists.split()
+        cam_ids = args.cam_id_list.split()
 
     # The names of the tables inside the HDF5 file are the camera's names
     table_name = [cam_id for cam_id in cam_ids]
@@ -86,6 +84,9 @@ def main():
     use_GridSearchCV = cfg["GridSearchCV"]["use"]
     scoring = cfg["GridSearchCV"]["scoring"]
     cv = cfg["GridSearchCV"]["cv"]
+    refit = cfg["GridSearchCV"]["refit"]
+    grid_search_verbose = cfg["GridSearchCV"]["verbose"]
+    grid_search_njobs = cfg["GridSearchCV"]["njobs"]
 
     # Hyper-parameters of the main model
     tuned_parameters = cfg["Method"]["tuned_parameters"]
@@ -98,7 +99,6 @@ def main():
     class_name = model_to_use.split('.')[-1]
     module = importlib.import_module(module_name)  # sklearn.XXX
     model = getattr(module, class_name)
-    print(f"Going to use {module_name}.{class_name}...")
 
     # Check for any base estimator if main model is a meta-estimator
     if "base_estimator" in cfg['Method']:
@@ -107,7 +107,8 @@ def main():
         base_estimator_pars = base_estimator_cfg['parameters']
         base_estimator_module_name = '.'.join(base_estimator_name.split('.', 2)[:-1])
         base_estimator_class_name = base_estimator_name.split('.')[-1]
-        base_estimator_module = importlib.import_module(base_estimator_module_name)  # sklearn.XXX
+        base_estimator_module = importlib.import_module(
+            base_estimator_module_name)  # sklearn.XXX
         base_estimator_model = getattr(base_estimator_module, base_estimator_class_name)
         initialized_base_estimator = base_estimator_model(**base_estimator_pars)
         print(f"...based on {base_estimator_module_name}.{base_estimator_class_name}")
@@ -136,16 +137,18 @@ def main():
 
     elif class_name in model_types["classifier"]:
 
+        if args.indir_background is None:
+            data_dir_background = cfg["General"]["data_dir_background"]
+        else:
+            data_dir_background = args.indir_background
+
         # read background file from either config file or CLI
         if args.infile_background is None:
             data_bkg_file = cfg["General"]["data_bkg_file"].format(args.mode)
         else:
             data_bkg_file = args.infile_background
 
-        # filename_sig = path.join(data_dir, data_sig_file)
-        filename_bkg = path.join(data_dir, data_bkg_file)
-
-        # table_name = [table_name_template + cam_id for cam_id in cam_ids]
+        filename_bkg = path.join(data_dir_background, data_bkg_file)
 
         # Get the selection cuts
         sig_cuts = make_cut_list(cfg["SigFiducialCuts"])
@@ -158,7 +161,7 @@ def main():
     else:
         raise ValueError("ERROR: not a supported model")
 
-    print("### Using {} for model construction".format(model_to_use))
+    print(f"Using {module_name}.{class_name} for model construction")
 
     print(f"LIST OF CAMERAS TO USE = {cam_ids}")
 
@@ -193,7 +196,8 @@ def main():
             # Useful to test the models before using them for DL2 production
             factory.split_data(data_sig=data_sig, train_fraction=train_fraction)
             print("Training sample: sig {}".format(len(factory.data_train)))
-            print("Test sample: sig {}".format(len(factory.data_test)))
+            if factory.data_test is not None:
+                print("Test sample: sig {}".format(len(factory.data_test)))
 
         else:  # if it's not a regressor it's a classifier
 
@@ -217,7 +221,8 @@ def main():
                 data_sig = data_sig[0:args.max_events]
                 data_bkg = data_bkg[0:args.max_events]
 
-            print(f"Going to split {len(data_sig)} SIGNAL images and {len(data_bkg)} BACKGROUND images")
+            print(
+                f"Going to split {len(data_sig)} SIGNAL images and {len(data_bkg)} BACKGROUND images")
 
             # Initialize the model
             factory = TrainModel(
@@ -247,11 +252,13 @@ def main():
             )
 
         if use_GridSearchCV:
+            print("Going to perform exhaustive cross-validated grid-search over"
+                  " specified parameter values...")
             # Apply optimization of the hyper-parameters via grid search
             # and return best model
             best_model = factory.get_optimal_model(
-                initialized_model, tuned_parameters, scoring=scoring, cv=cv
-            )
+                initialized_model, tuned_parameters, scoring=scoring, cv=cv,
+                refit=refit, verbose=grid_search_verbose, njobs=grid_search_njobs)
         else:  # otherwise use directly the initial model
             best_model = initialized_model
 

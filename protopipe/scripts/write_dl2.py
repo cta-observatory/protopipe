@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from sys import exit
+from sys import exit as sys_exit
 import numpy as np
 import pandas as pd
 from glob import glob
@@ -19,6 +19,7 @@ from protopipe.pipeline import EventPreparer
 from protopipe.pipeline.utils import (
     bcolors,
     make_argparser,
+    prod5N_array,
     prod3b_array,
     str2bool,
     load_config,
@@ -35,7 +36,7 @@ def main():
     parser.add_argument(
         "--debug", action="store_true", help="Print debugging information",
     )
-    
+
     parser.add_argument(
         "--show_progress_bar",
         action="store_true",
@@ -86,6 +87,21 @@ def main():
         )
         exit()
 
+    # Check that the user specify site, array and production
+    try:
+        site = cfg["General"]["site"]
+        array = cfg["General"]["array"]
+        production = cfg["General"]["production"]
+        assert all(len(x) > 0 for x in [site, array, production])
+    except (KeyError, AssertionError):
+        raise ValueError(
+            bcolors.FAIL +
+            """At least one of 'site', 'array' and
+            'production' are not properly defined in the analysis configuration
+            file.""" +
+            + bcolors.ENDC)
+        sys_exit(-1)
+
     # Add force_tailcut_for_extended_cleaning in configuration
     cfg["General"][
         "force_tailcut_for_extended_cleaning"
@@ -105,13 +121,21 @@ def main():
 
     if not filenamelist:
         print("no files found; check indir: {}".format(args.indir))
-        exit(-1)
+        sys_exit(-1)
 
     # Get the IDs of the involved telescopes and associated cameras together
     # with the equivalent focal lengths from the first event
-    allowed_tels, cams_and_foclens, subarray = prod3b_array(
-        filenamelist[0], site, array
-    )
+    if production == "Prod5N":
+        allowed_tels, cams_and_foclens, subarray = prod5N_array(
+            filenamelist[0], site, array
+        )
+    elif production == "Prod3b":
+        allowed_tels, cams_and_foclens, subarray = prod3b_array(
+            filenamelist[0], site, array
+        )
+    else:
+        raise ValueError(bcolors.FAIL + "Unsupported production." + bcolors.ENDC)
+        sys_exit(-1)
 
     # keeping track of events and where they were rejected
     evt_cutflow = CutFlow("EventCutFlow")
@@ -135,7 +159,11 @@ def main():
         estimation_weight_energy = "CTAMARS"
     classifier_method = cfg["GammaHadronClassifier"]["method_name"]
     estimation_weight_classification = cfg["GammaHadronClassifier"]["estimation_weight"]
-    use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
+    try:
+        use_proba_for_classifier = cfg["GammaHadronClassifier"]["use_proba"]
+    except KeyError:
+        # if not specified use "gammaness" as particle type score
+        use_proba_for_classifier = True
 
     if regressor_method in ["None", "none", None]:
         print(
@@ -219,11 +247,11 @@ def main():
 
     # Declaration of the column descriptor for the (possible) images file
     StoredImages = dict(
-        event_id = tb.Int32Col(dflt=1, pos=0),
-        tel_id = tb.Int16Col(dflt=1, pos=1)
+        event_id=tb.Int32Col(dflt=1, pos=0),
+        tel_id=tb.Int16Col(dflt=1, pos=1)
         # reco_image, true_image and cleaning_mask_reco
         # are defined later sicne they depend on the number of pixels
-        )
+    )
 
     # this class defines the reconstruction parameters to keep track of
     class RecoEvent(tb.IsDescription):
@@ -254,7 +282,7 @@ def main():
         reco_core_y = tb.Float32Col(dflt=np.nan, pos=24)
         true_core_x = tb.Float32Col(dflt=np.nan, pos=25)
         true_core_y = tb.Float32Col(dflt=np.nan, pos=26)
-        is_valid=tb.BoolCol(dflt=False, pos=27)
+        is_valid = tb.BoolCol(dflt=False, pos=27)
 
     reco_outfile = tb.open_file(
         mode="w",
@@ -279,7 +307,7 @@ def main():
         images_outfile = tb.open_file("images.h5", mode="w")
         images_table = {}
         images_phe = {}
-        
+
     # Configuration options for MySimTelEventSource
     try:
         calib_scale = cfg["Calibration"]["calib_scale"]
@@ -314,15 +342,16 @@ def main():
             impact_dict,
             good_event,
             good_for_reco,
+            image_extraction_status
         ) in tqdm(
-                    preper.prepare_event(source,
-                                         save_images=args.save_images,
-                                         debug=args.debug),
-                    desc=source.__class__.__name__,
-                    total=source.max_events,
-                    unit="event",
-                    disable= not args.show_progress_bar
-                 ):
+            preper.prepare_event(source,
+                                 save_images=args.save_images,
+                                 debug=args.debug),
+            desc=source.__class__.__name__,
+            total=source.max_events,
+            unit="event",
+            disable=not args.show_progress_bar
+        ):
 
             # True direction
             true_az = event.simulation.shower.az
@@ -442,11 +471,13 @@ def main():
 
                     if (good_for_reco[tel_id] == 1) and (estimation_weight_energy == "CTAMARS"):
                         # Get an array of trees
-                        predictions_trees = np.array([tree.predict(features_values) for tree in model.estimators_])
+                        predictions_trees = np.array(
+                            [tree.predict(features_values) for tree in model.estimators_])
                         energy_tel[idx] = np.mean(predictions_trees, axis=0)
                         weight_statistic_tel[idx] = np.std(predictions_trees, axis=0)
                     elif (good_for_reco[tel_id] == 1):
-                        data.eval(f'estimation_weight_energy = {estimation_weight_energy}', inplace=True)
+                        data.eval(
+                            f'estimation_weight_energy = {estimation_weight_energy}', inplace=True)
                         energy_tel[idx] = model.predict(features_values)
                         weight_tel[idx] = data["estimation_weight_energy"]
                     else:
@@ -548,7 +579,8 @@ def main():
                     ############################################################
 
                     # add weigth to event dataframe
-                    data.eval(f'estimation_weight_classification = {estimation_weight_classification}', inplace=True)
+                    data.eval(
+                        f'estimation_weight_classification = {estimation_weight_classification}', inplace=True)
 
                     # Here we check for valid telescope-wise energies
                     # Because it means that it's a good image
@@ -559,7 +591,8 @@ def main():
                         if use_proba_for_classifier is False:
                             score_tel[idx] = model.decision_function(features_values)
                         else:
-                            gammaness_tel[idx] = model.predict_proba(features_values)[:, 1]
+                            gammaness_tel[idx] = model.predict_proba(features_values)[
+                                :, 1]
                         weight_tel[idx] = data["estimation_weight_classification"]
                     else:
                         # WARNING:
@@ -723,6 +756,7 @@ def main():
         pass
 
     print("Job done!")
+
 
 if __name__ == "__main__":
     main()

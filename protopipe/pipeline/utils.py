@@ -3,8 +3,9 @@ import yaml
 import argparse
 import math
 import joblib
+from typing import List, Union
 
-import numpy
+import numpy as np
 import astropy.units as u
 import matplotlib.pyplot as plt
 import os.path as path
@@ -51,11 +52,11 @@ def load_config(name):
 
 
 class SignalHandler:
-    """ handles ctrl+c signals; set up via
-        `signal_handler = SignalHandler()
-        `signal.signal(signal.SIGINT, signal_handler)`
-        # or for two step interupt:
-        `signal.signal(signal.SIGINT, signal_handler.stop_drawing)`
+    """handles ctrl+c signals; set up via
+    `signal_handler = SignalHandler()
+    `signal.signal(signal.SIGINT, signal_handler)`
+    # or for two step interupt:
+    `signal.signal(signal.SIGINT, signal_handler.stop_drawing)`
     """
 
     def __init__(self):
@@ -162,28 +163,31 @@ def make_argparser():
     return parser
 
 
-def final_array_to_use(sim_array, array, subarrays=None):
+def final_array_to_use(
+    original_array, subarray_selection: Union[str, List[int]], subarrays=None
+):
     """Infer IDs of telescopes and cameras with equivalent focal lengths.
+
     This is an helper function for utils.prod3b_array.
 
     Parameters
     ----------
-    subarrays : dict, optional
+    subarrays : `dict` [`str`, `list` [`int`]], optional
         Dictionary of subarray names linked to lists of tel_ids
         automatically extracted by telescope type.
         If set, it will extract tel_ids from there, otherwise from the custom
         list given by 'array'.
-    sim_array : ctapipe.instrument.SubarrayDescription
+    original_array : `ctapipe.instrument.SubarrayDescription`
         Full simulated array from the first event.
-    array : list, str
+    subarray_selection : {`str`, `list` [`int`]}
         Custom list of telescope IDs that the user wants to use or name of
         specific subarray.
 
     Returns
     -------
-    tel_ids : list
+    tel_ids : `list` [`int`]
         List of telescope IDs to use in a format readable by ctapipe.
-    cams_and_foclens : dict
+    cams_and_foclens : `dict` [`str`, `float`]
         Dictionary containing the IDs of the involved cameras as inferred from
         the involved telescopes IDs, together with the equivalent focal lengths
         of the telescopes.
@@ -195,91 +199,248 @@ def final_array_to_use(sim_array, array, subarrays=None):
 
     """
     if subarrays:
-        tel_ids = subarrays[array]
-        subarray = sim_array.select_subarray(tel_ids, name="selected_subarray")
+        tel_ids = subarrays[subarray_selection]
+        selected_subarray = original_array.select_subarray(
+            tel_ids, name="selected_subarray"
+        )
     else:
-        subarray = sim_array.select_subarray(array, name="selected_subarray")
-        tel_ids = subarray.tel_ids
-    tel_types = subarray.telescope_types
+        selected_subarray = original_array.select_subarray(
+            subarray_selection, name="selected_subarray"
+        )
+        tel_ids = selected_subarray.tel_ids
+    tel_types = selected_subarray.telescope_types
     cams_and_foclens = {
         tel_types[i]
         .camera.camera_name: tel_types[i]
         .optics.equivalent_focal_length.value
         for i in range(len(tel_types))
     }
-    return set(tel_ids), cams_and_foclens, subarray
+    return set(tel_ids), cams_and_foclens, selected_subarray
 
 
-def prod3b_array(fileName, site, array):
+def prod5N_array(file_name, site: str, subarray_selection: Union[str, List[int]]):
+    """Return tel IDs and involved cameras from configuration and simtel file.
+
+    Alpha configurations refer to the subarrays selected in [1]_.
+
+    Parameters
+    ----------
+    file_name : `str`
+        Name of the first file of the list of files given by the user.
+    subarray_selection : {`str`, `list` [`int`]}
+        Name or list if telescope IDs which identifies the subarray to extract.
+    site : `str`
+        Can be only "north" or "south".
+
+    Returns
+    -------
+    tel_ids : `list` [`int`]
+        List of telescope IDs to use in a format readable by ctapipe.
+    cameras : `list` [`str`]
+        List of camera types inferred from tel_ids.
+        This will feed both the estimators and the image cleaning.
+
+    References
+    ----------
+    .. [1] Cherenkov Telescope Array Observatory, & Cherenkov Telescope Array
+       Consortium. (2021). CTAO Instrument Response Functions - prod5 version
+       v0.1 (v0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5499840
+
+    """
+
+    with EventSource(input_url=file_name, max_events=1) as source:
+        original_array = source.subarray
+
+    tot_num_tels = original_array.num_tels
+
+    # prod5N_alpha_north
+    # CTA North Advanced Threshold Layout D25
+    # Prod5 North
+    # 4 LSTs and 9 MSTs (NectarCam type)
+
+    # prod5N_alpha_south
+    # CTA South
+    # Prod5 layout S-M6C5-14MSTs37SSTs-MSTF
+    # 0 LSTs and 14 MSTs (FlashCam type), 37 SSTs
+
+    site_to_subarray_name = {
+        "north": ["prod5N_alpha_north"],
+        "south": ["prod5N_alpha_south"],
+    }
+
+    name_to_tel_ids = {
+        "full_array": original_array.tel_ids,
+        "prod5N_alpha_north": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 35],
+        "prod5N_alpha_south": [
+            5,
+            6,
+            8,
+            10,
+            11,
+            12,
+            13,
+            14,
+            126,
+            16,
+            125,
+            20,
+            24,
+            26,
+            30,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            133,
+            59,
+            61,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            143,
+            144,
+            145,
+            146,
+        ],
+    }
+
+    # Add subarrays by telescope type for the full original array
+    # and extract the same from the alpha congiguration subarrays
+    for tel_type in original_array.telescope_types:
+        name_to_tel_ids[f"full_array_{tel_type}"] = original_array.get_tel_ids_for_type(
+            tel_type
+        )
+        name_to_tel_ids[f"prod5N_alpha_north_subarray_{tel_type}"] = set(
+            name_to_tel_ids[f"full_array_{tel_type}"]
+        ).intersection(name_to_tel_ids["prod5N_alpha_north"])
+        name_to_tel_ids[f"prod5N_alpha_south_subarray_{tel_type}"] = set(
+            name_to_tel_ids[f"full_array_{tel_type}"]
+        ).intersection(name_to_tel_ids["prod5N_alpha_south"])
+
+    # Check if the user is using the correct file for the site declared in
+    # the configuration
+    if site.lower() == "north" and (tot_num_tels > 84):
+        raise ValueError("\033[91m Input simtel file and site are uncorrelated!\033[0m")
+    if site.lower() == "south" and (tot_num_tels < 180):
+        raise ValueError("\033[91m infile and site uncorrelated! \033[0m")
+
+    # Validate the subarray selection in case it is a string
+    if type(subarray_selection) is str:
+        if subarray_selection not in name_to_tel_ids:
+            raise ValueError(
+                f"""\033[91m {subarray_selection} is not a supported subarray_selection for this production.
+                Possible choices are:
+                 - use a custom list of IDs,
+                 - add a new subarray definition to protopipe.utils.prod5N_array.
+                """
+            )
+        elif subarray_selection not in site_to_subarray_name[site]:
+            raise ValueError(
+                f"""\033[91m {subarray_selection} is not a supported subarray_selection for the {site} site.
+                """
+            )
+        else:
+            print(
+                f"\033[94m Extracting telescope IDs for {subarray_selection}...\033[0m"
+            )
+            return final_array_to_use(
+                original_array, subarray_selection, name_to_tel_ids
+            )
+    else:  # subarray_selection is a list of telescope IDs
+        print(
+            f"\033[94m Extracting telescope IDs list = {subarray_selection}...\033[0m"
+        )
+        return final_array_to_use(original_array, subarray_selection)
+
+    return final_array_to_use(original_array, subarray_selection)
+
+
+def prod3b_array(file_name, site, array):
     """Return tel IDs and involved cameras from configuration and simtel file.
 
     The initial check (and the too-high cyclomatic complexity) will disappear
     with the advent of the final array layouts.
-    Currently not very performant: it is necessary get at least the first event
-    of the simtel file to read the simulated array information.
 
     Parameters
     ----------
-    first_fileName : str
+    file_name : `str`
         Name of the first file of the list of files given by the user.
-    array : str or list
+    array : {`str`, `list` [`int`]}
         Name of the subarray or - if not supported - a custom list of telescope
         IDs that the user wants to use
-    site : str
+    site : `str`
         Can be only "north" or "south".
         Currently relevant only for baseline simulations.
         For non-baseline simulations only custom lists of IDs matter.
 
     Returns
     -------
-    tel_ids : list
+    tel_ids : `list` [`int`]
         List of telescope IDs to use in a format readable by ctapipe.
-    cameras : list
+    cameras : `list` [`str`]
         List of camera types inferred from tel_ids.
         This will feed both the estimators and the image cleaning.
 
     """
-    source = EventSource(input_url=fileName, max_events=1)
-
-    for event in source:  # get only first event
-        pass
-
-    sim_array = source.subarray  # get simulated array
+    with EventSource(input_url=file_name, max_events=1) as source:
+        original_array = source.subarray  # get simulated array
 
     # Dictionaries of subarray names for BASELINE simulations
     subarrays_N = {  # La Palma has only 2 cameras
-        "subarray_LSTs": sim_array.get_tel_ids_for_type("LST_LST_LSTCam"),
-        "subarray_MSTs": sim_array.get_tel_ids_for_type("MST_MST_NectarCam"),
-        "full_array": sim_array.tel_ids,
+        "subarray_LSTs": original_array.get_tel_ids_for_type("LST_LST_LSTCam"),
+        "subarray_MSTs": original_array.get_tel_ids_for_type("MST_MST_NectarCam"),
+        "full_array": original_array.tel_ids,
     }
     subarrays_S = {  # Paranal has only 3 cameras
-        "subarray_LSTs": sim_array.get_tel_ids_for_type("LST_LST_LSTCam"),
-        "subarray_MSTs": sim_array.get_tel_ids_for_type("MST_MST_FlashCam"),
-        "subarray_SSTs": sim_array.get_tel_ids_for_type("SST_GCT_CHEC"),
-        "full_array": sim_array.tel_ids,
+        "subarray_LSTs": original_array.get_tel_ids_for_type("LST_LST_LSTCam"),
+        "subarray_MSTs": original_array.get_tel_ids_for_type("MST_MST_FlashCam"),
+        "subarray_SSTs": original_array.get_tel_ids_for_type("SST_GCT_CHEC"),
+        "full_array": original_array.tel_ids,
     }
 
     if site.lower() == "north":
-        if sim_array.num_tels > 19:  # this means non-baseline simulation..
+        if original_array.num_tels > 19:  # this means non-baseline simulation..
             if (
-                sim_array.num_tels > 125  # Paranal non-baseline
-                or sim_array.num_tels == 99  # Paranal baseline
-                or sim_array.num_tels == 98  # gamma_test_large
+                original_array.num_tels > 125  # Paranal non-baseline
+                or original_array.num_tels == 99  # Paranal baseline
+                or original_array.num_tels == 98  # gamma_test_large
             ):
                 raise ValueError(
                     "\033[91m ERROR: infile and site uncorrelated! \033[0m"
                 )
-            if type(array) == str and array != "full_array":
+            if (type(array) is str) and (array != "full_array"):
                 raise ValueError(
                     "\033[91m ERROR: Only 'full_array' supported for this production.\n\
                      Please, use that or define a custom array with a list of tel_ids.  \033[0m"
                 )
             elif array == "full_array":
-                return final_array_to_use(sim_array, array, subarrays_N)
+                return final_array_to_use(original_array, array, subarrays_N)
             elif (
                 type(array) == list
             ):  # ..for which only custom lists are currently supported
-                return final_array_to_use(sim_array, array)
+                return final_array_to_use(original_array, array)
             else:
                 raise ValueError(
                     f"\033[91m ERROR: array {array} not supported. \033[0m"
@@ -291,20 +452,20 @@ def prod3b_array(fileName, site, array):
                         "\033[91m ERROR: requested missing camera from simtel file. \033[0m"
                     )
                 else:
-                    return final_array_to_use(sim_array, array, subarrays_N)
+                    return final_array_to_use(original_array, array, subarrays_N)
             elif type(array) == list:
                 if any((tel_id < 1 or tel_id > 19) for tel_id in array):
                     raise ValueError(
                         "\033[91m ERROR: non-existent telescope ID. \033[0m"
                     )
-                return final_array_to_use(sim_array, array)
+                return final_array_to_use(original_array, array)
             else:
                 raise ValueError(
                     f"\033[91m ERROR: array {array} not supported. \033[0m"
                 )
     elif site.lower() == "south":
-        if sim_array.num_tels > 99:  # this means non-baseline simulation..
-            if sim_array.num_tels < 126:
+        if original_array.num_tels > 99:  # this means non-baseline simulation..
+            if original_array.num_tels < 126:
                 raise ValueError(
                     "\033[91m ERROR: infile and site uncorrelated! \033[0m"
                 )
@@ -314,17 +475,17 @@ def prod3b_array(fileName, site, array):
                      Please, use that or define a custom array with a list of tel_ids. \033[0m"
                 )
             if array == "full_array":
-                return final_array_to_use(sim_array, array, subarrays_S)
+                return final_array_to_use(original_array, array, subarrays_S)
             elif (
                 type(array) == list
             ):  # ..for which only custom lists are currently supported
-                return final_array_to_use(sim_array, array)
+                return final_array_to_use(original_array, array)
             else:
                 raise ValueError(
                     f"\033[91m ERROR: Array {array} not supported. \033[0m"
                 )
         else:  # this is a baseline simulation
-            if sim_array.num_tels == 19:
+            if original_array.num_tels == 19:
                 raise ValueError(
                     "\033[91m ERROR: infile and site uncorrelated! \033[0m"
                 )
@@ -334,17 +495,19 @@ def prod3b_array(fileName, site, array):
                         "\033[91m ERROR: requested missing camera from simtel file. \033[0m"
                     )
                 else:
-                    if sim_array.num_tels == 98:  # this is gamma_test_large
-                        subarrays_S["subarray_SSTs"] = sim_array.get_tel_ids_for_type(
+                    if original_array.num_tels == 98:  # this is gamma_test_large
+                        subarrays_S[
+                            "subarray_SSTs"
+                        ] = original_array.get_tel_ids_for_type(
                             "SST_ASTRI_ASTRICam"  # in this file SSTs are ASTRI
                         )
-                    return final_array_to_use(sim_array, array, subarrays_S)
+                    return final_array_to_use(original_array, array, subarrays_S)
             elif type(array) == list:
                 if any((tel_id < 1 or tel_id > 99) for tel_id in array):
                     raise ValueError(
                         "\033[91m ERROR: non-existent telescope ID. \033[0m"
                     )
-                return final_array_to_use(sim_array, array)
+                return final_array_to_use(original_array, array)
             else:
                 raise ValueError(
                     f"\033[91m ERROR: Array {array} not supported. \033[0m"
@@ -467,7 +630,7 @@ def get_camera_names(inputPath=None):
     ==========
     infile : str
         Full path of the input DL1 file.
-    fileName : str
+    file_name : str
         Name of the input DL1 file.
 
     Returns
@@ -477,7 +640,7 @@ def get_camera_names(inputPath=None):
     """
     if inputPath is None:
         print("ERROR: check input")
-    h5file = tables.open_file(inputPath, mode='r')
+    h5file = tables.open_file(inputPath, mode="r")
     group = h5file.get_node("/")
     camera_names = [x.name for x in group._f_list_nodes()]
     h5file.close()
@@ -487,7 +650,7 @@ def get_camera_names(inputPath=None):
 def load_models(path, cam_id_list):
     """Load the pickled dictionary of model from disk
     and fill the model dictionary.
-    
+
     Parameters
     ----------
     path : string
@@ -499,20 +662,20 @@ def load_models(path, cam_id_list):
         List of camera identifiers like telescope ID or camera ID
         and the assumed distinguishing feature in the filenames of
         the various pickled regressors.
-    
+
     Returns
     -------
     model_dict: dict
         Dictionary with `cam_id` as keys and pickled models as values.
     """
-    
+
     model_dict = {}
     for key in cam_id_list:
         try:
             model_dict[key] = joblib.load(path.format(cam_id=key))
         except IndexError:
             model_dict[key] = joblib.load(path.format(key))
-                
+
     return model_dict
 
 
@@ -521,19 +684,25 @@ def add_stats(data, ax, x=0.70, y=0.85, fontsize=10):
     mu = data.mean()
     median = np.median(data)
     sigma = data.std()
-    textstr = '\n'.join((
-        r'$\mu=%.2f$' % (mu, ),
-        r'$\mathrm{median}=%.2f$' % (median, ),
-        r'$\sigma=%.2f$' % (sigma, )))
+    textstr = "\n".join(
+        (
+            r"$\mu=%.2f$" % (mu,),
+            r"$\mathrm{median}=%.2f$" % (median,),
+            r"$\sigma=%.2f$" % (sigma,),
+        )
+    )
 
     # these are matplotlib.patch.Patch properties
-    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
 
     # place a text box in upper left in axes coords
-    ax.text(x, y,
-            textstr,
-            transform=ax.transAxes,
-            fontsize=fontsize,
-            horizontalalignment='left',
-            verticalalignment='center',
-            bbox=props)
+    ax.text(
+        x,
+        y,
+        textstr,
+        transform=ax.transAxes,
+        fontsize=fontsize,
+        horizontalalignment="left",
+        verticalalignment="center",
+        bbox=props,
+    )
