@@ -82,7 +82,7 @@ def split_train_test(survived_images, train_fraction, feature_name_list, target_
         Variable against which to train.
 
     Returns
-    --------
+    -------
     X_train: `~pandas.DataFrame`
         Data frame
     X_test: `~pandas.DataFrame`
@@ -158,7 +158,7 @@ def get_evt_subarray_model_output(
     model_output_name_evt: `str`, optional
         Name of averaged model output (event level)
     Returns
-    --------
+    -------
     data: `~pandas.DataFrame`
         Data frame
     """
@@ -207,7 +207,7 @@ def get_evt_model_output(
         Name of averaged model output (event level)
 
     Returns
-    --------
+    -------
     data: `~pandas.DataFrame`
         Data frame
 
