@@ -20,6 +20,11 @@ from scipy.stats import binned_statistic
 from scipy.interpolate import RectBivariateSpline
 import numpy as np
 
+try:
+    from ctapipe.io import read_table
+except ImportError:
+    from ctapipe.io.astropy_helpers import h5_table_to_astropy as read_table
+
 
 def compute_weight_BTEL1010(true_energy, simtel_spectral_slope=-2.0):
     """Compute the weight from requirement B-TEL-1010-Intensity-Resolution.
@@ -241,6 +246,23 @@ def sum_of_squares(x):
 
 
 class OnlineBinnedStats:
+    """Class to dynamically compute one-dimensional binned statistics.
+
+    Parameters
+    ----------
+    bin_edges: array-like
+        Values which define the edges of the bins to use.
+
+    Notes
+    -----
+    This is an implementation of the Welford's online algorithm
+    (see [1]_ and references therein).
+
+    References
+    ----------
+    .. [1] https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
+    """
+
     def __init__(self, bin_edges):
         self.bin_edges = bin_edges
         self.n_bins = len(bin_edges) - 1
@@ -249,6 +271,7 @@ class OnlineBinnedStats:
         self._m2 = np.zeros(self.n_bins)
 
     def update(self, x, values):
+        """Update the mean and (estimated) variance of the sequence."""
         n = binned_statistic(x, values, "count", self.bin_edges).statistic
         mean = binned_statistic(x, values, "mean", bins=self.bin_edges).statistic
         m2 = binned_statistic(x, values, sum_of_squares, bins=self.bin_edges).statistic
@@ -267,6 +290,7 @@ class OnlineBinnedStats:
 
     @property
     def mean(self):
+        """Compute the mean for bins with at least 1 count."""
         mean = np.full(self.n_bins, np.nan)
         valid = self.n > 0
         mean[valid] = self._mean[valid]
@@ -274,6 +298,7 @@ class OnlineBinnedStats:
 
     @property
     def std(self):
+        """Compute the standard deviation for bins with at least 1 count."""
         std = np.full(self.n_bins, np.nan)
         valid = self.n > 1
         std[valid] = np.sqrt(self._m2[valid] / (self.n[valid] - 1))
@@ -281,10 +306,12 @@ class OnlineBinnedStats:
 
     @property
     def bin_centers(self):
+        """Compute the center for each bin."""
         return 0.5 * (self.bin_edges[:-1] + self.bin_edges[1:])
 
     @property
     def bin_width(self):
+        """Compute the width of all bins."""
         return np.diff(self.bin_edges)
 
 
@@ -318,9 +345,10 @@ def compute_psf(data, ebins, radius):
             psf_err[idx] = 0.0
     return psf, psf_err
 
-def load_tel_id(file_name = None, tel_id = None):
+
+def load_tel_id(file_name=None, tel_id=None):
     """Load R0 and R1 waveforms for 1 telescope."""
-    
+
     if file_name is None:
         raise ValueError("input information is undefined")
     else:

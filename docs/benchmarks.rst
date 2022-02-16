@@ -20,11 +20,11 @@ The ``protopipe.benchmarks`` module is composed of 3 parts:
     a notebook template will be added.
 
 .. note::
-    All benchmarks will be launched by means of a new ``protopipe-BENCHMARK`` script (:ref:`benchmark_script`).
+    All benchmarks will be launched by means of a new ``protopipe-BENCHMARK`` script.
     This will become the recommended method, as it will integrates with the rest of the analysis interface.
 
 API reference
 -------------
 
 .. automodapi:: protopipe.benchmarks
-    :skip: accuracy_score, auc, binned_statistic, curve_fit, roc_curve, Column, LogNorm, Table, Path
+    :skip: accuracy_score, auc, binned_statistic, curve_fit, roc_curve, Column, LogNorm, Table, Path, cone_solid_angle, RectBivariateSpline
