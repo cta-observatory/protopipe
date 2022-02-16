@@ -112,22 +112,22 @@ Benchmarks
 .. toctree::
    :hidden:
 
-   benchmarks/TRAINING/benchmarks_DL1_calibration
-   benchmarks/TRAINING/benchmarks_DL1_image-cleaning
-   benchmarks/TRAINING/benchmarks_DL1_image-cleaning-with-true-phes
-   benchmarks/TRAINING/benchmarks_DL1_DirectionLUT
-   benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction
-   benchmarks/TRAINING/benchmarks_DL2_to_energy-estimation
-   benchmarks/TRAINING/benchmarks_DL2_EnergyLUT
-   benchmarks/TRAINING/benchmarks_DL2_to_classification
-   benchmarks/MODELS/benchmarks_MODELS_energy
-   benchmarks/MODELS/benchmarks_MODELS_classification
-   benchmarks/DL2/benchmarks_DL2_particle-classification
-   benchmarks/DL2/benchmarks_DL2_direction-reconstruction
-   benchmarks/DL3/benchmarks_DL3_cuts_optimization
-   benchmarks/DL3/benchmarks_DL3_IRFs_and_sensitivity
-   benchmarks/DL3/overall_performance_plot_CTA
-
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_calibration
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_image-cleaning
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_image_intensity_resolution
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_DirectionLUT
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_direction-reconstruction
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_to_energy-estimation
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_EnergyLUT
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_to_classification
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/result_benchmarks_MODELS_energy
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/result_benchmarks_MODELS_classification
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/result_benchmarks_MODELS_tuning
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/result_benchmarks_DL2_particle-classification
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/result_benchmarks_DL2_direction-reconstruction
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL3/benchmarks_DL3_IRFs_and_sensitivity
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL3/overall_performance_plot_CTA
+   
 This documentation hosts a series of notebooks used for benchmarking.
 
 Their contents follow the development triggered by the ongoing
@@ -203,14 +203,14 @@ The benchmarks are organised as follows,
 
 - TRAINING
 
-  * `Calibration <benchmarks/TRAINING/benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
-  * `Image cleaning <benchmarks/TRAINING/benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
-  * `Parameters vs true information <benchmarks/TRAINING/benchmarks_DL1_image-cleaning-with-true-phes.ipynb>`__ | *benchmarks_DL1_image-cleaning-with-true-phes.ipynb*
-  * `Direction Look-Up Tables <benchmarks/TRAINING/benchmarks_DL1_DirectionLUT.ipynb>`__ | *benchmarks_DL1_DirectionLUT.ipynb*
-  * `Direction reconstruction <benchmarks/TRAINING/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
-  * `to energy estimator <benchmarks/TRAINING/benchmarks_DL2_to_energy-estimation.ipynb>`__ | *benchmarks_DL2_to_energy-estimation.ipynb*
-  * `Energy Look-Up Tables <benchmarks/TRAINING/benchmarks_DL2_EnergyLUT.ipynb>`__ | *benchmarks_DL2_EnergyLUT.ipynb*
-  * `to classifier <benchmarks/TRAINING/benchmarks_DL2_to_classification.ipynb>`__ | *benchmarks_DL2_to_classification.ipynb*
+  * `Calibration <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
+  * `Image cleaning <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
+  * `Image intensity resolution <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_image_intensity_resolution.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
+  * `Direction Look-Up Tables <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_DirectionLUT.ipynb>`__ | *benchmarks_DL1_DirectionLUT.ipynb*
+  * `Direction reconstruction <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
+  * `to energy estimator <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_to_energy-estimation.ipynb>`__ | *benchmarks_DL2_to_energy-estimation.ipynb*
+  * `Energy Look-Up Tables <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_EnergyLUT.ipynb>`__ | *benchmarks_DL2_EnergyLUT.ipynb*
+  * `to classifier <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_to_classification.ipynb>`__ | *benchmarks_DL2_to_classification.ipynb*
 
 In particular:
 
@@ -224,17 +224,17 @@ In particular:
 
 These performances are obtained from a *test* portion of the TRAINING data,
 
-  * `Energy <benchmarks/MODELS/benchmarks_MODELS_energy.ipynb>`__ | *benchmarks_MODELS_energy.ipynb*
-  * `Particle type <benchmarks/MODELS/benchmarks_MODELS_classification.ipynb>`__ | *benchmarks_MODELS_classification.ipynb*
+  * `Energy <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/benchmarks_MODELS_energy.ipynb>`__ | *benchmarks_MODELS_energy.ipynb*
+  * `Particle type <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/benchmarks_MODELS_classification.ipynb>`__ | *benchmarks_MODELS_classification.ipynb*
+  * `Tuning <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/benchmarks_MODELS_tuning.ipynb>`__ | *benchmarks_MODELS_energy.ipynb*
 
 - DL2
 
-  * `Particle classification <benchmarks/DL2/benchmarks_DL2_particle-classification.ipynb>`__ | *benchmarks_DL2_particle-classification.ipynb*
-  * `Direction reconstruction <benchmarks/DL2/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
+  * `Particle classification <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/benchmarks_DL2_particle-classification.ipynb>`__ | *benchmarks_DL2_particle-classification.ipynb*
+  * `Direction reconstruction <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
 
 - DL3
 
-  * `Cuts optimization <benchmarks/DL3/benchmarks_DL3_cuts_optimization.ipynb>`__ | *benchmarks_DL3_cuts_optimization.ipynb*
   * `Instrument Response Functions and sensitivity (internal) <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__ | *benchmarks_DL3_IRFs_and_sensitivity*
   * `Performance poster (internal) <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__ | *overall_performance_plot_CTA.ipynb*  
 

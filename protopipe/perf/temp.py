@@ -74,9 +74,7 @@ def energy_bias_resolution(
     return result
 
 
-def angular_resolution(
-    events, energy_bins, energy_type="true",
-):
+def angular_resolution(events, energy_bins, energy_type="true"):
     """
     Calculate the angular resolution.
 
