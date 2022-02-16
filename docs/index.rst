@@ -80,6 +80,7 @@ Please, check the development version of the README for up-to-date links.
    mva/index
    perf/index
    scripts/index
+   benchmarks
 
 Indices and tables
 ==================
