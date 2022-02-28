@@ -9,9 +9,8 @@ and optionally convert them in HTML format for easier consultation.
 
 .. warning::
   
-  This is not currently available for the *calibration* benchmark notebook
-  which requires a *ctapipe* version more recent than the one which protopipe
-  supports (`ctapipe >= 0.12.0`).
+  The *calibration* benchmark notebook requires a *ctapipe* version more
+  recent than the one which *protopipe* supports (`ctapipe >= 0.12.0`).
 
 By invoking the help argument, you can get help about how the script works:
 ``protopipe-BENCHMARK`` has 2 sub-commands ``list`` and ``launch``,
@@ -39,6 +38,13 @@ The ``launch`` command is essentially a convenient wrapper
 around `papermill <https://papermill.readthedocs.io/en/latest/>`__ and
 (optionally) `jupyter nbconvert <https://nbconvert.readthedocs.io/en/latest/>`__.
 
+On the first time ``protopipe-BENCHMARK`` is used to create a notebook,
+it also creates the template for a `Jupyter Book <https://jupyterbook.org/intro.html>`__
+dedicated to the analysis at hand (each benchmarking notebook will become a page).
+At the end of the analysis, the book can be trasferred to the 
+`Performance repository <https://gitlab.cta-observatory.org/mperesano/protopipe-results>`__
+as a Pull Request (please, see the README of that repository).
+
 .. code-block::
 
   usage: protopipe-BENCHMARK launch [-h] [--help-notebook] -n NAME --config_file CONFIG_FILE [-k [KWARGS [KWARGS ...]]] [--outpath OUTPATH]
@@ -54,7 +60,7 @@ around `papermill <https://papermill.readthedocs.io/en/latest/>`__ and
                           Overwrite or specify other configuration options (e.g. --kwargs foo=bar fiz=biz)
     --outpath OUTPATH     If unset it will be read from benchmaks.yaml
     --overwrite           Execute the notebook even if it overwrites the old result.
-    --suffix SUFFIX       Suffix for result and HTML files (default: analysis name)
+    --suffix SUFFIX       Suffix for result and HTML files (default: None)
     --no_export           Do not convert the result notebook to any other format.
 
 The configuration file used by this script is ``benchmarks.yaml`` of which an example is reported here,
