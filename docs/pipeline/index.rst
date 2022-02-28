@@ -1,7 +1,7 @@
 .. _pipeline:
 
-pipeline
-========
+Event reconstruction (``protopipe.pipeline``)
+=============================================
 
 Introduction
 ------------
@@ -113,4 +113,4 @@ Reference/API
 .. automodapi:: protopipe.pipeline
     :no-inheritance-diagram:
     :include-all-objects:
-    :skip: Path, Table, EventSource
+    :skip: Path, Table, EventSource, TelescopeDescription, TelescopeFrame

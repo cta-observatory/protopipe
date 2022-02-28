@@ -2,26 +2,28 @@
 import numpy as np
 
 from astropy import units as u
-from astropy.coordinates import SkyCoord, AltAz
+from astropy.coordinates import SkyCoord
 import warnings
-from traitlets.config import Config
 from collections import namedtuple, OrderedDict
 
 # CTAPIPE utilities
 from ctapipe.instrument import CameraGeometry
 from ctapipe.containers import ReconstructedShowerContainer
-from ctapipe.image import (leakage_parameters,
-                           number_of_islands,
-                           largest_island,
-                           concentration_parameters)
+from ctapipe.image import (
+    leakage_parameters,
+    number_of_islands,
+    largest_island,
+    concentration_parameters,
+)
 from ctapipe.utils import CutFlow
-from ctapipe.coordinates import (GroundFrame,
-                                 TelescopeFrame,
-                                 CameraFrame,
-                                 TiltedGroundFrame,
-                                 MissingFrameAttributeWarning)
+from ctapipe.coordinates import (
+    GroundFrame,
+    TelescopeFrame,
+    CameraFrame,
+    TiltedGroundFrame,
+    MissingFrameAttributeWarning,
+)
 
-# from ctapipe.image.timing_parameters import timing_parameters
 from ctapipe.image.hillas import hillas_parameters, HillasParameterizationError
 from ctapipe.reco.reco_algorithms import (
     TooFewTelescopesException,
@@ -30,23 +32,28 @@ from ctapipe.reco.reco_algorithms import (
 
 # Pipeline utilities
 from .image_cleaning import ImageCleaner
-from .utils import bcolors, effective_focal_lengths, camera_radius, CTAMARS_radii
+from .utils import (
+    bcolors,
+    effective_focal_lengths,
+    camera_radius,
+    get_cameras_radii,
+)
 from .temp import (
     MyCameraCalibrator,
     TwoPassWindowSum,
     HillasParametersTelescopeFrameContainer,
-    HillasReconstructor
+    HillasReconstructor,
 )
 
 # PiWy utilities
 try:
     from pywicta.io import geometry_converter
-    # from pywicta.io.images import simtel_event_to_images
     from pywi.processing.filtering import pixel_clusters
     from pywi.processing.filtering.pixel_clusters import filter_pixels_clusters
-except ImportError as e:
-    print("pywicta not imported-->(no wavelet cleaning)")
-    print(e)
+
+    wavelets_error = False
+except ImportError:
+    wavelets_error = True
 
 __all__ = ["EventPreparer"]
 
@@ -64,13 +71,14 @@ PreparedEvent = namedtuple(
         "leakage_dict",
         "concentration_dict",
         "n_tels",
+        "n_tels_reco",
         "max_signals",
         "n_cluster_dict",
         "reco_result",
         "impact_dict",
         "good_event",
         "good_for_reco",
-        "image_extraction_status"
+        "image_extraction_status",
     ],
 )
 
@@ -79,15 +87,17 @@ def stub(
     event,
     true_image,
     image,
+    n_pixel_dict,
     cleaning_mask_reco,
     cleaning_mask_clusters,
     good_for_reco,
     hillas_dict,
     hillas_dict_reco,
     n_tels,
+    n_tels_reco,
     leakage_dict,
     concentration_dict,
-    passed
+    passed,
 ):
     """Default container for images that did not survive cleaning."""
     return PreparedEvent(
@@ -96,13 +106,14 @@ def stub(
         dl1_phe_image_mask_reco=cleaning_mask_reco,  # container for the reco cleaning mask
         dl1_phe_image_mask_clusters=cleaning_mask_clusters,
         mc_phe_image=true_image,  # container for the simulated image in phe
-        n_pixel_dict=dict.fromkeys(hillas_dict_reco.keys(), 0),
+        n_pixel_dict=n_pixel_dict,
         good_for_reco=good_for_reco,
         hillas_dict=hillas_dict,
         hillas_dict_reco=hillas_dict_reco,
         leakage_dict=leakage_dict,
         concentration_dict=concentration_dict,
         n_tels=n_tels,
+        n_tels_reco=n_tels_reco,
         max_signals=dict.fromkeys(hillas_dict_reco.keys(), np.nan),  # no charge
         n_cluster_dict=dict.fromkeys(hillas_dict_reco.keys(), 0),  # no clusters
         reco_result=ReconstructedShowerContainer(),  # defaults to nans
@@ -110,7 +121,7 @@ def stub(
             hillas_dict_reco, np.nan * u.m
         ),  # undefined impact parameter
         good_event=False,
-        image_extraction_status=passed
+        image_extraction_status=passed,
     )
 
 
@@ -150,13 +161,32 @@ class EventPreparer:
         debug=False,
     ):
         """Initiliaze an EventPreparer object."""
-        
+
+        if mode == "wave" and wavelets_error:
+            raise ImportError(
+                "WARNING: 'pywicta' and/or 'pywi' packages could"
+                "not be imported - wavelet cleaning will not work"
+            )
+
         # Readout window integration correction
         try:
-            self.apply_integration_correction = config["Calibration"]["apply_integration_correction"]
+            self.apply_integration_correction = config["Calibration"][
+                "apply_integration_correction"
+            ]
         except KeyError:
             # defaults to enabled
             self.apply_integration_correction = True
+
+        # Shifts in peak time and waveforms applied by the calibrator
+        try:
+            self.apply_peak_time_shift = config["Calibration"]["apply_peak_time_shift"]
+            self.apply_waveform_time_shift = config["Calibration"][
+                "apply_waveform_time_shift"
+            ]
+        except KeyError:
+            # defaults to disabled
+            self.apply_peak_time_shift = False
+            self.apply_waveform_time_shift = False
 
         # Cleaning for reconstruction
         self.cleaner_reco = ImageCleaner(  # for reconstruction
@@ -172,7 +202,7 @@ class EventPreparer:
             if config["General"]["force_tailcut_for_extended_cleaning"] is True:
                 force_mode = config["General"]["force_mode"]
                 print("> Activate force-mode for cleaning!!!!")
-        except:
+        except KeyError:
             pass  # force_mode = mode
 
         self.cleaner_extended = ImageCleaner(  # for energy/score estimation
@@ -194,25 +224,22 @@ class EventPreparer:
         except KeyError:
             # defaults for a CTAMARS-like analysis
             self.image_selection_source = "extended"
-            charge_bounds = [50., 1.e10]
+            charge_bounds = [50.0, 1.0e10]
             npix_bounds = [3, 1e10]
             ellipticity_bounds = [0.1, 0.6]
-            nominal_distance_bounds = [0., 0.8]
+            nominal_distance_bounds = [0.0, 0.8]
 
         if debug:
             camera_radius(
                 cams_and_foclens, "all"
             )  # Display all registered camera radii
 
-        # Radii in meters from CTA-MARS
-        # self.camera_radius = {
-        #     cam_id: camera_radius(cams_and_foclens, cam_id)
-        #     for cam_id in cams_and_foclens.keys()
-        # }
-
-        # Radii in degrees from CTA-MARS
+        # Get available cameras radii in degrees using ctapipe...
+        cameras_radii = get_cameras_radii(
+            subarray, frame=TelescopeFrame(), ctamars=False
+        )
         self.camera_radius = {
-            cam_id: CTAMARS_radii(cam_id) for cam_id in cams_and_foclens.keys()
+            cam_id: cameras_radii[cam_id].value for cam_id in cams_and_foclens.keys()
         }
 
         self.image_cutflow.set_cuts(
@@ -238,18 +265,24 @@ class EventPreparer:
                         "close to the edge",
                         lambda m, cam_id: m.r.value
                         > (nominal_distance_bounds[-1] * self.camera_radius[cam_id]),
-                    ),  # in meter
+                    ),
                 ]
             )
         )
 
-        extractor = TwoPassWindowSum(subarray=subarray, apply_integration_correction=self.apply_integration_correction)
+        extractor = TwoPassWindowSum(
+            subarray=subarray,
+            apply_integration_correction=self.apply_integration_correction,
+        )
         # Get the name of the image extractor in order to adapt some options
         # specific to TwoPassWindowSum later on
         self.extractorName = list(extractor.get_current_config().items())[0][0]
 
         self.calib = MyCameraCalibrator(
-            image_extractor=extractor, subarray=subarray,
+            image_extractor=extractor,
+            subarray=subarray,
+            apply_peak_time_shift=self.apply_peak_time_shift,
+            apply_waveform_time_shift=self.apply_waveform_time_shift,
         )
 
         # Reconstruction
@@ -276,7 +309,10 @@ class EventPreparer:
                 [
                     ("noCuts", None),
                     ("min2Tels trig", lambda x: x < self.min_ntel),
-                    ("no-LST-stereo + <2 other types", lambda x, y: (x < self.min_ntel_LST) and (y < 2)),
+                    (
+                        "no-LST-stereo + <2 other types",
+                        lambda x, y: (x < self.min_ntel_LST) and (y < 2),
+                    ),
                     ("min2Tels reco", lambda x: x < self.min_ntel),
                     ("direction nan", lambda x: x.is_valid is False),
                 ]
@@ -292,14 +328,14 @@ class EventPreparer:
         source : ctapipe.io.EventSource
             A container of selected showers from a simtel file.
         geom_cam_tel: dict
-            Dictionary of of MyCameraGeometry objects for each camera in the file
+            Dictionary of MyCameraGeometry objects for each camera in the file
         return_stub : bool
             If True, yield also images from events that won't be reconstructed.
             This is required for DL1 benchmarking.
         save_images : bool
             If True, save photoelectron images from reconstructed events.
         debug : bool
-            If True, print some debugging information (to be expanded).
+            If True, print debugging information.
 
         Yields
         ------
@@ -374,7 +410,9 @@ class EventPreparer:
             n_triggered_non_LSTs = len(event.r0.tel.keys()) - n_triggered_LSTs
 
             bad_LST_stereo = False
-            if self.LST_stereo and self.event_cutflow.cut("no-LST-stereo + <2 other types", n_triggered_LSTs, n_triggered_non_LSTs):
+            if self.LST_stereo and self.event_cutflow.cut(
+                "no-LST-stereo + <2 other types", n_triggered_LSTs, n_triggered_non_LSTs
+            ):
                 bad_LST_stereo = True
                 # we proceed to analyze the event up to
                 # DL1a/b for the associated benchmarks
@@ -390,7 +428,7 @@ class EventPreparer:
 
             # this checks for < 2 triggered telescopes of ANY type
             if self.event_cutflow.cut("min2Tels trig", len(event.r1.tel.keys())):
-                if return_stub:
+                if return_stub and debug:
                     print(
                         bcolors.WARNING
                         + f"WARNING : < {self.min_ntel} triggered telescopes!"
@@ -433,6 +471,17 @@ class EventPreparer:
                 "SST_1M_DigiCam": 0,
                 "SST_ASTRI_ASTRICam": 0,
                 "SST_GCT_CHEC": 0,
+                "SST_ASTRI_CHEC": 0,
+            }
+            n_tels_reco = {
+                "LST_LST_LSTCam": 0,
+                "MST_MST_NectarCam": 0,
+                "MST_MST_FlashCam": 0,
+                "MST_SCT_SCTCam": 0,
+                "SST_1M_DigiCam": 0,
+                "SST_ASTRI_ASTRICam": 0,
+                "SST_GCT_CHEC": 0,
+                "SST_ASTRI_CHEC": 0,
             }
             n_cluster_dict = {}
             impact_dict_reco = {}  # impact distance measured in tilt system
@@ -443,22 +492,24 @@ class EventPreparer:
             good_for_reco = {}  # 1 = success, 0 = fail
 
             # filter warnings for missing obs time. this is needed because MC data has no obs time
-            warnings.filterwarnings(action="ignore", category=MissingFrameAttributeWarning)
+            warnings.filterwarnings(
+                action="ignore", category=MissingFrameAttributeWarning
+            )
 
             # Array pointing in AltAz frame
             az = event.pointing.array_azimuth
             alt = event.pointing.array_altitude
-            array_pointing = SkyCoord(az, alt, frame=AltAz())
+            array_pointing = SkyCoord(az=az, alt=alt, frame="altaz")
 
             # Actual telescope pointings
             telescope_pointings = {
-                                    tel_id: SkyCoord(
-                                        alt=event.pointing.tel[tel_id].altitude,
-                                        az=event.pointing.tel[tel_id].azimuth,
-                                        frame=AltAz(),
-                                    )
-                                    for tel_id in event.pointing.tel.keys()
-                                }
+                tel_id: SkyCoord(
+                    alt=event.pointing.tel[tel_id].altitude,
+                    az=event.pointing.tel[tel_id].azimuth,
+                    frame="altaz",
+                )
+                for tel_id in event.pointing.tel.keys()
+            }
 
             ground_frame = GroundFrame()
 
@@ -494,10 +545,10 @@ class EventPreparer:
                 if self.image_cutflow.cut("bad image extraction", passed[tel_id]):
                     if debug:
                         print(
-                            bcolors.WARNING +
-                            "WARNING : bad image extraction!" +
-                            "WARNING : image processed and recorded, but NOT used for DL2." +
-                            bcolors.ENDC
+                            bcolors.WARNING
+                            + "WARNING : bad image extraction!"
+                            + "WARNING : image processed and recorded, but NOT used for DL2."
+                            + bcolors.ENDC
                         )
                     # we set immediately this image as BAD at all levels
                     # for now (and for simplicity) we will process it anyway
@@ -505,7 +556,7 @@ class EventPreparer:
                     extracted_image_is_good = False
                     cleaned_image_is_good = False
                     good_for_reco[tel_id] = 0
-                
+
                 # use ctapipe's functionality to get the calibrated image
                 # and scale the reconstructed values if required
                 pmt_signal = event.dl1.tel[tel_id].image
@@ -528,7 +579,9 @@ class EventPreparer:
                     # The check on SIZE shouldn't be here, but for the moment
                     # I prefer to sacrifice elegancy...
                     if np.sum(image_biggest[mask_reco]) != 0.0:
-                        leakage_biggest = leakage_parameters(camera, image_biggest, mask_reco)
+                        leakage_biggest = leakage_parameters(
+                            camera, image_biggest, mask_reco
+                        )
                         leakages["leak1_reco"] = leakage_biggest["intensity_width_1"]
                         leakages["leak2_reco"] = leakage_biggest["intensity_width_2"]
                     else:
@@ -653,7 +706,9 @@ class EventPreparer:
                 elif self.image_selection_source == "biggest":
                     cleaned_image_to_use = image_biggest
                 else:
-                    raise ValueError("Only supported cleanings are 'biggest' or 'extended'.")
+                    raise ValueError(
+                        "Only supported cleanings are 'biggest' or 'extended'."
+                    )
 
                 # Apply some selection
                 if self.image_cutflow.cut("min pixel", cleaned_image_to_use):
@@ -720,10 +775,18 @@ class EventPreparer:
 
                         # Add concentration parameters
                         concentrations = {}
-                        concentrations_extended = concentration_parameters(camera_extended_tel, image_extended, moments)
-                        concentrations["concentration_cog"] = concentrations_extended["cog"]
-                        concentrations["concentration_core"] = concentrations_extended["core"]
-                        concentrations["concentration_pixel"] = concentrations_extended["pixel"]
+                        concentrations_extended = concentration_parameters(
+                            camera_extended_tel, image_extended, moments
+                        )
+                        concentrations["concentration_cog"] = concentrations_extended[
+                            "cog"
+                        ]
+                        concentrations["concentration_core"] = concentrations_extended[
+                            "core"
+                        ]
+                        concentrations["concentration_pixel"] = concentrations_extended[
+                            "pixel"
+                        ]
 
                         # ===================================================
                         #             PARAMETRIZED IMAGE SELECTION
@@ -773,7 +836,6 @@ class EventPreparer:
                             print(
                                 bcolors.OKGREEN
                                 + "Image survived and correctly parametrized."
-                                # + "\nIt will be used for direction reconstruction!"
                                 + bcolors.ENDC
                             )
                         elif debug and good_for_reco[tel_id] == 0:
@@ -781,14 +843,14 @@ class EventPreparer:
                                 bcolors.WARNING
                                 + "Image not survived or "
                                 + "not good enough for parametrization."
-                                # + "\nIt will be NOT used for direction reconstruction, "
-                                # + "BUT it's information will be recorded."
+                                + "\nIt will be NOT used for direction reconstruction, "
+                                + "BUT it's information will be recorded."
                                 + bcolors.ENDC
                             )
 
                         hillas_dict[tel_id] = moments
                         hillas_dict_reco[tel_id] = moments_reco
-                        n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
+                        n_pixel_dict[tel_id] = np.count_nonzero(image_extended)
                         leakage_dict[tel_id] = leakages
                         concentration_dict[tel_id] = concentrations
 
@@ -810,15 +872,17 @@ class EventPreparer:
                         hillas_dict_reco[
                             tel_id
                         ] = HillasParametersTelescopeFrameContainer()
-                        n_pixel_dict[tel_id] = len(np.where(image_extended > 0)[0])
+                        n_pixel_dict[tel_id] = np.count_nonzero(image_extended)
                         leakage_dict[tel_id] = leakages
-                        
+
                         concentrations = {}
                         concentrations["concentration_cog"] = np.nan
                         concentrations["concentration_core"] = np.nan
                         concentrations["concentration_pixel"] = np.nan
                         concentration_dict[tel_id] = concentrations
 
+                if good_for_reco[tel_id] == 1:
+                    n_tels_reco[tel_type] += 1
 
                 # END OF THE CYCLE OVER THE TELESCOPES
 
@@ -839,12 +903,12 @@ class EventPreparer:
                 # even though they might have been
                 # but this is because of the LST stereo trigger....
                 for tel_id in event.r0.tel.keys():
-                    good_for_reco[tel_id] = 0
+                    if good_for_reco[tel_id]:
+                        good_for_reco[tel_id] = 0
+                        n_tels_reco[str(source.subarray.tel[tel_id])] -= 1
                 # and set the number of good and bad images accordingly
                 n_tels["GOOD images"] = 0
                 n_tels["BAD images"] = n_tels["Triggered"] - n_tels["GOOD images"]
-                # create a dummy container for direction reconstruction
-                reco_result = ReconstructedShowerContainer()
 
                 if return_stub:  # if saving all events (default)
                     if debug:
@@ -858,15 +922,17 @@ class EventPreparer:
                         event,
                         mc_phe_image,
                         dl1_phe_image,
+                        n_pixel_dict,
                         dl1_phe_image_mask_reco,
                         dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
                         n_tels,
+                        n_tels_reco,
                         leakage_dict,
                         concentration_dict,
-                        passed
+                        passed,
                     )
                     continue
                 else:
@@ -877,7 +943,12 @@ class EventPreparer:
             # - >=2 any other telescope type,
             # we remove the single-LST image and continue reconstruction with
             # the images from the other telescope types
-            if self.LST_stereo and (n_triggered_LSTs < self.min_ntel_LST) and (n_triggered_LSTs != 0) and (n_triggered_non_LSTs >= 2):
+            if (
+                self.LST_stereo
+                and (n_triggered_LSTs < self.min_ntel_LST)
+                and (n_triggered_LSTs != 0)
+                and (n_triggered_non_LSTs >= 2)
+            ):
                 if debug:
                     print(
                         bcolors.WARNING
@@ -890,6 +961,7 @@ class EventPreparer:
                     if good_for_reco[tel_id]:
                         # we don't use it for reconstruction
                         good_for_reco[tel_id] = 0
+                        n_tels_reco[str(source.subarray.tel[tel_id])] -= 1
                         if debug:
                             print(
                                 bcolors.WARNING
@@ -913,9 +985,6 @@ class EventPreparer:
                         + bcolors.ENDC
                     )
 
-                # create a dummy container for direction reconstruction
-                reco_result = ReconstructedShowerContainer()
-
                 if return_stub:  # if saving all events (default)
                     if debug:
                         print(bcolors.OKBLUE + "Recording event..." + bcolors.ENDC)
@@ -928,15 +997,17 @@ class EventPreparer:
                         event,
                         mc_phe_image,
                         dl1_phe_image,
+                        n_pixel_dict,
                         dl1_phe_image_mask_reco,
                         dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
                         n_tels,
+                        n_tels_reco,
                         leakage_dict,
                         concentration_dict,
-                        passed
+                        passed,
                     )
                     continue
                 else:
@@ -976,21 +1047,13 @@ class EventPreparer:
                             + bcolors.ENDC
                         )
 
-                    # Reconstruction results
-                    # reco_result = self.shower_reco.predict(
-                    #     good_hillas_dict,
-                    #     source.subarray,
-                    #     SkyCoord(alt=alt, az=az, frame="altaz"),
-                    #     None,  # use the array direction
-                    # )
-
-
-
-                    reco_result = self.shower_reco._predict(event,
-                                                            good_hillas_dict,
-                                                            source.subarray,
-                                                            array_pointing,
-                                                            telescope_pointings)
+                    reco_result = self.shower_reco._predict(
+                        event,
+                        good_hillas_dict,
+                        source.subarray,
+                        array_pointing,
+                        telescope_pointings,
+                    )
 
                     # Impact parameter for telescope-wise energy estimation
                     for tel_id in hillas_dict_to_use.keys():
@@ -1039,15 +1102,17 @@ class EventPreparer:
                         event,
                         mc_phe_image,
                         dl1_phe_image,
+                        n_pixel_dict,
                         dl1_phe_image_mask_reco,
                         dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
                         n_tels,
+                        n_tels_reco,
                         leakage_dict,
                         concentration_dict,
-                        passed
+                        passed,
                     )
                     continue
                 else:
@@ -1072,15 +1137,17 @@ class EventPreparer:
                         event,
                         mc_phe_image,
                         dl1_phe_image,
+                        n_pixel_dict,
                         dl1_phe_image_mask_reco,
                         dl1_phe_image_mask_clusters,
                         good_for_reco,
                         hillas_dict,
                         hillas_dict_reco,
                         n_tels,
+                        n_tels_reco,
                         leakage_dict,
                         concentration_dict,
-                        passed
+                        passed,
                     )
                     continue
                 else:
@@ -1106,11 +1173,12 @@ class EventPreparer:
                 leakage_dict=leakage_dict,
                 concentration_dict=concentration_dict,
                 n_tels=n_tels,
+                n_tels_reco=n_tels_reco,
                 max_signals=max_signals,
                 n_cluster_dict=n_cluster_dict,
                 reco_result=reco_result,
                 impact_dict=impact_dict_reco,
                 good_event=True,
                 good_for_reco=good_for_reco,
-                image_extraction_status=passed
+                image_extraction_status=passed,
             )

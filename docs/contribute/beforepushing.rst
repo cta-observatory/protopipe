@@ -134,7 +134,9 @@ Benchmarks
    benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/result_benchmarks_MODELS_tuning
    benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/result_benchmarks_DL2_particle-classification
    benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/result_benchmarks_DL2_direction-reconstruction
-
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL3/benchmarks_DL3_IRFs_and_sensitivity
+   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL3/overall_performance_plot_CTA
+   
 This documentation hosts a series of notebooks used for benchmarking.
 
 Their contents follow the development triggered by the 
@@ -236,7 +238,6 @@ These performances are obtained from a *test* portion of the TRAINING data,
 
 - DL3
 
-  * `Cuts optimization <benchmarks/DL3/benchmarks_DL3_cuts_optimization.ipynb>`__ | *benchmarks_DL3_cuts_optimization.ipynb*
   * `Instrument Response Functions and sensitivity (internal) <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__ | *benchmarks_DL3_IRFs_and_sensitivity*
   * `Performance poster (internal) <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__ | *overall_performance_plot_CTA.ipynb*  
 

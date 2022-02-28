@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from sys import exit as sys_exit
 import numpy as np
 import pandas as pd
@@ -16,14 +14,13 @@ from ctapipe.utils import CutFlow
 # Utilities
 from protopipe.pipeline.temp import MySimTelEventSource
 from protopipe.pipeline import EventPreparer
+from protopipe.pipeline.io import load_config, load_models
 from protopipe.pipeline.utils import (
     bcolors,
     make_argparser,
     prod5N_array,
     prod3b_array,
     str2bool,
-    load_config,
-    load_models,
     SignalHandler,
 )
 
@@ -34,7 +31,7 @@ def main():
     parser = make_argparser()
 
     parser.add_argument(
-        "--debug", action="store_true", help="Print debugging information",
+        "--debug", action="store_true", help="Print debugging information"
     )
 
     parser.add_argument(
@@ -61,13 +58,13 @@ def main():
         "--regressor_config",
         type=str,
         default=None,
-        help="Configuration file used to produce regressor model"
+        help="Configuration file used to produce regressor model",
     )
     parser.add_argument(
         "--classifier_config",
         type=str,
         default=None,
-        help="Configuration file used to produce classification model"
+        help="Configuration file used to produce classification model",
     )
 
     args = parser.parse_args()
@@ -95,11 +92,12 @@ def main():
         assert all(len(x) > 0 for x in [site, array, production])
     except (KeyError, AssertionError):
         raise ValueError(
-            bcolors.FAIL +
-            """At least one of 'site', 'array' and
+            bcolors.FAIL
+            + """At least one of 'site', 'array' and
             'production' are not properly defined in the analysis configuration
-            file.""" +
-            + bcolors.ENDC)
+            file."""
+            + +bcolors.ENDC
+        )
         sys_exit(-1)
 
     # Add force_tailcut_for_extended_cleaning in configuration
@@ -220,9 +218,7 @@ def main():
         regressor_config = load_config(args.regressor_config)
         log_10_target = regressor_config["Method"]["log_10_target"]
 
-        regressor_files = (
-            args.regressor_dir + "/regressor_{cam_id}_{regressor}.pkl.gz"
-        )
+        regressor_files = args.regressor_dir + "/regressor_{cam_id}_{regressor}.pkl.gz"
         reg_file = regressor_files.format(
             **{
                 "mode": force_mode,
@@ -247,8 +243,8 @@ def main():
 
     # Declaration of the column descriptor for the (possible) images file
     StoredImages = dict(
-        event_id=tb.Int32Col(dflt=1, pos=0),
-        tel_id=tb.Int16Col(dflt=1, pos=1)
+        event_id=tb.Int32Col(dflt=-1, pos=0),
+        tel_id=tb.Int16Col(dflt=-1, pos=1)
         # reco_image, true_image and cleaning_mask_reco
         # are defined later sicne they depend on the number of pixels
     )
@@ -257,11 +253,11 @@ def main():
     class RecoEvent(tb.IsDescription):
         obs_id = tb.Int16Col(dflt=-1, pos=0)
         event_id = tb.Int32Col(dflt=-1, pos=1)
-        NTels_trig = tb.Int16Col(dflt=0, pos=2)
-        NTels_reco = tb.Int16Col(dflt=0, pos=3)
-        NTels_reco_lst = tb.Int16Col(dflt=0, pos=4)
-        NTels_reco_mst = tb.Int16Col(dflt=0, pos=5)
-        NTels_reco_sst = tb.Int16Col(dflt=0, pos=6)
+        NTels_trig = tb.Int16Col(dflt=-1, pos=2)
+        NTels_reco = tb.Int16Col(dflt=-1, pos=3)
+        N_reco_LST = tb.Int16Col(dflt=-1, pos=4)
+        N_reco_MST = tb.Int16Col(dflt=-1, pos=5)
+        N_reco_SST = tb.Int16Col(dflt=-1, pos=6)
         pointing_az = tb.Float32Col(dflt=np.nan, pos=7)
         pointing_alt = tb.Float32Col(dflt=np.nan, pos=8)
         true_az = tb.Float32Col(dflt=np.nan, pos=9)
@@ -283,6 +279,9 @@ def main():
         true_core_x = tb.Float32Col(dflt=np.nan, pos=25)
         true_core_y = tb.Float32Col(dflt=np.nan, pos=26)
         is_valid = tb.BoolCol(dflt=False, pos=27)
+        N_LST = tb.Int16Col(dflt=-1, pos=28)
+        N_MST = tb.Int16Col(dflt=-1, pos=29)
+        N_SST = tb.Int16Col(dflt=-1, pos=30)
 
     reco_outfile = tb.open_file(
         mode="w",
@@ -296,9 +295,9 @@ def main():
                 "driver": "H5FD_CORE",
                 "driver_core_backing_store": False,
             }
-        )
+        ),
     )
-
+    reco_outfile.root._v_attrs["status"] = "incomplete"
     reco_table = reco_outfile.create_table("/", "reco_events", RecoEvent)
     reco_event = reco_table.row
 
@@ -321,7 +320,7 @@ def main():
             input_url=filename,
             calib_scale=calib_scale,
             allowed_tels=allowed_tels,
-            max_events=args.max_events
+            max_events=args.max_events,
         )
         # loop that cleans and parametrises the images and performs the reconstruction
         for (
@@ -336,21 +335,22 @@ def main():
             leakage_dict,
             concentration_dict,
             n_tels,
+            n_tels_reco,
             max_signals,
             n_cluster_dict,
             reco_result,
             impact_dict,
             good_event,
             good_for_reco,
-            image_extraction_status
+            image_extraction_status,
         ) in tqdm(
-            preper.prepare_event(source,
-                                 save_images=args.save_images,
-                                 debug=args.debug),
+            preper.prepare_event(
+                source, save_images=args.save_images, debug=args.debug
+            ),
             desc=source.__class__.__name__,
             total=source.max_events,
             unit="event",
-            disable=not args.show_progress_bar
+            disable=not args.show_progress_bar,
         ):
 
             # True direction
@@ -367,17 +367,17 @@ def main():
                 # - true direction
                 # - reconstruted direction
                 xi = angular_separation(
-                    event.simulation.shower.az, event.simulation.shower.alt, reco_result.az, reco_result.alt
+                    event.simulation.shower.az,
+                    event.simulation.shower.alt,
+                    reco_result.az,
+                    reco_result.alt,
                 )
 
                 # Angular separation between
                 # - center of the array's FoV
                 # - reconstructed direction
                 offset = angular_separation(
-                    pointing_az,
-                    pointing_alt,
-                    reco_result.az,
-                    reco_result.alt,
+                    pointing_az, pointing_alt, reco_result.az, reco_result.alt
                 )
 
                 # Reconstructed height of shower maximum
@@ -434,31 +434,47 @@ def main():
                     # Create a pandas Dataframe with basic quantities
                     # This is needed in order to connect the I/O system of the
                     # model inputs to the in-memory computation of this script
-                    data = pd.DataFrame({
-                        "hillas_intensity": [moments.intensity],
-                        "hillas_width": [moments.width.to("deg").value],
-                        "hillas_length": [moments.length.to("deg").value],
-                        "hillas_x": [moments.x.to("deg").value],
-                        "hillas_y": [moments.y.to("deg").value],
-                        "hillas_phi": [moments.phi.to("deg").value],
-                        "hillas_r": [moments.r.to("deg").value],
-                        "leakage_intensity_width_1_reco": [leakage_dict[tel_id]['leak1_reco']],
-                        "leakage_intensity_width_2_reco": [leakage_dict[tel_id]['leak2_reco']],
-                        "leakage_intensity_width_1": [leakage_dict[tel_id]['leak1']],
-                        "leakage_intensity_width_2": [leakage_dict[tel_id]['leak2']],
-                        "concentration_cog": [concentration_dict[tel_id]['concentration_cog']],
-                        "concentration_core": [concentration_dict[tel_id]['concentration_core']],
-                        "concentration_pixel": [concentration_dict[tel_id]['concentration_pixel']],
-                        "az": [reco_result.az.to("deg").value],
-                        "alt": [reco_result.alt.to("deg").value],
-                        "h_max": [h_max.value],
-                        "impact_dist": [impact_dict[tel_id].to("m").value],
-                    })
+                    data = pd.DataFrame(
+                        {
+                            "hillas_intensity": [moments.intensity],
+                            "hillas_width": [moments.width.to("deg").value],
+                            "hillas_length": [moments.length.to("deg").value],
+                            "hillas_x": [moments.x.to("deg").value],
+                            "hillas_y": [moments.y.to("deg").value],
+                            "hillas_phi": [moments.phi.to("deg").value],
+                            "hillas_r": [moments.r.to("deg").value],
+                            "leakage_intensity_width_1_reco": [
+                                leakage_dict[tel_id]["leak1_reco"]
+                            ],
+                            "leakage_intensity_width_2_reco": [
+                                leakage_dict[tel_id]["leak2_reco"]
+                            ],
+                            "leakage_intensity_width_1": [
+                                leakage_dict[tel_id]["leak1"]
+                            ],
+                            "leakage_intensity_width_2": [
+                                leakage_dict[tel_id]["leak2"]
+                            ],
+                            "concentration_cog": [
+                                concentration_dict[tel_id]["concentration_cog"]
+                            ],
+                            "concentration_core": [
+                                concentration_dict[tel_id]["concentration_core"]
+                            ],
+                            "concentration_pixel": [
+                                concentration_dict[tel_id]["concentration_pixel"]
+                            ],
+                            "az": [reco_result.az.to("deg").value],
+                            "alt": [reco_result.alt.to("deg").value],
+                            "h_max": [h_max.value],
+                            "impact_dist": [impact_dict[tel_id].to("m").value],
+                        }
+                    )
 
                     # Compute derived features and add them to the dataframe
                     for key, expression in features_derived.items():
                         if key not in data:
-                            data.eval(f'{key} = {expression}', inplace=True)
+                            data.eval(f"{key} = {expression}", inplace=True)
 
                     # sort features_to_use alphabetically to ensure order
                     # preservation with model.fit in protopipe.mva
@@ -469,29 +485,37 @@ def main():
 
                     ############################################################
 
-                    if (good_for_reco[tel_id] == 1) and (estimation_weight_energy == "CTAMARS"):
+                    if (good_for_reco[tel_id] == 1) and (
+                        estimation_weight_energy == "CTAMARS"
+                    ):
                         # Get an array of trees
                         predictions_trees = np.array(
-                            [tree.predict(features_values) for tree in model.estimators_])
+                            [
+                                tree.predict(features_values)
+                                for tree in model.estimators_
+                            ]
+                        )
                         energy_tel[idx] = np.mean(predictions_trees, axis=0)
                         weight_statistic_tel[idx] = np.std(predictions_trees, axis=0)
-                    elif (good_for_reco[tel_id] == 1):
+                    elif good_for_reco[tel_id] == 1:
                         data.eval(
-                            f'estimation_weight_energy = {estimation_weight_energy}', inplace=True)
+                            f"estimation_weight_energy = {estimation_weight_energy}",
+                            inplace=True,
+                        )
                         energy_tel[idx] = model.predict(features_values)
                         weight_tel[idx] = data["estimation_weight_energy"]
                     else:
                         energy_tel[idx] = np.nan
 
                     if log_10_target:
-                        energy_tel[idx] = 10**energy_tel[idx]
-                        weight_tel[idx] = 10**weight_tel[idx]
-                        weight_statistic_tel[idx] = 10**weight_statistic_tel[idx]
+                        energy_tel[idx] = 10 ** energy_tel[idx]
+                        weight_tel[idx] = 10 ** weight_tel[idx]
+                        weight_statistic_tel[idx] = 10 ** weight_statistic_tel[idx]
 
                     if estimation_weight_energy == "CTAMARS":
                         # in CTAMARS the average is done after converting
                         # energy and weight to linear energy scale
-                        weight_tel[idx] = 1 / (weight_statistic_tel[idx]**2)
+                        weight_tel[idx] = 1 / (weight_statistic_tel[idx] ** 2)
 
                     # Record the values regardless of the validity
                     # We don't use this now, but it should be recorded
@@ -541,33 +565,49 @@ def main():
                     # Create a pandas Dataframe with basic quantities
                     # This is needed in order to connect the I/O system of the
                     # model inputs to the in-memory computation of this script
-                    data = pd.DataFrame({
-                        "hillas_intensity": [moments.intensity],
-                        "hillas_width": [moments.width.to("deg").value],
-                        "hillas_length": [moments.length.to("deg").value],
-                        "hillas_x": [moments.x.to("deg").value],
-                        "hillas_y": [moments.y.to("deg").value],
-                        "hillas_phi": [moments.phi.to("deg").value],
-                        "hillas_r": [moments.r.to("deg").value],
-                        "leakage_intensity_width_1_reco": [leakage_dict[tel_id]['leak1_reco']],
-                        "leakage_intensity_width_2_reco": [leakage_dict[tel_id]['leak2_reco']],
-                        "leakage_intensity_width_1": [leakage_dict[tel_id]['leak1']],
-                        "leakage_intensity_width_2": [leakage_dict[tel_id]['leak2']],
-                        "concentration_cog": [concentration_dict[tel_id]['concentration_cog']],
-                        "concentration_core": [concentration_dict[tel_id]['concentration_core']],
-                        "concentration_pixel": [concentration_dict[tel_id]['concentration_pixel']],
-                        "az": [reco_result.az.to("deg").value],
-                        "alt": [reco_result.alt.to("deg").value],
-                        "h_max": [h_max.value],
-                        "impact_dist": [impact_dict[tel_id].to("m").value],
-                        "reco_energy": reco_energy,
-                        "reco_energy_tel": energy_tel_classifier[tel_id],
-                    })
+                    data = pd.DataFrame(
+                        {
+                            "hillas_intensity": [moments.intensity],
+                            "hillas_width": [moments.width.to("deg").value],
+                            "hillas_length": [moments.length.to("deg").value],
+                            "hillas_x": [moments.x.to("deg").value],
+                            "hillas_y": [moments.y.to("deg").value],
+                            "hillas_phi": [moments.phi.to("deg").value],
+                            "hillas_r": [moments.r.to("deg").value],
+                            "leakage_intensity_width_1_reco": [
+                                leakage_dict[tel_id]["leak1_reco"]
+                            ],
+                            "leakage_intensity_width_2_reco": [
+                                leakage_dict[tel_id]["leak2_reco"]
+                            ],
+                            "leakage_intensity_width_1": [
+                                leakage_dict[tel_id]["leak1"]
+                            ],
+                            "leakage_intensity_width_2": [
+                                leakage_dict[tel_id]["leak2"]
+                            ],
+                            "concentration_cog": [
+                                concentration_dict[tel_id]["concentration_cog"]
+                            ],
+                            "concentration_core": [
+                                concentration_dict[tel_id]["concentration_core"]
+                            ],
+                            "concentration_pixel": [
+                                concentration_dict[tel_id]["concentration_pixel"]
+                            ],
+                            "az": [reco_result.az.to("deg").value],
+                            "alt": [reco_result.alt.to("deg").value],
+                            "h_max": [h_max.value],
+                            "impact_dist": [impact_dict[tel_id].to("m").value],
+                            "reco_energy": reco_energy,
+                            "reco_energy_tel": energy_tel_classifier[tel_id],
+                        }
+                    )
 
                     # Compute derived features and add them to the dataframe
                     for key, expression in features_derived.items():
                         if key not in data:
-                            data.eval(f'{key} = {expression}', inplace=True)
+                            data.eval(f"{key} = {expression}", inplace=True)
 
                     # sort features_to_use alphabetically to ensure order
                     # preservation with model.fit in protopipe.mva
@@ -580,7 +620,9 @@ def main():
 
                     # add weigth to event dataframe
                     data.eval(
-                        f'estimation_weight_classification = {estimation_weight_classification}', inplace=True)
+                        f"estimation_weight_classification = {estimation_weight_classification}",
+                        inplace=True,
+                    )
 
                     # Here we check for valid telescope-wise energies
                     # Because it means that it's a good image
@@ -592,7 +634,8 @@ def main():
                             score_tel[idx] = model.decision_function(features_values)
                         else:
                             gammaness_tel[idx] = model.predict_proba(features_values)[
-                                :, 1]
+                                :, 1
+                            ]
                         weight_tel[idx] = data["estimation_weight_classification"]
                     else:
                         # WARNING:
@@ -678,28 +721,45 @@ def main():
                     images_phe[cam_id]["tel_id"] = tel_id
                     images_phe[cam_id]["reco_image"] = reco_image[tel_id]
                     images_phe[cam_id]["true_image"] = true_image[tel_id]
-                    images_phe[cam_id]["cleaning_mask_reco"] = cleaning_mask_reco[tel_id]
-                    images_phe[cam_id]["cleaning_mask_clusters"] = cleaning_mask_clusters[
+                    images_phe[cam_id]["cleaning_mask_reco"] = cleaning_mask_reco[
                         tel_id
                     ]
+                    images_phe[cam_id][
+                        "cleaning_mask_clusters"
+                    ] = cleaning_mask_clusters[tel_id]
 
                     images_phe[cam_id].append()
 
             # Now we start recording the data to file
             reco_event["event_id"] = event.index.event_id
             reco_event["obs_id"] = event.index.obs_id
-            reco_event["NTels_trig"] = len(event.r1.tel.keys())
-            reco_event["NTels_reco"] = len(hillas_dict)
-            reco_event["NTels_reco_lst"] = n_tels["LST_LST_LSTCam"]
-            reco_event["NTels_reco_mst"] = (
+            reco_event["NTels_trig"] = n_tels["Triggered"]
+            reco_event["N_LST"] = n_tels["LST_LST_LSTCam"]
+            reco_event["N_MST"] = (
                 n_tels["MST_MST_NectarCam"]
                 + n_tels["MST_MST_FlashCam"]
                 + n_tels["MST_SCT_SCTCam"]
             )
-            reco_event["NTels_reco_sst"] = (
+            reco_event["N_SST"] = (
                 n_tels["SST_1M_DigiCam"]
                 + n_tels["SST_ASTRI_ASTRICam"]
                 + n_tels["SST_GCT_CHEC"]
+            )
+            reco_event["N_reco_LST"] = n_tels_reco["LST_LST_LSTCam"]
+            reco_event["N_reco_MST"] = (
+                n_tels_reco["MST_MST_NectarCam"]
+                + n_tels_reco["MST_MST_FlashCam"]
+                + n_tels_reco["MST_SCT_SCTCam"]
+            )
+            reco_event["N_reco_SST"] = (
+                n_tels_reco["SST_1M_DigiCam"]
+                + n_tels_reco["SST_ASTRI_ASTRICam"]
+                + n_tels_reco["SST_GCT_CHEC"]
+            )
+            reco_event["NTels_reco"] = (
+                reco_event["N_reco_LST"]
+                + reco_event["N_reco_MST"]
+                + reco_event["N_reco_SST"]
             )
             reco_event["pointing_az"] = pointing_az.to("deg").value
             reco_event["pointing_alt"] = pointing_alt.to("deg").value
@@ -754,6 +814,13 @@ def main():
 
     except ZeroDivisionError:
         pass
+
+    # Conclude by writing some metadata
+    reco_outfile.root._v_attrs["status"] = "complete"
+    reco_outfile.root._v_attrs["num_showers"] = source.simulation_config.num_showers
+    reco_outfile.root._v_attrs["shower_reuse"] = source.simulation_config.shower_reuse
+
+    reco_outfile.close()
 
     print("Job done!")
 

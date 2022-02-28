@@ -1,8 +1,5 @@
-.pytest_cache
-
-.DS_Store
-
 # Compiled files
+.pytest_cache
 *.py[co]
 *.pyc
 *.a
@@ -23,24 +20,27 @@ protopipe/_version.py
 htmlcov
 .coverage
 MANIFEST
+**/.hypothesis
 
 # Sphinx
 docs/api
 docs/_build
 
 # Benchmark plots
-plots/
+**/plots
+
+# IDEs / CODE EDITORS
 
 # Eclipse editor project files
 .project
 .pydevproject
 .settings
-
 # Pycharm editor project files
 .idea
-
 # KDevelop editor project files
 *kdev4
+# VSCODE
+**/.vscode
 
 # Packages/installer info
 *.egg
@@ -80,6 +80,7 @@ distribute-*.tar.gz
 .sonarlint
 
 # output files (should not be stored in git)
+*.log
 *.h5
 *.hdf5
 *.fits

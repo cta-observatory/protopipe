@@ -10,6 +10,8 @@ If you prefer to work from an Anaconda virtual environment you can create it wit
 
 ``conda env create -f environment_latest_release.yml``
 
+or any other compatible virtual environment, depending on your needs.
+
 For previous releases,
 
 1. download the corresponding tarball stored `here <https://github.com/cta-observatory/protopipe/releases>`__

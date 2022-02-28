@@ -1,7 +1,7 @@
 .. _mva:
 
-mva
-===
+Multivariate analysis (``protopipe.mva``)
+=========================================
 
 Introduction
 ------------

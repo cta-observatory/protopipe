@@ -1,8 +1,5 @@
-import tables
-import yaml
 import argparse
 import math
-import joblib
 from typing import List, Union
 
 import numpy as np
@@ -11,6 +8,8 @@ import matplotlib.pyplot as plt
 import os.path as path
 
 from ctapipe.io import EventSource
+from ctapipe.instrument import TelescopeDescription
+from ctapipe.coordinates import TelescopeFrame
 
 
 class bcolors:
@@ -38,17 +37,6 @@ def save_fig(outdir, name, fig=None):
         else:
             plt.savefig(path.join(outdir, f"{name}.{ext}"))
     return None
-
-
-def load_config(name):
-    """Load YAML configuration file."""
-    try:
-        with open(name, "r") as stream:
-            cfg = yaml.load(stream, Loader=yaml.FullLoader)
-    except FileNotFoundError as e:
-        print(e)
-        raise
-    return cfg
 
 
 class SignalHandler:
@@ -110,14 +98,12 @@ def make_argparser():
         default=None,
         help="maximum number of events considered per file",
     )
-    parser.add_argument(
-        "-i", "--indir", type=str, default=expandvars("$CTA_DATA/Prod3b/Paranal")
-    )
+    parser.add_argument("-i", "--indir", type=str, required=True, help="Input folder")
     parser.add_argument(
         "-f",
         "--infile_list",
         type=str,
-        default="",
+        required=True,
         nargs="*",
         help="give a specific list of files to run on",
     )
@@ -265,7 +251,7 @@ def prod5N_array(file_name, site: str, subarray_selection: Union[str, List[int]]
 
     site_to_subarray_name = {
         "north": ["prod5N_alpha_north"],
-        "south": ["prod5N_alpha_south"],
+        "south": ["prod5N_alpha_south", "prod5N_alpha_south_NectarCam"],
     }
 
     name_to_tel_ids = {
@@ -319,6 +305,59 @@ def prod5N_array(file_name, site: str, subarray_selection: Union[str, List[int]]
             71,
             72,
             73,
+            143,
+            144,
+            145,
+            146,
+        ],
+        "prod5N_alpha_south_NectarCam": [
+            30,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            59,
+            61,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            100,
+            101,
+            103,
+            105,
+            106,
+            107,
+            108,
+            109,
+            111,
+            115,
+            119,
+            121,
+            128,
+            129,
+            133,
             143,
             144,
             145,
@@ -592,91 +631,42 @@ def camera_radius(camid_to_efl, cam_id="all"):
     return average_camera_radius_meters
 
 
-def CTAMARS_radii(camera_name):
-    """Radii of the cameras as defined in CTA-MARS.
-
-    These values are defined in the code of CTA-MARS.
-    They correspond to the radius of an equivalent FOV covering the same solid
-    angle.
+def get_cameras_radii(subarray, frame=TelescopeFrame(), ctamars=False):
+    """Get the radius of a camera using ctapipe.
 
     Parameters
     ----------
-    camera_name : str
-        Name of the camera.
+    camera_name: str
+        Identifier for the camera.
+    frame: astropy.coordinates.baseframe.BaseCoordinateFrame
+        Coordinate frame in which to get the radius of the camera
+    ctamars: bool
+        If True return the hard-coded values from CTAMARS (default: False)
 
     Returns
     -------
-    average_camera_radii_deg : dict
-        Dictionary containing the hard-coded values.
+    camera_radii: dict
+        Dictionary with camera names as keys and their radius as value
     """
+    if ctamars:
+        average_camera_radii_deg = {
+            "ASTRICam": 4.67,
+            "CHEC": 3.93,
+            "DigiCam": 4.56,
+            "FlashCam": 3.95,
+            "NectarCam": 4.05,
+            "LSTCam": 2.31,
+            "SCTCam": 4.0,
+        }
+        return average_camera_radii_deg
 
-    average_camera_radii_deg = {
-        "ASTRICam": 4.67,
-        "CHEC": 3.93,
-        "DigiCam": 4.56,
-        "FlashCam": 3.95,
-        "NectarCam": 4.05,
-        "LSTCam": 2.31,
-        "SCTCam": 4.0,  # dummy value
-    }
-
-    return average_camera_radii_deg[camera_name]
-
-
-def get_camera_names(inputPath=None):
-    """Read the names of the cameras.
-
-    Parameters
-    ==========
-    infile : str
-        Full path of the input DL1 file.
-    file_name : str
-        Name of the input DL1 file.
-
-    Returns
-    =======
-    camera_names : list(str)
-        Table names as a list.
-    """
-    if inputPath is None:
-        print("ERROR: check input")
-    h5file = tables.open_file(inputPath, mode="r")
-    group = h5file.get_node("/")
-    camera_names = [x.name for x in group._f_list_nodes()]
-    h5file.close()
-    return camera_names
-
-
-def load_models(path, cam_id_list):
-    """Load the pickled dictionary of model from disk
-    and fill the model dictionary.
-
-    Parameters
-    ----------
-    path : string
-        The path where the pre-trained, pickled models are
-        stored. `path` is assumed to contain a `{cam_id}` keyword
-        to be replaced by each camera identifier in `cam_id_list`
-        (or at least a naked `{}`).
-    cam_id_list : list
-        List of camera identifiers like telescope ID or camera ID
-        and the assumed distinguishing feature in the filenames of
-        the various pickled regressors.
-
-    Returns
-    -------
-    model_dict: dict
-        Dictionary with `cam_id` as keys and pickled models as values.
-    """
-
-    model_dict = {}
-    for key in cam_id_list:
-        try:
-            model_dict[key] = joblib.load(path.format(cam_id=key))
-        except IndexError:
-            model_dict[key] = joblib.load(path.format(key))
-
-    return model_dict
+    camera_radii = {}
+    for tel in subarray.telescope_types:
+        cam_name = tel.camera.camera_name
+        geom = tel.camera.geometry
+        new_geom = geom.transform_to(frame)
+        camera_radii[cam_name] = new_geom.guess_radius()
+    return camera_radii
 
 
 def add_stats(data, ax, x=0.70, y=0.85, fontsize=10):

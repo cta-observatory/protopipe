@@ -6,12 +6,8 @@ try:
     from pywicta.denoising import cdf
     from pywicta.denoising.inverse_transform_sampling import EmpiricalDistribution
     from pywicta.io import geometry_converter
-    from pywi.processing.filtering.pixel_clusters import filter_pixels_clusters
-    from pywi.processing.filtering import pixel_clusters
-except ImportError as e:
-    print("pywicta package could not be imported")
-    print("wavelet cleaning will not work")
-    print(e)
+except ImportError:
+    pass  # warning raised in protopipe.pipeline.EventPreparer.__init__
 
 __all__ = ["ImageCleaner"]
 
