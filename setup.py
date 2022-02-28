@@ -13,8 +13,8 @@ extras_require = {
         "pytest",
         "numpy",
         "ctapipe==0.11.0",
-        "pyirf==0.4.0",
-        "pandas",
+        "pyirf==0.5.0",
+        "pandas>=1.0.0",
     ],
     "tests": [
         # pipeline tests
@@ -26,7 +26,7 @@ extras_require = {
         "papermill",
         "nbconvert",
         "traitlets",
-        "pandas",
+        "pandas>=1.0.0",
     ],
 }
 
@@ -52,9 +52,10 @@ setup(
     include_package_data=True,
     install_requires=[
         "ctapipe==0.11.0",
-        "pyirf==0.4.0",
-        "pandas",
+        "pyirf==0.5.0",
+        "pandas>=1.0.0",
         "jupyterlab",
+        "jupyter-book",
         "papermill",
     ],
     zip_safe=False,
@@ -65,7 +66,6 @@ setup(
         "Topic :: Scientific/Engineering :: Astronomy",
         "Topic :: Scientific/Engineering :: Physics",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
     python_requires=">=3.7",
@@ -81,6 +81,6 @@ setup(
             "protopipe-DL2=protopipe.scripts.write_dl2:main",
             "protopipe-DL3-EventDisplay=protopipe.scripts.make_performance_EventDisplay:main",
             "protopipe-BENCHMARK=protopipe.scripts.launch_benchmark:main",
-        ],
+        ]
     },
 )
