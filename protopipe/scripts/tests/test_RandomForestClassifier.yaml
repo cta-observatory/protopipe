@@ -1,20 +1,19 @@
 General:
-  # NOTE: not used here since the testing suite needs to work from the CLI
-  data_dir: '../../data/'
-  data_sig_file: 'TRAINING_classification_tail_gamma_merged.h5'
-  data_bkg_file: 'TRAINING_classification_tail_proton_merged.h5'
-  outdir: './'
-  
+  # [...] = your analysis full path (on the host if you are using a container)
+  data_dir_signal: "[...]/data/TRAINING/for_particle_classification/gamma"
+  data_dir_background: "[...]/data/TRAINING/for_particle_classification/proton"
+  data_sig_file: "TRAINING_classification_tail_gamma_merged.h5"
+  data_bkg_file: "TRAINING_classification_tail_proton_merged.h5"
+  outdir: "[...]/data/TRAINING/estimators/gamma_hadron_classifier"
   # List of cameras to use (protopipe-MODEL help output for other options)
-  # NOTE: not used here since the testing suite needs to work from the CLI
-  cam_id_list: ['LSTCam', 'NectarCam']
+  cam_id_list: ["LSTCam", "NectarCam"]
 
-# If train_fraction is 1, all the TRAINING dataset will be used to train the
+# If train_fraction is 1.0, all the TRAINING dataset will be used to train the
 # model and benchmarking can only be done from the benchmarking notebook
 # TRAINING/benchmarks_DL2_to_classification.ipynb
 Split:
   train_fraction: 0.8
-  use_same_number_of_sig_and_bkg_for_training: False  # Lowest statistics will drive the split
+  use_same_number_of_sig_and_bkg_for_training: False # Lowest statistics will drive the split
 
 # Optimize the hyper-parameters of the estimator with a grid search
 # If True parameters should be provided as lists (for None use [null])
@@ -22,19 +21,22 @@ Split:
 GridSearchCV:
   use: False # True or False
   # if False the following to variables are irrelevant
-  scoring: 'roc_auc'
-  cv: 2
+  scoring: "roc_auc"
+  cv: 2 # cross-validation splitting strategy
+  refit: True # Refit the estimator using the best found parameters
+  verbose: 1 # 1,2,3,4
+  njobs: -1 # int or -1 (all processors)
 
 # Definition of the algorithm/method used and its hyper-parameters
 Method:
-  name: 'sklearn.ensemble.RandomForestClassifier' # DO NOT CHANGE
-  target_name: 'label' # defined between 0 and 1 (DO NOT CHANGE)
+  name: "sklearn.ensemble.RandomForestClassifier" # DO NOT CHANGE
+  target_name: "label" # defined between 0 and 1 (DO NOT CHANGE)
   tuned_parameters:
     # Please, see scikit-learn's API for what each parameter means
     # WARNING: null (not a string) == 'None'
     n_estimators: 100 # integer
-    criterion: 'gini' # 'gini' or 'entropy'
-    max_depth: null # null or integer
+    criterion: "gini" # 'gini' or 'entropy'
+    max_depth: 20 # null or integer
     min_samples_split: 2 # integer or float
     min_samples_leaf: 1 # integer or float
     min_weight_fraction_leaf: 0.0 # float
@@ -50,7 +52,8 @@ Method:
     class_weight: null # 'balanced', 'balanced_subsample', null, dict or list of dicts
     ccp_alpha: 0.0 # non-negative float
     max_samples: null # null, integer or float
-  calibrate_output: False  # If True calibrate model on test data
+  use_proba: True # If True output is 'gammaness', else 'score'
+  calibrate_output: False # If True calibrate model on test data
 
 # List of the features to use to train the model
 # You can:
@@ -59,11 +62,11 @@ Method:
 # - if not you can propose modifications to protopipe.mva.utils.prepare_data
 FeatureList:
   Basic: # single-named, they need to correspond to input data columns
-  - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
-  - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
-  - 'hillas_width'  # Image Width
-  - 'hillas_length' # Image Length
-  # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
+    - "h_max" # Height of shower maximum from stereoscopic reconstruction
+    - "impact_dist" # Impact parameter from stereoscopic reconstruction
+    - "hillas_width" # Image Width
+    - "hillas_length" # Image Length
+    - "concentration_pixel" # Percentage of photo-electrons in the brightest pixel
   Derived: # custom evaluations of basic features that will be added to the data
     # column name : expression to evaluate using basic column names
     log10_intensity: log10(hillas_intensity)
@@ -72,18 +75,18 @@ FeatureList:
 
 # These cuts select the input data BEFORE training
 SigFiducialCuts:
-  - 'good_image == 1'
-  - 'is_valid == True'
-  - 'hillas_intensity_reco > 0'
+  - "good_image == 1"
+  - "is_valid == True"
+  - "hillas_intensity > 0"
 
 BkgFiducialCuts:
- - 'good_image == 1'
- - 'is_valid == True'
- - 'hillas_intensity_reco > 0'
+  - "good_image == 1"
+  - "is_valid == True"
+  - "hillas_intensity > 0"
 
 Diagnostic:
- # Energy binning (used for reco and true energy)
- energy:
-  nbins: 4
-  min: 0.0125
-  max: 200
+  # Energy binning (used for reco and true energy)
+  energy:
+    nbins: 4
+    min: 0.0125
+    max: 200

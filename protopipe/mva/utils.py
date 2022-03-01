@@ -1,21 +1,8 @@
 import numpy as np
 import pandas as pd
-import pickle
-import gzip
 from sklearn.metrics import auc, roc_curve
 from sklearn.model_selection import train_test_split
-
-
-def save_obj(obj, name):
-    """Save object in binary"""
-    with gzip.open(name, "wb") as f:
-        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
-
-
-def load_obj(name):
-    """Load object in binary"""
-    with gzip.open(name, "rb") as f:
-        return pickle.load(f)
+from sklearn.utils import shuffle
 
 
 def prepare_data(ds, derived_features, cuts, select_data=True, label=None):
@@ -50,13 +37,17 @@ def prepare_data(ds, derived_features, cuts, select_data=True, label=None):
         # This is needed because our reference analysis uses energy as
         # feature for classification
         # We should propably support a more elastic choice in the future.
-        if not all(i in derived_features for i in ["log10_reco_energy", "log10_reco_energy_tel"]):
-            raise ValueError('log10_reco_energy and log10_reco_energy_tel need to be model features.')
+        if not all(
+            i in derived_features
+            for i in ["log10_reco_energy", "log10_reco_energy_tel"]
+        ):
+            raise ValueError(
+                "log10_reco_energy and log10_reco_energy_tel need to be model features."
+            )
 
     # Compute derived features and add them to the dataframe
     for feature_name, feature_expression in derived_features.items():
-        ds.eval(f'{feature_name} = {feature_expression}',
-                inplace=True)
+        ds.eval(f"{feature_name} = {feature_expression}", inplace=True)
 
     if select_data:
         ds = ds.query(cuts)
@@ -76,6 +67,9 @@ def make_cut_list(cuts):
 def split_train_test(survived_images, train_fraction, feature_name_list, target_name):
     """Split the data selected for cuts in train and test samples.
 
+    If the estimator is a classifier, data is split in a stratified fashion,
+    using this as the class labels.
+
     Parameters
     ----------
     survived_images: `~pandas.DataFrame`
@@ -88,7 +82,7 @@ def split_train_test(survived_images, train_fraction, feature_name_list, target_
         Variable against which to train.
 
     Returns
-    --------
+    -------
     X_train: `~pandas.DataFrame`
         Data frame
     X_test: `~pandas.DataFrame`
@@ -103,19 +97,39 @@ def split_train_test(survived_images, train_fraction, feature_name_list, target_
         Test data indexed by observation ID and event ID.
     """
 
-    data_train, data_test = train_test_split(survived_images,
-                                             train_size=train_fraction,
-                                             random_state=0,
-                                             shuffle=True)
+    # If the estimator is a classifier, data is split in a stratified fashion,
+    # using this as the class labels
+    labels = None
+    if target_name == "label":
+        labels = survived_images[target_name]
 
-    y_train = data_train[target_name]
-    X_train = data_train[feature_name_list]
+    if train_fraction != 1.0:
+        data_train, data_test = train_test_split(
+            survived_images,
+            train_size=train_fraction,
+            random_state=0,
+            shuffle=True,
+            stratify=labels,
+        )
+        y_train = data_train[target_name]
+        X_train = data_train[feature_name_list]
 
-    y_test = data_test[target_name]
-    X_test = data_test[feature_name_list]
+        y_test = data_test[target_name]
+        X_test = data_test[feature_name_list]
 
-    data_train = data_train.set_index(["obs_id", "event_id"])
-    data_test = data_test.set_index(["obs_id", "event_id"])
+        data_train = data_train.set_index(["obs_id", "event_id"])
+        data_test = data_test.set_index(["obs_id", "event_id"])
+    else:
+        # if the user wants to use the whole input dataset
+        # there is not 'test' data, though we shuffle anyway
+        data_train = survived_images
+        shuffle(data_train, random_state=0, n_samples=None)
+        y_train = data_train[target_name]
+        X_train = data_train[feature_name_list]
+
+        data_test = None
+        y_test = None
+        X_test = None
 
     return X_train, X_test, y_train, y_test, data_train, data_test
 
@@ -144,7 +158,7 @@ def get_evt_subarray_model_output(
     model_output_name_evt: `str`, optional
         Name of averaged model output (event level)
     Returns
-    --------
+    -------
     data: `~pandas.DataFrame`
         Data frame
     """
@@ -193,7 +207,7 @@ def get_evt_model_output(
         Name of averaged model output (event level)
 
     Returns
-    --------
+    -------
     data: `~pandas.DataFrame`
         Data frame
 

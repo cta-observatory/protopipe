@@ -57,6 +57,16 @@ Start your analysis
   .. note::
 
     To reproduce or access the analysis data of someone else on DIRAC it will be sufficient
+    to modify the metadata key ``analyses_directory`` referred to your local path.
+
+  The script will store and partially edit for you all available
+  configuration files under the ``configs`` folder.
+  It will also create an ``analysis_metadata.yaml`` file which will store the
+  basic information regarding your analysis on the grid and on your machine.
+
+  .. note::
+
+    To reproduce or access the analysis data of someone else on DIRAC it will be sufficient
     to modify the metadata key ``analyses_directory``, which is referred to your local path.
 
   .. figure:: ./example_creation_analysis_tree.png

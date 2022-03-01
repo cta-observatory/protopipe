@@ -1,0 +1,37 @@
+{
+  "ProcessorTool": {
+      "progress_bar": true,
+      "log_level": 30
+  },
+  "DataWriter": {
+        "Contact": {
+            "name": "YOUR-NAME-HERE",
+            "email": "YOUREMAIL@EXAMPLE.ORG",
+            "organization": "YOUR-ORGANIZATION"
+        },
+        "output_path": "events_protopipe_CTAMARS_calibration_2ndPass.dl1.h5",
+        "overwrite": false,
+        "write_images": true,
+        "write_parameters": false,
+        "write_stereo_shower": false,
+        "write_mono_shower": false,
+        "transform_image": true,
+        "transform_peak_time": true
+  },
+  "SimTelEventSource": {
+      "calib_scale": 0.897
+  },
+  "CameraCalibrator": {
+      "apply_peak_time_shift": false,
+      "apply_waveform_time_shift": false,
+      "image_extractor_type": "TwoPassWindowSum"
+  },
+  "TwoPassWindowSum": {
+  "apply_integration_correction": false,
+      "core_threshold" : [
+        ["type", "LST_LST_LSTCam", 6.0],
+        ["type", "MST_MST_NectarCam", 8.0]
+      ],
+      "disable_second_pass": false
+  }
+}
