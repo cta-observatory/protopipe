@@ -109,6 +109,15 @@ and it is analysed using the same workflow as in a standard full-scale analysis.
 Benchmarks
 ----------
 
+.. note::
+
+  Benchmarks will soon disappear from this documentation as hosting more than 1 analysis
+  started to be non-ideal.
+  A new repository to host the results has been created under the CTAO Gitlab instance
+  (`link <https://gitlab.cta-observatory.org/mperesano/protopipe-results>`__).
+  It will be soon filled with the currently available analyses and with the
+  publication of protopipe v0.5.0, contribute  will be even easier than before.
+
 .. toctree::
    :hidden:
 
@@ -130,10 +139,10 @@ Benchmarks
    
 This documentation hosts a series of notebooks used for benchmarking.
 
-Their contents follow the development triggered by the ongoing
+Their contents follow the development triggered by the 
 comparison between protopipe and CTA-MARS (see
 `this issue <https://github.com/cta-observatory/protopipe/issues/24>`__ and
-references therein for a summary).
+references therein for a summary), but also with EventDisplay.
 
 The following tables summarize the analyses currently performed and planned with
 *protopipe* to evaluate its performance and that of the observatory.
@@ -164,12 +173,6 @@ pipelines, which is used throughout the notebooks for comparison and performance
      - 180°
      - `link <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`__
      - `link <https://forge.in2p3.fr/projects/step-by-step-reference-mars-analysis/wiki>`__
-   * - South (Paranal desert)
-     - baseline
-     - 20°
-     - 180°
-     - ...
-     - ...
 
 .. list-table:: **PROD 5**
   :widths: 25 25 25 25 25 25
@@ -189,7 +192,7 @@ pipelines, which is used throughout the notebooks for comparison and performance
     - ...
   * - South (Paranal desert)
     - baseline
-    - 20°
+    - 40°
     - 180°
     - ...
     - ...

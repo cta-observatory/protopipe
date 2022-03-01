@@ -564,7 +564,7 @@ def effective_focal_lengths(camera_name):
         Name of the camera from ctapipe.instrument.CameraDescription
 
     Returns
-    ----------
+    -------
     eff_foc_len : float
         Effective focal length in meters
 
