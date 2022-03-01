@@ -25,8 +25,8 @@ Usage
 Preliminary operations
 ^^^^^^^^^^^^^^^^^^^^^^
 
-1. Get a proxy with ``dirac-proxy-init``
-2. Choose the simulation production that you want to work on (this is reported e.g. in the CTA wiki)
+1. get a proxy with ``dirac-proxy-init``
+2. choose the simulation production that you want to work on (this is reported e.g. in the CTA wiki)
 3. use ``cta-prod-dump-dataset`` to obtain the original lists of simtel files for each particle type
 4. use ``protopipe-SPLIT_DATASET`` to split the original lists depending on the chosen analysis workflow
 
@@ -58,16 +58,6 @@ Start your analysis
 
     To reproduce or access the analysis data of someone else on DIRAC it will be sufficient
     to modify the metadata key ``analyses_directory`` referred to your local path.
-
-  The script will store and partially edit for you all available
-  configuration files under the ``configs`` folder.
-  It will also create an ``analysis_metadata.yaml`` file which will store the
-  basic information regarding your analysis on the grid and on your machine.
-
-  .. note::
-
-    To reproduce or access the analysis data of someone else on DIRAC it will be sufficient
-    to modify the metadata key ``analyses_directory``, which is referred to your local path.
 
   .. figure:: ./example_creation_analysis_tree.png
     :width: 250
@@ -127,7 +117,7 @@ Issues with the login
 "Your host clock seems to be off by more than a minute! Thats not good.
 We'll generate the proxy but please fix your system time" (or similar)**
 
-This can happen if you are working from a container (of any kind).
+This can happen if you are working from a container.
 Execute these commands:
 
 - ``systemctl status systemd-timesyncd.service``

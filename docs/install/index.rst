@@ -90,26 +90,37 @@ Some use-cases could be the following,
 Docker
 ++++++
 
-The container used by the interface requires the `installation of Docker <https://docs.docker.com/get-docker/>`_.
+The `installation of Docker <https://docs.docker.com/get-docker/>`_ is a requirement.
 
-To enter the container (and the first time downloading the image),
+Two docker containers are provided for development and released content respectively.
 
-``docker run --rm -v $HOME/.globus:/home/dirac/.globus -v $PWD/shared_folder:/home/dirac/shared_folder -v [...]/protopipe:/home/dirac/protopipe -v [...]/protopipe-grid-interface:/home/dirac/protopipe-grid-interface -it ctadirac/client``
+To enter the *development* container,
 
-where ``[...]`` is the path of your source code on the host and the ``--rm`` flag will erase the container at exit
-to save disk space (the data stored in the ``shared_folder`` won't disappear).
+``docker run --rm -v $HOME/.globus:/home/dirac/.globus -v [...]/protopipe:/home/cta/protopipe -v [...]/protopipe-grid-interface:/home/cta/protopipe-grid-interface -it mperesano/protopipe-ctadirac-dev``
+
+where,
+
+- ``[...]`` is the path of your source code on the host,
+- the ``--rm`` flag will erase the container at exit if you don't want to persist it in order to save disk space (any data produced will not disappear if you use a bind-mount).
+
+To enter the *release* container,
+
+``docker run --rm -v $HOME/.globus:/home/dirac/.globus -it mperesano/protopipe-ctadirac:tag``
+
+where ``tag`` if omitted will always refer to the latest release, otherwise you will need to specify it.
+
 Please, refer to the Docker documentation for other use cases.
 
-**WARNING**
-If you are using *macos* you could encounter some disk space issues.
-Please check `this <https://docs.docker.com/docker-for-mac/space/>`_ and `also this <https://djs55.github.io/jekyll/update/2017/11/27/docker-for-mac-disk-space.html>`_ on how to manage disk space.
+.. warning::
+  If you are using *macos* you could encounter some disk space issues.
+  Please check `this <https://docs.docker.com/docker-for-mac/space/>`_ and `also this <https://djs55.github.io/jekyll/update/2017/11/27/docker-for-mac-disk-space.html>`_ on how to manage disk space.
 
 Vagrant
 +++++++
 
-**NOTE**
-Only required for users that want to use a *Singularity*
-container on a *macos* and *Microsoft Windows* machine.
+.. note::
+  Only required for users that want to use a *Singularity*
+  container on a *macos* and *Microsoft Windows* machine.
 
 All users, regardless of their operative systems, can use protopipe and its interface via
 `Vagrant <https://www.vagrantup.com/>`_. 
@@ -126,9 +137,9 @@ used by the interface to setup the analysis.
 Singularity
 +++++++++++
 
-**WARNING**
-Support for *Singularity* has been dropped by the mantainers of *CTADIRAC*.
-The following solutions have not been tested in all possible cases.
+.. warning::
+  Support for *Singularity* has been dropped by the mantainers of *CTADIRAC*.
+  The following solutions have not been tested in all possible cases.
 
 - **macos / Microsoft Windows**
 
@@ -183,9 +194,9 @@ but the recipe for the container has been saved here.
 In this case you won't need to do ``. /home/dirac/dirac_env.sh``: the 
 commands will be already stored in your ``$PATH``.
 
-**WARNING**
-The recipe ``CTADIRAC_singularity`` is maintained by the author; if any bug arises,
-reverting to the methods described above (if possible) will provide you with a working environment.
+.. warning::
+  The recipe ``CTADIRAC_singularity`` is not currently maintained; if any bug arises,
+  reverting to the methods described above (if possible) will provide you with a working environment.
 
 If you have root privileges you can just build your own image with,
 

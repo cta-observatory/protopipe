@@ -110,7 +110,7 @@ The following is a commented example of the required configuration file
     tuned_parameters:
       n_estimators: 50
       learning_rate: 1
-      loss: 'linear' # 'linear', 'square' or 'exponential'
+      loss: 'linear' # 'linear', 'square' or 'exponential'
       random_state: 0 # int, RandomState instance or None
 
   # List of the features to use to train the model
@@ -119,14 +119,14 @@ The following is a commented example of the required configuration file
   # - add new ones here if they can be evaluated with pandas.DataFrame.eval
   # - if not you can propose modifications to protopipe.mva.utils.prepare_data
   FeatureList:
-    Basic: # single-named, they need to correspond to input data columns
-    - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
+    Basic: # single-named, they need to correspond to input data columns
+    - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
     - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
     - 'hillas_width'  # Image Width
     - 'hillas_length' # Image Length
     # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
     - 'leakage_intensity_width_1_reco' # fraction of total Intensity which is contained in the outermost pixels of the camera
-    Derived: # custom evaluations of basic features that will be added to the data
+    Derived: # custom evaluations of basic features that will be added to the data
       # column name : expression to evaluate using basic column names
       log10_WLS: log10(hillas_width*hillas_length/hillas_intensity)
       log10_intensity: log10(hillas_intensity)
@@ -145,28 +145,6 @@ The following is a commented example of the required configuration file
     nbins: 15
     min: 0.0125
     max: 125
-
-To estimate the energy of a gamma-ray, one wants to use the relation between
-the charge measured in one camera and the impact distance of the event measured
-from the telescope (distance from the shower axis to the telescope).
-
-Up to now, simple features have been used to feed regressors to estimate the
-energy, e.g.,
-
-* the charge,
-* the width and the length of the images,
-* the impact parameter,
-* the height of the shower maximum.
-
-The algorithm used to reconstruct the energy is a **Boosted Decision Tree (BDT)**.
-The tuning of the *Random Forest (RF)* algorithm was found to be
-a bit problematic (20 % energy resolution at all energies).
-The important thing to get a good energy estimator is to build trees with high
-depth.
-The minimal number of events to form an external node was fixed to 10 in order
-to obtain a model with a reasonable size (~50MB for  for 200000 evts).
-Indeed, allowing the trees to develop deeper would result in massive
-files (~500MB for 200000 evts).
 
 g/h classifier
 --------------
@@ -242,13 +220,13 @@ The following the example provided by the example configuration file ``RandomFor
   # - add new ones here if they can be evaluated with pandas.DataFrame.eval
   # - if not you can propose modifications to protopipe.mva.utils.prepare_data
   FeatureList:
-    Basic: # single-named, they need to correspond to input data columns
-    - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
+    Basic: # single-named, they need to correspond to input data columns
+    - 'h_max'         # Height of shower maximum from stereoscopic reconstruction
     - 'impact_dist'   # Impact parameter from stereoscopic reconstruction
     - 'hillas_width'  # Image Width
     - 'hillas_length' # Image Length
     # - 'concentration_pixel' # Percentage of photo-electrons in the brightest pixel
-    Derived: # custom evaluations of basic features that will be added to the data
+    Derived: # custom evaluations of basic features that will be added to the data
       # column name : expression to evaluate using basic column names
       log10_intensity: log10(hillas_intensity)
       log10_energy: log10(reco_energy) # Averaged-estimated energy of the shower
@@ -272,48 +250,6 @@ The following the example provided by the example configuration file ``RandomFor
     min: 0.0125
     max: 200
 
-We want to exploit parameters showing statistical differences in the shower
-developments between gamma-ray induced showers and hadron induced shower.
-Up to now, we used the second moments of the images (width and length) as well
-as the higher orders of the images (skewness and kurtosis which do not show a very high
-separation power). We also use stereoscopic parameters such as the heigh of
-the shower maximum and the reconstructed energy. The energy is important
-since the distribution of the discriminant parameters vary a lot with
-the energy of the particles.
-
-Since in the end we want to average the score of the particles between different
-cameras, we need the classifier to have an output normalised between 0 and 1.
-Ideally, we would like also to get a `probabilistic classifier`_ (e.g. score of
-0.8 gives a chance probability of 80 % that we are dealing with a signal event).
-in order to average one pear with one pear (not an apple), but it's not so easy
-since a lot a of cuts are done afterwards (angular cut, energy cut) which then
-make the calibration caduc.
-
-Anyway, we gave up on the BDT method since the output is not easy to normalise
-between 0 and 1 (there are also fluctuations on the score distribution
-that can totally crash the normalisation) and we trained a Random Forest (RF) as
-people do the MARS analysis in CTA (not the same way as in MAGIC, e.g.
-information of tel #1 and #2 in the same RF, here one model per type of telescope
-then gammaness averaging).
-
-Once again, the main important hyper-parameters
-to get a robust classifier is the maximal depth of the trees and the
-minimal number of events to get an external node (`min_samples_leaf`).
-Please be aware that if you specify a `min_samples_leaf` close to one you'll be
-in a high regime of overtraining that can be seen with an area under
-the ROC (auc) of 1 for the training sample and a mismatch between the gammaness
-distribution of the training and the test samples. In order to get an agreement
-(by eye, could do a KS/chi2 test) between the training and test distributions
-I chose to grow a forest of 200 trees with a max_depth of 10. I use a maximal
-number of 200000 images for each sample for the training/test phase.
-
-Note that the previous setup differ from what Abelardo is doing. Abelardo has
-no max_depth, he grows 100 tress, and uses a min_samples_leaf close to 1 (TBC).
-He is in an overtraining regime (auc ROC close to 1) and the agreement of the
-distributions between the training and the test samples is bad. This is not good
-since one might want to control the cut efficiencies of the models and
-in real conditions to see that everything is correct.
-
 .. warning::
 
   The default settings used are not yet optimised for every case.
@@ -323,5 +259,3 @@ in real conditions to see that everything is correct.
 
   A first optimisation will follow from the comparison against CTA-MARS, even
   though the parameters used and settings are already the same.
-
-.. _probabilistic classifier: https://scikit-learn.org/stable/modules/calibration.html

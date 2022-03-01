@@ -10,11 +10,11 @@ Welcome to protopipe's documentation!
 (CTA) based on the `ctapipe <https://cta-observatory.github.io/ctapipe>`__ library.
 The package has been developed and tested in the department of astrophysics at
 `CEA-Saclay/IRFU <http://irfu.cea.fr/dap/en/index.php>`__,
-but since Sep 23, 2019 is also open for development by other members of the CTA consortium.
+but since September 2019 has been open for development to all members of the CTA consortium.
 
 The source code is currently hosted on a `GitHub repository <https://github.com/cta-observatory/protopipe>`__ 
 to which this documentation is linked.  
-It will soon migrate to the CTAO-GitLab installation under the ASWG group
+It is planned to migrate it to the CTAO-GitLab installation under the ASWG group
 repository (`link <https://gitlab.cta-observatory.org/cta-consortium/aswg>`__).
 
 Current performance is stored internally at `this RedMine page <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__.
