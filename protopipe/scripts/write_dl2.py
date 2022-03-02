@@ -96,7 +96,7 @@ def main():
             + """At least one of 'site', 'array' and
             'production' are not properly defined in the analysis configuration
             file."""
-            + +bcolors.ENDC
+            + bcolors.ENDC
         )
         sys_exit(-1)
 

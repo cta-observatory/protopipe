@@ -10,11 +10,11 @@ dependencies:
   - h5py=2
   - ipython
   - jupyterlab>=3.1.10
+  - jupyter-book
   - conda-forge::nbsphinx
   - notebook
   - numpydoc
   - pandas>=1.0.0
-  - pre-commit
   - pytest
   - conda-forge::sphinx-automodapi
   - sphinx_rtd_theme

@@ -55,6 +55,7 @@ setup(
         "pyirf==0.5.0",
         "pandas>=1.0.0",
         "jupyterlab",
+        "jupyter-book",
         "papermill",
     ],
     zip_safe=False,

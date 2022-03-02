@@ -31,7 +31,9 @@ def main():
     parser = make_argparser()
 
     parser.add_argument(
-        "--debug", action="store_true", help="Print debugging information"
+        "--debug",
+        action="store_true",
+        help="Print debugging information",
     )
 
     parser.add_argument(
@@ -41,7 +43,9 @@ def main():
     )
 
     parser.add_argument(
-        "--save_images", action="store_true", help="Save also all images"
+        "--save_images",
+        action="store_true",
+        help="Save also all images",
     )
 
     parser.add_argument(
@@ -503,7 +507,9 @@ def main():
                         )  # not in ctapipe
 
                     outTable[cam_id] = outfile.create_table(
-                        "/", cam_id, DataTrainingOutput
+                        "/",
+                        cam_id,
+                        DataTrainingOutput,
                     )
                     outData[cam_id] = outTable[cam_id].row
 

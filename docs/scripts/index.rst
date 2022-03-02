@@ -24,6 +24,7 @@ following CTA experimental extensions of the `gamma astro data format`_.
     model_building
     DL2
     optimization_cuts_IRFs
+    benchmark_script
 
 
 

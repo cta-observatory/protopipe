@@ -98,7 +98,13 @@ def make_argparser():
         default=None,
         help="maximum number of events considered per file",
     )
-    parser.add_argument("-i", "--indir", type=str, required=True, help="Input folder")
+    parser.add_argument(
+        "-i",
+        "--indir",
+        type=str,
+        required=True,
+        help="Input folder",
+    )
     parser.add_argument(
         "-f",
         "--infile_list",
@@ -667,32 +673,3 @@ def get_cameras_radii(subarray, frame=TelescopeFrame(), ctamars=False):
         new_geom = geom.transform_to(frame)
         camera_radii[cam_name] = new_geom.guess_radius()
     return camera_radii
-
-
-def add_stats(data, ax, x=0.70, y=0.85, fontsize=10):
-    """Add a textbox containing statistical information."""
-    mu = data.mean()
-    median = np.median(data)
-    sigma = data.std()
-    textstr = "\n".join(
-        (
-            r"$\mu=%.2f$" % (mu,),
-            r"$\mathrm{median}=%.2f$" % (median,),
-            r"$\sigma=%.2f$" % (sigma,),
-        )
-    )
-
-    # these are matplotlib.patch.Patch properties
-    props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
-
-    # place a text box in upper left in axes coords
-    ax.text(
-        x,
-        y,
-        textstr,
-        transform=ax.transAxes,
-        fontsize=fontsize,
-        horizontalalignment="left",
-        verticalalignment="center",
-        bbox=props,
-    )

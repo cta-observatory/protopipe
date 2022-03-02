@@ -28,42 +28,14 @@ are the following,
   Even if *protopipe* itself allows for Python 3.7, the minimum version required to use
   Dirac is 3.8.
 
-For convenience, a ready-to-use conda environment recipe is reported below.
-You can also find it in the `root directory of the interface <https://github.com/HealthyPear/protopipe-grid-interface>`_.
+An example base conda environment recipe can be found
+`here <https://github.com/HealthyPear/protopipe-grid-interface/blob/master/environment_development.yaml>`_.
 You can create the corresponding environment with a command like this,
 
-``conda env create -f my_env_recipe.yml -n my_env``
+``conda env create -f environment_development.yaml``
 
-.. code-block:: yaml
-
-  name: protopipe-CTADIRAC
-  channels:
-    - conda-forge
-  dependencies:
-    - python>=3.8
-    - pip
-    - dirac-grid
-    - voms
-    - pytables
-    - pyyaml
-    - eventio # required for protopipe with ctapipe <0.12.0
-    - gammapy=0.18 # required for protopipe with ctapipe <0.12.0
-    - pip:
-        - CTADIRAC
-
-In this environment you can then install first protopipe and then the interface.
-
-If you want to install them in their released versions, integrate the ``pip`` section
-with,
-
-- ``protopipe``/``protopipe=x.y.z`` for a latest/specific released version of protopipe,
-- ``git+https://github.com/HealthyPear/protopipe-grid-interface@vx.y.z`` for a released version of its interface.
-
-An overview of the versioning between the two sofware is described below (:ref:`versioning`)
-
-If you are a developer, or you want to work with the development version,
-please refer to the development installation instructions for protopipe (:ref:`install-development`)
-and its interface (:ref:`install-grid-dev`).
+In this environment you can then install first *protopipe* and then its interface
+following the respective instructions.
 
 DIRAC GRID certificate
 ----------------------
@@ -81,8 +53,9 @@ The interface
 Getting a released version
 --------------------------
 
-For versions >=0.4.0 you can install it as a Python3-based package in your environment as explained
-above.
+For versions >=0.4.0 you can install it as a Python3-based package in your environment,
+
+``pip install git+https://github.com/HealthyPear/protopipe-grid-interface@vx.y.z``
 
 The following table refers to all versions and their compatibility with _protopipe_.
 
@@ -102,17 +75,17 @@ The following table refers to all versions and their compatibility with _protopi
     * - v0.2.X
       - v0.2.X
 
-The latest released version of the interface is also compatible with
+The latest released version of the interface is always compatible with
 the development version of *protopipe*.
 
 .. warning::
 
   After the Python3 upgrade of DIRAC and CTADIRAC,
   the interface installation and usage have changed considerably,
-  while its relation with _protopipe_ has only improved.
+  while its relation with *protopipe* has only improved.
   It is very unlikely that you will ever need to work with a version older than v0.4.0,
   but if this were to happen, please check older versions of this documentation
-  either from readthedocs or from the repository of _protopipe_.
+  either from readthedocs or from the repository of *protopipe*.
 
 .. _install-grid-dev:
 
@@ -120,11 +93,12 @@ Getting the development version
 -------------------------------
 
 This version is:
+
 - always compatible with the development version of *protopipe*,
 - possibly compatible with the latest release of *protopipe*,
 
 The procedure to install with this version is similar to the same one
-for _protopipe_:
+for *protopipe*:
 
 - ``git clone https://github.com/HealthyPear/protopipe-grid-interface.git``
 - ``cd protopipe-grid-interface``
@@ -151,8 +125,8 @@ You will be asked to generate your proxy and then to choose the ``Setup`` and th
 You need to choose the default values.
 
 .. warning::
-  The defaults right now are lacking redundance in the configuration system.
-  It is suggested to edit the configuration file that you can find inside your conda enviroment
+  The configuration system defaults could lack redundance depending on the version of CTADIRAC.
+  It is suggested to check or edit the configuration file that you can find inside your conda enviroment
   under ``etc/dirac.cfg`` like the following,
 
   .. code-block::

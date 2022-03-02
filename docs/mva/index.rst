@@ -6,12 +6,14 @@ Multivariate analysis (``protopipe.mva``)
 Introduction
 ------------
 
-`protopipe.mva` contains utilities to build models for regression or
-classification problems. It is based on machine learning methods available in
+`protopipe.mva` contains utilities to build models for regression and
+classification. It is based on machine learning methods available in
 scikit-learn_. Internally, the tables are dealt with the Pandas_ Python module.
 
 For each type of camera a regressor/classifier should be trained.
-For both type of models an average of the image estimates is later computed to
+
+For both type of models an average of the image estimates is computed
+during the :ref:`data_training` and/or :ref:`DL2` steps to
 determine a global output for the event (energy or score/gammaness).
 
 Details
@@ -19,14 +21,15 @@ Details
 
 Data is split in train and test subsamples by single telescope images.
 
-The class ```TrainModel``` uses a training sample composed of gamma-rays for a
-regression model. In addition of a gamma-ray sample, a sample of
-protons is also used to build a classifier.
+The class ```TrainModel``` uses a training sample composed of 
+
+- signal for a regression model,
+- signal and background for a classifier.
 
 The training of a model can be done also via the GridSearchCV_ algorithm which 
 allows to find the best hyper-parameters of the models.
 
-Supported models:
+Currently tested models:
 
 - ``sklearn.ensemble.RandomForestClassifier``
 - ``sklearn.ensemble.RandomForestRegressor``

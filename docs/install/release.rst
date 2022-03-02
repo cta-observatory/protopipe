@@ -10,7 +10,8 @@ If you prefer to work from an Anaconda virtual environment you can create it wit
 
 ``conda env create -f environment_latest_release.yml``
 
-or any other compatible virtual environment, depending on your needs.
+The recipe can be found in the root folder of the project repository,
+but any other compatible virtual environment can be used, depending on your needs.
 
 For previous releases,
 
