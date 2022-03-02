@@ -1,0 +1,27 @@
+# Book settings
+
+title: # template example = "Prod5 CTAN NSB1x Zd20 AzSouth on-axis-point-source"
+author:
+copyright:
+logo: CTA_logo.jpg
+exclude_patterns: []
+only_build_toc_files: true
+
+# Following values refer to the setup avalable in the
+# "protopipe-results" reference repository on CTAO GitLab
+# You can also create your own book repositories
+repository:
+  url: https://github.com/cta-observatory/protopipe-results # The URL of book's repository
+  path_to_book: # Path to your book's folder, relative to the repository root.
+  # template example = "performances/v0.5.0/Prod5/CTA-North/NSB1x/Omega/Zd20/AzSouth/on-axis-point-source/book/"
+html:
+  use_repository_button: true
+
+# Force re-execution of notebooks on each build
+execute:
+  execute_notebooks: "off"
+
+sphinx:
+  config:
+    html_theme_options:
+      logo_only: True
