@@ -1,0 +1,34 @@
+# Table of contents
+
+format: jb-book
+defaults:
+  maxdepth: 5
+root: intro
+
+parts:
+  - caption: Pre-training stage
+    chapters:
+    - file: results/TRAINING/result_benchmarks_DL1_calibration.ipynb
+    - file: results/TRAINING/result_benchmarks_DL1_image-cleaning.ipynb
+    - file: results/TRAINING/result_benchmarks_DL1_image_intensity_resolution.ipynb
+    - file: results/TRAINING/result_benchmarks_DL1_DirectionLUT.ipynb
+    - file: results/TRAINING/result_benchmarks_DL2_direction-reconstruction.ipynb
+    - file: results/TRAINING/result_benchmarks_DL2_EnergyLUT.ipynb
+    - file: results/TRAINING/result_benchmarks_DL2_to_energy-estimation.ipynb
+  - caption: Energy model
+    chapters:
+    - file: results/MODELS/result_benchmarks_MODELS_energy.ipynb
+  - caption: Energy estimation
+    chapters:
+    - file: results/TRAINING/result_benchmarks_DL2_to_classification.ipynb
+  - caption: Classification model
+    chapters:
+    - file: results/MODELS/result_benchmarks_MODELS_classification.ipynb
+  - caption: DL2
+    chapters:
+    - file: results/DL2/result_benchmarks_DL2_direction-reconstruction.ipynb
+    - file: results/DL2/result_benchmarks_DL2_particle-classification.ipynb
+  - caption: DL3
+    chapters:
+    - file: results/DL3/result_benchmarks_DL3_IRFs_and_sensitivity.ipynb
+    - file: results/DL3/result_benchmarks_DL3_overall_performance_plot_CTA.ipynb
