@@ -34,7 +34,7 @@ Resources
   - `GitHub Pages <https://cta-observatory.github.io/protopipe>`__ (only development version)
   - `readthedocs <https://protopipe.readthedocs.io/en/latest/>`__ (also latest releases)
 
-- Current performance: `RedMine <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__
+- Current performance: `GitLab <http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/>`__.
 
 - Slack channels:
 
@@ -49,6 +49,7 @@ If you use a released version of this software for a publication,
 please cite it by using the corresponding DOI.
 
 - latest : |doilatest|
+- v0.5.0 : TBD
 - v0.4.0 : |doi_v0.4.0|
 - v0.3.0 : |doi_v0.3.0|
 
