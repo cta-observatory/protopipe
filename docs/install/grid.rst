@@ -4,9 +4,6 @@
 Interface to the DIRAC grid
 ===========================
 
-.. contents::
-   :local:
-
 Requirements
 ============
 
@@ -15,8 +12,8 @@ Requirements
 Base environment
 ----------------
 
-The software/packages required to work with the DIRAC interface for protopipe
-are the following,
+Aside from *protopipe* itself,
+the software/packages required to work on the DIRAC grid are the following,
 
 - `DIRAC <https://dirac.readthedocs.io/en/latest/>`_
 - `CTADIRAC <https://gitlab.cta-observatory.org/cta-computing/dpps/CTADIRAC>`_
@@ -24,18 +21,35 @@ are the following,
 - `pytables <https://www.pytables.org/>`_
 - `pyyaml <https://pyyaml.org/>`_
 
-.. note:: Python version
-  Even if *protopipe* itself allows for Python 3.7, the minimum version required to use
-  Dirac is 3.8.
+Below you can find a recipe for the **base** environment into which install *protopipe*
+and its interface.  
+Recipes are also stored in the `root directory of the interface <https://github.com/HealthyPear/protopipe-grid-interface>`_.
 
-An example base conda environment recipe can be found
-`here <https://github.com/HealthyPear/protopipe-grid-interface/blob/master/environment_development.yaml>`_.
-You can create the corresponding environment with a command like this,
+.. code-block:: yaml
 
-``conda env create -f environment_development.yaml``
+  name: protopipe-CTADIRAC
+  channels:
+    - conda-forge
+  dependencies:
+    - python>=3.8
+    - pip
+    # required by the interface
+    - dirac-grid
+    - diracgrid::fts3
+    - voms
+    - pytables
+    - pyyaml
+    # required for ctapipe 0.11.0 based installation
+    # will work anyway if such dependency is upgraded
+    - gammapy=0.18
+    - eventio
+    - pip:
+        - CTADIRAC
 
-In this environment you can then install first *protopipe* and then its interface
-following the respective instructions.
+After its creation you have to install first *protopipe* (:ref:`install_protopipe`)
+and then its interface (:ref:`install-interface`).
+
+An overview of the versioning between the released sofware is described below (:ref:`versioning`)
 
 DIRAC GRID certificate
 ----------------------
@@ -47,19 +61,33 @@ You can find all necessary information at
 `this <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Prerequisites>`_
 Redmine wikipage.
 
-The interface
-=============
+.. _install-interface:
 
-Getting a released version
---------------------------
+Installation
+============
 
-For versions >=0.4.0 you can install it as a Python3-based package in your environment,
+Also the interface to the DIRAC grid can be installed both in development mode
+and as a released package.
+
+Released version
+----------------
+
+.. important::
+
+  After the Python3 upgrade of DIRAC and CTADIRAC,
+  the interface installation and usage have changed considerably,
+  while its relation with *protopipe* has only improved.
+  It is **extremely** unlikely that you will ever need to work with a version older than v0.4.0,
+  but if this were to happen, please check older versions of this documentation
+  either from readthedocs or from the repository of *protopipe*.
+
+You can install install it as a Python3-based package in your environment like so,
 
 ``pip install git+https://github.com/HealthyPear/protopipe-grid-interface@vx.y.z``
 
-The following table refers to all versions and their compatibility with _protopipe_.
+The following table refers to all versions and their compatibility with *protopipe*.
 
-.. list-table:: compatibility between *protopipe* and its interface
+.. list-table:: Versioning
     :name: versioning
     :widths: 25 25
     :header-rows: 0
@@ -75,25 +103,15 @@ The following table refers to all versions and their compatibility with _protopi
     * - v0.2.X
       - v0.2.X
 
-The latest released version of the interface is always compatible with
+The latest released version of the interface is also compatible with
 the development version of *protopipe*.
-
-.. warning::
-
-  After the Python3 upgrade of DIRAC and CTADIRAC,
-  the interface installation and usage have changed considerably,
-  while its relation with *protopipe* has only improved.
-  It is very unlikely that you will ever need to work with a version older than v0.4.0,
-  but if this were to happen, please check older versions of this documentation
-  either from readthedocs or from the repository of *protopipe*.
 
 .. _install-grid-dev:
 
-Getting the development version
--------------------------------
+Development version
+-------------------
 
 This version is:
-
 - always compatible with the development version of *protopipe*,
 - possibly compatible with the latest release of *protopipe*,
 
