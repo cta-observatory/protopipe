@@ -4,12 +4,12 @@ from setuptools import setup, find_packages
 ctapipe = "ctapipe==0.11.0"
 gammapy = "gammapy==0.18.2"
 pyirf = "pyirf==0.5.0"
-pandas = "pandas==1.4.1"
+pandas = "pandas==1.3.5"
 scikit_learn = "scikit-learn==1.0.2"
 
 extras_require = {
     "docs": [
-        "pydata-sphinx-theme>=0.8.0",
+        "pydata-sphinx-theme",
         "sphinx-issues",
         "sphinx_automodapi",
         "numpydoc",
