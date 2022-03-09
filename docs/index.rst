@@ -60,24 +60,15 @@ Please, check the development version of the README for up-to-date links.
 - v0.4.0 : |doi_v0.4.0|
 - v0.3.0 : |doi_v0.3.0|
 
-
-.. _protopipe_intro:
 .. toctree::
-   :caption: Overview
-   :maxdepth: 1
-
-   install/index
-   usage/index
-   contribute/index
-   AUTHORS
-   CHANGELOG
-
-.. _protopipe_structure:
-.. toctree::
-   :caption: API Reference
-   :maxdepth: 1
-
-   reference/index
+    :hidden:
+    
+    install/index
+    usage/index
+    reference/index
+    contribute/index
+    AUTHORS
+    CHANGELOG
 
 Indices and tables
 ==================
