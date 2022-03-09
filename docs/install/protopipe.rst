@@ -4,6 +4,11 @@
 protopipe
 *********
 
+.. important::
+  If you already know you want to use *protopipe* on the *DIRAC* grid, please start
+  from the installation based on its interface (:ref:`protopipe-CTADIRAC base environment <base_env_protopipe_CTADIRAC>`)
+  and then come back here.
+
 There are two different ways to install ``protopipe``,
 
 * if you just want to use it as it is (:ref:`install-release`),
@@ -12,10 +17,6 @@ There are two different ways to install ``protopipe``,
 To perform full analyses, you will need some computational power in order to 
 produce enough data files for model and performance estimation.
 This can be accomplished through the use of the DIRAC computing grid (:ref:`install-grid`).
-
-.. note::
-  If you already know you want to use *protopipe* on the *DIRAC* grid, please refer
-  to the installation based on its interface (:ref:`protopipe-CTADIRAC base environment <base_env_protopipe_CTADIRAC>`).
 
 .. _install-release:
 

@@ -23,14 +23,12 @@ environment is the only currently supported solution.
 Optional
 ========
 
-In order to open data files stored as HDF5 tables it is suggested to
+In order to **open data files** stored as HDF5 tables it is suggested to
 integrate the final virtual environment with the ``vitables`` package.
 
-If you plan to compare *protopipe* results against older results based on CERN/ROOT
-from the historical pipelines (CTAMARS and/or EventDisplay)
+If you plan to compare *protopipe* results against older results based on **CERN/ROOT**
+from the historical pipelines (*CTAMARS* and/or *EventDisplay*)
 you will need to install also the ``uproot`` package.
 
-The grid interface code provides some `Docker <https://docs.docker.com/get-docker/>`_ recipes,
-in case you are interested in using a containerized version of protopipe,
-though at the moment the build of the images is not yet automitized.
-For more details refer to :ref:`containers`.
+**Benchmarking** can make use of the ``seaborn`` package, 
+if enabled from the associated configuration file (for more details see :ref:`benchmark_script`).

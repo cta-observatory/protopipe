@@ -49,8 +49,6 @@ Recipes are also stored in the `root directory of the interface <https://github.
 After its creation you have to install first *protopipe* (:ref:`install_protopipe`)
 and then its interface (:ref:`install-interface`).
 
-An overview of the versioning between the released sofware is described below (:ref:`versioning`)
-
 DIRAC GRID certificate
 ----------------------
 
@@ -103,8 +101,8 @@ The following table refers to all versions and their compatibility with *protopi
     * - v0.2.X
       - v0.2.X
 
-The latest released version of the interface is also compatible with
-the development version of *protopipe*.
+Both the latest released version and the development version of the interface
+are compatible with the development version of *protopipe*.
 
 .. _install-grid-dev:
 
@@ -112,11 +110,11 @@ Development version
 -------------------
 
 This version is:
+
 - always compatible with the development version of *protopipe*,
 - possibly compatible with the latest release of *protopipe*,
 
-The procedure to install with this version is similar to the same one
-for *protopipe*:
+The installation procedure is the following:
 
 - ``git clone https://github.com/HealthyPear/protopipe-grid-interface.git``
 - ``cd protopipe-grid-interface``
@@ -135,7 +133,8 @@ This is a one time operation to be perfomed after the environment creation and a
    conda env config vars set X509_CERT_DIR=$CONDA_PREFIX/etc/grid-security/certificates
    conda env config vars set X509_VOMS_DIR=$CONDA_PREFIX/etc/grid-security/vomsdir
    conda env config vars set X509_VOMSES=$CONDA_PREFIX/etc/grid-security/vomses
-   conda activate protopipe-CTADIRAC
+
+then you will need to reactivate your environment.
 
 Also only the first time, in order to use the CTADIRAC production instance,
 you should configure your client using the ``dirac-configure`` command.
