@@ -17,7 +17,7 @@ dependencies:
   - pandas>=1.0.0
   - pytest
   - conda-forge::sphinx-automodapi
-  - sphinx_rtd_theme
+  - conda-forge::pydata-sphinx-theme
   - conda-forge::sphinx-issues
   - pip:
       - papermill

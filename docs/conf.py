@@ -18,6 +18,7 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath(".."))
 from protopipe import __version__
 
@@ -67,7 +68,7 @@ extensions = [
 ]
 
 # nbsphinx
-nbsphinx_execute = 'never'
+nbsphinx_execute = "never"
 
 # sphinx_automodapi: avoid having methods and attributes of classes being shown
 # multiple times.
@@ -90,7 +91,7 @@ master_doc = "index"
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -122,14 +123,48 @@ napoleon_use_rtype = False  # More legible
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
-html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
+# html_logo = "_static/CTA_logo.png"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    "logo_link": "https://www.cta-observatory.org/wp-content/themes/ctao/assets/img/logo_red.png",
+    "icon_links": [
+        # {
+        #     "name": "GitHub",
+        #     "url": "https://github.com/cta-observatory/protopipe",
+        #     "icon": "fab fa-github-square",
+        # },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/protopipe/",
+            "icon": "fab fa-python",
+        },
+    ],
+    "github_url": "https://github.com/cta-observatory/protopipe",
+    "icon_links_label": "Quick Links",
+    "external_links": [
+        {
+            "name": "Performance",
+            "url": "https://cta.cloud.xwiki.com/xwiki/wiki/aswg/view/Main/Benchmarks%20and%20Reference%20Analysis/Protopipe%20performance%20and%20pipeline%20comparisons/",
+        },
+    ],
+    # "show_nav_level": 4,
+    # "navigation_depth": 4,
+    "use_edit_page_button": True,
+    "search_bar_text": "Search the docs...",
+    # "navbar_align": "left",
+}
+
+html_context = {
+    "github_user": "https://github.com/cta-observatory",
+    "github_repo": "https://github.com/cta-observatory/protopipe",
+    "github_version": "master",
+    "doc_path": "docs/",
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

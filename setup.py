@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 extras_require = {
     "docs": [
-        "sphinx_rtd_theme",
+        "pydata-sphinx-theme",
         "sphinx-issues",
         "sphinx_automodapi",
         "nbsphinx",
