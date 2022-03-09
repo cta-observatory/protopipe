@@ -26,6 +26,9 @@ The class ```TrainModel``` uses a training sample composed of
 - signal for a regression model,
 - signal and background for a classifier.
 
+In the default analysis workflow, signal is composed of gamma-rays
+while background by protons.
+
 The training of a model can be done also via the GridSearchCV_ algorithm which 
 allows to find the best hyper-parameters of the models.
 
