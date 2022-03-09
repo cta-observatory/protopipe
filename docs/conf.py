@@ -63,7 +63,6 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
-    "nbsphinx",
     "IPython.sphinxext.ipython_console_highlighting",
 ]
 
@@ -124,20 +123,15 @@ napoleon_use_rtype = False  # More legible
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-# html_logo = "_static/CTA_logo.png"
+# html_logo = "_static/CTA_logo.jpg"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
 html_theme_options = {
-    "logo_link": "https://www.cta-observatory.org/wp-content/themes/ctao/assets/img/logo_red.png",
+    # "logo_link": "",
     "icon_links": [
-        # {
-        #     "name": "GitHub",
-        #     "url": "https://github.com/cta-observatory/protopipe",
-        #     "icon": "fab fa-github-square",
-        # },
         {
             "name": "PyPI",
             "url": "https://pypi.org/project/protopipe/",
@@ -149,7 +143,7 @@ html_theme_options = {
     "external_links": [
         {
             "name": "Performance",
-            "url": "https://cta.cloud.xwiki.com/xwiki/wiki/aswg/view/Main/Benchmarks%20and%20Reference%20Analysis/Protopipe%20performance%20and%20pipeline%20comparisons/",
+            "url": "http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/",
         },
     ],
     # "show_nav_level": 4,
