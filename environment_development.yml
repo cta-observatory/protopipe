@@ -1,25 +1,30 @@
 name: protopipe-dev
 channels:
   - defaults
+  - conda-forge
 dependencies:
-  - python >=3.7,<3.9
+  # Python & PyPI
+  - python=3.8
   - pip
-  - conda-forge::ctapipe=0.11.0
-  - conda-forge::gammapy=0.18.2
-  - astropy>=4.0.1
-  - h5py=2
-  - ipython
+  # Base dependencies
+  - ctapipe=0.11.0
+  - gammapy=0.18.2
+  - pandas=1.4.1
+  - scikit-learn==1.0.2
+  # Testing and code style
+  - pytest
+  - pytest-dependency
+  - codecov
+  - pytest-cov
+  - black
+  # Documentation
+  - pydata-sphinx-theme==0.8.0
+  - sphinx-automodapi
+  - numpydoc
+  - sphinx-issues
+  # Benchmarking
+  - papermill
   - jupyterlab>=3.1.10
   - jupyter-book
-  - conda-forge::nbsphinx
-  - notebook
-  - numpydoc
-  - pandas>=1.0.0
-  - pytest
-  - conda-forge::sphinx-automodapi
-  - conda-forge::pydata-sphinx-theme
-  - conda-forge::sphinx-issues
   - pip:
-      - papermill
       - pyirf==0.5.0
-      - pytest-dependency
