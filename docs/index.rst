@@ -17,7 +17,7 @@ to which this documentation is linked.
 It is planned to migrate it to the CTAO-GitLab installation under the ASWG group
 repository (`link <https://gitlab.cta-observatory.org/cta-consortium/aswg>`__).
 
-Current performance is stored internally at `this RedMine page <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__.
+Current performance is stored internally at `GitLab <http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/>`__.
 
 .. warning::
   This is not yet stable code, so expect large and rapid changes.
@@ -32,7 +32,7 @@ Resources
   - `GitHub Pages <https://cta-observatory.github.io/protopipe>`__ (only development version)
   - `readthedocs <https://protopipe.readthedocs.io/en/latest/>`__ (also latest releases)
 
-- Current performance: `RedMine <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__
+- Current performance: `GitLab <http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/>`__
 
 - Slack channels:
 
@@ -56,6 +56,7 @@ please cite it by using the corresponding DOI.
 Please, check the development version of the README for up-to-date links.
 
 - latest : |doilatest|
+- v0.5.0 : TBD
 - v0.4.0 : |doi_v0.4.0|
 - v0.3.0 : |doi_v0.3.0|
 
@@ -73,14 +74,10 @@ Please, check the development version of the README for up-to-date links.
 
 .. _protopipe_structure:
 .. toctree::
-   :caption: Structure
+   :caption: API Reference
    :maxdepth: 1
 
-   pipeline/index
-   mva/index
-   perf/index
-   scripts/index
-   benchmarks
+   reference/index
 
 Indices and tables
 ==================
