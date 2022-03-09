@@ -6,25 +6,28 @@ Pipeline
 The following steps describe the basics of the default analysis with *protopipe* and
 estimate of the performance of CTA.
 
-Each of the analysis steps comes with its configuration file.
+.. note::
 
-1. Energy estimator
+  More analysis workflows are possible, but this documentation refers to the default,
+  which is currently the only supported one.
 
-* produce tables of image and shower geometry information from gamma rays 
-  using pipeline utilities (:ref:`data_training`)
-* build models using ``protopipe.mva`` utilities (:ref:`model_building`)
+Each of the analysis steps uses a configuration file.
+Example configuration files are stored under `protopipe/aux/example_config_files`.
 
-2. Gamma hadron classifier
+1. Build an energy model
 
-* produce tables of image and shower geometry information from
-  gamma-rays and hadrons using pipeline utilities (:ref:`data_training`)
-* build models using ``protopipe.mva`` utilities (:ref:`model_building`)
+* produce tables containing reconstructed image and shower geometry information from gamma rays (:ref:`data_training`)
+* build the model (:ref:`model_building`)
+
+2. Build a particle classification model
+
+* produce tables containing reconstructed image and shower geometry information from gamma rays and protons (:ref:`data_training`)
+* build the model (:ref:`model_building`)
 
 3. DL2 production
 
-* produce tables of image and shower geometry information,
-  estimated energy and estimated particle type from
-  gamma-rays, hadrons and electrons using pipeline utilities (:ref:`DL2`)
+* produce tables containing reconstructed shower geometry, estimated energy and particle type
+  for gamma-rays, protons and electrons (:ref:`DL2`)
 
 4. Estimate the final performance (:ref:`optimization_cuts_IRFs`)
 
@@ -38,4 +41,4 @@ Each of the analysis steps comes with its configuration file.
 
 .. warning::
 
-  *protopipe* is currently optimized for point-source best-sensitivity
+  *protopipe* is currently optimized only for point-source best-sensitivity.
