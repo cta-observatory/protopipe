@@ -7,12 +7,14 @@ Welcome to protopipe's documentation!
 =====================================
 
 `Protopipe` is a pipeline prototype for the `Cherenkov Telescope Array <https://www.cta-observatory.org/>`__
-(CTA) based on the `ctapipe <https://cta-observatory.github.io/ctapipe>`__ library.
+(CTA).  
+It is based on the `ctapipe <https://cta-observatory.github.io/ctapipe>`__ and `pyirf <https://github.com/cta-observatory/pyirf>`__
+libraries among other third-party Python packages.  
 The package has been developed and tested in the department of astrophysics at
 `CEA-Saclay/IRFU <http://irfu.cea.fr/dap/en/index.php>`__,
 but since September 2019 has been open for development to all members of the CTA consortium.
 
-The source code is currently hosted on a `GitHub repository <https://github.com/cta-observatory/protopipe>`__ 
+The source code is hosted on a `GitHub repository <https://github.com/cta-observatory/protopipe>`__ 
 to which this documentation is linked.  
 It is planned to migrate it to the CTAO-GitLab installation under the ASWG group
 repository (`link <https://gitlab.cta-observatory.org/cta-consortium/aswg>`__).
@@ -25,14 +27,17 @@ Current performance is stored internally at `GitLab <http://cccta-dataserver.in2
 Resources
 ---------
 
-- Source code (protopipe): `GitHub repository <https://github.com/cta-observatory/protopipe>`__
-- Source code (DIRAC grid interface): `GitHub repository <https://github.com/HealthyPear/protopipe-grid-interface>`__
+- Source code:
+
+  - `protopipe <https://github.com/cta-observatory/protopipe>`__
+  - `DIRAC grid interface <https://github.com/HealthyPear/protopipe-grid-interface>`__
+
 - Documentation:
 
   - `GitHub Pages <https://cta-observatory.github.io/protopipe>`__ (only development version)
   - `readthedocs <https://protopipe.readthedocs.io/en/latest/>`__ (also latest releases)
 
-- Current performance: `GitLab <http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/>`__
+- Performance results: `GitLab <http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/>`__
 
 - Slack channels:
 

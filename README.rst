@@ -27,14 +27,17 @@ A pipeline prototype for the `Cherenkov Telescope Array (CTA) <www.cta-observato
 Resources
 ---------
 
-- Source code (protopipe): `GitHub repository <https://github.com/cta-observatory/protopipe>`__
-- Source code (DIRAC grid interface): `GitHub repository <https://github.com/HealthyPear/protopipe-grid-interface>`__
+- Source code:
+
+  - `protopipe <https://github.com/cta-observatory/protopipe>`__
+  - `DIRAC grid interface <https://github.com/HealthyPear/protopipe-grid-interface>`__
+
 - Documentation:
 
   - `GitHub Pages <https://cta-observatory.github.io/protopipe>`__ (only development version)
   - `readthedocs <https://protopipe.readthedocs.io/en/latest/>`__ (also latest releases)
 
-- Current performance: `GitLab <http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/>`__.
+- Performance results: `GitLab <http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/>`__
 
 - Slack channels:
 
