@@ -16,6 +16,9 @@ pipeline that takes care of all checks (some using external services).
 Documentation
 -------------
 
+Please, make sure you have installed *protopipe* with the required packages
+(either with the ``all`` or ``docs`` keyword).
+
 Each Pull Request (PR) has to have its own documentation updates (if any),
 according to what are the changes to be merged into master.
 
@@ -29,7 +32,7 @@ To build and check your documentation locally,
 - for small changes, ``make html``
 
 The built documentation will be stored under ``docs/_build/html`` from which you
-can open ``index.html`` with your favorite browser.
+can open ``index.html`` with your favorite browser to check how it looks.
 
 You will have to fix any warning that appears during documentation building,
 because the documentation also runs on `readthedocs <https://readthedocs.org/>`__
@@ -38,7 +41,8 @@ with an option to treat warnings as errors.
 Testing
 -------
 
-All testing code is called by issuing the ``pytest`` command.
+All testing code is called by issuing the ``pytest`` command
+(see `official webpage <https://docs.pytest.org/en/latest/>`__ for details).
 
 This command can be called from any place within the cloned repository and it
 will always run from the root directory of the project.
@@ -66,15 +70,14 @@ to understand what a unit-test is supposed to do.
   `this issue <https://github.com/cta-observatory/protopipe/issues/69>`__.
 
 Being *protopipe* based on *ctapipe*, all the tools imported from the latter
-have been already tested and approved (*protopipe* uses always a version of
-*ctapipe* which has been released on the Anaconda framework).
-Same for *pyirf*.
+have been already tested and approved (*protopipe* uses always one of the latest released versions of *ctapipe*).
+Same goes for *pyirf*.
 
 .. warning::
   This is not true for,
 
   - hard-coded parts that had to be modified in anticipation of code migration,
-  - *protopipe* functions themselves (which will eventually migrate to *ctapipe*)
+  - *protopipe* functions themselves (some of which will eventually migrate to *ctapipe* or get refactored)
 
   Regarding the first point: given the difference in versions between the
   imported *ctapipe* and its development version, sometimes it's possible that, in
@@ -90,12 +93,9 @@ whole functionalities and not just single API functions.
 In the case of the pipeline, such functionalities are the scripts/tools
 that make up its workflow.
 
-.. note::
-  For more information on how to contribute to this effort check
-  `this issue <https://github.com/cta-observatory/protopipe/issues/70>`__.
-
-The integration tests are defined in the dedicated module ``pipeline/scripts/tests/test_pipeline.py``
-and start from test simtel files stored on a CC-IN2P3 dataserver.  
+The integration tests are defined in ``pipeline/scripts/tests/test_pipeline.py``
+which essentially mimics an entire analysis, starting from test simtel files
+stored on a CC-IN2P3 dataserver.  
 
 The test data is diffuse data from the Prod3b baseline simulations of both 
 CTAN and CTAS produced with the following Corsika settings,
@@ -104,24 +104,20 @@ CTAN and CTAS produced with the following Corsika settings,
 - protons, ``NSHOW=10 ESLOPE=-2.0 EMIN=100 EMAX=200 NSCAT=1 CSCAT=200 VIEWCONE=3``
 - electrons, ``NSHOW=10 ESLOPE=-2.0 EMIN=10 EMAX=20 NSCAT=1 CSCAT=200 VIEWCONE=3``
 
-and it is analysed using the same workflow as in a standard full-scale analysis.
+and it is analysed using the default workflow (:ref:`use-pipeline`).
 
 Benchmarks
 ----------
 
 Benchmarks are a way to visualize qualitatively and quantitatively the performace
-of each step of an analysis.
+of each data-level transformation and steps of an analysis.
 
 *protopipe* provides a set of benchmarking notebooks within the ``benchmarks`` module.
-Such notebooks make use of the material stored under the same module (see :ref:`benchmarks`).
+Such notebooks make use of the API stored under the same module (see :ref:`benchmarks`).
 
-.. warning::
-
-  The refactoring and update with old material is not finished.
-  It is possible that some notebooks make use of new features as well as present
-  few bugs.
-
-  A notebook template will be added soon.
+Notebooks should share the same basic template and behaviurs which can be found
+in ``protopipe/benchmarks/notebooks/notebook_template.ipynb``.
+Use this to create new notebooks and when possible make sure old ones are synchronized with it.
 
 Their contents followed initially the development triggered by the 
 comparison between *protopipe* and the historical pipelines *CTA-MARS* (see
@@ -130,9 +126,10 @@ references therein for a summary), and *EventDisplay*.
 They have been continuously improved and they are expected to evolve in time,
 especially with the progressing refactoring with *ctapipe*.
 
-For the moment the purpose of these tools is to help users and
+The purpose of these tools is to help users and
 developers to check if their changes improve or degrade
-previous performances.
+previous performances, but also to produce analyses books for
+showcasing (see :ref:`benchmark_script` for details).
 
 Any developer interested in contributing to benchmarking 
 can do so from a development installation of *protopipe*.
