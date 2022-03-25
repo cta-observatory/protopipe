@@ -11,7 +11,7 @@ Requirements
 * protopipe (:ref:`install`)
 * GRID interface (:ref:`install-grid`),
 * be accustomed with the basic pipeline workflow (:ref:`use-pipeline`),
-* be accustomed with the scripts provided by *protopipe* (:ref:`scripts`),
+* be accustomed with the scripts provided by *protopipe* (:ref:`Scripts <scripts>`),
 
 .. figure:: ./GRID_workflow.png
   :width: 800
@@ -47,67 +47,67 @@ Start your analysis
 
 1. **Setup analysis**
 
-  Use ``protopipe-CREATE_ANALYSIS`` to create a directory tree, depending on your setup.
+   Use ``protopipe-CREATE_ANALYSIS`` to create a directory tree, depending on your setup.
 
-  The script will store and partially edit for you all available
-  configuration files under the ``configs`` folder.
-  It will also create an ``analysis_metadata.yaml`` file which will store the
-  basic information regarding your analysis on the grid and on your machine.
+   The script will store and partially edit for you all available
+   configuration files under the ``configs`` folder.
+   It will also create an ``analysis_metadata.yaml`` file which will store the
+   basic information regarding your analysis on the grid and on your machine.
 
-  .. note::
-
-    To reproduce or access the analysis data of someone else on DIRAC it will be sufficient
-    to modify the metadata key ``analyses_directory`` referred to your local path.
+   .. note::
 
     To reproduce or access the analysis data of someone else on DIRAC it will be sufficient
     to modify the metadata key ``analyses_directory`` referred to your local path.
 
-  .. figure:: ./example_creation_analysis_tree.png
+    To reproduce or access the analysis data of someone else on DIRAC it will be sufficient
+    to modify the metadata key ``analyses_directory`` referred to your local path.
+
+   .. figure:: ./example_creation_analysis_tree.png
     :width: 250
     :alt: Directory tree of a full analysis performed with protopipe.
 
 2. **Obtain training data for energy estimation**
 
-  1. edit ``grid.yaml`` to use gammas without energy estimation
-  2. ``protopipe-SUBMIT_JOBS --analysis_path=[...]/test_analysis --output_type=TRAINING ....``
-  3. once the jobs have concluded and the files are ready you can use ``protopipe-DOWNLOAD_AND_MERGE``
-  4. use ``protopipe-BENCHMARK`` to check the properties of the data sample you obtained
+   1. edit ``grid.yaml`` to use gammas without energy estimation
+   2. ``protopipe-SUBMIT_JOBS --analysis_path=[...]/test_analysis --output_type=TRAINING ....``
+   3. once the jobs have concluded and the files are ready you can use ``protopipe-DOWNLOAD_AND_MERGE``
+   4. use ``protopipe-BENCHMARK`` to check the properties of the data sample you obtained
 
 3. **Build the model for energy estimation**
 
-  1. edit the configuration file of your model of choice
-  2. use ``protopipe-MODEL`` with this configuration file
-  3. use ``protopipe-BENCHMARK`` to check the performance of the generated models
-  4. use ``protopipe-UPLOAD_MODELS`` to upload models and configuration file to your analysis directory on the DIRAC File Catalog
+   1. edit the configuration file of your model of choice
+   2. use ``protopipe-MODEL`` with this configuration file
+   3. use ``protopipe-BENCHMARK`` to check the performance of the generated models
+   4. use ``protopipe-UPLOAD_MODELS`` to upload models and configuration file to your analysis directory on the DIRAC File Catalog
 
 4. **Obtain training data for particle classification**
 
-  1. edit ``grid.yaml`` to use gammas **with** energy estimation
-  2. ``protopipe-SUBMIT_JOBS --analysis_path=[...]/test_analysis --output_type=TRAINING ....``
-  3. once the jobs have concluded and the files are ready you can use ``protopipe-DOWNLOAD_AND_MERGE``
-  4. repeat the first 3 points for protons
-  5. use ``protopipe-BENCHMARK`` to check the quality of energy estimation on this data sample
+   1. edit ``grid.yaml`` to use gammas **with** energy estimation
+   2. ``protopipe-SUBMIT_JOBS --analysis_path=[...]/test_analysis --output_type=TRAINING ....``
+   3. once the jobs have concluded and the files are ready you can use ``protopipe-DOWNLOAD_AND_MERGE``
+   4. repeat the first 3 points for protons
+   5. use ``protopipe-BENCHMARK`` to check the quality of energy estimation on this data sample
 
-4. **Build a model for particle classification**
+5. **Build a model for particle classification**
 
-  1. edit ``RandomForestClassifier.yaml``
-  2. use ``protopipe-MODEL`` with this configuration file
-  3. use ``protopipe-BENCHMARK`` to check the performance of the generated models
-  4. use ``protopipe-UPLOAD_MODELS`` to upload models and configuration file to your analysis directory on the DIRAC File Catalog
+   1. edit ``RandomForestClassifier.yaml``
+   2. use ``protopipe-MODEL`` with this configuration file
+   3. use ``protopipe-BENCHMARK`` to check the performance of the generated models
+   4. use ``protopipe-UPLOAD_MODELS`` to upload models and configuration file to your analysis directory on the DIRAC File Catalog
 
-5. **Get DL2 data**
+6. **Get DL2 data**
 
-Execute points 1 and 2 for gammas, protons, and electrons separately.
+   Execute points 1 and 2 for gammas, protons, and electrons separately.
 
-  1. ``protopipe-SUBMIT_JOBS --analysis_path=[...]/test_analysis --output_type=DL2 ....``
-  2. once the jobs have concluded and the files are ready you can use ``protopipe-DOWNLOAD_AND_MERGE``
-  3. use ``protopipe-BENCHMARK`` to check the quality of the generated DL2 data
+   1. ``protopipe-SUBMIT_JOBS --analysis_path=[...]/test_analysis --output_type=DL2 ....``
+   2. once the jobs have concluded and the files are ready you can use ``protopipe-DOWNLOAD_AND_MERGE``
+   3. use ``protopipe-BENCHMARK`` to check the quality of the generated DL2 data
 
-6. **Estimate the performance** (protopipe enviroment)
+7. **Estimate the performance** (protopipe enviroment)
 
-  1. edit ``performance.yaml``
-  2. launch ``protopipe-DL3-EventDisplay`` with this configuration file
-  3. use ``protopipe-BENCHMARK`` to check the quality of the generated DL3 data
+   1. edit ``performance.yaml``
+   2. launch ``protopipe-DL3-EventDisplay`` with this configuration file
+   3. use ``protopipe-BENCHMARK`` to check the quality of the generated DL3 data
 
 
 Troubleshooting
