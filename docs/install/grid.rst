@@ -4,6 +4,18 @@
 Interface to the DIRAC grid
 ===========================
 
+From the README of `DIRAC <https://github.com/DIRACGrid/DIRAC>`__:
+
+  DIRAC is an interware, meaning a software framework for distributed computing.  
+  DIRAC provides a complete solution to one or more user community requiring access to distributed resources.
+
+Within the CTA consortium it is possible to operate CTA software on the DIRAC grid by means
+of `CTADIRAC <https://gitlab.cta-observatory.org/cta-computing/dpps/CTADIRAC>`__, a CTA-customized version of the DIRAC middleware.
+
+The interface to the DIRAC grid allows to launch *protopipe* jobs and scale up the amount of data
+which is inevitably required to obtain enough statistics (either for specific studies on intermediate data levels
+or to produce full CTA performance products).
+
 Requirements
 ============
 
@@ -12,39 +24,10 @@ Requirements
 Base environment
 ----------------
 
-Aside from *protopipe* itself,
-the software/packages required to work on the DIRAC grid are the following,
+Aside from *protopipe* itself, if you want to operate on the DIRAC grid you will
+need a set of additional software packages.
 
-- `DIRAC <https://dirac.readthedocs.io/en/latest/>`_
-- `CTADIRAC <https://gitlab.cta-observatory.org/cta-computing/dpps/CTADIRAC>`_
-- `VOMS <https://italiangrid.github.io/voms/>`_
-- `pytables <https://www.pytables.org/>`_
-- `pyyaml <https://pyyaml.org/>`_
-
-Below you can find a recipe for the **base** environment into which install *protopipe*
-and its interface.  
-Recipes are also stored in the `root directory of the interface <https://github.com/HealthyPear/protopipe-grid-interface>`_.
-
-.. code-block:: yaml
-
-  name: protopipe-CTADIRAC
-  channels:
-    - conda-forge
-  dependencies:
-    - python>=3.8
-    - pip
-    # required by the interface
-    - dirac-grid
-    - diracgrid::fts3
-    - voms
-    - pytables
-    - pyyaml
-    # required for ctapipe 0.11.0 based installation
-    # will work anyway if such dependency is upgraded
-    - gammapy=0.18
-    - eventio
-    - pip:
-        - CTADIRAC
+Recipes for a **base** environment are stored in the root directory of the interface code `repository <https://github.com/HealthyPear/protopipe-grid-interface>`_.
 
 After its creation you have to install first *protopipe* (:ref:`install_protopipe`)
 and then its interface (:ref:`install-interface`).
@@ -52,12 +35,11 @@ and then its interface (:ref:`install-interface`).
 DIRAC GRID certificate
 ----------------------
 
-In order to access the GRID utilities you will need a certificate associated with an
-account.
+In order to access DIRAC utilities you will need a certificate associated with an
+account linked to your institution.
 
 You can find all necessary information at
-`this <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Prerequisites>`_
-Redmine wikipage.
+`here <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Prerequisites>`_.
 
 .. _install-interface:
 
@@ -65,7 +47,7 @@ Installation
 ============
 
 Also the interface to the DIRAC grid can be installed both in development mode
-and as a released package.
+or as a released package.
 
 Released version
 ----------------

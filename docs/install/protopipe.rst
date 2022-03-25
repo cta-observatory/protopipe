@@ -26,34 +26,28 @@ Released version
 To install the latest released version it is sufficient to install the
 package from ``PyPI`` with ``pip install protopipe``.
 
-If you prefer to work from an Anaconda virtual environment you can create it with,
+If you prefer to work from an Miniconda/Anaconda virtual environment you can create it by downloading
+`the recipe <https://github.com/cta-observatory/protopipe/blob/master/environment_latest_release.yml>`__
+and issue the following command from the base environment,
 
 ``conda env create -f environment_latest_release.yml``
-
-or any other compatible virtual environment, depending on your needs.
-
-For previous releases,
-
-1. download the corresponding tarball stored `here <https://github.com/cta-observatory/protopipe/releases>`__
-2. ``conda env create -f environment.yml -n protopipe-X.Y.Z``
-3. ``conda activate protopipe-X.Y.Z``
-4. ``pip install .``
 
 .. _install-development:
 
 Development version
 ===================
 
-  1. `fork <https://help.github.com/en/articles/fork-a-repo>`__ the `repository <https://github.com/cta-observatory/protopipe>`_
-  2. create a virtual environment if necessary (Anaconda users can use the ``environment_development.yml`` file)
-  3. ``pip install -e '.[all]'``
-  
-  The ``all`` keyword will install all extra requirements,
-  which can be also installed separately using ``tests`` and/or ``docs``.
+1. `fork <https://help.github.com/en/articles/fork-a-repo>`__ the `repository <https://github.com/cta-observatory/protopipe>`_
+2. it is recommended to create a virtual environment (Miniconda/Anaconda users can use the ``environment_development.yml`` stored at the root of the cloned repository)
+3. ``pip install -e '.[all]'``
 
-Next steps:
+The ``all`` keyword will install all extra requirements,
+which can be also installed separately using ``tests`` and/or ``docs``.
 
-  * get accustomed to the basic pipeline workflow (:ref:`use-pipeline`),
-  * make your own complete analysis (:ref:`use-grid`),
-  * learn how to contribute to the project (:ref:`contribute`).
+Next steps
+==========
+
+* get accustomed to the basic pipeline workflow (:ref:`use-pipeline`),
+* make your own complete analysis (:ref:`use-grid`),
+* learn how to contribute to the project (:ref:`contribute`).
 
