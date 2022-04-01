@@ -10,12 +10,19 @@
 Changelog
 =========
 
-.. _protopipe_0p5_release:
+This page shows the release notes for every released version of the package.  
 
-`0.5.0 <https://github.com/cta-observatory/protopipe/releases/tag/v0.5.0>`__ (TBD, 2022)
-----------------------------------------------------------------------------------------
+The first entry corresponds always to a future release and gives a glimpse of
+what can be found in the development version.
 
-This release brings huge improvements to the performance of the pipeline 
+Please, check the project `Milestones <https://github.com/cta-observatory/protopipe/milestones>`__
+for a detailed roadmap of the next planned releases.
+
+
+Next release (TBD, 2022)
+------------------------
+
+This release will brings huge improvements to the performance of the pipeline 
 and the software package.
 
 Some of the changes are related to the improvements in the interface to the DIRAC grid.
@@ -86,6 +93,7 @@ Pull-requests containing changes of multiple nature are repeated.
 🐛 Bug Fixes
 ^^^^^^^^^^^^
 
+- correctly count SSTs, MSTs, and LSTs. (:pr:`184`) `@kosack`_
 - Add book template material (:pr:`174`) `@HealthyPear`_
 - Set effective area HDU name as gammapy wants (:pr:`144`) `@HealthyPear`_
 - Update CameraFrame-to-TelescopeFrame transformation and HillasReconstructor (:pr:`151`) `@HealthyPear`_
