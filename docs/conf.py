@@ -64,7 +64,13 @@ extensions = [
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
     "IPython.sphinxext.ipython_console_highlighting",
+    "sphinx_panels",
 ]
+
+# If using sphinx-panels
+# it shouldn't add bootstrap css since the pydata-sphinx-theme
+# already loads it
+panels_add_bootstrap_css = False
 
 # nbsphinx
 nbsphinx_execute = "never"
@@ -125,6 +131,24 @@ napoleon_use_rtype = False  # More legible
 html_theme = "pydata_sphinx_theme"
 # html_logo = "_static/CTA_logo.jpg"
 
+# VERSIONING
+# Define the json_url for our version switcher.
+json_url = "https://github.com/cta-observatory/protopipe/tree/master/docs/_static/switcher.json"
+
+# Define the version we use for matching in the version switcher.
+version_match = os.environ.get("READTHEDOCS_VERSION")
+# If READTHEDOCS_VERSION doesn't exist, we're not on RTD
+# If it is an integer, we're in a PR build and the version isn't correct.
+if not version_match or version_match.isdigit():
+    # For local development, infer the version to match from the package.
+    if "dev" in version:
+        version_match = "latest"
+        # We want to keep the relative reference if we are in dev mode
+        # but we want the whole url if we are effectively in a released version
+        json_url = "/_static/switcher.json"
+    else:
+        version_match = "v" + version
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -132,6 +156,12 @@ html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     # "logo_link": "",
     "icon_links": [
+        # {
+        #     "name": "CTA",
+        #     "url": "https://www.cta-observatory.org/",
+        #     "icon": "_static/BasicLogo_BLUE_CMYK_jpg.jpg",
+        #     "type": "local",
+        # },
         {
             "name": "PyPI",
             "url": "https://pypi.org/project/protopipe/",
@@ -150,7 +180,12 @@ html_theme_options = {
     # "navigation_depth": 4,
     "use_edit_page_button": True,
     "search_bar_text": "Search the docs...",
-    # "navbar_align": "left",
+    "navbar_align": "content",
+    "navbar_end": ["version-switcher", "navbar-icon-links"],
+    "switcher": {
+        "json_url": json_url,
+        "version_match": version_match,
+    },
 }
 
 html_context = {
@@ -163,8 +198,15 @@ html_context = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ["_static"]
+html_static_path = ["_static"]
 
+html_css_files = [
+    "landing_page.css",
+]
+
+html_sidebars = {
+    "index": [],
+}
 
 # -- Options for HTMLHelp output ------------------------------------------
 
