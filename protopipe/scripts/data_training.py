@@ -243,6 +243,7 @@ def main():
         #    TEMP
         N_reco_LST=tb.Int16Col(dflt=-1, pos=63),
         N_reco_MST=tb.Int16Col(dflt=-1, pos=64),
+        N_reco_SST=tb.Int16Col(dflt=-1, pos=64),
         image_extraction=tb.Int16Col(dflt=-1, pos=65),
     )
 
