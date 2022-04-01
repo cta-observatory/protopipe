@@ -1,8 +1,8 @@
 .. _install:
 
-======================
-Installation and setup
-======================
+===============
+Getting started
+===============
 
 Depending on what you want to accomplish with *protopipe*, and in which working
 environment you want to use it, different solutions are supported.
