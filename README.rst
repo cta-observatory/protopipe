@@ -1,6 +1,6 @@
-==============================================================
-protopipe |CI| |codacy| |coverage| |documentation| |doilatest|
-==============================================================
+=====================================================================
+protopipe |CI| |codacy| |coverage| |documentation| |doilatest| |pypi|
+=====================================================================
 
 .. |CI| image:: https://github.com/cta-observatory/protopipe/workflows/CI/badge.svg?branch=master
   :target: https://github.com/cta-observatory/protopipe/actions?query=workflow%3ACI
@@ -10,6 +10,9 @@ protopipe |CI| |codacy| |coverage| |documentation| |doilatest|
   :target: https://codecov.io/gh/cta-observatory/protopipe
 .. |documentation| image:: https://readthedocs.org/projects/protopipe/badge/?version=latest
   :target: https://protopipe.readthedocs.io/en/latest/?badge=latest
+.. |pypi| image:: https://badge.fury.io/py/protopipe.svg
+    :target: https://badge.fury.io/py/protopipe
+
 .. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4586754.svg
   :target: https://doi.org/10.5281/zenodo.4586754
 .. |doi_v0.4.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4586755.svg
