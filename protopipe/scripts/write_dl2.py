@@ -734,28 +734,26 @@ def main():
             reco_event["event_id"] = event.index.event_id
             reco_event["obs_id"] = event.index.obs_id
             reco_event["NTels_trig"] = n_tels["Triggered"]
-            reco_event["N_LST"] = n_tels["LST_LST_LSTCam"]
-            reco_event["N_MST"] = (
-                n_tels["MST_MST_NectarCam"]
-                + n_tels["MST_MST_FlashCam"]
-                + n_tels["MST_SCT_SCTCam"]
+            reco_event["N_LST"] = np.sum(
+                [v for k, v in n_tels.items() if k.startswith("LST")]
             )
-            reco_event["N_SST"] = (
-                n_tels["SST_1M_DigiCam"]
-                + n_tels["SST_ASTRI_ASTRICam"]
-                + n_tels["SST_GCT_CHEC"]
+            reco_event["N_MST"] = np.sum(
+                [v for k, v in n_tels.items() if k.startswith("MST")]
             )
-            reco_event["N_reco_LST"] = n_tels_reco["LST_LST_LSTCam"]
-            reco_event["N_reco_MST"] = (
-                n_tels_reco["MST_MST_NectarCam"]
-                + n_tels_reco["MST_MST_FlashCam"]
-                + n_tels_reco["MST_SCT_SCTCam"]
+            reco_event["N_SST"] = np.sum(
+                [v for k, v in n_tels.items() if k.startswith("SST")]
             )
-            reco_event["N_reco_SST"] = (
-                n_tels_reco["SST_1M_DigiCam"]
-                + n_tels_reco["SST_ASTRI_ASTRICam"]
-                + n_tels_reco["SST_GCT_CHEC"]
+
+            reco_event["N_reco_LST"] = np.sum(
+                [v for k, v in n_tels.items() if k.startswith("LST")]
             )
+            reco_event["N_reco_MST"] = np.sum(
+                [v for k, v in n_tels_reco.items() if k.startswith("MST")]
+            )
+            reco_event["N_reco_SST"] = np.sum(
+                [v for k, v in n_tels_reco.items() if k.startswith("SST")]
+            )
+
             reco_event["NTels_reco"] = (
                 reco_event["N_reco_LST"]
                 + reco_event["N_reco_MST"]
