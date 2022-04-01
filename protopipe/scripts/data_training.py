@@ -532,7 +532,7 @@ def main():
                     [v for k, v in n_tels.items() if k.startswith("SST")]
                 )
                 outData[cam_id]["N_reco_LST"] = np.sum(
-                    [v for k, v in n_tels.items() if k.startswith("LST")]
+                    [v for k, v in n_tels_reco.items() if k.startswith("LST")]
                 )
                 outData[cam_id]["N_reco_MST"] = np.sum(
                     [v for k, v in n_tels_reco.items() if k.startswith("MST")]
