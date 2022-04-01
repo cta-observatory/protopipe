@@ -18,7 +18,7 @@ dependencies:
   - pytest-cov
   - black
   # Documentation
-  - pydata-sphinx-theme=0.8.0
+  - pydata-sphinx-theme
   - sphinx-automodapi
   - numpydoc
   - sphinx-issues
