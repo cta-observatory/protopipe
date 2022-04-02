@@ -18,7 +18,8 @@ dependencies:
   - pytest-cov
   - black
   # Documentation
-  - pydata-sphinx-theme
+  - jinja2=3.0.3
+  - pydata-sphinx-theme>=0.8
   - sphinx-automodapi
   - numpydoc
   - sphinx-issues

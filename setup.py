@@ -9,7 +9,8 @@ scikit_learn = "scikit-learn==1.0.2"
 
 extras_require = {
     "docs": [
-        "pydata-sphinx-theme",
+        "jinja2==3.0.3",
+        "pydata-sphinx-theme~=0.8",
         "sphinx-issues",
         "sphinx_automodapi",
         "numpydoc",
