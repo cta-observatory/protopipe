@@ -13,15 +13,15 @@ so it is quite old, some parts have been modernized.
 The implementation of functions and classes is far from perfect and
 we should really try to synchronize in some way with ctaplot/ctabenchmarks.
 """
-import numpy as np
 import astropy.units as u
 import matplotlib.pyplot as plt
+import numpy as np
+from astropy.table import QTable
 from matplotlib.colors import LogNorm
-from scipy.stats import binned_statistic, norm
-from sklearn.metrics import auc, roc_curve, accuracy_score
-from scipy.optimize import curve_fit
 from pyirf.utils import cone_solid_angle
-
+from scipy.optimize import curve_fit
+from scipy.stats import binned_statistic, norm
+from sklearn.metrics import accuracy_score, auc, roc_curve
 
 LOWER_SIGMA_QUANTILE, UPPER_SIGMA_QUANTILE = norm().cdf([-1, 1])
 
