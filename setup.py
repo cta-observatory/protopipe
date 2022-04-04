@@ -15,6 +15,7 @@ extras_require = {
         "ctapipe==0.11.0",
         "pyirf==0.5.0",
         "pandas>=1.0.0",
+        "jinja2==3.0.3",
     ],
     "tests": [
         # pipeline tests
