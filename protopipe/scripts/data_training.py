@@ -31,9 +31,7 @@ def main():
     parser = make_argparser()
 
     parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Print debugging information",
+        "--debug", action="store_true", help="Print debugging information",
     )
 
     parser.add_argument(
@@ -43,9 +41,7 @@ def main():
     )
 
     parser.add_argument(
-        "--save_images",
-        action="store_true",
-        help="Save also all images",
+        "--save_images", action="store_true", help="Save also all images",
     )
 
     parser.add_argument(
@@ -247,6 +243,7 @@ def main():
         #    TEMP
         N_reco_LST=tb.Int16Col(dflt=-1, pos=63),
         N_reco_MST=tb.Int16Col(dflt=-1, pos=64),
+        N_reco_SST=tb.Int16Col(dflt=-1, pos=64),
         image_extraction=tb.Int16Col(dflt=-1, pos=65),
     )
 
@@ -507,9 +504,7 @@ def main():
                         )  # not in ctapipe
 
                     outTable[cam_id] = outfile.create_table(
-                        "/",
-                        cam_id,
-                        DataTrainingOutput,
+                        "/", cam_id, DataTrainingOutput,
                     )
                     outData[cam_id] = outTable[cam_id].row
 
@@ -527,19 +522,26 @@ def main():
                 outData[cam_id]["impact_dist"] = impact_dict[tel_id].to("m").value
                 outData[cam_id]["max_signal_cam"] = max_signals[tel_id]
                 outData[cam_id]["hillas_intensity"] = moments.intensity
-                outData[cam_id]["N_LST"] = n_tels["LST_LST_LSTCam"]
-                outData[cam_id]["N_MST"] = (
-                    n_tels["MST_MST_NectarCam"]
-                    + n_tels["MST_MST_FlashCam"]
-                    + n_tels["MST_SCT_SCTCam"]
+
+                outData[cam_id]["N_LST"] = np.sum(
+                    [v for k, v in n_tels.items() if k.startswith("LST")]
                 )
-                outData[cam_id]["N_SST"] = (
-                    n_tels["SST_1M_DigiCam"]
-                    + n_tels["SST_ASTRI_ASTRICam"]
-                    + n_tels["SST_GCT_CHEC"]
+                outData[cam_id]["N_MST"] = np.sum(
+                    [v for k, v in n_tels.items() if k.startswith("MST")]
                 )
-                outData[cam_id]["N_reco_LST"] = n_tels_reco["LST_LST_LSTCam"]
-                outData[cam_id]["N_reco_MST"] = n_tels_reco["MST_MST_NectarCam"]
+                outData[cam_id]["N_SST"] = np.sum(
+                    [v for k, v in n_tels.items() if k.startswith("SST")]
+                )
+                outData[cam_id]["N_reco_LST"] = np.sum(
+                    [v for k, v in n_tels_reco.items() if k.startswith("LST")]
+                )
+                outData[cam_id]["N_reco_MST"] = np.sum(
+                    [v for k, v in n_tels_reco.items() if k.startswith("MST")]
+                )
+                outData[cam_id]["N_reco_SST"] = np.sum(
+                    [v for k, v in n_tels_reco.items() if k.startswith("SST")]
+                )
+
                 outData[cam_id]["hillas_width"] = moments.width.to("deg").value
                 outData[cam_id]["hillas_length"] = moments.length.to("deg").value
                 outData[cam_id]["hillas_psi"] = moments.psi.to("deg").value
