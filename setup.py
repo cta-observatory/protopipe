@@ -1,21 +1,26 @@
 import os
 from setuptools import setup, find_packages
 
+ctapipe = "ctapipe==0.11.0"
+gammapy = "gammapy==0.18.2"
+pyirf = "pyirf==0.5.0"
+pandas = "pandas==1.3.5"
+scikit_learn = "scikit-learn==1.0.2"
+
 extras_require = {
     "docs": [
-        "sphinx_rtd_theme",
+        "jinja2==3.0.3",
+        "pydata-sphinx-theme~=0.8",
         "sphinx-issues",
         "sphinx_automodapi",
-        "nbsphinx",
         "numpydoc",
         "ipython",
-        "gammapy",
+        gammapy,
         "pytest",
         "numpy",
-        "ctapipe==0.11.0",
-        "pyirf==0.5.0",
-        "pandas>=1.0.0",
-        "jinja2==3.0.3",
+        ctapipe,
+        pyirf,
+        pandas,
     ],
     "tests": [
         # pipeline tests
@@ -23,11 +28,6 @@ extras_require = {
         "pytest-cov",
         "pytest-dependency",
         "codecov",
-        # benchmark tests
-        "papermill",
-        "nbconvert",
-        "traitlets",
-        "pandas>=1.0.0",
     ],
 }
 
@@ -52,12 +52,13 @@ setup(
     package_data={"protopipe": ["aux/example_config_files/analysis.yaml"]},
     include_package_data=True,
     install_requires=[
-        "ctapipe==0.11.0",
-        "pyirf==0.5.0",
-        "pandas>=1.0.0",
-        "jupyterlab",
+        ctapipe,
+        pyirf,
+        pandas,
+        scikit_learn,
+        "jupyterlab>=3.1.10",
         "jupyter-book",
-        "papermill",
+        "papermill==2.3.4",
     ],
     zip_safe=False,
     use_scm_version={"write_to": os.path.join("protopipe", "_version.py")},

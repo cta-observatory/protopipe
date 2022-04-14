@@ -10,12 +10,125 @@
 Changelog
 =========
 
-.. _protopipe_0p5_release:
+This page shows the release notes for every released version of the package.  
 
-**0.5.0** (TBD)
----------------
+The first entry corresponds always to a future release and gives a glimpse of
+what can be found in the development version.
 
-. . .
+Please, check the project `Milestones <https://github.com/cta-observatory/protopipe/milestones>`__
+for a detailed roadmap of the next planned releases.
+
+
+Next release (TBD, 2022)
+------------------------
+
+This release will brings huge improvements to the performance of the pipeline 
+and the software package.
+
+Some of the changes are related to the improvements in the interface to the DIRAC grid.
+Please, consult that for more details about its latest release.
+
+The **performance** of the pipeline has been validated successfully on a Prod5b simulation
+for the Alpha configuration at the North site under specific observational settings.
+Tests on a similar configuration for the South site are ongoing.
+From now on, performance **results** will be showcased at `this <https://gitlab.cta-observatory.org/mperesano/protopipe-results>`__ website.
+
+The **benchmarking** has become a package module (`protopipe.benchmarking`)
+and a new `protopipe-BENCHMARK` script has been added to the suite of available commands.
+
+The pipeline makes now use of `ctapipe v0.11.0` and `pyirf v0.5.0`.
+For more details, please consult the merged Pull Requests listed below.
+
+Please, remember that *protopipe* and its interface are open-source projects
+and anyone can contribute to it.
+It is possible to perform full-scale analyses and contribute to the production
+of CTA performances for different science cases or perform studies that require big amounts of data.
+
+Contributors
+++++++++++++
+
+- Michele Peresano (`@HealthyPear`_)
+
+What is changed since v0.4.0.post1
+++++++++++++++++++++++++++++++++++
+
+Pull-requests containing changes of multiple nature are repeated.
+
+🚀 General features
+^^^^^^^^^^^^^^^^^^^
+
+- Add book template material (:pr:`174`) `@HealthyPear`_
+- Add new script for benchmarking (:pr:`157`) `@HealthyPear`_
+- Update the entire benchmark suite (:pr:`166`) `@HealthyPear`_
+- Improve data scripts output and update analysis default settings (:pr:`165`) `@HealthyPear`_
+- Improve protopipe.mva and protopipe-MODELS (:pr:`164`) `@HealthyPear`_
+- Add image extraction status for TwoPassWindowSum (:pr:`163`) `@HealthyPear`_
+- Add support for prod5N files (:pr:`167`) `@HealthyPear`_
+- Add I/O functions to simplify benchmarking (:pr:`147`) `@HealthyPear`_
+- Apply CALIB\_SCALE directly from ctapipe.io.SimtelEventSource (:pr:`145`) `@HealthyPear`_
+- Add progress bar to both TRAINING and DL2 production scripts (:pr:`150`) `@HealthyPear`_
+- Add option to enable/disable charge integration integration correction  (:pr:`146`) `@HealthyPear`_
+- Calculate impact parameter always in the tilted frame (:pr:`143`) `@HealthyPear`_
+- Add support for calibscale (:pr:`140`) `@HealthyPear`_
+- Add optional LST stereo trigger requirement (:pr:`131`) `@HealthyPear`_
+- Update to ctapipe 0.11.0 (:pr:`136`) `@HealthyPear`_
+- Add configuration option to choose which cleaning to use to get training data (:pr:`135`) `@HealthyPear`_
+- Add choice of estimation weigths and standard deviation for RandomForestRegressor models (:pr:`134`) `@HealthyPear`_
+- Add concentration (:pr:`133`) `@HealthyPear`_
+- Improve models generation (:pr:`96`) `@HealthyPear`_
+- Support for ctapipe 0.10.5 (:pr:`124`) `@HealthyPear`_
+- Small improvements to modeling script (:pr:`114`) `@HealthyPear`_
+
+🔭 Pipeline applications
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Add support for prod5N files (:pr:`167`) `@HealthyPear`_
+
+🌐 GRID support
+^^^^^^^^^^^^^^^
+
+- Update README and documentation (grid interface) (:pr:`152`) `@HealthyPear`_
+- Make progress bar optional and add it also to DL2 script (:pr:`154`) `@HealthyPear`_
+
+🐛 Bug Fixes
+^^^^^^^^^^^^
+
+- correctly count SSTs, MSTs, and LSTs. (:pr:`184`) `@kosack`_
+- Add book template material (:pr:`174`) `@HealthyPear`_
+- Set effective area HDU name as gammapy wants (:pr:`144`) `@HealthyPear`_
+- Update CameraFrame-to-TelescopeFrame transformation and HillasReconstructor (:pr:`151`) `@HealthyPear`_
+- Fix shower's core transformation to TiltedFrame (:pr:`160`) `@HealthyPear`_
+- Fix CTAMARS-like energy estimation (:pr:`156`) `@HealthyPear`_
+- Make progress bar optional and add it also to DL2 script (:pr:`154`) `@HealthyPear`_
+- Output NaN concentrations in case of HillasParameterizationError or similar (:pr:`155`) `@HealthyPear`_
+- Fix CALIB\_SCALE key in analysis.yaml (:pr:`153`) `@HealthyPear`_
+- Ensure that estimated energy is always recorded in linear scale (:pr:`141`) `@HealthyPear`_
+- Add pandas to pip installation (:pr:`138`) `@HealthyPear`_
+- Fix classifier integration test (:pr:`120`) `@HealthyPear`_
+- Bugfixes and improvements to protopipe-MODELS (:pr:`122`) `@HealthyPear`_
+- Fix pipeline integration test workflow  (:pr:`118`) `@HealthyPear`_
+- Fix documentation development version in docs (:pr:`112`) `@HealthyPear`_
+
+🧰 Maintenance
+^^^^^^^^^^^^^^
+
+- Add new script for benchmarking (:pr:`157`) `@HealthyPear`_
+- Update README and documentation (grid interface) (:pr:`152`) `@HealthyPear`_
+- Fix documentation build (:pr:`158`) `@HealthyPear`_
+- Add integration test for DL2-to-DL3 step (:pr:`137`) `@HealthyPear`_
+- Add pandas to pip installation (:pr:`138`) `@HealthyPear`_
+- Implement DL2 integration tests (:pr:`126`) `@HealthyPear`_
+- Add issue templates (:pr:`121`) `@HealthyPear`_
+- Fix classifier integration test (:pr:`120`) `@HealthyPear`_
+- Improve debugging of integration testing (:pr:`119`) `@HealthyPear`_
+- Fix pipeline integration test workflow  (:pr:`118`) `@HealthyPear`_
+- Setup of pipeline integration testing up to modeling (:pr:`116`) `@HealthyPear`_
+- Update training integration tests (:pr:`113`) `@HealthyPear`_
+- Fix documentation development version in docs (:pr:`112`) `@HealthyPear`_
+- Versioning, packaging and continuous deployment on PyPI (:pr:`105`) `@HealthyPear`_
+- Update TRAINING integration tests (:pr:`111`) `@HealthyPear`_
+- Update DOIs after latest release (:pr:`109`) `@HealthyPear`_
+
 
 .. _protopipe_0p4p4post1_release:
 
@@ -30,7 +143,7 @@ This is a post-release that takes care of project maintenance, so it doesn't cha
 Contributors
 ++++++++++++
 
-- Michele Peresano (`@HealthyPear`_)
+- Michele Peresano  `@HealthyPear`_
 
 Changes from previous release
 +++++++++++++++++++++++++++++
@@ -96,7 +209,7 @@ the steps before model training.
 Contributors
 ++++++++++++
 
-- Michele Peresano (`@HealthyPear`_)
+- Michele Peresano  `@HealthyPear`_
 - Gaia Verna (`@gaia-verna`_)
 - Alice Donini (`@adonini`_)
 
@@ -151,7 +264,7 @@ Summary
 Contributors
 ++++++++++++
 
-- Michele Peresano (`@HealthyPear`_)
+- Michele Peresano  `@HealthyPear`_
 - Thierry Stolarczyk (`@tstolarczyk`_)
 - Gaia Verna (`@gaia-verna`_)
 - Karl Kosack (`@kosack`_)

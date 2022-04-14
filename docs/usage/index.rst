@@ -1,7 +1,7 @@
 .. _usage:
 
-Workflow and usage
-==================
+User Guide
+==========
 
 .. toctree::
     :maxdepth: 1
@@ -16,7 +16,7 @@ For full scale analyses, you will need also the GRID interface (:ref:`install-gr
 
 After this you should,
 
- * get accustomed to the basic pipeline workflow (:ref:`use-pipeline`),
- * then make your own complete analysis (:ref:`use-grid`),
+* get accustomed to the basic pipeline workflow (:ref:`use-pipeline`),
+* then make your own complete analysis (:ref:`use-grid`),
 
 For bugs and new features, please contribute to the project (:ref:`contribute`).

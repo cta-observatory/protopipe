@@ -1,6 +1,6 @@
-==============================================================
-protopipe |CI| |codacy| |coverage| |documentation| |doilatest|
-==============================================================
+=====================================================================
+protopipe |CI| |codacy| |coverage| |documentation| |doilatest| |pypi|
+=====================================================================
 
 .. |CI| image:: https://github.com/cta-observatory/protopipe/workflows/CI/badge.svg?branch=master
   :target: https://github.com/cta-observatory/protopipe/actions?query=workflow%3ACI
@@ -10,6 +10,9 @@ protopipe |CI| |codacy| |coverage| |documentation| |doilatest|
   :target: https://codecov.io/gh/cta-observatory/protopipe
 .. |documentation| image:: https://readthedocs.org/projects/protopipe/badge/?version=latest
   :target: https://protopipe.readthedocs.io/en/latest/?badge=latest
+.. |pypi| image:: https://badge.fury.io/py/protopipe.svg
+    :target: https://badge.fury.io/py/protopipe
+
 .. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4586754.svg
   :target: https://doi.org/10.5281/zenodo.4586754
 .. |doi_v0.4.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4586755.svg
@@ -27,14 +30,17 @@ A pipeline prototype for the `Cherenkov Telescope Array (CTA) <www.cta-observato
 Resources
 ---------
 
-- Source code (protopipe): `GitHub repository <https://github.com/cta-observatory/protopipe>`__
-- Source code (DIRAC grid interface): `GitHub repository <https://github.com/HealthyPear/protopipe-grid-interface>`__
+- Source code:
+
+  - `protopipe <https://github.com/cta-observatory/protopipe>`__
+  - `DIRAC grid interface <https://github.com/HealthyPear/protopipe-grid-interface>`__
+
 - Documentation:
 
   - `GitHub Pages <https://cta-observatory.github.io/protopipe>`__ (only development version)
   - `readthedocs <https://protopipe.readthedocs.io/en/latest/>`__ (also latest releases)
 
-- Current performance: `RedMine <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__
+- Performance results: `GitLab <http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/>`__
 
 - Slack channels:
 
@@ -49,6 +55,7 @@ If you use a released version of this software for a publication,
 please cite it by using the corresponding DOI.
 
 - latest : |doilatest|
+- v0.5.0 : TBD
 - v0.4.0 : |doi_v0.4.0|
 - v0.3.0 : |doi_v0.3.0|
 

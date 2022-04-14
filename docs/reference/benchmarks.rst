@@ -19,9 +19,8 @@ The ``protopipe.benchmarks`` module is composed of 3 parts:
     Also, not all notebooks are exatcly the same in terms of global options,
     a notebook template will be added.
 
-.. note::
-    All benchmarks will be launched by means of a new ``protopipe-BENCHMARK`` script.
-    This will become the recommended method, as it will integrates with the rest of the analysis interface.
+All benchmarks can be launched by means of the ``protopipe-BENCHMARK`` script (:ref:`benchmark_script`).
+This is the recommended method, as it integrates with the rest of the analysis interface.
 
 API reference
 -------------

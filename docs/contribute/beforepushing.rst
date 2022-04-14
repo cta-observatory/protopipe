@@ -16,6 +16,9 @@ pipeline that takes care of all checks (some using external services).
 Documentation
 -------------
 
+Please, make sure you have installed *protopipe* with the required packages
+(either with the ``all`` or ``docs`` keyword).
+
 Each Pull Request (PR) has to have its own documentation updates (if any),
 according to what are the changes to be merged into master.
 
@@ -29,7 +32,7 @@ To build and check your documentation locally,
 - for small changes, ``make html``
 
 The built documentation will be stored under ``docs/_build/html`` from which you
-can open ``index.html`` with your favorite browser.
+can open ``index.html`` with your favorite browser to check how it looks.
 
 You will have to fix any warning that appears during documentation building,
 because the documentation also runs on `readthedocs <https://readthedocs.org/>`__
@@ -38,7 +41,8 @@ with an option to treat warnings as errors.
 Testing
 -------
 
-All testing code is called by issuing the ``pytest`` command.
+All testing code is called by issuing the ``pytest`` command
+(see `official webpage <https://docs.pytest.org/en/latest/>`__ for details).
 
 This command can be called from any place within the cloned repository and it
 will always run from the root directory of the project.
@@ -66,15 +70,14 @@ to understand what a unit-test is supposed to do.
   `this issue <https://github.com/cta-observatory/protopipe/issues/69>`__.
 
 Being *protopipe* based on *ctapipe*, all the tools imported from the latter
-have been already tested and approved (*protopipe* uses always a version of
-*ctapipe* which has been released on the Anaconda framework).
-Same for *pyirf*.
+have been already tested and approved (*protopipe* uses always one of the latest released versions of *ctapipe*).
+Same goes for *pyirf*.
 
 .. warning::
   This is not true for,
 
   - hard-coded parts that had to be modified in anticipation of code migration,
-  - *protopipe* functions themselves (which will eventually migrate to *ctapipe*)
+  - *protopipe* functions themselves (some of which will eventually migrate to *ctapipe* or get refactored)
 
   Regarding the first point: given the difference in versions between the
   imported *ctapipe* and its development version, sometimes it's possible that, in
@@ -90,12 +93,9 @@ whole functionalities and not just single API functions.
 In the case of the pipeline, such functionalities are the scripts/tools
 that make up its workflow.
 
-.. note::
-  For more information on how to contribute to this effort check
-  `this issue <https://github.com/cta-observatory/protopipe/issues/70>`__.
-
-The integration tests are defined in the dedicated module ``pipeline/scripts/tests/test_pipeline.py``
-and start from test simtel files stored on a CC-IN2P3 dataserver.  
+The integration tests are defined in ``pipeline/scripts/tests/test_pipeline.py``
+which essentially mimics an entire analysis, starting from test simtel files
+stored on a CC-IN2P3 dataserver.  
 
 The test data is diffuse data from the Prod3b baseline simulations of both 
 CTAN and CTAS produced with the following Corsika settings,
@@ -104,116 +104,50 @@ CTAN and CTAS produced with the following Corsika settings,
 - protons, ``NSHOW=10 ESLOPE=-2.0 EMIN=100 EMAX=200 NSCAT=1 CSCAT=200 VIEWCONE=3``
 - electrons, ``NSHOW=10 ESLOPE=-2.0 EMIN=10 EMAX=20 NSCAT=1 CSCAT=200 VIEWCONE=3``
 
-and it is analysed using the same workflow as in a standard full-scale analysis.
+and it is analysed using the default workflow (:ref:`use-pipeline`).
 
 Benchmarks
 ----------
 
-.. note::
+Benchmarks are a way to visualize qualitatively and quantitatively the performace
+of each data-level transformation and steps of an analysis.
 
-  Benchmarks will soon disappear from this documentation as hosting more than 1 analysis
-  started to be non-ideal.
-  A new repository to host the results has been created under the CTAO Gitlab instance
-  (`link <https://gitlab.cta-observatory.org/mperesano/protopipe-results>`__).
-  It will be soon filled with the currently available analyses and with the
-  publication of protopipe v0.5.0, contribute  will be even easier than before.
+*protopipe* provides a set of benchmarking notebooks within the ``benchmarks`` module.
+Such notebooks make use of the API stored under the same module (see :ref:`benchmarks`).
 
-.. toctree::
-   :hidden:
+Notebooks should share the same basic template and behaviurs which can be found
+in ``protopipe/benchmarks/notebooks/notebook_template.ipynb``.
+Use this to create new notebooks and when possible make sure old ones are synchronized with it.
 
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_calibration
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_image-cleaning
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_image_intensity_resolution
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_DirectionLUT
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_direction-reconstruction
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_to_energy-estimation
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_EnergyLUT
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_to_classification
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/result_benchmarks_MODELS_energy
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/result_benchmarks_MODELS_classification
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/result_benchmarks_MODELS_tuning
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/result_benchmarks_DL2_particle-classification
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/result_benchmarks_DL2_direction-reconstruction
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL3/benchmarks_DL3_IRFs_and_sensitivity
-   benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL3/overall_performance_plot_CTA
-   
-This documentation hosts a series of notebooks used for benchmarking.
-
-Their contents follow the development triggered by the 
-comparison between protopipe and CTA-MARS (see
+Their contents followed initially the development triggered by the 
+comparison between *protopipe* and the historical pipelines *CTA-MARS* (see
 `this issue <https://github.com/cta-observatory/protopipe/issues/24>`__ and
-references therein for a summary), but also with EventDisplay.
+references therein for a summary), and *EventDisplay*.
+They have been continuously improved and they are expected to evolve in time,
+especially with the progressing refactoring with *ctapipe*.
 
-The following tables summarize the analyses currently performed and planned with
-*protopipe* to evaluate its performance and that of the observatory.
-Links are provided for the simtel files lists and reference data from historical
-pipelines, which is used throughout the notebooks for comparison and performance monitoring.
+The purpose of these tools is to help users and
+developers to check if their changes improve or degrade
+previous performances, but also to produce analyses books for
+showcasing (see :ref:`benchmark_script` for details).
 
-.. note::
-  Also this is a heavy-load activity which could be shared.
-
-  If you're interested in analysing any of the simulations listed here or you
-  want to propose new ones you are more than welcome to do it and contribute
-  to the benchmarking following the set of prescriptions described in
-  this documentation.
-
-.. list-table:: **PROD 3B**
-   :widths: 25 25 25 25 25 25
-   :header-rows: 1
-
-   * - Site
-     - Array
-     - Zenith
-     - Azimuth
-     - simtel
-     - CTAMARS
-   * - North (La Palma)
-     - baseline
-     - 20°
-     - 180°
-     - `link <https://forge.in2p3.fr/attachments/download/63177/CTA-N_from_South.zip>`__
-     - `link <https://forge.in2p3.fr/projects/step-by-step-reference-mars-analysis/wiki>`__
-
-.. list-table:: **PROD 5**
-  :widths: 25 25 25 25 25 25
-  :header-rows: 1
-
-  * - Site
-    - Array
-    - Zenith
-    - Azimuth
-    - simtel
-    - EventDisplay
-  * - North (La Palma)
-    - baseline
-    - 20°
-    - 180°
-    - ...
-    - ...
-  * - South (Paranal desert)
-    - baseline
-    - 40°
-    - 180°
-    - ...
-    - ...
-
-In the documentation we show only the full-pipeline performance results from
-the latest release.
+Any developer interested in contributing to benchmarking 
+can do so from a development installation of *protopipe*.
 It is suggested to open the notebooks with ``jupyter lab``
-from their location at ``docs/contribute/benchmarks``.
+from their location at ``protopipe/benchmarks/notebooks``.
 
-The benchmarks are organised as follows,
+Currently available benchmarks are organised as follows,
 
 - TRAINING
 
-  * `Calibration <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_calibration.ipynb>`__ | *benchmarks_DL1_calibration.ipynb*
-  * `Image cleaning <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_image-cleaning.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
-  * `Image intensity resolution <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_image_intensity_resolution.ipynb>`__ | *benchmarks_DL1_image-cleaning.ipynb*
-  * `Direction Look-Up Tables <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL1_DirectionLUT.ipynb>`__ | *benchmarks_DL1_DirectionLUT.ipynb*
-  * `Direction reconstruction <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
-  * `to energy estimator <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_to_energy-estimation.ipynb>`__ | *benchmarks_DL2_to_energy-estimation.ipynb*
-  * `Energy Look-Up Tables <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_EnergyLUT.ipynb>`__ | *benchmarks_DL2_EnergyLUT.ipynb*
-  * `to classifier <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/TRAINING/result_benchmarks_DL2_to_classification.ipynb>`__ | *benchmarks_DL2_to_classification.ipynb*
+  * Calibration
+  * Image cleaning
+  * Image intensity resolution
+  * Direction Look-Up Tables
+  * Direction reconstruction
+  * to energy estimation
+  * Energy Look-Up Tables
+  * to classification
 
 In particular:
 
@@ -227,39 +161,30 @@ In particular:
 
 These performances are obtained from a *test* portion of the TRAINING data,
 
-  * `Energy <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/benchmarks_MODELS_energy.ipynb>`__ | *benchmarks_MODELS_energy.ipynb*
-  * `Particle type <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/benchmarks_MODELS_classification.ipynb>`__ | *benchmarks_MODELS_classification.ipynb*
-  * `Tuning <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/MODELS/benchmarks_MODELS_tuning.ipynb>`__ | *benchmarks_MODELS_energy.ipynb*
+  * Energy
+  * Classification
+  * Tuning
 
 - DL2
 
-  * `Particle classification <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/benchmarks_DL2_particle-classification.ipynb>`__ | *benchmarks_DL2_particle-classification.ipynb*
-  * `Direction reconstruction <benchmarks_latest_results/Prod3b/CTAN_Zd20_AzSouth_NSB1x_baseline_pointsource/DL2/benchmarks_DL2_direction-reconstruction.ipynb>`__ | *benchmarks_DL2_direction-reconstruction.ipynb*
+  * Particle classification
+  * Direction reconstruction
 
 - DL3
 
-  * `Instrument Response Functions and sensitivity (internal) <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__ | *benchmarks_DL3_IRFs_and_sensitivity*
-  * `Performance poster (internal) <https://forge.in2p3.fr/projects/benchmarks-reference-analysis/wiki/Protopipe_performance_data>`__ | *overall_performance_plot_CTA.ipynb*  
+  * Instrument Response Functions and sensitivity
+  * Performance poster
 
 The DL3 folder contains also the CTA requirements, while the ASWG performance
 data is left to the user, being internal.
 
 .. note::
-  This part of *protopipe* is not meant to be kept here in the end, in order to
-  avoid divergences with
-  `ctaplot <https://github.com/cta-observatory/ctaplot>`__ and
-  `cta-benchmarks <https://github.com/cta-observatory/cta-benchmarks>`__.
+  
+  Remember that in the framework of CTA software there are similar projects,
 
-  Plots should be properly migrated to *ctaplot* and the single pipeline steps
-  will ported to cta-benchmarks after the pipeline has been refactored using
+  - `ctaplot <https://github.com/cta-observatory/ctaplot>`__ and
+  - `cta-benchmarks <https://github.com/cta-observatory/cta-benchmarks>`__.
+
+  Plots could be properly migrated-to/synchronized-with *ctaplot*, same for
+  the single pipeline steps with *cta-benchmarks* after the pipeline has been refactored using
   *ctapipe*'s stage tools.
-
-.. note::
-  The storage of static versions of the benchmarks in this documentation is temporary.
-  It is planned to run such benchmarks from the CTAO GitLab runner's CI via an
-  external IN2P3 data server in which test data, benchmarks and documentation
-  will be stored.
-
-  For the moment the purpose of these tools is to help
-  developers and testers to check if their changes improve or degrade
-  previous performances stored in the documentation.

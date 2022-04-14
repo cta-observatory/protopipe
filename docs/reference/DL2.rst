@@ -3,12 +3,12 @@
 Production of DL2 data
 ======================
 
-`protopipe.scripts.write_dl2.py` is used to produce DL2 tables labeled with
-shower information such as the direction, the energy and the score/gammaness.
+`protopipe.scripts.write_dl2.py` is used to produce tables containing
+reconstructed shower geometry, estimated energy and/or particle type.
 You will need to specify the locations of the models for the energy and
 gammaness estimations created in the :ref:`model_building` step.
 
-The configuration file used by this script ``analysis.yaml``, the same as for
+The configuration file used by this script is ``analysis.yaml``, the same as for
 ``protopipe.scripts.data_training``.
 
 By invoking the help argument, you can get help about how the script works:

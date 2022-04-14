@@ -20,7 +20,7 @@ the performance of the instruments:
  
 *protopipe* currently provides the DL2-to-DL3 step as performed by the *EventDisplay*
 historical pipeline.
-Additional scripts with different recipes could be added.
+Additional scripts with different recipes can be added to the list of scripts.
 
 The script ``protopipe.scripts.make_performance_EventDisplay.py`` is used as follows:
 
