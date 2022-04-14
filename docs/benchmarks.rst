@@ -27,4 +27,3 @@ API reference
 -------------
 
 .. automodapi:: protopipe.benchmarks
-    :skip: accuracy_score, auc, binned_statistic, curve_fit, roc_curve, Column, LogNorm, Table, Path, cone_solid_angle, RectBivariateSpline, read_table
