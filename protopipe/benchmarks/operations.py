@@ -30,11 +30,11 @@ __all__ = [
 
 from pathlib import Path
 
-from astropy.table import Table, Column
 import astropy.units as u
-from scipy.stats import binned_statistic
-from scipy.interpolate import RectBivariateSpline
 import numpy as np
+from astropy.table import Column, Table
+from scipy.interpolate import RectBivariateSpline
+from scipy.stats import binned_statistic
 
 try:
     from ctapipe.io import read_table
