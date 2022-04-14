@@ -50,7 +50,8 @@ Contributors
 
 @HealthyPear and @kosack
 
-## What is changed since v0.4.0.post1
+What is changed since v0.4.0.post1
+++++++++++++++++++++++++++++++++++
 
 Pull-requests containing changes of multiple nature are repeated.
 
@@ -59,7 +60,7 @@ Pull-requests containing changes of multiple nature are repeated.
 - Add benchmarking notebook template (#181) @HealthyPear
 
 🚀 General features
-++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^
 
 - Add book template material (#174) @HealthyPear
 - Add new script for benchmarking (#157) @HealthyPear
@@ -84,18 +85,18 @@ Pull-requests containing changes of multiple nature are repeated.
 - Small improvements to modeling script (#114) @HealthyPear
 
 🔭 Pipeline applications
-+++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Add support for prod5N files (#167) @HealthyPear
 
 🌐 GRID support
-++++++++++++++
+^^^^^^^^^^^^^^^
 
 - Update README and documentation (grid interface) (#152) @HealthyPear
 - Make progress bar optional and add it also to DL2 script (#154) @HealthyPear
 
 🐛 Bug Fixes
-++++++++++++
+^^^^^^^^^^^^^
 
 - correctly count SSTs, MSTs, and LSTs. (#184) @kosack
 - Add book template material (#174) @HealthyPear
@@ -114,7 +115,7 @@ Pull-requests containing changes of multiple nature are repeated.
 - Fix documentation development version in docs (#112) @HealthyPear
 
 🧰 Maintenance
-++++++++++++++
+^^^^^^^^^^^^^^
 
 - Update documentation for release 0.5.0 (#175) @HealthyPear
 - Add Pull Request template (#187) @HealthyPear
