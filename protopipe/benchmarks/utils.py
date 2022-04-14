@@ -1,5 +1,7 @@
 import numpy as np
 
+__all__["raise_", "string_to_boolean", "add_stats", "get_fig_size"]
+
 
 def raise_(ex):
     """Raise an exception as a statement.
