@@ -17,6 +17,8 @@ in a pickled format.
 The script performing :ref:`optimization_cuts_IRFs` saves DL3 data in FITS format
 following CTA experimental extensions of the `gamma astro data format`_.
 
+The :ref:`benchmark_script` script can be used at any stage of an analysis.
+
 .. toctree::
     :maxdepth: 1
 

@@ -4,8 +4,17 @@
 Interface to the DIRAC grid
 ===========================
 
-.. contents::
-   :local:
+From the README of `DIRAC <https://github.com/DIRACGrid/DIRAC>`__:
+
+  DIRAC is an interware, meaning a software framework for distributed computing.  
+  DIRAC provides a complete solution to one or more user community requiring access to distributed resources.
+
+Within the CTA consortium it is possible to operate CTA software on the DIRAC grid by means
+of `CTADIRAC <https://gitlab.cta-observatory.org/cta-computing/dpps/CTADIRAC>`__, a CTA-customized version of the DIRAC middleware.
+
+The interface to the DIRAC grid allows to launch *protopipe* jobs and scale up the amount of data
+which is inevitably required to obtain enough statistics (either for specific studies on intermediate data levels
+or to produce full CTA performance products).
 
 Requirements
 ============
@@ -15,51 +24,50 @@ Requirements
 Base environment
 ----------------
 
-The software/packages required to work with the DIRAC interface for protopipe
-are the following,
+Aside from *protopipe* itself, if you want to operate on the DIRAC grid you will
+need a set of additional software packages.
 
-- `DIRAC <https://dirac.readthedocs.io/en/latest/>`_
-- `CTADIRAC <https://gitlab.cta-observatory.org/cta-computing/dpps/CTADIRAC>`_
-- `VOMS <https://italiangrid.github.io/voms/>`_
-- `pytables <https://www.pytables.org/>`_
-- `pyyaml <https://pyyaml.org/>`_
+Recipes for a **base** environment are stored in the root directory of the interface code `repository <https://github.com/HealthyPear/protopipe-grid-interface>`_.
 
-.. note:: Python version
-  Even if *protopipe* itself allows for Python 3.7, the minimum version required to use
-  Dirac is 3.8.
-
-An example base conda environment recipe can be found
-`here <https://github.com/HealthyPear/protopipe-grid-interface/blob/master/environment_development.yaml>`_.
-You can create the corresponding environment with a command like this,
-
-``conda env create -f environment_development.yaml``
-
-In this environment you can then install first *protopipe* and then its interface
-following the respective instructions.
+After its creation you have to install first *protopipe* (:ref:`install_protopipe`)
+and then its interface (:ref:`install-interface`).
 
 DIRAC GRID certificate
 ----------------------
 
-In order to access the GRID utilities you will need a certificate associated with an
-account.
+In order to access DIRAC utilities you will need a certificate associated with an
+account linked to your institution.
 
 You can find all necessary information at
-`this <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Prerequisites>`_
-Redmine wikipage.
+`here <https://forge.in2p3.fr/projects/cta_dirac/wiki/CTA-DIRAC_Users_Guide#Prerequisites>`_.
 
-The interface
-=============
+.. _install-interface:
 
-Getting a released version
---------------------------
+Installation
+============
 
-For versions >=0.4.0 you can install it as a Python3-based package in your environment,
+Also the interface to the DIRAC grid can be installed both in development mode
+or as a released package.
+
+Released version
+----------------
+
+.. important::
+
+  After the Python3 upgrade of DIRAC and CTADIRAC,
+  the interface installation and usage have changed considerably,
+  while its relation with *protopipe* has only improved.
+  It is **extremely** unlikely that you will ever need to work with a version older than v0.4.0,
+  but if this were to happen, please check older versions of this documentation
+  either from readthedocs or from the repository of *protopipe*.
+
+You can install install it as a Python3-based package in your environment like so,
 
 ``pip install git+https://github.com/HealthyPear/protopipe-grid-interface@vx.y.z``
 
-The following table refers to all versions and their compatibility with _protopipe_.
+The following table refers to all versions and their compatibility with *protopipe*.
 
-.. list-table:: compatibility between *protopipe* and its interface
+.. list-table:: Versioning
     :name: versioning
     :widths: 25 25
     :header-rows: 0
@@ -75,30 +83,20 @@ The following table refers to all versions and their compatibility with _protopi
     * - v0.2.X
       - v0.2.X
 
-The latest released version of the interface is always compatible with
-the development version of *protopipe*.
-
-.. warning::
-
-  After the Python3 upgrade of DIRAC and CTADIRAC,
-  the interface installation and usage have changed considerably,
-  while its relation with *protopipe* has only improved.
-  It is very unlikely that you will ever need to work with a version older than v0.4.0,
-  but if this were to happen, please check older versions of this documentation
-  either from readthedocs or from the repository of *protopipe*.
+Both the latest released version and the development version of the interface
+are compatible with the development version of *protopipe*.
 
 .. _install-grid-dev:
 
-Getting the development version
--------------------------------
+Development version
+-------------------
 
 This version is:
 
 - always compatible with the development version of *protopipe*,
 - possibly compatible with the latest release of *protopipe*,
 
-The procedure to install with this version is similar to the same one
-for *protopipe*:
+The installation procedure is the following:
 
 - ``git clone https://github.com/HealthyPear/protopipe-grid-interface.git``
 - ``cd protopipe-grid-interface``
@@ -117,7 +115,8 @@ This is a one time operation to be perfomed after the environment creation and a
    conda env config vars set X509_CERT_DIR=$CONDA_PREFIX/etc/grid-security/certificates
    conda env config vars set X509_VOMS_DIR=$CONDA_PREFIX/etc/grid-security/vomsdir
    conda env config vars set X509_VOMSES=$CONDA_PREFIX/etc/grid-security/vomses
-   conda activate protopipe-CTADIRAC
+
+then you will need to reactivate your environment.
 
 Also only the first time, in order to use the CTADIRAC production instance,
 you should configure your client using the ``dirac-configure`` command.
