@@ -209,7 +209,7 @@ def get_evt_subarray_model_output(
         Name of averaged model output (shower level)
 
     Returns
-    --------
+    -------
     data: `~pandas.DataFrame`
         Data frame
     """
