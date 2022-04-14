@@ -13,17 +13,38 @@ so it is quite old, some parts have been modernized.
 The implementation of functions and classes is far from perfect and
 we should really try to synchronize in some way with ctaplot/ctabenchmarks.
 """
-import numpy as np
 import astropy.units as u
 import matplotlib.pyplot as plt
+import numpy as np
+from astropy.table import QTable
 from matplotlib.colors import LogNorm
-from scipy.stats import binned_statistic, norm
-from sklearn.metrics import auc, roc_curve, accuracy_score
-from scipy.optimize import curve_fit
 from pyirf.utils import cone_solid_angle
-
+from scipy.optimize import curve_fit
+from scipy.stats import binned_statistic, norm
+from sklearn.metrics import accuracy_score, auc, roc_curve
 
 LOWER_SIGMA_QUANTILE, UPPER_SIGMA_QUANTILE = norm().cdf([-1, 1])
+
+__all__ = [
+    "plot_profile",
+    "plot_DL1a_reco_true_correlation",
+    "plot_resolution",
+    "plot_bias",
+    "get_single_pixels_spectrum",
+    "plot_sensitivity_from_pyirf",
+    "plot_binned_mean",
+    "plot_binned_median",
+    "plot_hist",
+    "plot_distributions",
+    "plot_roc_curve",
+    "plot_evt_roc_curve_variation",
+    "plot_psf",
+    "plot_background_rate",
+    "BoostedDecisionTreeDiagnostic",
+    "ModelDiagnostic",
+    "RegressorDiagnostic",
+    "ClassifierDiagnostic",
+]
 
 
 def plot_profile(ax, data, xcol, ycol, n_xbin, x_range, logx=False, **kwargs):
