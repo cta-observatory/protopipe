@@ -10,6 +10,8 @@ if [[ "$INSTALL_METHOD" == "conda" ]]; then
 
   sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment_development.yml
   conda install -c conda-forge mamba
+  # Temporary workaround: https://github.com/mamba-org/mamba/issues/488
+  rm -rf /usr/share/miniconda/pkgs/cache/*.json
   mamba env create -n protopipe --file environment_development.yml
   conda activate protopipe
 else
