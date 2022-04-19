@@ -48,93 +48,94 @@ of CTA performances for different science cases or perform studies that require 
 Contributors
 ++++++++++++
 
-@HealthyPear and @kosack
+- Michele Peresano (`@HealthyPear`_)
+- Karl Kosack (`@kosack`_)
 
 What is changed since v0.4.0.post1
 ++++++++++++++++++++++++++++++++++
 
 Pull-requests containing changes of multiple nature are repeated.
 
-- fixed missing import of QTable (#188) @kosack
-- try to fix build (mamba error) (#189) @kosack
-- Add benchmarking notebook template (#181) @HealthyPear
+- fixed missing import of QTable (#188) `@kosack`_
+- try to fix build (mamba error) (#189) `@kosack`_
+- Add benchmarking notebook template (#181) `@HealthyPear`_
 
 🚀 General features
 ^^^^^^^^^^^^^^^^^^^^
 
-- Add book template material (:pr:`#174`) @HealthyPear
-- Add new script for benchmarking (:pr:`#157`) @HealthyPear
-- Update the entire benchmark suite (:pr:`#166`) @HealthyPear
-- Improve data scripts output and update analysis default settings (:pr:`#165`) @HealthyPear
-- Improve protopipe.mva and protopipe-MODELS (:pr:`#164`) @HealthyPear
-- Add image extraction status for TwoPassWindowSum (:pr:`#163`) @HealthyPear
-- Add support for prod5N files (:pr:`#167`) @HealthyPear
-- Add I/O functions to simplify benchmarking (:pr:`#147`) @HealthyPear
-- Apply CALIB\_SCALE directly from ctapipe.io.SimtelEventSource (:pr:`#145`) @HealthyPear
-- Add progress bar to both TRAINING and DL2 production scripts (:pr:`#150`) @HealthyPear
-- Add option to enable/disable charge integration integration correction  (:pr:`#146`) @HealthyPear
-- Calculate impact parameter always in the tilted frame (:pr:`#143`) @HealthyPear
-- Add support for calibscale (:pr:`#140`) @HealthyPear
-- Add optional LST stereo trigger requirement (:pr:`#131`) @HealthyPear
-- Update to ctapipe 0.11.0 (:pr:`#136`) @HealthyPear
-- Add configuration option to choose which cleaning to use to get training data (:pr:`#135`) @HealthyPear
-- Add choice of estimation weigths and standard deviation for RandomForestRegressor models (:pr:`#134`) @HealthyPear
-- Add concentration (:pr:`#133`) @HealthyPear
-- Improve models generation (:pr:`#96`) @HealthyPear
-- Support for ctapipe 0.10.5 (:pr:`#124`) @HealthyPear
-- Small improvements to modeling script (:pr:`#114`) @HealthyPear
+- Add book template material (:pr:`#174`) `@HealthyPear`_
+- Add new script for benchmarking (:pr:`#157`) `@HealthyPear`_
+- Update the entire benchmark suite (:pr:`#166`) `@HealthyPear`_
+- Improve data scripts output and update analysis default settings (:pr:`#165`) `@HealthyPear`_
+- Improve protopipe.mva and protopipe-MODELS (:pr:`#164`) `@HealthyPear`_
+- Add image extraction status for TwoPassWindowSum (:pr:`#163`) `@HealthyPear`_
+- Add support for prod5N files (:pr:`#167`) `@HealthyPear`_
+- Add I/O functions to simplify benchmarking (:pr:`#147`) `@HealthyPear`_
+- Apply CALIB\_SCALE directly from ctapipe.io.SimtelEventSource (:pr:`#145`) `@HealthyPear`_
+- Add progress bar to both TRAINING and DL2 production scripts (:pr:`#150`) `@HealthyPear`_
+- Add option to enable/disable charge integration integration correction  (:pr:`#146`) `@HealthyPear`_
+- Calculate impact parameter always in the tilted frame (:pr:`#143`) `@HealthyPear`_
+- Add support for calibscale (:pr:`#140`) `@HealthyPear`_
+- Add optional LST stereo trigger requirement (:pr:`#131`) `@HealthyPear`_
+- Update to ctapipe 0.11.0 (:pr:`#136`) `@HealthyPear`_
+- Add configuration option to choose which cleaning to use to get training data (:pr:`#135`) `@HealthyPear`_
+- Add choice of estimation weigths and standard deviation for RandomForestRegressor models (:pr:`#134`) `@HealthyPear`_
+- Add concentration (:pr:`#133`) `@HealthyPear`_
+- Improve models generation (:pr:`#96`) `@HealthyPear`_
+- Support for ctapipe 0.10.5 (:pr:`#124`) `@HealthyPear`_
+- Small improvements to modeling script (:pr:`#114`) `@HealthyPear`_
 
 🔭 Pipeline applications
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Add support for prod5N files (:pr:`#167`) @HealthyPear
+- Add support for prod5N files (:pr:`#167`) `@HealthyPear`_
 
 🌐 GRID support
 ^^^^^^^^^^^^^^^
 
-- Update README and documentation (grid interface) (:pr:`#152`) @HealthyPear
-- Make progress bar optional and add it also to DL2 script (:pr:`#154`) @HealthyPear
+- Update README and documentation (grid interface) (:pr:`#152`) `@HealthyPear`_
+- Make progress bar optional and add it also to DL2 script (:pr:`#154`) `@HealthyPear`_
 
 🐛 Bug Fixes
 ^^^^^^^^^^^^^
 
-- correctly count SSTs, MSTs, and LSTs. (:pr:`#184`) @kosack
-- Add book template material (:pr:`#174`) @HealthyPear
-- Set effective area HDU name as gammapy wants (:pr:`#144`) @HealthyPear
-- Update CameraFrame-to-TelescopeFrame transformation and HillasReconstructor (:pr:`#151`) @HealthyPear
-- Fix shower's core transformation to TiltedFrame (:pr:`#160`) @HealthyPear
-- Fix CTAMARS-like energy estimation (:pr:`#156`) @HealthyPear
-- Make progress bar optional and add it also to DL2 script (:pr:`#154`) @HealthyPear
-- Output NaN concentrations in case of HillasParameterizationError or similar (:pr:`#155`) @HealthyPear
-- Fix CALIB\_SCALE key in analysis.yaml (:pr:`#153`) @HealthyPear
+- correctly count SSTs, MSTs, and LSTs. (:pr:`#184`) `@kosack`_
+- Add book template material (:pr:`#174`) `@HealthyPear`_
+- Set effective area HDU name as gammapy wants (:pr:`#144`) `@HealthyPear`_
+- Update CameraFrame-to-TelescopeFrame transformation and HillasReconstructor (:pr:`#151`) `@HealthyPear`_
+- Fix shower's core transformation to TiltedFrame (:pr:`#160`) `@HealthyPear`_
+- Fix CTAMARS-like energy estimation (:pr:`#156`) `@HealthyPear`_
+- Make progress bar optional and add it also to DL2 script (:pr:`#154`) `@HealthyPear`_
+- Output NaN concentrations in case of HillasParameterizationError or similar (:pr:`#155`) `@HealthyPear`_
+- Fix CALIB\_SCALE key in analysis.yaml (:pr:`#153`) `@HealthyPear`_
 - Ensure that estimated energy is always recorded in linear scale (:pr:`#141`) @HealthyPear
-- Add pandas to pip installation (:pr:`#138`) @HealthyPear
-- Fix classifier integration test (:pr:`#120`) @HealthyPear
-- Bugfixes and improvements to protopipe-MODELS (:pr:`#122`) @HealthyPear
-- Fix pipeline integration test workflow  (:pr:`#118`) @HealthyPear
-- Fix documentation development version in docs (:pr:`#112`) @HealthyPear
+- Add pandas to pip installation (:pr:`#138`) `@HealthyPear`_
+- Fix classifier integration test (:pr:`#120`) `@HealthyPear`_
+- Bugfixes and improvements to protopipe-MODELS (:pr:`#122`) `@HealthyPear`_
+- Fix pipeline integration test workflow  (:pr:`#118`) `@HealthyPear`_
+- Fix documentation development version in docs (:pr:`#112`) `@HealthyPear`_
 
 🧰 Maintenance
 ^^^^^^^^^^^^^^
 
-- Update documentation for release 0.5.0 (:pr:`#175`) @HealthyPear
-- Add Pull Request template (:pr:`#187`) @HealthyPear
-- Add new script for benchmarking (:pr:`#157`) @HealthyPear
-- Update README and documentation (grid interface) (:pr:`#152`) @HealthyPear
-- Fix documentation build (:pr:`#158`) @HealthyPear
-- Add integration test for DL2-to-DL3 step (:pr:`#137`) @HealthyPear
-- Add pandas to pip installation (:pr:`#138`) @HealthyPear
-- Implement DL2 integration tests (:pr:`#126`) @HealthyPear
-- Add issue templates (:pr:`#121`) @HealthyPear
-- Fix classifier integration test (:pr:`#120`) @HealthyPear
-- Improve debugging of integration testing (:pr:`#119`) @HealthyPear
-- Fix pipeline integration test workflow  (:pr:`#118`) @HealthyPear
-- Setup of pipeline integration testing up to modeling (:pr:`#116`) @HealthyPear
-- Update training integration tests (:pr:`#113`) @HealthyPear
-- Fix documentation development version in docs (:pr:`#112`) @HealthyPear
-- Versioning, packaging and continuous deployment on PyPI (:pr:`#105`) @HealthyPear
-- Update TRAINING integration tests (:pr:`#111`) @HealthyPear
-- Update DOIs after latest release (:pr:`#109`) @HealthyPear
+- Update documentation for release 0.5.0 (:pr:`#175`) `@HealthyPear`_
+- Add Pull Request template (:pr:`#187`) `@HealthyPear`_
+- Add new script for benchmarking (:pr:`#157`) `@HealthyPear`_
+- Update README and documentation (grid interface) (:pr:`#152`) `@HealthyPear`_
+- Fix documentation build (:pr:`#158`) `@HealthyPear`_
+- Add integration test for DL2-to-DL3 step (:pr:`#137`) `@HealthyPear`_
+- Add pandas to pip installation (:pr:`#138`) `@HealthyPear`_
+- Implement DL2 integration tests (:pr:`#126`) `@HealthyPear`_
+- Add issue templates (:pr:`#121`) `@HealthyPear`_
+- Fix classifier integration test (:pr:`#120`) `@HealthyPear`_
+- Improve debugging of integration testing (:pr:`#119`) `@HealthyPear`_
+- Fix pipeline integration test workflow  (:pr:`#118`) `@HealthyPear`_
+- Setup of pipeline integration testing up to modeling (:pr:`#116`) `@HealthyPear`_
+- Update training integration tests (:pr:`#113`) `@HealthyPear`_
+- Fix documentation development version in docs (:pr:`#112`) `@HealthyPear`_
+- Versioning, packaging and continuous deployment on PyPI (:pr:`#105`) `@HealthyPear`_
+- Update TRAINING integration tests (:pr:`#111`) `@HealthyPear`_
+- Update DOIs after latest release (:pr:`#109`) `@HealthyPear`_
 
 .. _protopipe_0p4p4post1_release:
 
