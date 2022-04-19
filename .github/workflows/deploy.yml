@@ -3,7 +3,7 @@ name: CD
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   deployment:
@@ -11,9 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # make sure we have version info
+        # make sure we have version info
         with:
-            fetch-depth: 0
+          fetch-depth: 0
+
+      # make sure we have the version info
+      - run: git fetch --tags
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -23,8 +26,9 @@ jobs:
       - name: Install dependencies
         run: |
           python --version
-          pip install -U pip setuptools wheel
-          python setup.py sdist
+          pip install -U build
+          python -m build
+
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@master
         with:
