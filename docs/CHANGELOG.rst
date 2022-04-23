@@ -56,13 +56,10 @@ What is changed since v0.4.0.post1
 
 Pull-requests containing changes of multiple nature are repeated.
 
-- fixed missing import of QTable (#188) `@kosack`_
-- try to fix build (mamba error) (#189) `@kosack`_
-- Add benchmarking notebook template (#181) `@HealthyPear`_
-
 🚀 General features
 ^^^^^^^^^^^^^^^^^^^^
 
+- Add benchmarking notebook template (:pr:`#181`) `@HealthyPear`_
 - Add book template material (:pr:`#174`) `@HealthyPear`_
 - Add new script for benchmarking (:pr:`#157`) `@HealthyPear`_
 - Update the entire benchmark suite (:pr:`#166`) `@HealthyPear`_
@@ -99,6 +96,8 @@ Pull-requests containing changes of multiple nature are repeated.
 🐛 Bug Fixes
 ^^^^^^^^^^^^^
 
+- fixed missing import of QTable (:pr:`#188`) `@kosack`_
+- try to fix build (mamba error) (:pr:`#189`) `@kosack`_
 - correctly count SSTs, MSTs, and LSTs. (:pr:`#184`) `@kosack`_
 - Add book template material (:pr:`#174`) `@HealthyPear`_
 - Set effective area HDU name as gammapy wants (:pr:`#144`) `@HealthyPear`_
