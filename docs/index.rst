@@ -9,6 +9,8 @@ Welcome to protopipe's documentation!
 
 .. |CI| image:: https://github.com/cta-observatory/protopipe/workflows/CI/badge.svg?branch=master
   :target: https://github.com/cta-observatory/protopipe/actions?query=workflow%3ACI
+.. |CD| image:: https://github.com/cta-observatory/protopipe/actions/workflows/deploy.yml/badge.svg
+  :target: https://github.com/cta-observatory/protopipe/actions/workflows/deploy.yml
 .. |codacy|  image:: https://app.codacy.com/project/badge/Grade/cb95f2eee92946f2a68acc7b103f843c
   :target: https://www.codacy.com/gh/cta-observatory/protopipe?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cta-observatory/protopipe&amp;utm_campaign=Badge_Grade
 .. |coverage| image:: https://codecov.io/gh/cta-observatory/protopipe/branch/master/graph/badge.svg
@@ -21,7 +23,7 @@ Welcome to protopipe's documentation!
     :target: https://badge.fury.io/py/protopipe
 
 
-|CI| |codacy| |coverage| |documentation| |doilatest| |pypi|
+|CI| |CD| |codacy| |coverage| |documentation| |doilatest| |pypi|
 
 `Protopipe` is a pipeline prototype for the `Cherenkov Telescope Array <https://www.cta-observatory.org/>`__
 (CTA) based on the `ctapipe <https://cta-observatory.github.io/ctapipe>`__ and `pyirf <https://github.com/cta-observatory/pyirf>`__
