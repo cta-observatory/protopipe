@@ -111,23 +111,56 @@ Creating a new release
 ----------------------
 
 The project makes use of the `Release Drafter <https://github.com/apps/release-drafter>`__ GitHub App.  
-A `release note draft <https://github.com/cta-observatory/protopipe/releases>`__
-is created as soon as a new Pull-request is merged from the latest release.  
-At each new merge it is updated and the template for it is defined in the `.github` folder at the root
+A `release note draft <https://github.com/cta-observatory/protopipe/releases>`__ 
+(visible only to developers with write access)
+is created as soon as a new PR is merged after the latest release tag.  
+At each new merge it is updated from the template, which is defined in the ``.github`` folder at the root
 of the project.
 
 We follow semantic versioning and in particular `PEP440 <https://peps.python.org/pep-0440/>`__.
 
+Each tag name has to start with ``v``, so e.g. ``v0.5.0``.
+
 Each release will trigger a `Zenodo <https://zenodo.org/>`__ publication.  
-After the release the DOI for the new release must be updated both on the README and documentation landing page.
+After the release, the DOI for the new release must be updated both on the README and ``docs/citing.rst``.
 
 Updating the Changelog
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The `CHANGELOG.rst` is stored at the root of the `docs` folder.
-before making the release you need to make sure that the section for the new release is up-to-date
+The file `CHANGELOG.rst` is stored at the root of the `docs` folder.
+Before making the release (which means, you do not plan to merge any new PR)
+you need to make sure that the section for the new release is up-to-date
 with the release draft and viceversa.
 
-The project makes use of the `sphinx-issues <https://github.com/sloria/sphinx-issues#readme>` package
+The project makes use of the `sphinx-issues <https://github.com/sloria/sphinx-issues#readme>`__ package
 to link the GitHub issue tracker to the Sphinx-based documentation.  
 Please, when you edit the changelog follow the formatting of existing releases.
+
+Updating the version of the documentation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The documentation, which is based on the `PyData Sphinx Theme <https://pydata-sphinx-theme.readthedocs.io/en/latest/index.html>`__,
+supports versioning.
+
+Even if we are currently using `readthedocs <https://readthedocs.org/projects/protopipe/>`__ which already allows for this,
+such a feature can be supported on any other platform in case of migration to other services.
+
+Before releasing a new version, please update the JSON file which defines which versions the drop-down menu
+should display. Such a file is stored under ``docs/_static/switcher.json``.
+The file defines two versions which need to be always available,
+
+- ``dev``, which refers to the development version pointing to the master branch,
+- ``stable``, which refers always to the latest release (please, update that version)
+
+Any new (read: previous to stable) released version needs to be added with the following template (this example refers to the
+current service used),
+
+.. code-block:: json
+
+  {
+        "name": "X.Y.Z.xxx",
+        "version": "X.Y.Z.xxx",
+        "url": "https://protopipe.readthedocs.io/en/X.Y.Z.xxx"
+  }
+
+in particular ``version`` has to be the release tag, without the initial ``v``.
