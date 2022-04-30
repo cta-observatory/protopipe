@@ -1,9 +1,12 @@
-=====================================================================
-protopipe |CI| |codacy| |coverage| |documentation| |doilatest| |pypi|
-=====================================================================
+=========
+protopipe 
+=========
+|CI| |CD| |codacy| |coverage| |documentation| |doilatest| |pypi|
 
 .. |CI| image:: https://github.com/cta-observatory/protopipe/workflows/CI/badge.svg?branch=master
   :target: https://github.com/cta-observatory/protopipe/actions?query=workflow%3ACI
+.. |CD| image:: https://github.com/cta-observatory/protopipe/actions/workflows/deploy.yml/badge.svg
+  :target: https://github.com/cta-observatory/protopipe/actions/workflows/deploy.yml
 .. |codacy|  image:: https://app.codacy.com/project/badge/Grade/cb95f2eee92946f2a68acc7b103f843c
   :target: https://www.codacy.com/gh/cta-observatory/protopipe?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cta-observatory/protopipe&amp;utm_campaign=Badge_Grade
 .. |coverage| image:: https://codecov.io/gh/cta-observatory/protopipe/branch/master/graph/badge.svg
@@ -15,7 +18,9 @@ protopipe |CI| |codacy| |coverage| |documentation| |doilatest| |pypi|
 
 .. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4586754.svg
   :target: https://doi.org/10.5281/zenodo.4586754
-.. |doi_v0.4.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4586755.svg
+.. |doi_v0.5.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6461645.svg
+   :target: https://doi.org/10.5281/zenodo.6461645
+.. |doi_v0.4.0.post1| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4586755.svg
   :target: https://doi.org/10.5281/zenodo.4586755
 .. |doi_v0.3.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4303996.svg
   :target: https://doi.org/10.5281/zenodo.4303996
@@ -55,7 +60,7 @@ If you use a released version of this software for a publication,
 please cite it by using the corresponding DOI.
 
 - latest : |doilatest|
-- v0.5.0 : TBD
-- v0.4.0 : |doi_v0.4.0|
+- v0.5.0 : |doi_v0.5.0|
+- v0.4.0 : |doi_v0.4.0.post1|
 - v0.3.0 : |doi_v0.3.0|
 

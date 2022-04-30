@@ -2,7 +2,7 @@
     {
         "name": "dev",
         "version": "latest",
-        "url": "https://pydata-sphinx-theme.readthedocs.io/en/latest/"
+        "url": "https://protopipe.readthedocs.io/en/latest/"
     },
     {
         "name": "0.5.0 (stable)",
