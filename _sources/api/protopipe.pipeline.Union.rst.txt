@@ -1,0 +1,6 @@
+Union
+=====
+
+.. currentmodule:: protopipe.pipeline
+
+.. autodata:: Union

@@ -1,0 +1,6 @@
+raise_
+======
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: raise_

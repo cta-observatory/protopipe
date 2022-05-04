@@ -1,0 +1,6 @@
+read_DL2_pyirf
+==============
+
+.. currentmodule:: protopipe.perf
+
+.. autofunction:: read_DL2_pyirf

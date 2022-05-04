@@ -1,0 +1,500 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>protopipe.mva.train_model &#8212; protopipe 0.5.1.dev21+g51ed745 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/landing_page.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../../../index.html">
+<p class="title">protopipe</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../install/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../usage/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../reference/index.html">
+  API Reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../contribute/index.html">
+  Development
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../AUTHORS.html">
+  Authors
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../CHANGELOG.html">
+  Changelog
+ </a>
+</li>
+
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/">Performance<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-primary btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        latest  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables _modules/protopipe/mva/train_model and {'json_url': '/_static/switcher.json', 'version_match': 'latest'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "_modules/protopipe/mva/train_model.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("/_static/switcher.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "_modules/protopipe/mva/train_model.html";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.5.1.dev21+g51ed745 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "latest") {
+                node.classList.add("active");
+                let btn = document.getElementById("version_switcher_button");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Quick Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/cta-observatory/protopipe" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/protopipe/" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs..." aria-label="Search the docs..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for protopipe.mva.train_model</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">split_train_test</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TrainModel&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="TrainModel"><a class="viewcode-back" href="../../../api/protopipe.mva.TrainModel.html#protopipe.mva.TrainModel">[docs]</a><span class="k">class</span> <span class="nc">TrainModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Train classification or regressor model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    case: str</span>
+<span class="sd">        Possibilities are regressor or classifier</span>
+<span class="sd">    feature_name_list: list</span>
+<span class="sd">        List of features</span>
+<span class="sd">    target_name: str, optional</span>
+<span class="sd">        Regression target</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case</span><span class="p">,</span> <span class="n">feature_name_list</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="o">=</span> <span class="n">case</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">target_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span> <span class="o">=</span> <span class="n">feature_name_list</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_scikit</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="TrainModel.split_data"><a class="viewcode-back" href="../../../api/protopipe.mva.TrainModel.html#protopipe.mva.TrainModel.split_data">[docs]</a>    <span class="k">def</span> <span class="nf">split_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data_sig</span><span class="p">,</span> <span class="n">train_fraction</span><span class="p">,</span> <span class="n">data_bkg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_same_nsig_nbkg</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load and split data to build train/test samples.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_sig: `~pandas.DataFrame`</span>
+<span class="sd">            Data frame</span>
+<span class="sd">        train_fraction: float</span>
+<span class="sd">            Fraction of events to build the training sample</span>
+<span class="sd">        data_bkg: `~pandas.DataFrame`</span>
+<span class="sd">            Data frame</span>
+<span class="sd">        force_same_nsig_nbkg: bool</span>
+<span class="sd">            If true, the same number of signal and bkg events will be used</span>
+<span class="sd">            to build a classifier</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="o">==</span> <span class="s2">&quot;regressor&quot;</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">X_train</span><span class="p">,</span>
+                <span class="n">X_test</span><span class="p">,</span>
+                <span class="n">y_train</span><span class="p">,</span>
+                <span class="n">y_test</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">split_train_test</span><span class="p">(</span>
+                <span class="n">survived_images</span><span class="o">=</span><span class="n">data_sig</span><span class="p">,</span>
+                <span class="n">train_fraction</span><span class="o">=</span><span class="n">train_fraction</span><span class="p">,</span>
+                <span class="n">feature_name_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span><span class="p">,</span>
+                <span class="n">target_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_train</span><span class="p">))</span>
+            <span class="n">weight_train</span> <span class="o">=</span> <span class="n">weight</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">X_train_sig</span><span class="p">,</span>
+                <span class="n">X_test_sig</span><span class="p">,</span>
+                <span class="n">y_train_sig</span><span class="p">,</span>
+                <span class="n">y_test_sig</span><span class="p">,</span>
+                <span class="n">data_train_sig</span><span class="p">,</span>
+                <span class="n">data_test_sig</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">split_train_test</span><span class="p">(</span>
+                <span class="n">survived_images</span><span class="o">=</span><span class="n">data_sig</span><span class="p">,</span>
+                <span class="n">train_fraction</span><span class="o">=</span><span class="n">train_fraction</span><span class="p">,</span>
+                <span class="n">feature_name_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span><span class="p">,</span>
+                <span class="n">target_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_name</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="p">(</span>
+                <span class="n">X_train_bkg</span><span class="p">,</span>
+                <span class="n">X_test_bkg</span><span class="p">,</span>
+                <span class="n">y_train_bkg</span><span class="p">,</span>
+                <span class="n">y_test_bkg</span><span class="p">,</span>
+                <span class="n">data_train_bkg</span><span class="p">,</span>
+                <span class="n">data_test_bkg</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">split_train_test</span><span class="p">(</span>
+                <span class="n">survived_images</span><span class="o">=</span><span class="n">data_bkg</span><span class="p">,</span>
+                <span class="n">train_fraction</span><span class="o">=</span><span class="n">train_fraction</span><span class="p">,</span>
+                <span class="n">feature_name_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_name_list</span><span class="p">,</span>
+                <span class="n">target_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_name</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">max_events</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">force_same_nsig_nbkg</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_train_bkg</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_train_sig</span><span class="p">):</span>
+                    <span class="n">max_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_train_bkg</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">max_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_train_sig</span><span class="p">)</span>
+            <span class="n">X_train</span> <span class="o">=</span> <span class="n">X_train_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_train_bkg</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">])</span>
+            <span class="n">y_train</span> <span class="o">=</span> <span class="n">y_train_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y_train_bkg</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_train</span> <span class="o">=</span> <span class="n">data_train_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">data_train_bkg</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">force_same_nsig_nbkg</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_test_bkg</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_test_sig</span><span class="p">):</span>
+                    <span class="n">max_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_test_bkg</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">max_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_test_sig</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">X_test</span> <span class="o">=</span> <span class="n">X_test_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_test_bkg</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">])</span>
+                <span class="n">y_test</span> <span class="o">=</span> <span class="n">y_test_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y_test_bkg</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span> <span class="o">=</span> <span class="n">data_test_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">data_test_bkg</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_events</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;&#39;NoneType&#39; object is unsubscriptable&quot;</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">X_test</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">y_test</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data_test</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">))</span>
+            <span class="n">weight_train</span> <span class="o">=</span> <span class="n">weight</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">X_test</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_scikit</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;X_train&quot;</span><span class="p">:</span> <span class="n">X_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;X_test&quot;</span><span class="p">:</span> <span class="n">X_test</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;y_train&quot;</span><span class="p">:</span> <span class="n">y_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;y_test&quot;</span><span class="p">:</span> <span class="n">y_test</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;w_train&quot;</span><span class="p">:</span> <span class="n">weight_train</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_scikit</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;X_train&quot;</span><span class="p">:</span> <span class="n">X_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;X_test&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;y_train&quot;</span><span class="p">:</span> <span class="n">y_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;y_test&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;w_train&quot;</span><span class="p">:</span> <span class="n">weight_train</span><span class="p">,</span>
+            <span class="p">}</span></div>
+
+<div class="viewcode-block" id="TrainModel.get_optimal_model"><a class="viewcode-back" href="../../../api/protopipe.mva.TrainModel.html#protopipe.mva.TrainModel.get_optimal_model">[docs]</a>    <span class="k">def</span> <span class="nf">get_optimal_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_model</span><span class="p">,</span> <span class="n">tuned_parameters</span><span class="p">,</span> <span class="n">scoring</span><span class="p">,</span> <span class="n">cv</span><span class="p">,</span> <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">njobs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get optimal hyperparameters for an estimator and return the best model.</span>
+
+<span class="sd">        The best parameters are obtained by performing an exhaustive search</span>
+<span class="sd">        over specified parameter values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        init_model: `~sklearn.base.BaseEstimator`</span>
+<span class="sd">            Model to optimise</span>
+<span class="sd">        tuned_parameters: dict</span>
+<span class="sd">            Contains parameter names and ranges to optimise on</span>
+<span class="sd">        scoring: str</span>
+<span class="sd">            Estimator</span>
+<span class="sd">        cv: int</span>
+<span class="sd">            number of split for x-validation</span>
+<span class="sd">        refit: bool, str, or callable, default=False</span>
+<span class="sd">            Refit the estimator using the best found parameters on the whole dataset.</span>
+<span class="sd">        verbose: int</span>
+<span class="sd">            Controls the verbosity: the higher, the more messages.</span>
+<span class="sd">            &gt;1 : the computation time for each fold and parameter candidate is displayed</span>
+<span class="sd">            &gt;2 : the score is also displayed</span>
+<span class="sd">            &gt;3 : the fold and candidate parameter indexes are also displayed together with the starting time of the computation</span>
+<span class="sd">        njobs: int</span>
+<span class="sd">            Number of jobs to run in parallel. -1 means using all processors.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        best_estimator: `~sklearn.base.BaseEstimator`</span>
+<span class="sd">            Best model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">init_model</span><span class="p">,</span>
+                             <span class="n">tuned_parameters</span><span class="p">,</span>
+                             <span class="n">scoring</span><span class="o">=</span><span class="n">scoring</span><span class="p">,</span>
+                             <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span>
+                             <span class="n">refit</span><span class="o">=</span><span class="n">refit</span><span class="p">,</span>
+                             <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_scikit</span><span class="p">[</span><span class="s2">&quot;X_train&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_scikit</span><span class="p">[</span><span class="s2">&quot;y_train&quot;</span><span class="p">],</span>
+            <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_scikit</span><span class="p">[</span><span class="s2">&quot;w_train&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best parameters set found on development set:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">best_params_</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; - </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">best_params_</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Grid scores on development set:&quot;</span><span class="p">)</span>
+        <span class="n">means</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cv_results_</span><span class="p">[</span><span class="s2">&quot;mean_test_score&quot;</span><span class="p">]</span>
+        <span class="n">stds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cv_results_</span><span class="p">[</span><span class="s2">&quot;std_test_score&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">means</span><span class="p">,</span> <span class="n">stds</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">cv_results_</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; - </span><span class="si">{:.3f}</span><span class="s2">+/-</span><span class="si">{:.3f}</span><span class="s2"> for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">std</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">params</span><span class="p">))</span>
+
+        <span class="n">grid_search_cv_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">cv_results_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">grid_search_cv_results</span><span class="p">)</span>
+
+        <span class="n">best_estimator</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_estimator_</span>
+
+        <span class="k">return</span> <span class="n">best_estimator</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, Michele Peresano.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

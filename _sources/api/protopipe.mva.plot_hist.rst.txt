@@ -1,0 +1,6 @@
+plot_hist
+=========
+
+.. currentmodule:: protopipe.mva
+
+.. autofunction:: plot_hist

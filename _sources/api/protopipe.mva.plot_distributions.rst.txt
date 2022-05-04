@@ -1,0 +1,6 @@
+plot_distributions
+==================
+
+.. currentmodule:: protopipe.mva
+
+.. autofunction:: plot_distributions

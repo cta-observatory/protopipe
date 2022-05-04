@@ -1,0 +1,6 @@
+save_fig
+========
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: save_fig

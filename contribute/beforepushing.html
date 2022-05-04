@@ -1,0 +1,560 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mandatory checks &#8212; protopipe 0.5.1.dev21+g51ed745 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/landing_page.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Authors" href="../AUTHORS.html" />
+    <link rel="prev" title="Instructions" href="instructions.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">protopipe</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../install/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../usage/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../reference/index.html">
+  API Reference
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Development
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../AUTHORS.html">
+  Authors
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../CHANGELOG.html">
+  Changelog
+ </a>
+</li>
+
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/">Performance<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-primary btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        latest  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables contribute/beforepushing and {'json_url': '/_static/switcher.json', 'version_match': 'latest'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "contribute/beforepushing.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("/_static/switcher.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "contribute/beforepushing.html";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.5.1.dev21+g51ed745 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "latest") {
+                node.classList.add("active");
+                let btn = document.getElementById("version_switcher_button");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Quick Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/cta-observatory/protopipe" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/protopipe/" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs..." aria-label="Search the docs..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="gitrepo.html">
+   Code repository layout
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="instructions.html">
+   Instructions
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Mandatory checks
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#documentation">
+   Documentation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#testing">
+   Testing
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#unit-tests">
+     Unit tests
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#integration-tests">
+     Integration tests
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#benchmarks">
+   Benchmarks
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/https://github.com/cta-observatory/https://github.com/cta-observatory/protopipe/edit/master/docs/contribute/beforepushing.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="mandatory-checks">
+<span id="beforepushing"></span><h1>Mandatory checks<a class="headerlink" href="#mandatory-checks" title="Permalink to this headline">#</a></h1>
+<p>This page illustrates all the information regarding what to check before and
+while you push your modifications.</p>
+<p>The development of this software is monitored by a Continuous Integration (CI)
+pipeline that takes care of all checks (some using external services).</p>
+<div class="contents local topic" id="index">
+<p class="topic-title">Index</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#documentation" id="id1">Documentation</a></p></li>
+<li><p><a class="reference internal" href="#testing" id="id2">Testing</a></p>
+<ul>
+<li><p><a class="reference internal" href="#unit-tests" id="id3">Unit tests</a></p></li>
+<li><p><a class="reference internal" href="#integration-tests" id="id4">Integration tests</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#benchmarks" id="id5">Benchmarks</a></p></li>
+</ul>
+</div>
+<section id="documentation">
+<h2><a class="toc-backref" href="#id1">Documentation</a><a class="headerlink" href="#documentation" title="Permalink to this headline">#</a></h2>
+<p>Please, make sure you have installed <em>protopipe</em> with the required packages
+(either with the <code class="docutils literal notranslate"><span class="pre">all</span></code> or <code class="docutils literal notranslate"><span class="pre">docs</span></code> keyword).</p>
+<p>Each Pull Request (PR) has to have its own documentation updates (if any),
+according to what are the changes to be merged into master.</p>
+<p>The documentation is generated by <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a>
+with <a class="reference external" href="https://docutils.sourceforge.io/rst.html">reStructuredText</a> syntax.</p>
+<p>To build and check your documentation locally,</p>
+<ul class="simple">
+<li><p>cd <code class="docutils literal notranslate"><span class="pre">docs</span></code></p></li>
+<li><p>for big changes (or just to be sure), <code class="docutils literal notranslate"><span class="pre">rm</span> <span class="pre">api/*</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">clean</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">html</span></code></p></li>
+<li><p>for small changes, <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code></p></li>
+</ul>
+<p>The built documentation will be stored under <code class="docutils literal notranslate"><span class="pre">docs/_build/html</span></code> from which you
+can open <code class="docutils literal notranslate"><span class="pre">index.html</span></code> with your favorite browser to check how it looks.</p>
+<p>You will have to fix any warning that appears during documentation building,
+because the documentation also runs on <a class="reference external" href="https://readthedocs.org/">readthedocs</a>
+with an option to treat warnings as errors.</p>
+</section>
+<section id="testing">
+<h2><a class="toc-backref" href="#id2">Testing</a><a class="headerlink" href="#testing" title="Permalink to this headline">#</a></h2>
+<p>All testing code is called by issuing the <code class="docutils literal notranslate"><span class="pre">pytest</span></code> command
+(see <a class="reference external" href="https://docs.pytest.org/en/latest/">official webpage</a> for details).</p>
+<p>This command can be called from any place within the cloned repository and it
+will always run from the root directory of the project.</p>
+<p>For debugging purposes you can add the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option which will allow to
+visualise any <code class="docutils literal notranslate"><span class="pre">print</span></code> statement within the test module(s).</p>
+<p>Testing is automatically triggered by the CI every time a new
+pull-request is pushed to the repository, and its correct
+execution is one of the mandatory condition for merging.</p>
+<section id="unit-tests">
+<h3><a class="toc-backref" href="#id3">Unit tests</a><a class="headerlink" href="#unit-tests" title="Permalink to this headline">#</a></h3>
+<p>You can follow
+<a class="reference external" href="https://cta-observatory.github.io/ctapipe/development/code-guidelines.html#unit-tests">these guidelines</a>
+to understand what a unit-test is supposed to do.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a maintenance activity which has being long overdue and we need
+manpower for it, so if you have experience on this or you want to contribute
+please feel free to do so.</p>
+<p>For more information on how to contribute to this effort check
+<a class="reference external" href="https://github.com/cta-observatory/protopipe/issues/69">this issue</a>.</p>
+</div>
+<p>Being <em>protopipe</em> based on <em>ctapipe</em>, all the tools imported from the latter
+have been already tested and approved (<em>protopipe</em> uses always one of the latest released versions of <em>ctapipe</em>).
+Same goes for <em>pyirf</em>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is not true for,</p>
+<ul class="simple">
+<li><p>hard-coded parts that had to be modified in anticipation of code migration,</p></li>
+<li><p><em>protopipe</em> functions themselves (some of which will eventually migrate to <em>ctapipe</em> or get refactored)</p></li>
+</ul>
+<p>Regarding the first point: given the difference in versions between the
+imported <em>ctapipe</em> and its development version, sometimes it’s possible that, in
+order to code a new feature, this has to be pull-requested to <em>ctapipe</em> and at
+the same time hardcoded in <em>protopipe</em>, until the new version of <em>ctapipe</em> is released.</p>
+</div>
+</section>
+<section id="integration-tests">
+<h3><a class="toc-backref" href="#id4">Integration tests</a><a class="headerlink" href="#integration-tests" title="Permalink to this headline">#</a></h3>
+<p>These are neither unit-tests nor benchmarks, but rather functions that test
+whole functionalities and not just single API functions.</p>
+<p>In the case of the pipeline, such functionalities are the scripts/tools
+that make up its workflow.</p>
+<p>The integration tests are defined in <code class="docutils literal notranslate"><span class="pre">pipeline/scripts/tests/test_pipeline.py</span></code>
+which essentially mimics an entire analysis, starting from test simtel files
+stored on a CC-IN2P3 dataserver.</p>
+<p>The test data is diffuse data from the Prod3b baseline simulations of both
+CTAN and CTAS produced with the following Corsika settings,</p>
+<ul class="simple">
+<li><p>gammas, <code class="docutils literal notranslate"><span class="pre">NSHOW=10</span> <span class="pre">ESLOPE=-2.0</span> <span class="pre">EMIN=10</span> <span class="pre">EMAX=20</span> <span class="pre">NSCAT=1</span> <span class="pre">CSCAT=200</span> <span class="pre">VIEWCONE=3</span></code></p></li>
+<li><p>protons, <code class="docutils literal notranslate"><span class="pre">NSHOW=10</span> <span class="pre">ESLOPE=-2.0</span> <span class="pre">EMIN=100</span> <span class="pre">EMAX=200</span> <span class="pre">NSCAT=1</span> <span class="pre">CSCAT=200</span> <span class="pre">VIEWCONE=3</span></code></p></li>
+<li><p>electrons, <code class="docutils literal notranslate"><span class="pre">NSHOW=10</span> <span class="pre">ESLOPE=-2.0</span> <span class="pre">EMIN=10</span> <span class="pre">EMAX=20</span> <span class="pre">NSCAT=1</span> <span class="pre">CSCAT=200</span> <span class="pre">VIEWCONE=3</span></code></p></li>
+</ul>
+<p>and it is analysed using the default workflow (<a class="reference internal" href="../usage/use_pipeline.html#use-pipeline"><span class="std std-ref">Pipeline</span></a>).</p>
+</section>
+</section>
+<section id="benchmarks">
+<h2><a class="toc-backref" href="#id5">Benchmarks</a><a class="headerlink" href="#benchmarks" title="Permalink to this headline">#</a></h2>
+<p>Benchmarks are a way to visualize qualitatively and quantitatively the performace
+of each data-level transformation and steps of an analysis.</p>
+<p><em>protopipe</em> provides a set of benchmarking notebooks within the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> module.
+Such notebooks make use of the API stored under the same module (see <a class="reference internal" href="../reference/benchmarks.html#benchmarks"><span class="std std-ref">Benchmarks (protopipe.benchmarks)</span></a>).</p>
+<p>Notebooks should share the same basic template and behaviurs which can be found
+in <code class="docutils literal notranslate"><span class="pre">protopipe/benchmarks/notebooks/notebook_template.ipynb</span></code>.
+Use this to create new notebooks and when possible make sure old ones are synchronized with it.</p>
+<p>Their contents followed initially the development triggered by the
+comparison between <em>protopipe</em> and the historical pipelines <em>CTA-MARS</em> (see
+<a class="reference external" href="https://github.com/cta-observatory/protopipe/issues/24">this issue</a> and
+references therein for a summary), and <em>EventDisplay</em>.
+They have been continuously improved and they are expected to evolve in time,
+especially with the progressing refactoring with <em>ctapipe</em>.</p>
+<p>The purpose of these tools is to help users and
+developers to check if their changes improve or degrade
+previous performances, but also to produce analyses books for
+showcasing (see <a class="reference internal" href="../reference/benchmark_script.html#benchmark-script"><span class="std std-ref">Benchmarking</span></a> for details).</p>
+<p>Any developer interested in contributing to benchmarking
+can do so from a development installation of <em>protopipe</em>.
+It is suggested to open the notebooks with <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>
+from their location at <code class="docutils literal notranslate"><span class="pre">protopipe/benchmarks/notebooks</span></code>.</p>
+<p>Currently available benchmarks are organised as follows,</p>
+<ul class="simple">
+<li><p>TRAINING</p>
+<ul>
+<li><p>Calibration</p></li>
+<li><p>Image cleaning</p></li>
+<li><p>Image intensity resolution</p></li>
+<li><p>Direction Look-Up Tables</p></li>
+<li><p>Direction reconstruction</p></li>
+<li><p>to energy estimation</p></li>
+<li><p>Energy Look-Up Tables</p></li>
+<li><p>to classification</p></li>
+</ul>
+</li>
+</ul>
+<p>In particular:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>calibration requires <em>ctapipe</em> DL1a output (images without parameters),</p></li>
+<li><p>all image cleaning and direction reconstruction benchmarks use <em>protopipe</em>
+TRAINING data <strong>without</strong> estimated energy,</p></li>
+<li><p>all benchmarks for the energy estimator use <em>protopipe</em> TRAINING data <strong>without</strong> estimated energy,</p></li>
+<li><p>benchmarks for the classifier use <em>protopipe</em> TRAINING data <strong>with</strong> energy as the only estimated DL2b parameter.</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>MODELS</p></li>
+</ul>
+<p>These performances are obtained from a <em>test</em> portion of the TRAINING data,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Energy</p></li>
+<li><p>Classification</p></li>
+<li><p>Tuning</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>DL2</p>
+<ul>
+<li><p>Particle classification</p></li>
+<li><p>Direction reconstruction</p></li>
+</ul>
+</li>
+<li><p>DL3</p>
+<ul>
+<li><p>Instrument Response Functions and sensitivity</p></li>
+<li><p>Performance poster</p></li>
+</ul>
+</li>
+</ul>
+<p>The DL3 folder contains also the CTA requirements, while the ASWG performance
+data is left to the user, being internal.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Remember that in the framework of CTA software there are similar projects,</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/cta-observatory/ctaplot">ctaplot</a> and</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/cta-benchmarks">cta-benchmarks</a>.</p></li>
+</ul>
+<p>Plots could be properly migrated-to/synchronized-with <em>ctaplot</em>, same for
+the single pipeline steps with <em>cta-benchmarks</em> after the pipeline has been refactored using
+<em>ctapipe</em>’s stage tools.</p>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="instructions.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Instructions</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../AUTHORS.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Authors</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, Michele Peresano.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

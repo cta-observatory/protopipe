@@ -1,0 +1,6 @@
+get_camera_names
+================
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: get_camera_names

@@ -1,0 +1,6 @@
+norm
+====
+
+.. currentmodule:: protopipe.perf
+
+.. autodata:: norm

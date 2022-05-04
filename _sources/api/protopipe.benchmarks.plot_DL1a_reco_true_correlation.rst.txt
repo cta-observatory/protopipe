@@ -1,0 +1,6 @@
+plot_DL1a_reco_true_correlation
+===============================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: plot_DL1a_reco_true_correlation

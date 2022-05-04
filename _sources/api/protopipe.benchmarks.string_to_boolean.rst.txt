@@ -1,0 +1,6 @@
+string_to_boolean
+=================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: string_to_boolean

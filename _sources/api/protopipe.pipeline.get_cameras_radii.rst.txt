@@ -1,0 +1,6 @@
+get_cameras_radii
+=================
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: get_cameras_radii

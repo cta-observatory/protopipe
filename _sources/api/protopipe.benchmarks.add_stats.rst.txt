@@ -1,0 +1,6 @@
+add_stats
+=========
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: add_stats

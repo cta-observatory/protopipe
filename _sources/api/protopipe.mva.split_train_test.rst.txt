@@ -1,0 +1,6 @@
+split_train_test
+================
+
+.. currentmodule:: protopipe.mva
+
+.. autofunction:: split_train_test

@@ -1,0 +1,17 @@
+EventPreparer
+=============
+
+.. currentmodule:: protopipe.pipeline
+
+.. autoclass:: EventPreparer
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~EventPreparer.prepare_event
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: prepare_event

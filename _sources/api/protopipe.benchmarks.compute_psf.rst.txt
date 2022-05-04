@@ -1,0 +1,6 @@
+compute_psf
+===========
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: compute_psf

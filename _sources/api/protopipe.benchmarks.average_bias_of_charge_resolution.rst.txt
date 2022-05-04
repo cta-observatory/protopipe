@@ -1,0 +1,6 @@
+average_bias_of_charge_resolution
+=================================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: average_bias_of_charge_resolution

@@ -1,0 +1,6 @@
+save_obj
+========
+
+.. currentmodule:: protopipe.perf
+
+.. autofunction:: save_obj

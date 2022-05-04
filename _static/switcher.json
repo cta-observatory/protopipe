@@ -1,0 +1,12 @@
+[
+    {
+        "name": "dev",
+        "version": "latest",
+        "url": "https://protopipe.readthedocs.io/en/latest/"
+    },
+    {
+        "name": "0.5.0 (stable)",
+        "version": "stable",
+        "url": "https://protopipe.readthedocs.io/en/stable/"
+    }
+]

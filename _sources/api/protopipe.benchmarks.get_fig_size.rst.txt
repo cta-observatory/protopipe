@@ -1,0 +1,6 @@
+get_fig_size
+============
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: get_fig_size

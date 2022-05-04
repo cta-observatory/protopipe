@@ -1,0 +1,6 @@
+prod5N_array
+============
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: prod5N_array

@@ -1,0 +1,6 @@
+read_protopipe_TRAINING_per_tel_type
+====================================
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: read_protopipe_TRAINING_per_tel_type

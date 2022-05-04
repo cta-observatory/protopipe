@@ -1,0 +1,6 @@
+create_lookup_function
+======================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: create_lookup_function

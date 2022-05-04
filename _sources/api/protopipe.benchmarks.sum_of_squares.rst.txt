@@ -1,0 +1,6 @@
+sum_of_squares
+==============
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: sum_of_squares

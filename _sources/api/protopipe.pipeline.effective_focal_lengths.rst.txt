@@ -1,0 +1,6 @@
+effective_focal_lengths
+=======================
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: effective_focal_lengths

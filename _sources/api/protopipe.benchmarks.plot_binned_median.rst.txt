@@ -1,0 +1,6 @@
+plot_binned_median
+==================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: plot_binned_median

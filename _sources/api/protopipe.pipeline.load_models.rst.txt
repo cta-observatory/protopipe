@@ -1,0 +1,6 @@
+load_models
+===========
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: load_models

@@ -1,0 +1,6 @@
+get_single_pixels_spectrum
+==========================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: get_single_pixels_spectrum

@@ -1,0 +1,6 @@
+load_tel_id
+===========
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: load_tel_id

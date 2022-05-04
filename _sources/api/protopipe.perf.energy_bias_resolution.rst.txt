@@ -1,0 +1,6 @@
+energy_bias_resolution
+======================
+
+.. currentmodule:: protopipe.perf
+
+.. autofunction:: energy_bias_resolution

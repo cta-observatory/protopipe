@@ -1,0 +1,6 @@
+add_BTEL1010_weigths_to_data
+============================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: add_BTEL1010_weigths_to_data

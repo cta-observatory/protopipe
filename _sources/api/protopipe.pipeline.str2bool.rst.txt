@@ -1,0 +1,6 @@
+str2bool
+========
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: str2bool

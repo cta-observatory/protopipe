@@ -1,0 +1,6 @@
+compute_weight_BTEL1010
+=======================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: compute_weight_BTEL1010

@@ -1,0 +1,33 @@
+OnlineBinnedStats
+=================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autoclass:: OnlineBinnedStats
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~OnlineBinnedStats.bin_centers
+      ~OnlineBinnedStats.bin_width
+      ~OnlineBinnedStats.mean
+      ~OnlineBinnedStats.std
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~OnlineBinnedStats.update
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: bin_centers
+   .. autoattribute:: bin_width
+   .. autoattribute:: mean
+   .. autoattribute:: std
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: update

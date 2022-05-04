@@ -1,0 +1,6 @@
+plot_evt_roc_curve_variation
+============================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: plot_evt_roc_curve_variation

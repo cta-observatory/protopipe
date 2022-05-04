@@ -1,0 +1,6 @@
+compute_resolution
+==================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: compute_resolution

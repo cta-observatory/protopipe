@@ -1,0 +1,6 @@
+prepare_data
+============
+
+.. currentmodule:: protopipe.mva
+
+.. autofunction:: prepare_data

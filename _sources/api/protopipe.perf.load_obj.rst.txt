@@ -1,0 +1,6 @@
+load_obj
+========
+
+.. currentmodule:: protopipe.perf
+
+.. autofunction:: load_obj

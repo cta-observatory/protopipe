@@ -1,0 +1,6 @@
+angular_resolution
+==================
+
+.. currentmodule:: protopipe.perf
+
+.. autofunction:: angular_resolution

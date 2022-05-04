@@ -1,0 +1,6 @@
+initialize_script_arguments
+===========================
+
+.. currentmodule:: protopipe.perf
+
+.. autofunction:: initialize_script_arguments

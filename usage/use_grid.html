@@ -1,0 +1,548 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Large scale analyses &#8212; protopipe 0.5.1.dev21+g51ed745 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/landing_page.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Reference" href="../reference/index.html" />
+    <link rel="prev" title="Pipeline" href="use_pipeline.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">protopipe</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../install/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../reference/index.html">
+  API Reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../contribute/index.html">
+  Development
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../AUTHORS.html">
+  Authors
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../CHANGELOG.html">
+  Changelog
+ </a>
+</li>
+
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/">Performance<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-primary btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        latest  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables usage/use_grid and {'json_url': '/_static/switcher.json', 'version_match': 'latest'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "usage/use_grid.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("/_static/switcher.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "usage/use_grid.html";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.5.1.dev21+g51ed745 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "latest") {
+                node.classList.add("active");
+                let btn = document.getElementById("version_switcher_button");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Quick Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/cta-observatory/protopipe" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/protopipe/" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs..." aria-label="Search the docs..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="use_pipeline.html">
+   Pipeline
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Large scale analyses
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#requirements">
+   Requirements
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#usage">
+   Usage
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#preliminary-operations">
+     Preliminary operations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#start-your-analysis">
+     Start your analysis
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#troubleshooting">
+   Troubleshooting
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#issues-with-the-login">
+     Issues with the login
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#issues-with-the-download">
+     Issues with the download
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#issues-with-the-job-submission">
+     Issues with the job submission
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/https://github.com/cta-observatory/https://github.com/cta-observatory/protopipe/edit/master/docs/usage/use_grid.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="large-scale-analyses">
+<span id="use-grid"></span><h1>Large scale analyses<a class="headerlink" href="#large-scale-analyses" title="Permalink to this headline">#</a></h1>
+<p>This page is meant to be also a tutorial on how to perform large scale analyses with <em>protopipe</em>.</p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>protopipe (<a class="reference internal" href="../install/index.html#install"><span class="std std-ref">Getting started</span></a>)</p></li>
+<li><p>GRID interface (<a class="reference internal" href="../install/grid.html#install-grid"><span class="std std-ref">Interface to the DIRAC grid</span></a>),</p></li>
+<li><p>be accustomed with the basic pipeline workflow (<a class="reference internal" href="use_pipeline.html#use-pipeline"><span class="std std-ref">Pipeline</span></a>),</p></li>
+<li><p>be accustomed with the scripts provided by <em>protopipe</em> (<a class="reference internal" href="../reference/scripts.html#scripts"><span class="std std-ref">Scripts</span></a>),</p></li>
+</ul>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/GRID_workflow.png"><img alt="Standard analysis workflow with protopipe" src="../_images/GRID_workflow.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Standard analysis workflow with protopipe.</span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">#</a></h2>
+<section id="preliminary-operations">
+<h3>Preliminary operations<a class="headerlink" href="#preliminary-operations" title="Permalink to this headline">#</a></h3>
+<ol class="arabic simple">
+<li><p>Get a proxy with <code class="docutils literal notranslate"><span class="pre">dirac-proxy-init</span></code></p></li>
+<li><p>Choose the simulation production that you want to work on (this is reported e.g. in the CTA wiki)</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">cta-prod-dump-dataset</span></code> to obtain the original lists of simtel files for each particle type</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-SPLIT_DATASET</span></code> to split the original lists depending on the chosen analysis workflow</p></li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For the moment, only the standard analysis workflow (stored under <code class="docutils literal notranslate"><span class="pre">protopipe_grid_interface/aux</span></code>) has been tested.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure you are using a <cite>protopipe-CTADIRAC</cite>-based environment, otherwise you won’t
+be able to interface with DIRAC.</p>
+<p>To monitor the jobs you can use the
+<a class="reference external" href="https://ccdcta-web.in2p3.fr/DIRAC/?view=tabs&amp;theme=Crisp&amp;url_state=1|*DIRAC.JobMonitor.classes.JobMonitor:,">DIRAC Web Interface</a></p>
+</div>
+</section>
+<section id="start-your-analysis">
+<h3>Start your analysis<a class="headerlink" href="#start-your-analysis" title="Permalink to this headline">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Setup analysis</strong></p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">protopipe-CREATE_ANALYSIS</span></code> to create a directory tree, depending on your setup.</p>
+<p>The script will store and partially edit for you all available
+configuration files under the <code class="docutils literal notranslate"><span class="pre">configs</span></code> folder.
+It will also create an <code class="docutils literal notranslate"><span class="pre">analysis_metadata.yaml</span></code> file which will store the
+basic information regarding your analysis on the grid and on your machine.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To reproduce or access the analysis data of someone else on DIRAC it will be sufficient
+to modify the metadata key <code class="docutils literal notranslate"><span class="pre">analyses_directory</span></code> referred to your local path.</p>
+<p>To reproduce or access the analysis data of someone else on DIRAC it will be sufficient
+to modify the metadata key <code class="docutils literal notranslate"><span class="pre">analyses_directory</span></code> referred to your local path.</p>
+</div>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../_images/example_creation_analysis_tree.png"><img alt="Directory tree of a full analysis performed with protopipe." src="../_images/example_creation_analysis_tree.png" style="width: 250px;" /></a>
+</figure>
+</li>
+<li><p><strong>Obtain training data for energy estimation</strong></p>
+<ol class="arabic simple">
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">grid.yaml</span></code> to use gammas without energy estimation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">protopipe-SUBMIT_JOBS</span> <span class="pre">--analysis_path=[...]/test_analysis</span> <span class="pre">--output_type=TRAINING</span> <span class="pre">....</span></code></p></li>
+<li><p>once the jobs have concluded and the files are ready you can use <code class="docutils literal notranslate"><span class="pre">protopipe-DOWNLOAD_AND_MERGE</span></code></p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-BENCHMARK</span></code> to check the properties of the data sample you obtained</p></li>
+</ol>
+</li>
+<li><p><strong>Build the model for energy estimation</strong></p>
+<ol class="arabic simple">
+<li><p>edit the configuration file of your model of choice</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-MODEL</span></code> with this configuration file</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-BENCHMARK</span></code> to check the performance of the generated models</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-UPLOAD_MODELS</span></code> to upload models and configuration file to your analysis directory on the DIRAC File Catalog</p></li>
+</ol>
+</li>
+<li><p><strong>Obtain training data for particle classification</strong></p>
+<ol class="arabic simple">
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">grid.yaml</span></code> to use gammas <strong>with</strong> energy estimation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">protopipe-SUBMIT_JOBS</span> <span class="pre">--analysis_path=[...]/test_analysis</span> <span class="pre">--output_type=TRAINING</span> <span class="pre">....</span></code></p></li>
+<li><p>once the jobs have concluded and the files are ready you can use <code class="docutils literal notranslate"><span class="pre">protopipe-DOWNLOAD_AND_MERGE</span></code></p></li>
+<li><p>repeat the first 3 points for protons</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-BENCHMARK</span></code> to check the quality of energy estimation on this data sample</p></li>
+</ol>
+</li>
+<li><p><strong>Build a model for particle classification</strong></p>
+<ol class="arabic simple">
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">RandomForestClassifier.yaml</span></code></p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-MODEL</span></code> with this configuration file</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-BENCHMARK</span></code> to check the performance of the generated models</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-UPLOAD_MODELS</span></code> to upload models and configuration file to your analysis directory on the DIRAC File Catalog</p></li>
+</ol>
+</li>
+<li><p><strong>Get DL2 data</strong></p>
+<p>Execute points 1 and 2 for gammas, protons, and electrons separately.</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">protopipe-SUBMIT_JOBS</span> <span class="pre">--analysis_path=[...]/test_analysis</span> <span class="pre">--output_type=DL2</span> <span class="pre">....</span></code></p></li>
+<li><p>once the jobs have concluded and the files are ready you can use <code class="docutils literal notranslate"><span class="pre">protopipe-DOWNLOAD_AND_MERGE</span></code></p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-BENCHMARK</span></code> to check the quality of the generated DL2 data</p></li>
+</ol>
+</li>
+<li><p><strong>Estimate the performance</strong> (protopipe enviroment)</p>
+<ol class="arabic simple">
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">performance.yaml</span></code></p></li>
+<li><p>launch <code class="docutils literal notranslate"><span class="pre">protopipe-DL3-EventDisplay</span></code> with this configuration file</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">protopipe-BENCHMARK</span></code> to check the quality of the generated DL3 data</p></li>
+</ol>
+</li>
+</ol>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">#</a></h2>
+<section id="issues-with-the-login">
+<h3>Issues with the login<a class="headerlink" href="#issues-with-the-login" title="Permalink to this headline">#</a></h3>
+<p><strong>After issuing the command ``dirac-proxy-init`` I get the message
+“Your host clock seems to be off by more than a minute! Thats not good.
+We’ll generate the proxy but please fix your system time” (or similar)</strong></p>
+<p>This can happen if you are working from a container.
+Execute these commands:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">systemctl</span> <span class="pre">status</span> <span class="pre">systemd-timesyncd.service</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">restart</span> <span class="pre">systemd-timesyncd.service</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timedatectl</span></code></p></li>
+</ul>
+<p>Check that,</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">System</span> <span class="pre">clock</span> <span class="pre">synchronized:</span> <span class="pre">yes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">systemd-timesyncd.service</span> <span class="pre">active:</span> <span class="pre">yes</span></code></p></li>
+</ul>
+<p><strong>After issuing the command ``dirac-proxy-init`` and typing my certificate
+password the process starts pending and gets stuck</strong></p>
+<p>One possible reason might be related to your network security settings.
+Some networks might require to add the option <code class="docutils literal notranslate"><span class="pre">-L</span></code> to <code class="docutils literal notranslate"><span class="pre">dirac-proxy-init</span></code>.</p>
+</section>
+<section id="issues-with-the-download">
+<h3>Issues with the download<a class="headerlink" href="#issues-with-the-download" title="Permalink to this headline">#</a></h3>
+<p><strong>While downloading data I get “UTC Framework/API ERROR: Failures occurred during rm.getFile”</strong></p>
+<p>Something went wrong during the download phase, either because of your network
+connection (check for possible instabilities) or because of a problem
+on the server side (in which case the solution is out of your control).</p>
+<p>The recommended approach is to download data using <code class="docutils literal notranslate"><span class="pre">protopipe-DOWNLOAD_AND_MERGE</span></code>.
+This script enables by the default a backup download based on an <code class="docutils literal notranslate"><span class="pre">rsync</span></code>-type command.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>There is a known bug in DIRAC at least on macos which does not allow to use this feature
+until a new release.</p>
+</div>
+</section>
+<section id="issues-with-the-job-submission">
+<h3>Issues with the job submission<a class="headerlink" href="#issues-with-the-job-submission" title="Permalink to this headline">#</a></h3>
+<p><strong>I get an error like “Data too long for column ‘JobName’ at row 1” or similar</strong></p>
+<p>The job name is too long, try to modify it temporarily by editing <code class="docutils literal notranslate"><span class="pre">submit_jobs.py</span></code>,
+in the source code of the interface.
+There will be soon an option to modify this at launch time.</p>
+<p><strong>I get an error which starts with ‘FileCatalog._getEligibleCatalogs: Failed to get file catalog configuration. Path /Resources/FileCatalogs does not exist or it’s not a section’</strong></p>
+<p>This is a Configuration System error which is not fully debugged yet.
+Check that your dirac.cfg file is correctly edited.
+In some cases the interface code will re-try to issue some commands in case this happens.</p>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="use_pipeline.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Pipeline</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../reference/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API Reference</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, Michele Peresano.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

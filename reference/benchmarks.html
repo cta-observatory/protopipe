@@ -1,0 +1,1038 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Benchmarks (protopipe.benchmarks) &#8212; protopipe 0.5.1.dev21+g51ed745 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/landing_page.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="add_BTEL1010_weigths_to_data" href="../api/protopipe.benchmarks.add_BTEL1010_weigths_to_data.html" />
+    <link rel="prev" title="norm" href="../api/protopipe.perf.norm.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">protopipe</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../install/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../usage/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  API Reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../contribute/index.html">
+  Development
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../AUTHORS.html">
+  Authors
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../CHANGELOG.html">
+  Changelog
+ </a>
+</li>
+
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/">Performance<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-primary btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        latest  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables reference/benchmarks and {'json_url': '/_static/switcher.json', 'version_match': 'latest'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "reference/benchmarks.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("/_static/switcher.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "reference/benchmarks.html";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.5.1.dev21+g51ed745 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "latest") {
+                node.classList.add("active");
+                let btn = document.getElementById("version_switcher_button");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Quick Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/cta-observatory/protopipe" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/protopipe/" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs..." aria-label="Search the docs..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="scripts.html">
+   Scripts (
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     protopipe.scripts
+    </span>
+   </code>
+   )
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="data_training.html">
+     Data training
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="model_building.html">
+     Building the models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="DL2.html">
+     Production of DL2 data
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="optimization_cuts_IRFs.html">
+     Optimized cuts and IRFs
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="benchmark_script.html">
+     Benchmarking
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="pipeline.html">
+   Event reconstruction (
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     protopipe.pipeline
+    </span>
+   </code>
+   )
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.camera_radius.html">
+     camera_radius
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.effective_focal_lengths.html">
+     effective_focal_lengths
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.final_array_to_use.html">
+     final_array_to_use
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.get_camera_names.html">
+     get_camera_names
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.get_cameras_radii.html">
+     get_cameras_radii
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.load_config.html">
+     load_config
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.load_models.html">
+     load_models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.load_obj.html">
+     load_obj
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.make_argparser.html">
+     make_argparser
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.prod3b_array.html">
+     prod3b_array
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.prod5N_array.html">
+     prod5N_array
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.read_TRAINING_per_tel_type_with_images.html">
+     read_TRAINING_per_tel_type_with_images
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.read_protopipe_TRAINING_per_tel_type.html">
+     read_protopipe_TRAINING_per_tel_type
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.save_fig.html">
+     save_fig
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.save_obj.html">
+     save_obj
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.str2bool.html">
+     str2bool
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.EventPreparer.html">
+     EventPreparer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.ImageCleaner.html">
+     ImageCleaner
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.SignalHandler.html">
+     SignalHandler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.bcolors.html">
+     bcolors
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.List.html">
+     List
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.pipeline.Union.html">
+     Union
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="mva.html">
+   Multivariate analysis (
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     protopipe.mva
+    </span>
+   </code>
+   )
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+  <label for="toctree-checkbox-3">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.get_evt_model_output.html">
+     get_evt_model_output
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.get_evt_subarray_model_output.html">
+     get_evt_subarray_model_output
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.initialize_script_arguments.html">
+     initialize_script_arguments
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.make_cut_list.html">
+     make_cut_list
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.plot_distributions.html">
+     plot_distributions
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.plot_hist.html">
+     plot_hist
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.plot_profile.html">
+     plot_profile
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.plot_roc_curve.html">
+     plot_roc_curve
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.prepare_data.html">
+     prepare_data
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.save_output.html">
+     save_output
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.split_train_test.html">
+     split_train_test
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.mva.TrainModel.html">
+     TrainModel
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="perf.html">
+   Performance generation (
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     protopipe.perf
+    </span>
+   </code>
+   )
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+  <label for="toctree-checkbox-4">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.perf.angular_resolution.html">
+     angular_resolution
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.perf.energy_bias_resolution.html">
+     energy_bias_resolution
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.perf.initialize_script_arguments.html">
+     initialize_script_arguments
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.perf.load_obj.html">
+     load_obj
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.perf.percentiles.html">
+     percentiles
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.perf.plot_hist.html">
+     plot_hist
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.perf.read_DL2_pyirf.html">
+     read_DL2_pyirf
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.perf.save_obj.html">
+     save_obj
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.perf.norm.html">
+     norm
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="current reference internal" href="#">
+   Benchmarks (
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     protopipe.benchmarks
+    </span>
+   </code>
+   )
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.add_BTEL1010_weigths_to_data.html">
+     add_BTEL1010_weigths_to_data
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.add_stats.html">
+     add_stats
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.average_bias_of_charge_resolution.html">
+     average_bias_of_charge_resolution
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.calculate_RMS_around_1.html">
+     calculate_RMS_around_1
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.compute_bias.html">
+     compute_bias
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.compute_psf.html">
+     compute_psf
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.compute_resolution.html">
+     compute_resolution
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.compute_weight_BTEL1010.html">
+     compute_weight_BTEL1010
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.create_lookup_function.html">
+     create_lookup_function
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.get_evt_subarray_model_output.html">
+     get_evt_subarray_model_output
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.get_fig_size.html">
+     get_fig_size
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.get_single_pixels_spectrum.html">
+     get_single_pixels_spectrum
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.load_tel_id.html">
+     load_tel_id
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_DL1a_reco_true_correlation.html">
+     plot_DL1a_reco_true_correlation
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_background_rate.html">
+     plot_background_rate
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_bias.html">
+     plot_bias
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_binned_mean.html">
+     plot_binned_mean
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_binned_median.html">
+     plot_binned_median
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_distributions.html">
+     plot_distributions
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_evt_roc_curve_variation.html">
+     plot_evt_roc_curve_variation
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_hist.html">
+     plot_hist
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_profile.html">
+     plot_profile
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_psf.html">
+     plot_psf
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_resolution.html">
+     plot_resolution
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_roc_curve.html">
+     plot_roc_curve
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.plot_sensitivity_from_pyirf.html">
+     plot_sensitivity_from_pyirf
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.prepare_requirements.html">
+     prepare_requirements
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.raise_.html">
+     raise
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.string_to_boolean.html">
+     string_to_boolean
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.sum_of_squares.html">
+     sum_of_squares
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.BoostedDecisionTreeDiagnostic.html">
+     BoostedDecisionTreeDiagnostic
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.ClassifierDiagnostic.html">
+     ClassifierDiagnostic
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.ModelDiagnostic.html">
+     ModelDiagnostic
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.OnlineBinnedStats.html">
+     OnlineBinnedStats
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/protopipe.benchmarks.RegressorDiagnostic.html">
+     RegressorDiagnostic
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dirac.html">
+   Interface to the DIRAC grid
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#api-reference">
+   API reference
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-protopipe.benchmarks">
+   protopipe.benchmarks Package
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#functions">
+     Functions
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#classes">
+     Classes
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#class-inheritance-diagram">
+     Class Inheritance Diagram
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/https://github.com/cta-observatory/https://github.com/cta-observatory/protopipe/edit/master/docs/reference/benchmarks.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="benchmarks-protopipe-benchmarks">
+<span id="benchmarks"></span><h1>Benchmarks (<code class="docutils literal notranslate"><span class="pre">protopipe.benchmarks</span></code>)<a class="headerlink" href="#benchmarks-protopipe-benchmarks" title="Permalink to this headline">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">protopipe.benchmarks</span></code> module is composed of 3 parts:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">notebooks</span></code>, a folder containing benchmarking Jupyter notebooks divided by analysis stage,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operations</span></code>, a sub-module containing functions to perform many different operations on data related to benchmarking</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot</span></code>, a sub-module containing plotting functions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">utils</span></code>, a sub-module containing utility functions for the notebooks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">book_template</span></code>, a folder containing the Jupyter Book template for a CTA analysis</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Much of what is contained in the sub-modules is the product of a long refactoring process
+of old material from the notebooks.
+Many things can be improved or imported by <em>ctaplot</em>/<em>cta-benchmarks</em> and <em>ctapipe</em>
+as the refactoring of the pipeline takes progress.
+Also, not all notebooks are exatcly the same in terms of global options,
+a notebook template will be added.</p>
+</div>
+<p>All benchmarks can be launched by means of the <code class="docutils literal notranslate"><span class="pre">protopipe-BENCHMARK</span></code> script (<a class="reference internal" href="benchmark_script.html#benchmark-script"><span class="std std-ref">Benchmarking</span></a>).
+This is the recommended method, as it integrates with the rest of the analysis interface.</p>
+<section id="api-reference">
+<h2>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">#</a></h2>
+</section>
+<section id="module-protopipe.benchmarks">
+<span id="protopipe-benchmarks-package"></span><h2>protopipe.benchmarks Package<a class="headerlink" href="#module-protopipe.benchmarks" title="Permalink to this headline">#</a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">#</a></h3>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.add_BTEL1010_weigths_to_data.html#protopipe.benchmarks.add_BTEL1010_weigths_to_data" title="protopipe.benchmarks.add_BTEL1010_weigths_to_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_BTEL1010_weigths_to_data</span></code></a>(data[, subarray])</p></td>
+<td><p>Update data table with weights from requirement B-TEL-1010-Intensity-Resolution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.add_stats.html#protopipe.benchmarks.add_stats" title="protopipe.benchmarks.add_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_stats</span></code></a>(data, ax[, x, y, fontsize])</p></td>
+<td><p>Add a textbox containing statistical information.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.average_bias_of_charge_resolution.html#protopipe.benchmarks.average_bias_of_charge_resolution" title="protopipe.benchmarks.average_bias_of_charge_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">average_bias_of_charge_resolution</span></code></a>(...[, ...])</p></td>
+<td><p>Calculate the average bias of charge resolution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.calculate_RMS_around_1.html#protopipe.benchmarks.calculate_RMS_around_1" title="protopipe.benchmarks.calculate_RMS_around_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_RMS_around_1</span></code></a>(values, weights)</p></td>
+<td><p>Root Mean Square around 1 as proposed from comparison with CTA-MARS.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.compute_bias.html#protopipe.benchmarks.compute_bias" title="protopipe.benchmarks.compute_bias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_bias</span></code></a>(x_bin_edges, reco, true[, ...])</p></td>
+<td><p>Compute bias as a binned statistic.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.compute_psf.html#protopipe.benchmarks.compute_psf" title="protopipe.benchmarks.compute_psf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psf</span></code></a>(data, ebins, radius)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.compute_resolution.html#protopipe.benchmarks.compute_resolution" title="protopipe.benchmarks.compute_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_resolution</span></code></a>(x_bin_edges, reco, true)</p></td>
+<td><p>Compute a resolution as a binned statistic.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.compute_weight_BTEL1010.html#protopipe.benchmarks.compute_weight_BTEL1010" title="protopipe.benchmarks.compute_weight_BTEL1010"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_weight_BTEL1010</span></code></a>(true_energy[, ...])</p></td>
+<td><p>Compute the weight from requirement B-TEL-1010-Intensity-Resolution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.create_lookup_function.html#protopipe.benchmarks.create_lookup_function" title="protopipe.benchmarks.create_lookup_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_lookup_function</span></code></a>(binned_stat)</p></td>
+<td><p>Returns a function f(x,y) that evaluates the lookup at a point.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.get_evt_subarray_model_output.html#protopipe.benchmarks.get_evt_subarray_model_output" title="protopipe.benchmarks.get_evt_subarray_model_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_evt_subarray_model_output</span></code></a>(data[, ...])</p></td>
+<td><p>Returns DataStore with keepcols + score/target columns of model at the level-subarray-event.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.get_fig_size.html#protopipe.benchmarks.get_fig_size" title="protopipe.benchmarks.get_fig_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fig_size</span></code></a>([ratio, scale])</p></td>
+<td><p>Get size of figure given a ratio and a scale.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.get_single_pixels_spectrum.html#protopipe.benchmarks.get_single_pixels_spectrum" title="protopipe.benchmarks.get_single_pixels_spectrum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_single_pixels_spectrum</span></code></a>(x, bins, ...)</p></td>
+<td><p>Log-Log data for single pixels spectrum.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.load_tel_id.html#protopipe.benchmarks.load_tel_id" title="protopipe.benchmarks.load_tel_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_tel_id</span></code></a>([file_name, tel_id])</p></td>
+<td><p>Load R0 and R1 waveforms for 1 telescope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_DL1a_reco_true_correlation.html#protopipe.benchmarks.plot_DL1a_reco_true_correlation" title="protopipe.benchmarks.plot_DL1a_reco_true_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_DL1a_reco_true_correlation</span></code></a>(ax, reco, true)</p></td>
+<td><p>Plot the correlation between reconstructed and true number of photoelectrons.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_background_rate.html#protopipe.benchmarks.plot_background_rate" title="protopipe.benchmarks.plot_background_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_background_rate</span></code></a>(input_file, ax, label, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_bias.html#protopipe.benchmarks.plot_bias" title="protopipe.benchmarks.plot_bias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_bias</span></code></a>(ax, x, bias, **opt)</p></td>
+<td><p>Plot a bias.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_binned_mean.html#protopipe.benchmarks.plot_binned_mean" title="protopipe.benchmarks.plot_binned_mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_binned_mean</span></code></a>(x, y[, bins, yerr, ax])</p></td>
+<td><p>Plot mean of y in each bin in x with standard deviation as errorbars.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_binned_median.html#protopipe.benchmarks.plot_binned_median" title="protopipe.benchmarks.plot_binned_median"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_binned_median</span></code></a>(x, y[, bins, yerr, ax])</p></td>
+<td><p>Plot median of y in each bin in x with the central 1-sigma interval as errorbars.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_distributions.html#protopipe.benchmarks.plot_distributions" title="protopipe.benchmarks.plot_distributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_distributions</span></code></a>(suptitle, feature_list, ...)</p></td>
+<td><p>Plot feature distributions for several data set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_evt_roc_curve_variation.html#protopipe.benchmarks.plot_evt_roc_curve_variation" title="protopipe.benchmarks.plot_evt_roc_curve_variation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evt_roc_curve_variation</span></code></a>(ax, data_test, ...)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_hist.html#protopipe.benchmarks.plot_hist" title="protopipe.benchmarks.plot_hist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_hist</span></code></a>(ax, data, nbin, limit[, norm, ...])</p></td>
+<td><p>Utility function to plot histogram</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_profile.html#protopipe.benchmarks.plot_profile" title="protopipe.benchmarks.plot_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_profile</span></code></a>(ax, data, xcol, ycol, n_xbin, ...)</p></td>
+<td><p>Plot a profiled histogram.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_psf.html#protopipe.benchmarks.plot_psf" title="protopipe.benchmarks.plot_psf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_psf</span></code></a>(ax, x, y, err, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_resolution.html#protopipe.benchmarks.plot_resolution" title="protopipe.benchmarks.plot_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_resolution</span></code></a>(ax, x, resolution[, label, fmt])</p></td>
+<td><p>Plot a resolution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_roc_curve.html#protopipe.benchmarks.plot_roc_curve" title="protopipe.benchmarks.plot_roc_curve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_roc_curve</span></code></a>(ax, model_output, y, **kwargs)</p></td>
+<td><p>Plot ROC curve for a given set of model outputs and labels</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.plot_sensitivity_from_pyirf.html#protopipe.benchmarks.plot_sensitivity_from_pyirf" title="protopipe.benchmarks.plot_sensitivity_from_pyirf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_sensitivity_from_pyirf</span></code></a>(ax, data[, ...])</p></td>
+<td><p>Produce a sensitivity plot.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.prepare_requirements.html#protopipe.benchmarks.prepare_requirements" title="protopipe.benchmarks.prepare_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_requirements</span></code></a>(input_directory, site, ...)</p></td>
+<td><p>Prepare requirements data as a dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.raise_.html#protopipe.benchmarks.raise_" title="protopipe.benchmarks.raise_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raise_</span></code></a>(ex)</p></td>
+<td><p>Raise an exception as a statement.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.string_to_boolean.html#protopipe.benchmarks.string_to_boolean" title="protopipe.benchmarks.string_to_boolean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">string_to_boolean</span></code></a>(variables)</p></td>
+<td><p>Convert True/False strings to booleans.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.sum_of_squares.html#protopipe.benchmarks.sum_of_squares" title="protopipe.benchmarks.sum_of_squares"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_of_squares</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">#</a></h3>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.BoostedDecisionTreeDiagnostic.html#protopipe.benchmarks.BoostedDecisionTreeDiagnostic" title="protopipe.benchmarks.BoostedDecisionTreeDiagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoostedDecisionTreeDiagnostic</span></code></a>()</p></td>
+<td><p>Class producing diagnostic plot for the BDT method</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.ClassifierDiagnostic.html#protopipe.benchmarks.ClassifierDiagnostic" title="protopipe.benchmarks.ClassifierDiagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClassifierDiagnostic</span></code></a>(model, ...[, ...])</p></td>
+<td><p>Class to plot several diagnostic plot for classification.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.ModelDiagnostic.html#protopipe.benchmarks.ModelDiagnostic" title="protopipe.benchmarks.ModelDiagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelDiagnostic</span></code></a>(model, feature_name_list, ...)</p></td>
+<td><p>Base class for model diagnostics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.OnlineBinnedStats.html#protopipe.benchmarks.OnlineBinnedStats" title="protopipe.benchmarks.OnlineBinnedStats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OnlineBinnedStats</span></code></a>(bin_edges)</p></td>
+<td><p>Class to dynamically compute one-dimensional binned statistics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/protopipe.benchmarks.RegressorDiagnostic.html#protopipe.benchmarks.RegressorDiagnostic" title="protopipe.benchmarks.RegressorDiagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegressorDiagnostic</span></code></a>(model, ...)</p></td>
+<td><p>Class to plot several diagnostic plots for regression.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="class-inheritance-diagram">
+<h3>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">#</a></h3>
+<div class="graphviz"><img src="../_images/inheritance-6c4d5642c9f7e41600861dea9dd11ee690c7a8ed.png" alt="Inheritance diagram of protopipe.benchmarks.plot.BoostedDecisionTreeDiagnostic, protopipe.benchmarks.plot.ClassifierDiagnostic, protopipe.benchmarks.plot.ModelDiagnostic, protopipe.benchmarks.operations.OnlineBinnedStats, protopipe.benchmarks.plot.RegressorDiagnostic" usemap="#inheritance8fa94b8b7d" class="inheritance graphviz" /></div>
+<map id="inheritance8fa94b8b7d" name="inheritance8fa94b8b7d">
+<area shape="rect" id="node1" href="../api/protopipe.benchmarks.BoostedDecisionTreeDiagnostic.html#protopipe.benchmarks.BoostedDecisionTreeDiagnostic" target="_top" title="Class producing diagnostic plot for the BDT method" alt="" coords="5,104,232,129"/>
+<area shape="rect" id="node2" href="../api/protopipe.benchmarks.ClassifierDiagnostic.html#protopipe.benchmarks.ClassifierDiagnostic" target="_top" title="Class to plot several diagnostic plot for classification." alt="" coords="283,31,433,56"/>
+<area shape="rect" id="node3" href="../api/protopipe.benchmarks.ModelDiagnostic.html#protopipe.benchmarks.ModelDiagnostic" target="_top" title="Base class for model diagnostics." alt="" coords="53,55,184,80"/>
+<area shape="rect" id="node5" href="../api/protopipe.benchmarks.RegressorDiagnostic.html#protopipe.benchmarks.RegressorDiagnostic" target="_top" title="Class to plot several diagnostic plots for regression." alt="" coords="280,80,436,105"/>
+<area shape="rect" id="node4" href="../api/protopipe.benchmarks.OnlineBinnedStats.html#protopipe.benchmarks.OnlineBinnedStats" target="_top" title="Class to dynamically compute one&#45;dimensional binned statistics." alt="" coords="47,5,190,31"/>
+</map></section>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="../api/protopipe.perf.norm.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">norm</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../api/protopipe.benchmarks.add_BTEL1010_weigths_to_data.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">add_BTEL1010_weigths_to_data</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, Michele Peresano.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

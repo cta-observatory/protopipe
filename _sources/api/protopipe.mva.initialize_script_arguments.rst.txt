@@ -1,0 +1,6 @@
+initialize_script_arguments
+===========================
+
+.. currentmodule:: protopipe.mva
+
+.. autofunction:: initialize_script_arguments

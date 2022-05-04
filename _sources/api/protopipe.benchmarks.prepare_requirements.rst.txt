@@ -1,0 +1,6 @@
+prepare_requirements
+====================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: prepare_requirements

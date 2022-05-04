@@ -1,0 +1,7 @@
+<map id="inheritance8fa94b8b7d" name="inheritance8fa94b8b7d">
+<area shape="rect" id="node1" href="../api/protopipe.benchmarks.BoostedDecisionTreeDiagnostic.html#protopipe.benchmarks.BoostedDecisionTreeDiagnostic" target="_top" title="Class producing diagnostic plot for the BDT method" alt="" coords="5,104,232,129"/>
+<area shape="rect" id="node2" href="../api/protopipe.benchmarks.ClassifierDiagnostic.html#protopipe.benchmarks.ClassifierDiagnostic" target="_top" title="Class to plot several diagnostic plot for classification." alt="" coords="283,31,433,56"/>
+<area shape="rect" id="node3" href="../api/protopipe.benchmarks.ModelDiagnostic.html#protopipe.benchmarks.ModelDiagnostic" target="_top" title="Base class for model diagnostics." alt="" coords="53,55,184,80"/>
+<area shape="rect" id="node5" href="../api/protopipe.benchmarks.RegressorDiagnostic.html#protopipe.benchmarks.RegressorDiagnostic" target="_top" title="Class to plot several diagnostic plots for regression." alt="" coords="280,80,436,105"/>
+<area shape="rect" id="node4" href="../api/protopipe.benchmarks.OnlineBinnedStats.html#protopipe.benchmarks.OnlineBinnedStats" target="_top" title="Class to dynamically compute one&#45;dimensional binned statistics." alt="" coords="47,5,190,31"/>
+</map>

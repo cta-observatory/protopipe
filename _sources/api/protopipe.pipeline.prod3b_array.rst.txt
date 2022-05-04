@@ -1,0 +1,6 @@
+prod3b_array
+============
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: prod3b_array

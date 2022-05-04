@@ -1,0 +1,6 @@
+percentiles
+===========
+
+.. currentmodule:: protopipe.perf
+
+.. autofunction:: percentiles

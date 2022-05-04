@@ -1,0 +1,6 @@
+plot_profile
+============
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: plot_profile

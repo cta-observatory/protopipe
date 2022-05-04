@@ -1,0 +1,6 @@
+calculate_RMS_around_1
+======================
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: calculate_RMS_around_1

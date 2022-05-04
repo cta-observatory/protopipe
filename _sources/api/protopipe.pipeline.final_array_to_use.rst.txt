@@ -1,0 +1,6 @@
+final_array_to_use
+==================
+
+.. currentmodule:: protopipe.pipeline
+
+.. autofunction:: final_array_to_use

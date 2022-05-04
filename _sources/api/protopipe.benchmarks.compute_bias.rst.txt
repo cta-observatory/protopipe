@@ -1,0 +1,6 @@
+compute_bias
+============
+
+.. currentmodule:: protopipe.benchmarks
+
+.. autofunction:: compute_bias

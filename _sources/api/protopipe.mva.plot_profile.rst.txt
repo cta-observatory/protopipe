@@ -1,0 +1,6 @@
+plot_profile
+============
+
+.. currentmodule:: protopipe.mva
+
+.. autofunction:: plot_profile

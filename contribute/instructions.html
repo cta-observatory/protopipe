@@ -1,0 +1,546 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Instructions &#8212; protopipe 0.5.1.dev21+g51ed745 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/landing_page.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mandatory checks" href="beforepushing.html" />
+    <link rel="prev" title="Code repository layout" href="gitrepo.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">protopipe</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../install/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../usage/index.html">
+  User Guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../reference/index.html">
+  API Reference
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Development
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../AUTHORS.html">
+  Authors
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../CHANGELOG.html">
+  Changelog
+ </a>
+</li>
+
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="http://cccta-dataserver.in2p3.fr/data/protopipe/results/html/">Performance<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-primary btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        latest  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables contribute/instructions and {'json_url': '/_static/switcher.json', 'version_match': 'latest'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "contribute/instructions.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("/_static/switcher.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "contribute/instructions.html";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.5.1.dev21+g51ed745 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "latest") {
+                node.classList.add("active");
+                let btn = document.getElementById("version_switcher_button");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Quick Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/cta-observatory/protopipe" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/protopipe/" rel="noopener" target="_blank" title="PyPI"><span><i class="fab fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs..." aria-label="Search the docs..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="gitrepo.html">
+   Code repository layout
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Instructions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="beforepushing.html">
+   Mandatory checks
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#open-an-issue">
+   Open an issue
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#prepare-and-open-a-pull-request-pr">
+   Prepare and open a pull-request (PR)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#making-your-contribution-visible">
+   Making your contribution visible
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#creating-a-new-release">
+   Creating a new release
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#updating-the-changelog">
+     Updating the Changelog
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#updating-the-version-of-the-documentation">
+     Updating the version of the documentation
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/https://github.com/cta-observatory/https://github.com/cta-observatory/protopipe/edit/master/docs/contribute/instructions.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="instructions">
+<span id="id1"></span><h1>Instructions<a class="headerlink" href="#instructions" title="Permalink to this headline">#</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#open-an-issue" id="id2">Open an issue</a></p></li>
+<li><p><a class="reference internal" href="#prepare-and-open-a-pull-request-pr" id="id3">Prepare and open a pull-request (PR)</a></p></li>
+<li><p><a class="reference internal" href="#making-your-contribution-visible" id="id4">Making your contribution visible</a></p></li>
+<li><p><a class="reference internal" href="#creating-a-new-release" id="id5">Creating a new release</a></p>
+<ul>
+<li><p><a class="reference internal" href="#updating-the-changelog" id="id6">Updating the Changelog</a></p></li>
+<li><p><a class="reference internal" href="#updating-the-version-of-the-documentation" id="id7">Updating the version of the documentation</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>These are some guidelines on how to contribute to <em>protopipe</em> as a developer.</p>
+<p>This is usually done is 4 steps:</p>
+<ol class="arabic simple">
+<li><p>you start using <em>protopipe</em>,</p></li>
+<li><p>you find that either there is problem or <em>protopipe</em>
+is missing a feature that is important for your research,</p></li>
+<li><p>you open an issue (doesn’t matter if you have a solution ready to go: open an issue first).</p></li>
+</ol>
+<section id="open-an-issue">
+<h2><a class="toc-backref" href="#id2">Open an issue</a><a class="headerlink" href="#open-an-issue" title="Permalink to this headline">#</a></h2>
+<div class="line-block">
+<div class="line">It is always preferable to open an issue first, in order to warn other
+users/developers and possibly trigger a discussion.</div>
+<div class="line">This will be useful to identify more precisely what needs to be done.</div>
+</div>
+<div class="line-block">
+<div class="line">If you are not able to do it, the administrators of the repository should <strong>label
+your issue</strong> depending on its nature.</div>
+<div class="line">Labels are used to classify and prioritise issues within projects.</div>
+</div>
+<p>Some labels normally used are quite self-explanatory, e.g.:</p>
+<ul class="simple">
+<li><p>bug</p></li>
+<li><p>fix</p></li>
+<li><p>wrong behaviour</p></li>
+<li><p>enhancement</p></li>
+<li><p>documentation</p></li>
+<li><p>dependency update</p></li>
+<li><p>summary</p></li>
+</ul>
+<p>An issue can have multiple labels. You can propose new ones if needed.</p>
+</section>
+<section id="prepare-and-open-a-pull-request-pr">
+<h2><a class="toc-backref" href="#id3">Prepare and open a pull-request (PR)</a><a class="headerlink" href="#prepare-and-open-a-pull-request-pr" title="Permalink to this headline">#</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is assumed that you installed <em>protopipe</em> as a developer (<a class="reference internal" href="../install/protopipe.html#install-development"><span class="std std-ref">Development version</span></a>).</p>
+</div>
+<p>Proceed as follows,</p>
+<ol class="arabic simple">
+<li><p>update your <strong>local</strong> <em>master</em> branch with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">upstream</span> <span class="pre">master</span></code></p></li>
+<li><p>create and move to a new <strong>local</strong> branch from your <strong>local</strong> <em>master</em> with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">-b</span> <span class="pre">your_branch</span></code></p></li>
+<li><p>develop inside it</p></li>
+<li><p>push it to <em>origin</em>, thereby creating a copy of your branch also there</p></li>
+<li><p>before pushing, please go through the quality checks (<a class="reference internal" href="beforepushing.html#beforepushing"><span class="std std-ref">Mandatory checks</span></a>)</p></li>
+<li><p>start a PR using the web interface from <em>origin/your_branch</em> to <em>upstream/master</em></p>
+<ol class="arabic simple">
+<li><p>wait for an outcome</p></li>
+<li><p>if necessary, you can update or fix things in your branch because now
+everything is traced! (<strong>local/your_branch</strong> –&gt; <strong>origin/your_branch</strong> –&gt; <strong>pull request</strong>)</p></li>
+</ol>
+</li>
+</ol>
+<p>Every PR <strong>must</strong>,</p>
+<ul class="simple">
+<li><p>be labeled (at least one label): this is needed by the release drafter to track contributions for the next release.</p></li>
+<li><p>have a meaningful description (regardless of the magnitude of the change),</p></li>
+<li><p>pass all required checks (if not, please convert it to a <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests">Draft PR</a>).</p></li>
+</ul>
+<p>If your PR targets one or more open issues, it should:</p>
+<ul class="simple">
+<li><p>have the same labels of that issue,</p></li>
+<li><p>report in its description the phrase <cite>Closes #X #Y …</cite> where X is the number associated to the issue(s).</p></li>
+</ul>
+<p>This will keep things clean and organised, so when you or
+someone else land on the Projects page, the information is readily available
+and updated.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If your developments take a relatively long time, consider to update
+periodically your <strong>local</strong> <em>master</em> branch.</p>
+<p>If while doing this you see that the files on which you are working have been
+modified <em>upstream</em>,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>move into your <strong>local</strong> branch,</p></li>
+<li><p>merge the new master into your branch <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">merge</span> <span class="pre">master</span></code>,</p></li>
+<li><p>resolve eventual conflicts</p></li>
+<li><p>push to origin</p></li>
+</ul>
+</div></blockquote>
+<p>In this way, your PR will be up-to-date with the master branch into
+which you want to merge your changes.
+If your changes are relatively small and
+<a class="reference external" href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">you know what you are doing</a>,
+you can use <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">rebase</span> <span class="pre">master</span></code>, instead of merging.</p>
+</div>
+</section>
+<section id="making-your-contribution-visible">
+<h2><a class="toc-backref" href="#id4">Making your contribution visible</a><a class="headerlink" href="#making-your-contribution-visible" title="Permalink to this headline">#</a></h2>
+<p>Together with your changes, you should always check that,</p>
+<ul class="simple">
+<li><p>the email and name that you want to use is listed in the <code class="docutils literal notranslate"><span class="pre">.mailmap</span></code></p></li>
+<li><p>your name appears in the <code class="docutils literal notranslate"><span class="pre">CODEOWNERS</span></code> file according to your contribution</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">It can happen that, if you forget, the mantainer(s) will do it for you, but
+please remember that it can be overlooked.</div>
+<div class="line">It is supposed to be a responsibility of the authors of the pull request.</div>
+</div>
+</div>
+</section>
+<section id="creating-a-new-release">
+<h2><a class="toc-backref" href="#id5">Creating a new release</a><a class="headerlink" href="#creating-a-new-release" title="Permalink to this headline">#</a></h2>
+<p>The project makes use of the <a class="reference external" href="https://github.com/apps/release-drafter">Release Drafter</a> GitHub App.
+A <a class="reference external" href="https://github.com/cta-observatory/protopipe/releases">release note draft</a>
+(visible only to developers with write access)
+is created as soon as a new PR is merged after the latest release tag.
+At each new merge it is updated from the template, which is defined in the <code class="docutils literal notranslate"><span class="pre">.github</span></code> folder at the root
+of the project.</p>
+<p>We follow semantic versioning and in particular <a class="reference external" href="https://peps.python.org/pep-0440/">PEP440</a>.</p>
+<p>Each tag name has to start with <code class="docutils literal notranslate"><span class="pre">v</span></code>, so e.g. <code class="docutils literal notranslate"><span class="pre">v0.5.0</span></code>.</p>
+<p>Each release will trigger a <a class="reference external" href="https://zenodo.org/">Zenodo</a> publication.
+After the release, the DOI for the new release must be updated both on the README and <code class="docutils literal notranslate"><span class="pre">docs/citing.rst</span></code>.</p>
+<section id="updating-the-changelog">
+<h3><a class="toc-backref" href="#id6">Updating the Changelog</a><a class="headerlink" href="#updating-the-changelog" title="Permalink to this headline">#</a></h3>
+<p>The file <cite>CHANGELOG.rst</cite> is stored at the root of the <cite>docs</cite> folder.
+Before making the release (which means, you do not plan to merge any new PR)
+you need to make sure that the section for the new release is up-to-date
+with the release draft and viceversa.</p>
+<p>The project makes use of the <a class="reference external" href="https://github.com/sloria/sphinx-issues#readme">sphinx-issues</a> package
+to link the GitHub issue tracker to the Sphinx-based documentation.
+Please, when you edit the changelog follow the formatting of existing releases.</p>
+</section>
+<section id="updating-the-version-of-the-documentation">
+<h3><a class="toc-backref" href="#id7">Updating the version of the documentation</a><a class="headerlink" href="#updating-the-version-of-the-documentation" title="Permalink to this headline">#</a></h3>
+<p>The documentation, which is based on the <a class="reference external" href="https://pydata-sphinx-theme.readthedocs.io/en/latest/index.html">PyData Sphinx Theme</a>,
+supports versioning.</p>
+<p>Even if we are currently using <a class="reference external" href="https://readthedocs.org/projects/protopipe/">readthedocs</a> which already allows for this,
+such a feature can be supported on any other platform in case of migration to other services.</p>
+<p>Before releasing a new version, please update the JSON file which defines which versions the drop-down menu
+should display. Such a file is stored under <code class="docutils literal notranslate"><span class="pre">docs/_static/switcher.json</span></code>.
+The file defines two versions which need to be always available,</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dev</span></code>, which refers to the development version pointing to the master branch,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stable</span></code>, which refers always to the latest release (please, update that version)</p></li>
+</ul>
+<p>Any new (read: previous to stable) released version needs to be added with the following template (this example refers to the
+current service used),</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;X.Y.Z.xxx&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;X.Y.Z.xxx&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://protopipe.readthedocs.io/en/X.Y.Z.xxx&quot;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>in particular <code class="docutils literal notranslate"><span class="pre">version</span></code> has to be the release tag, without the initial <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="gitrepo.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Code repository layout</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="beforepushing.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Mandatory checks</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, Michele Peresano.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
