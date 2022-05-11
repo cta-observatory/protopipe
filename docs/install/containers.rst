@@ -7,7 +7,7 @@ The python-based installation should suffice for the great majority of users,
 but if necessary some options for containerization are provided.
 
 All the required material is stored in the root folder
-of the grid interface repository under `containers`.
+of the grid interface repository (``>v0.3.1``) under `containers`.
 
 Some use-cases could be the following,
 
@@ -24,32 +24,63 @@ Some use-cases could be the following,
 
 .. warning::
   After the upgrade to python3 of DIRAC and CTADIRAC, focus was given only to the Docker solution.
-  Singularity and Vagrant-based solution are not currenlty supported.
+  Singularity and Vagrant-based solution are described but not actively maintained.
 
 
 Docker
 ++++++
 
-The container used by the interface requires the `installation of Docker <https://docs.docker.com/get-docker/>`_.
+.. important::
 
-To enter the container (and the first time downloading the image),
+  The containers have not been yet tested on Windows - testing from its users is appreciated!
 
-``docker run --rm -v $HOME/.globus:/home/dirac/.globus -v $PWD/shared_folder:/home/dirac/shared_folder -v [...]/protopipe:/home/dirac/protopipe -v [...]/protopipe-grid-interface:/home/dirac/protopipe-grid-interface -it ctadirac/client``
+The containers provided by the interface require the `installation of Docker <https://docs.docker.com/get-docker/>`_.
+
+There are two containers available: *development* (``protopipe-ctadirac-dev``) and *release* (``protopipe-ctadirac``).
+
+To enter the *development* container (and the first time downloading the image),
+
+.. code-block:: shell
+
+  docker run --rm  
+  -v $HOME/.globus:/home/cta/.globus  
+  -v $PWD/shared_folder:/home/cta/shared_folder  
+  -v [...]/protopipe:/home/cta/protopipe  
+  -v [...]/protopipe-grid-interface:/home/cta/protopipe-grid-interface   
+  -it mperesano/protopipe-ctadirac-dev:master
 
 where ``[...]`` is the path of your source code on the host and the ``--rm`` flag will erase the container at exit
-to save disk space (the data stored in the ``shared_folder`` won't disappear).
+to save disk space (the data stored in the ``shared_folder`` won't disappear).  
 Please, refer to the Docker documentation for other use cases.
 
-**WARNING**
-If you are using *macos* you could encounter some disk space issues.
-Please check `this <https://docs.docker.com/docker-for-mac/space/>`_ and `also this <https://djs55.github.io/jekyll/update/2017/11/27/docker-for-mac-disk-space.html>`_ on how to manage disk space.
+The *release* container  doesn't need source code because it comes with all the necessary software,
+
+.. code-block:: shell
+
+  docker run --rm 
+  -v $HOME/.globus:/home/cta/.globus 
+  -v $PWD/shared_folder:/home/cta/shared_folder 
+  -it mperesano/protopipe-ctadirac
+
+In this case, if you do not provide a specific tag you will get the latest release (recommended).
+If you want a specific version (>=0.4.1), specify it by adding the version tag to ``protopipe-ctadirac``
+(for example ``protopipe-ctadirac:v0.4.1``).
+
+.. note::
+
+  The only caveat (for both containers) is that it's not easy (nor it makes sense) to interface with your host's browser from within a container.  
+  Anything required to access benchmark results (see :ref:`benchmarks`) needs to be called from outside the container by means of the ``shared_folder``.
+
+.. warning::
+  If you are using *macos* you could encounter some disk space issues.
+  Please check `this <https://docs.docker.com/docker-for-mac/space/>`_ and `also this <https://djs55.github.io/jekyll/update/2017/11/27/docker-for-mac-disk-space.html>`_ on how to manage disk space.
 
 Vagrant
 +++++++
 
-**NOTE**
-Only required for users that want to use a *Singularity*
-container on a *macos* and *Microsoft Windows* machine.
+.. note::
+  Only required for users that want to use a *Singularity*
+  container on a *macos* and *Microsoft Windows* machine.
 
 All users, regardless of their operative systems, can use protopipe and its interface via
 `Vagrant <https://www.vagrantup.com/>`_. 
@@ -66,9 +97,9 @@ used by the interface to setup the analysis.
 Singularity
 +++++++++++
 
-**WARNING**
-Support for *Singularity* has been dropped by the mantainers of *CTADIRAC*.
-The following solutions have not been tested in all possible cases.
+.. warning::
+  Support for *Singularity* has been dropped by the mantainers of *CTADIRAC*.
+  The following solutions have not been tested in all possible cases.
 
 - **macos / Microsoft Windows**
 
@@ -123,9 +154,9 @@ but the recipe for the container has been saved here.
 In this case you won't need to do ``. /home/dirac/dirac_env.sh``: the 
 commands will be already stored in your ``$PATH``.
 
-**WARNING**
-The recipe ``CTADIRAC_singularity`` is maintained by the author; if any bug arises,
-reverting to the methods described above (if possible) will provide you with a working environment.
+.. warning::
+  The recipe ``CTADIRAC_singularity`` is maintained by the author; if any bug arises,
+  reverting to the methods described above (if possible) will provide you with a working environment.
 
 If you have root privileges you can just build your own image with,
 
