@@ -28,6 +28,11 @@ template: |
   ## Contributors
   
   $CONTRIBUTORS
+  
+  **Note for the developer (remember to remove this section before the actual release!):**
+  the above list is there only to catch easily the GitHub IDs of the contributors.
+  Please, make sure that in the end each contributor is listed as list entry in alphabetical order by LastName with the following format,
+  - Name LastName (@GitHubID)
 
   ## What is changed since $PREVIOUS_TAG
   
