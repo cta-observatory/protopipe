@@ -23,6 +23,7 @@ dependencies:
   - sphinx-automodapi
   - numpydoc
   - sphinx-issues
+  - sphinx-panels
   # Benchmarking
   - papermill
   - jupyterlab>=3.1.10

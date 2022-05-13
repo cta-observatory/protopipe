@@ -133,7 +133,7 @@ html_theme = "pydata_sphinx_theme"
 
 # VERSIONING
 # Define the json_url for our version switcher.
-json_url = "https://github.com/cta-observatory/protopipe/tree/master/docs/_static/switcher.json"
+json_url = "https://protopipe.readthedocs.io/en/latest/_static/switcher.json"
 
 # Define the version we use for matching in the version switcher.
 version_match = os.environ.get("READTHEDOCS_VERSION")

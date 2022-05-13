@@ -12,6 +12,7 @@ extras_require = {
         "jinja2==3.0.3",
         "pydata-sphinx-theme~=0.8",
         "sphinx-issues",
+        "sphinx-panels",
         "sphinx_automodapi",
         "numpydoc",
         "ipython",
